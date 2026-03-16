@@ -556,7 +556,7 @@ export default function App() {
         <nav style={{ background:B.navy, padding:"0 24px", display:"flex", alignItems:"center", position:"sticky", top:0, zIndex:100, boxShadow:"0 2px 12px rgba(10,22,40,0.4)" }}>
           <div style={{ display:"flex", alignItems:"center", gap:10, marginRight:28, padding:"10px 0" }}>
             <img src="/E-E-Logo.jpg" alt="EE" style={{ width:32, height:32, borderRadius:6, objectFit:"cover" }} />
-            <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:14, letterSpacing:3, color:B.red }}>EN·CIS</span>
+            
           </div>
           <div style={{ display:"flex", overflowX:"auto" }}>
             {NAV.map(item => (
