@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Head from 'next/head';
-import Image from 'next/image';
+
 
 const B = {
   navy:     "#0A1628",
@@ -16,15 +16,15 @@ const B = {
   textMid:  "#4A5568",
   textLight:"#718096",
   gold:     "#F5A623",
-  green:    "#27AE60",
-  teal:     "#0A8A7A",
+  green:    "#E94560",
+  teal:     "#0F3460",
   purple:   "#6E2F8E",
 };
 
 const ANGLES = [
   { id:"veteran", label:"Veteran / Resilience",      icon:"🎖️", color:B.navy   },
   { id:"mindset", label:"Mindset & Mental Toughness", icon:"🧠", color:B.purple },
-  { id:"wins",    label:"Everyday Wins",              icon:"⚡", color:B.teal   },
+  { id:"wins",    label:"Everyday Wins",              icon:"⚡", color:B.navy   },
 ];
 
 const NAV = [
@@ -85,7 +85,7 @@ const Bdg = ({ label, type }) => {
   const m = {
     high:   { bg:"#FEF2F2", t:"#9B1C1C", b:"#FCA5A5" },
     medium: { bg:"#FFFBEB", t:"#92400E", b:"#FCD34D" },
-    low:    { bg:"#F0FDF4", t:"#14532D", b:"#86EFAC" },
+    low:    { bg:"#FEF2F2", t:"#9B1C1C", b:"#FCA5A5" },
   };
   const co = m[type] || m.medium;
   return <span style={{ background:co.bg, color:co.t, border:`1px solid ${co.b}`, borderRadius:4, padding:"2px 8px", fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:1 }}>{label}</span>;
@@ -119,13 +119,13 @@ function Home({ go, ec, sc }) {
   const steps = [
     { n:"01", l:"Market Research", s:"Run Vault prompts",      c:B.navy   },
     { n:"02", l:"Extract Intel",   s:"Gaps + competitors",     c:B.red    },
-    { n:"03", l:"Generate Script", s:"In Jason's voice",       c:B.teal   },
-    { n:"04", l:"Film + Post",     s:"Elevation Nation grows", c:B.green  },
+    { n:"03", l:"Generate Script", s:"Ready to film",          c:B.navy   },
+    { n:"04", l:"Film + Post",     s:"Elevation Nation grows", c:B.red  },
   ];
   const cards = [
     { id:"extract", label:"Insight Extractor", desc:"Paste market research. Get competitor intel, content gaps, and ready-to-film Reel ideas.", stat: ec > 0 ? `${ec} session${ec>1?"s":""} run` : "Ready", color:B.red   },
-    { id:"script",  label:"Script Engine",     desc:"Topic + angle in. Full Reel script in Jason's voice out. Hook, body, CTA, caption, hashtags.", stat: sc > 0 ? `${sc} script${sc>1?"s":""} written` : "Ready", color:B.navy  },
-    { id:"vault",   label:"Prompt Vault",      desc:"12 market research prompts across 4 tiers. Run in Perplexity, feed results into the Extractor.", stat:"12 prompts · 4 tiers", color:B.teal  },
+    { id:"script",  label:"Script Engine",     desc:"Topic + angle in. Full Reel script out -- hook, body, CTA, ready to film. Hook, body, CTA, caption, hashtags.", stat: sc > 0 ? `${sc} script${sc>1?"s":""} written` : "Ready", color:B.navy  },
+    { id:"vault",   label:"Prompt Vault",      desc:"12 market research prompts across 4 tiers. Run in Perplexity, feed results into the Extractor.", stat:"12 prompts · 4 tiers", color:B.red  },
   ];
 
   return (
@@ -210,7 +210,7 @@ function Extract({ onScript, onCount }) {
     finally { setLoad(false); }
   }
 
-  const ec = { high:B.red, medium:B.gold, low:B.green };
+  const ec = { high:B.red, medium:B.gold, low:B.red };
 
   return (
     <div style={{ padding:"32px 40px", animation:"fu 0.4s ease" }}>
@@ -348,7 +348,7 @@ function Script({ prefill, onCount }) {
     <div style={{ padding:"32px 40px", animation:"fu 0.4s ease" }}>
       <div style={{ borderBottom:`1px solid ${B.border}`, paddingBottom:20, marginBottom:28 }}>
         <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:28, letterSpacing:2, color:B.navy }}>SCRIPT ENGINE</div>
-        <div style={{ color:B.textLight, fontSize:13, marginTop:4 }}>Topic + angle → full Reel script in Jason's voice. 30-60 seconds, ready to film.</div>
+        <div style={{ color:B.textLight, fontSize:13, marginTop:4 }}>Topic + angle → full Reel script in your client's voice. 30-60 seconds, camera ready.</div>
       </div>
 
       {!scr ? (
@@ -398,12 +398,12 @@ function Script({ prefill, onCount }) {
               </div>
             </div>
             <div style={{ display:"flex", gap:8 }}>
-              <button onClick={() => copy(ft(), "full")} style={{ background:cp==="full" ? "#F0FDF4" : B.white, color:cp==="full" ? B.green : B.textMid, border:`1px solid ${cp==="full" ? "#86EFAC" : B.border}`, borderRadius:8, padding:"8px 14px", fontSize:12, fontWeight:600, cursor:"pointer" }}>{cp==="full" ? "✓ Copied" : "Copy Script"}</button>
+              <button onClick={() => copy(ft(), "full")} style={{ background:cp==="full" ? "#FEF2F2" : B.white, color:cp==="full" ? B.red : B.textMid, border:`1px solid ${cp==="full" ? "#FCA5A5" : B.border}`, borderRadius:8, padding:"8px 14px", fontSize:12, fontWeight:600, cursor:"pointer" }}>{cp==="full" ? "✓ Copied" : "Copy Script"}</button>
               <button onClick={() => { setScr(null); setErr(null); }} style={{ background:B.red, color:B.white, border:"none", borderRadius:8, padding:"8px 14px", fontSize:12, fontWeight:700, fontFamily:"'Bebas Neue',sans-serif", letterSpacing:1, cursor:"pointer" }}>New Script</button>
             </div>
           </div>
 
-          <div style={{ background:"#F0FDF4", border:`1px solid #86EFAC`, borderLeft:`3px solid ${B.green}`, borderRadius:8, padding:"12px 16px", marginBottom:18, fontSize:12, color:"#14532D", lineHeight:1.6 }}>
+          <div style={{ background:"#FEF2F2", border:`1px solid #FCA5A5`, borderLeft:`3px solid ${B.red}`, borderRadius:8, padding:"12px 16px", marginBottom:18, fontSize:12, color:"#9B1C1C", lineHeight:1.6 }}>
             <span style={{ fontWeight:700, textTransform:"uppercase", letterSpacing:1, fontSize:10 }}>Why it drives follows: </span>{scr.whyItWorks}
           </div>
 
@@ -425,7 +425,7 @@ function Script({ prefill, onCount }) {
               <Card style={{ borderLeft:`3px solid ${B.red}` }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
                   <SecLabel text="Hook · 0-3 sec" />
-                  <button onClick={() => copy(scr.hook, "hook")} style={{ background:"transparent", color:cp==="hook" ? B.green : B.textLight, border:"none", fontSize:11, cursor:"pointer", fontWeight:600 }}>{cp==="hook" ? "✓" : "copy"}</button>
+                  <button onClick={() => copy(scr.hook, "hook")} style={{ background:"transparent", color:cp==="hook" ? B.red : B.textLight, border:"none", fontSize:11, cursor:"pointer", fontWeight:600 }}>{cp==="hook" ? "✓" : "copy"}</button>
                 </div>
                 <div style={{ color:B.navy, fontSize:17, fontWeight:700, fontStyle:"italic", lineHeight:1.4, marginBottom:8 }}>"{scr.hook}"</div>
                 <div style={{ color:B.textLight, fontSize:12, fontStyle:"italic" }}>📹 {scr.hookNote}</div>
@@ -439,15 +439,15 @@ function Script({ prefill, onCount }) {
                         <div style={{ color:B.text, fontSize:13, lineHeight:1.6, marginBottom:5 }}>"{line}"</div>
                         <div style={{ color:B.textLight, fontSize:11, fontStyle:"italic" }}>📹 {scr.bodyNotes[i]}</div>
                       </div>
-                      <button onClick={() => copy(line, `b${i}`)} style={{ background:"transparent", color:cp===`b${i}` ? B.green : B.textLight, border:"none", fontSize:11, cursor:"pointer", flexShrink:0, fontWeight:600 }}>{cp===`b${i}` ? "✓" : "copy"}</button>
+                      <button onClick={() => copy(line, `b${i}`)} style={{ background:"transparent", color:cp===`b${i}` ? B.red : B.textLight, border:"none", fontSize:11, cursor:"pointer", flexShrink:0, fontWeight:600 }}>{cp===`b${i}` ? "✓" : "copy"}</button>
                     </div>
                   </div>
                 ))}
               </div>
-              <Card style={{ borderLeft:`3px solid ${B.green}`, background:"#F0FDF4" }}>
+              <Card style={{ borderLeft:`3px solid ${B.red}`, background:"#FEF2F2" }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
                   <SecLabel text="CTA" />
-                  <button onClick={() => copy(scr.cta, "cta")} style={{ background:"transparent", color:cp==="cta" ? B.green : B.textLight, border:"none", fontSize:11, cursor:"pointer", fontWeight:600 }}>{cp==="cta" ? "✓" : "copy"}</button>
+                  <button onClick={() => copy(scr.cta, "cta")} style={{ background:"transparent", color:cp==="cta" ? B.red : B.textLight, border:"none", fontSize:11, cursor:"pointer", fontWeight:600 }}>{cp==="cta" ? "✓" : "copy"}</button>
                 </div>
                 <div style={{ color:B.navy, fontSize:15, fontWeight:700, fontStyle:"italic", marginBottom:6 }}>"{scr.cta}"</div>
                 <div style={{ color:B.textLight, fontSize:11, fontStyle:"italic" }}>📹 {scr.ctaNote}</div>
@@ -458,7 +458,7 @@ function Script({ prefill, onCount }) {
           {tab === "caption" && (
             <div>
               <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:12 }}>
-                <button onClick={() => copy(scr.caption+"\n\n"+scr.hashtags.join(" "),"cap")} style={{ background:cp==="cap"?"#F0FDF4":B.white, color:cp==="cap"?B.green:B.textMid, border:`1px solid ${cp==="cap"?"#86EFAC":B.border}`, borderRadius:8, padding:"8px 14px", fontSize:12, cursor:"pointer" }}>{cp==="cap" ? "✓ Copied" : "Copy Caption + Tags"}</button>
+                <button onClick={() => copy(scr.caption+"\n\n"+scr.hashtags.join(" "),"cap")} style={{ background:cp==="cap"?"#FEF2F2":B.white, color:cp==="cap"?B.red:B.textMid, border:`1px solid ${cp==="cap"?"#FCA5A5":B.border}`, borderRadius:8, padding:"8px 14px", fontSize:12, cursor:"pointer" }}>{cp==="cap" ? "✓ Copied" : "Copy Caption + Tags"}</button>
               </div>
               <Card style={{ whiteSpace:"pre-wrap", fontSize:14, lineHeight:1.9, color:B.text }}>{scr.caption}</Card>
             </div>
@@ -467,12 +467,12 @@ function Script({ prefill, onCount }) {
           {tab === "hashtags" && (
             <div>
               <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:12 }}>
-                <button onClick={() => copy(scr.hashtags.join(" "),"tags")} style={{ background:cp==="tags"?"#F0FDF4":B.white, color:cp==="tags"?B.green:B.textMid, border:`1px solid ${cp==="tags"?"#86EFAC":B.border}`, borderRadius:8, padding:"8px 14px", fontSize:12, cursor:"pointer" }}>{cp==="tags" ? "✓ Copied" : "Copy All"}</button>
+                <button onClick={() => copy(scr.hashtags.join(" "),"tags")} style={{ background:cp==="tags"?"#FEF2F2":B.white, color:cp==="tags"?B.red:B.textMid, border:`1px solid ${cp==="tags"?"#FCA5A5":B.border}`, borderRadius:8, padding:"8px 14px", fontSize:12, cursor:"pointer" }}>{cp==="tags" ? "✓ Copied" : "Copy All"}</button>
               </div>
               <div style={{ display:"flex", flexWrap:"wrap", gap:10 }}>
                 {scr.hashtags.map((tag, i) => (
                   <div key={i} onClick={() => copy(tag, `t${i}`)}
-                    style={{ background:cp===`t${i}`?"#F0FDF4":B.white, border:`1px solid ${cp===`t${i}`?"#86EFAC":B.border}`, color:cp===`t${i}`?B.green:B.text, borderRadius:8, padding:"10px 16px", fontSize:13, fontWeight:600, cursor:"pointer", transition:"all 0.15s" }}>
+                    style={{ background:cp===`t${i}`?"#FEF2F2":B.white, border:`1px solid ${cp===`t${i}`?"#FCA5A5":B.border}`, color:cp===`t${i}`?B.red:B.text, borderRadius:8, padding:"10px 16px", fontSize:13, fontWeight:600, cursor:"pointer", transition:"all 0.15s" }}>
                     {tag}
                   </div>
                 ))}
@@ -513,7 +513,7 @@ function Vault() {
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                     <span style={{ color:B.textLight, fontSize:11, fontStyle:"italic" }}>{p.when}</span>
                     <button onClick={() => copy(p.prompt, `p${tier}${i}`)}
-                      style={{ background:cp===`p${tier}${i}`?"#F0FDF4":B.offWhite, color:cp===`p${tier}${i}`?B.green:B.textMid, border:`1px solid ${cp===`p${tier}${i}`?"#86EFAC":B.border}`, borderRadius:6, padding:"5px 12px", fontSize:11, fontWeight:600, cursor:"pointer" }}>
+                      style={{ background:cp===`p${tier}${i}`?"#FEF2F2":B.offWhite, color:cp===`p${tier}${i}`?B.red:B.textMid, border:`1px solid ${cp===`p${tier}${i}`?"#FCA5A5":B.border}`, borderRadius:6, padding:"5px 12px", fontSize:11, fontWeight:600, cursor:"pointer" }}>
                       {cp===`p${tier}${i}` ? "✓ Copied" : "Copy Prompt"}
                     </button>
                   </div>
