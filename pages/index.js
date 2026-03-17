@@ -49,7 +49,7 @@ const VAULT_TABS = [
     'Write a YouTube title + thumbnail concept for [topic]',
     'Create a 10-minute video outline with retention hooks',
     'Write a YouTube description with SEO keywords for [topic]',
-    'Give me a Strong open for a YouTube video on [topic]',
+    'Give me a strong open for a YouTube video on [topic]',
     'Write end screen CTA script for [channel goal]',
   ]},
   { id:'facebook', label:'Facebook', prompts:[
@@ -114,7 +114,7 @@ const RedBtn = ({onClick,disabled,children,style={}}) => (
   <button onClick={onClick} disabled={disabled}
     style={{background:disabled?B.gray:B.red,color:B.white,border:'none',
       borderRadius:8,padding:'10px 20px',fontWeight:700,cursor:disabled?'not-allowed':'pointer',
-      fontSize:14,transition:'all 0.2s',...style}}>
+      fontSize:14,transition:'all 0.2s',display:'flex',alignItems:'center',gap:6,...style}}>
     {children}
   </button>
 );
@@ -126,9 +126,9 @@ const Card = ({children,style={}}) => (
   </div>
 );
 
-const SecLabel = ({children}) => (
+const SecLabel = ({children,style={}}) => (
   <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
-    textTransform:'uppercase',marginBottom:8}}>
+    textTransform:'uppercase',marginBottom:8,...style}}>
     {children}
   </div>
 );
@@ -201,20 +201,6 @@ FORMAT EACH:
 [CTA]
 
 Each script: 60-90 seconds when spoken. No intros. No "Hey guys." Start with the hook.`;
-
-const STITCH_PROMPT = (originalContent, angle) => `
-${VOICE}
-${CONTENT_SOP}
-
-Write a viral stitch response script for: "${originalContent}"
-Angle: ${angle}
-
-Structure:
-[3-second hook that sets up the contrast]
-[2-3 points that add, challenge, or elevate the original]
-[Strong CTA that drives conversation]
-
-Rules: Respectful but confident. Add genuine value. End with a question that drives comments.`;
 
 const TREND_PROMPT = (niche) => `
 You are a viral content strategist for @everydayelevations.
@@ -385,7 +371,7 @@ Build a lead magnet system grounded in what Jason actually does and what his aud
    Email 2: Personal story that connects to the problem + deeper value
    Email 3: Soft CTA to next step (coaching, call, community)
 
-5. **Instagram Story Sequence** (5 slides to promote it organically)\`;
+5. **Instagram Story Sequence** (5 slides to promote it organically)`;
 
 const COMMUNITY_PROMPT = (focus, currentEngagement, whereTheyAre, whatTheyAsk) => `
 ${VOICE}
@@ -416,7 +402,7 @@ Build an Elevation Nation community system built around what is actually happeni
    (series name + what it is + why people keep coming back for it)
 
 6. **Growth Loop**
-   (how members naturally bring other people in without being asked to)\`;
+   (how members naturally bring other people in without being asked to)`;
 
 const REVIEW_PROMPT = (metrics, wins, struggles) => `
 ${VOICE}
@@ -464,7 +450,7 @@ ${platform === 'LinkedIn' ? '7. **Dual-Lane Strategy** (HR Manager at Highland C
 ${platform === 'YouTube' ? '7. **Channel Description Rewrite** (searchable, keyword-rich)\n8. **About Section** (full copy)\n9. **Thumbnail and Banner Direction**' : ''}
 ${platform === 'Facebook' ? '7. **Page vs Profile Strategy** (which to prioritize and why)\n8. **About Section Rewrite**\n9. **Cover Photo Direction**' : ''}
 
-Be direct. Write like Jason would actually use this today.\`;
+Be direct. Write like Jason would actually use this today.`;
 
 const COLLAB_PROMPT = (niche, goal) => `
 ${VOICE}
@@ -579,7 +565,7 @@ function Home({setNav,setSub}) {
     {nav:'research',sub:'vault',emoji:'🗄️',title:'Prompt Vault',desc:'25+ proven prompts'},
     {nav:'research',sub:'collab',emoji:'🤝',title:'Collab Finder',desc:'Guest & partner targets'},
     {nav:'research',sub:'extract',emoji:'💡',title:'Insight Extractor',desc:'Pull gold from any content'},
-    {nav:'create',sub:'script',emoji:'✍️',title:'Script Engine',desc:'Write + Stitch scripts'},
+    {nav:'create',sub:'script',emoji:'✍️',title:'Script Engine',desc:'Write + Live trend stitching'},
     {nav:'create',sub:'episode',emoji:'🎙️',title:'Episode to Clips',desc:'One episode → 5+ assets'},
     {nav:'create',sub:'repurpose',emoji:'♻️',title:'Repurpose Engine',desc:'One post → all platforms'},
     {nav:'create',sub:'hooks',emoji:'🪝',title:'Hook Library',desc:'40 hooks on any topic'},
@@ -599,8 +585,7 @@ function Home({setNav,setSub}) {
         {tools.map(t => (
           <button key={t.sub} onClick={()=>{setNav(t.nav);setSub(t.sub);}}
             style={{background:B.navy2,border:`1px solid rgba(255,255,255,0.08)`,borderRadius:12,
-              padding:'1.2rem',cursor:'pointer',textAlign:'left',transition:'all 0.2s',color:B.white,
-              ':hover':{borderColor:B.red}}}>
+              padding:'1.2rem',cursor:'pointer',textAlign:'left',transition:'all 0.2s',color:B.white}}>
             <div style={{fontSize:28,marginBottom:8}}>{t.emoji}</div>
             <div style={{fontWeight:700,fontSize:14,marginBottom:4}}>{t.title}</div>
             <div style={{color:B.gray,fontSize:12}}>{t.desc}</div>
@@ -638,13 +623,13 @@ function Onboarding() {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
-          prompt: `Convert this strategy document into clean HTML that could be printed or saved as a document. Use proper headings (h1, h2, h3), bullet points, and bold text. Make it professional and readable. Return ONLY the HTML body content, no <html> or <body> tags:\n\n${out}`,
-          system: 'You convert markdown/text strategy documents into clean, well-formatted HTML. Return only the inner HTML content.'
+          prompt: `Convert this strategy document into clean HTML. Use h1, h2, h3, bullet points, bold. Professional and readable. Return ONLY the HTML body content, no html or body tags:\n\n${out}`,
+          system: 'You convert markdown/text documents into clean HTML. Return only inner HTML content.'
         })
       });
       const d = await res.json();
       const html = d.result || '';
-      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Everyday Elevations — 90-Day Strategy</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#111;line-height:1.7}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#0A1628;margin-top:32px}h3{color:#E94560}strong{color:#0A1628}li{margin-bottom:6px}@media print{body{margin:24px}}</style></head><body><h1>Everyday Elevations — 90-Day Content Strategy</h1>${html}</body></html>`;
+      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Everyday Elevations — 90-Day Strategy</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#111;line-height:1.7}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#0A1628;margin-top:32px}h3{color:#E94560}strong{color:#0A1628}li{margin-bottom:6px}</style></head><body><h1>Everyday Elevations — 90-Day Content Strategy</h1>${html}</body></html>`;
       const blob = new Blob([fullHtml], {type:'text/html'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -695,7 +680,7 @@ function Onboarding() {
               <button onClick={downloadDoc} disabled={downloading}
                 style={{background:downloading?B.gray:'#0A1628',color:B.white,border:`1px solid rgba(255,255,255,0.2)`,
                   borderRadius:8,padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',
-                  fontSize:13,display:'flex',alignItems:'center',gap:6,transition:'all 0.2s'}}>
+                  fontSize:13,display:'flex',alignItems:'center',gap:6}}>
                 {downloading ? 'Preparing...' : '⬇ Download Strategy Doc'}
               </button>
             </div>
@@ -805,7 +790,6 @@ function ProfileAudit() {
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Perplexity pulls your live profile first. Then Claude audits what's actually there.</p>
         </div>
       </div>
-
       <Card style={{marginBottom:16}}>
         <SecLabel>Platform</SecLabel>
         <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
@@ -817,16 +801,14 @@ function ProfileAudit() {
             </button>
           ))}
         </div>
-
         <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:8,padding:'10px 14px',marginBottom:16,fontSize:12,color:'rgba(255,255,255,0.7)'}}>
-          <strong style={{color:B.red}}>Step 1</strong> — Perplexity looks up your live {platform} profile right now. Hit the button below.
+          <strong style={{color:B.red}}>Step 1</strong> — Perplexity looks up your live {platform} profile right now.
         </div>
         <button onClick={fetchLive} disabled={fetching}
           style={{background:fetching?B.gray:'rgba(255,255,255,0.08)',color:B.white,border:'1px solid rgba(255,255,255,0.2)',
             borderRadius:8,padding:'9px 20px',fontWeight:700,cursor:fetching?'not-allowed':'pointer',fontSize:13,marginBottom:16}}>
           {fetching ? 'Pulling live profile...' : `🔍 Pull Live ${platform} Profile`}
         </button>
-
         {liveData && (
           <div style={{marginBottom:16}}>
             <SecLabel>What Perplexity Found</SecLabel>
@@ -835,13 +817,11 @@ function ProfileAudit() {
             </div>
           </div>
         )}
-
         <SecLabel>Anything Perplexity Can't See (optional)</SecLabel>
         <textarea value={extraContext} onChange={e=>setExtraContext(e.target.value)} rows={3}
-          placeholder={`e.g. My current DM volume, what posts get the most saves, my email list size, what my audience asks most...`}
+          placeholder="e.g. My current DM volume, what posts get the most saves, my email list size..."
           style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
             borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
-
         <div style={{marginTop:16}}>
           <RedBtn onClick={run} disabled={loading || !liveData}>
             {loading ? 'Auditing...' : 'Run Full Audit'}
@@ -857,7 +837,7 @@ function ProfileAudit() {
 
 function LeadMagnet() {
   const [audience, setAudience] = useState('Veterans transitioning out, everyday people working on their mindset, people who feel stuck and want to start moving again');
-  const [problem, setProblem] = useState('They know they need to change but don't know where to start. They feel like everyone else has it figured out. They're showing up but not seeing results.');
+  const [problem, setProblem] = useState("They know they need to change but don't know where to start. They feel like everyone else has it figured out. They're showing up but not seeing results.");
   const [offer, setOffer] = useState('Mindset coaching, Everyday Elevations podcast, Elevation Nation community, real estate (Fricka Sells Colorado)');
   const [currentContent, setCurrentContent] = useState('Reels on mindset, veteran life, everyday wins, outdoor Colorado lifestyle, family lessons, real estate tips. Voice is direct, real, no hype.');
   const [whatWorks, setWhatWorks] = useState('');
@@ -880,32 +860,24 @@ function LeadMagnet() {
         </div>
       </div>
       <Card>
-        <SecLabel>Who You're Trying to Reach</SecLabel>
-        <textarea value={audience} onChange={e=>setAudience(e.target.value)} rows={2}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
-
-        <SecLabel>The Core Problem You Solve</SecLabel>
-        <textarea value={problem} onChange={e=>setProblem(e.target.value)} rows={2}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
-
-        <SecLabel>Your Offers / Services</SecLabel>
-        <textarea value={offer} onChange={e=>setOffer(e.target.value)} rows={2}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
-
-        <SecLabel>What You Currently Post / Your Content Style</SecLabel>
-        <textarea value={currentContent} onChange={e=>setCurrentContent(e.target.value)} rows={2}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
-
-        <SecLabel>What's Resonated Most With Your Audience (comments, DMs, saves, shares)</SecLabel>
+        {[
+          {label:"Who You're Trying to Reach", val:audience, set:setAudience, rows:2},
+          {label:"The Core Problem You Solve", val:problem, set:setProblem, rows:2},
+          {label:"Your Offers / Services", val:offer, set:setOffer, rows:2},
+          {label:"What You Currently Post / Your Content Style", val:currentContent, set:setCurrentContent, rows:2},
+        ].map(f => (
+          <div key={f.label} style={{marginBottom:12}}>
+            <SecLabel>{f.label}</SecLabel>
+            <textarea value={f.val} onChange={e=>f.set(e.target.value)} rows={f.rows}
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+          </div>
+        ))}
+        <SecLabel>What's Resonated Most With Your Audience</SecLabel>
         <textarea value={whatWorks} onChange={e=>setWhatWorks(e.target.value)} rows={3}
-          placeholder="e.g. My veteran transition story got 200 saves. Posts about early mornings get the most DMs. People always ask me about my morning routine..."
+          placeholder="e.g. My veteran transition story got 200 saves. Posts about early mornings get the most DMs..."
           style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
             borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
-
         <div style={{marginTop:16}}>
           <RedBtn onClick={run} disabled={loading}>
             {loading ? 'Building...' : 'Build Lead Magnet System'}
@@ -942,29 +914,20 @@ function CommunityBuilder() {
         </div>
       </div>
       <Card>
-        <SecLabel>Who Elevation Nation Is For</SecLabel>
-        <textarea value={focus} onChange={e=>setFocus(e.target.value)} rows={2}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
-
-        <SecLabel>What Your Current Engagement Actually Looks Like</SecLabel>
-        <textarea value={currentEngagement} onChange={e=>setCurrentEngagement(e.target.value)} rows={2}
-          placeholder="e.g. I get 10-15 DMs a week. Most comments are people saying they needed this today. My veteran posts get the most replies..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
-
-        <SecLabel>Where Your Audience Lives Right Now</SecLabel>
-        <textarea value={whereTheyAre} onChange={e=>setWhereTheyAre(e.target.value)} rows={2}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
-
-        <SecLabel>What People Ask You or Tell You Most (comments, DMs, real life)</SecLabel>
-        <textarea value={whatTheyAsk} onChange={e=>setWhatTheyAsk(e.target.value)} rows={3}
-          placeholder="e.g. How do you stay consistent? How did you get through your transition? Can you do more content on morning routines?..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
-
-        <div style={{marginTop:16}}>
+        {[
+          {label:"Who Elevation Nation Is For", val:focus, set:setFocus, rows:2, ph:''},
+          {label:"What Your Current Engagement Actually Looks Like", val:currentEngagement, set:setCurrentEngagement, rows:2, ph:"e.g. I get 10-15 DMs a week. Most comments are people saying they needed this today..."},
+          {label:"Where Your Audience Lives Right Now", val:whereTheyAre, set:setWhereTheyAre, rows:2, ph:''},
+          {label:"What People Ask You or Tell You Most", val:whatTheyAsk, set:setWhatTheyAsk, rows:3, ph:"e.g. How do you stay consistent? How did you get through your transition?..."},
+        ].map(f => (
+          <div key={f.label} style={{marginBottom:12}}>
+            <SecLabel>{f.label}</SecLabel>
+            <textarea value={f.val} onChange={e=>f.set(e.target.value)} rows={f.rows} placeholder={f.ph}
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+          </div>
+        ))}
+        <div style={{marginTop:4}}>
           <RedBtn onClick={run} disabled={loading}>
             {loading ? 'Building...' : 'Build Elevation Nation System'}
           </RedBtn>
@@ -981,7 +944,7 @@ function Pipeline() {
   const [angle,setAngle] = useState('veteran');
   const [platform,setPlatform] = useState('Instagram');
   const [tier,setTier] = useState(0);
-  const [step,setStep] = useState('idle'); // idle | researching | extracting | scripting
+  const [step,setStep] = useState('idle');
   const [research,setResearch] = useState('');
   const [intel,setIntel] = useState('');
   const [script,setScript] = useState('');
@@ -1038,27 +1001,25 @@ function Pipeline() {
       </Card>
       {research && (
         <Card style={{marginBottom:16}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8,flexWrap:'wrap',gap:8}}>
             <SecLabel style={{margin:0}}>Raw Research</SecLabel>
-            <div style={{display:'flex',gap:8}}>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
               <CopyBtn text={research}/>
               <RedBtn onClick={runExtract} disabled={step==='extracting'} style={{padding:'6px 14px',fontSize:13}}>
                 {step==='extracting'?'Extracting...':'Step 2: Extract Intel'}
               </RedBtn>
             </div>
           </div>
-          <pre style={{color:B.white,fontSize:12,whiteSpace:'pre-wrap',margin:0,lineHeight:1.6,
-            maxHeight:200,overflowY:'auto'}}>{research}</pre>
+          <pre style={{color:B.white,fontSize:12,whiteSpace:'pre-wrap',margin:0,lineHeight:1.6,maxHeight:200,overflowY:'auto'}}>{research}</pre>
         </Card>
       )}
       {intel && (
         <Card style={{marginBottom:16}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8,flexWrap:'wrap',gap:8}}>
             <SecLabel style={{margin:0}}>Extracted Intelligence</SecLabel>
-            <div style={{display:'flex',gap:8}}>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
               <CopyBtn text={intel}/>
               <div>
-                <SecLabel style={{margin:'0 0 4px',fontSize:10}}>Platform</SecLabel>
                 <div style={{display:'flex',gap:6}}>
                   {PLATFORMS.map(p => (
                     <button key={p} onClick={()=>setPlatform(p)}
@@ -1074,8 +1035,7 @@ function Pipeline() {
               </RedBtn>
             </div>
           </div>
-          <pre style={{color:B.white,fontSize:12,whiteSpace:'pre-wrap',margin:0,lineHeight:1.6,
-            maxHeight:250,overflowY:'auto'}}>{intel}</pre>
+          <pre style={{color:B.white,fontSize:12,whiteSpace:'pre-wrap',margin:0,lineHeight:1.6,maxHeight:250,overflowY:'auto'}}>{intel}</pre>
         </Card>
       )}
       {script && <Output text={script}/>}
@@ -1115,8 +1075,7 @@ function Vault() {
             <span style={{color:B.white,fontSize:13,flex:1}}>{p}</span>
             <button onClick={()=>copyPrompt(p,i)}
               style={{background:copied===i?'rgba(46,204,113,0.2)':B.red,color:B.white,border:'none',
-                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:700,
-                marginLeft:12,whiteSpace:'nowrap'}}>
+                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:700,marginLeft:12,whiteSpace:'nowrap'}}>
               {copied===i?'✓ Copied':'Copy'}
             </button>
           </Card>
@@ -1134,8 +1093,7 @@ function CollabFinder() {
   const run = async () => {
     if(!niche) return;
     setLoading(true); setOut('');
-    const researchQ = `Find collaboration opportunities in ${niche} for ${goal}`;
-    const perpRes = await perp(researchQ);
+    const perpRes = await perp(`Find collaboration opportunities in ${niche} for ${goal}`);
     const finalRes = await ai(COLLAB_PROMPT(niche, goal) + '\n\nResearch data:\n' + perpRes);
     setOut(finalRes); setLoading(false);
   };
@@ -1157,8 +1115,7 @@ function CollabFinder() {
           {['podcast guest','stitch/collab','community partner','brand deal'].map(g => (
             <button key={g} onClick={()=>setGoal(g)}
               style={{background:goal===g?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
-                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,textTransform:'capitalize',
-                fontWeight:goal===g?700:400}}>
+                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,textTransform:'capitalize',fontWeight:goal===g?700:400}}>
               {g}
             </button>
           ))}
@@ -1213,83 +1170,410 @@ function Extract() {
 }
 
 function ScriptEngine() {
-  const [mode,setMode] = useState('write'); // write | stitch
-  const [topic,setTopic] = useState('');
-  const [angle,setAngle] = useState('mindset');
-  const [platform,setPlatform] = useState('Instagram');
-  const [stitchContent,setStitchContent] = useState('');
-  const [out,setOut] = useState('');
-  const [loading,setLoading] = useState(false);
+  const [mode, setMode] = useState('write'); // write | stitch
 
-  const run = async () => {
-    setLoading(true); setOut('');
-    let res;
-    if(mode==='write') {
-      if(!topic) { setLoading(false); return; }
-      const angleLabel = ANGLES.find(a=>a.id===angle)?.label;
-      res = await ai(SCRIPT_PROMPT(topic, angleLabel, platform));
-    } else {
-      if(!stitchContent) { setLoading(false); return; }
-      const angleLabel = ANGLES.find(a=>a.id===angle)?.label;
-      res = await ai(STITCH_PROMPT(stitchContent, angleLabel));
-    }
-    setOut(res); setLoading(false);
+  // ── WRITE MODE state ──────────────────────────────────────────────────────
+  const [topic, setTopic] = useState('');
+  const [angle, setAngle] = useState('mindset');
+  const [platform, setPlatform] = useState('Instagram');
+  const [writeOut, setWriteOut] = useState('');
+  const [writeLoading, setWriteLoading] = useState(false);
+
+  // ── STITCH MODE state ─────────────────────────────────────────────────────
+  const [stitchAngle, setStitchAngle] = useState('mindset');
+  const [stitchPlatform, setStitchPlatform] = useState('Instagram');
+  const [trends, setTrends] = useState(null);       // raw Perplexity result
+  const [trendCards, setTrendCards] = useState([]); // parsed trend objects
+  const [trendLoading, setTrendLoading] = useState(false);
+  const [trendError, setTrendError] = useState('');
+  const [selectedTrend, setSelectedTrend] = useState(null);
+  const [stitchOut, setStitchOut] = useState('');
+  const [stitchLoading, setStitchLoading] = useState(false);
+
+  // ── WRITE: generate script ────────────────────────────────────────────────
+  const runWrite = async () => {
+    if (!topic) return;
+    setWriteLoading(true); setWriteOut('');
+    const angleLabel = ANGLES.find(a => a.id === angle)?.label;
+    const res = await ai(SCRIPT_PROMPT(topic, angleLabel, platform));
+    setWriteOut(res); setWriteLoading(false);
   };
 
+  // ── STITCH: fetch today's viral trends via Perplexity ────────────────────
+  const fetchTrends = async () => {
+    setTrendLoading(true);
+    setTrends(null);
+    setTrendCards([]);
+    setTrendError('');
+    setSelectedTrend(null);
+    setStitchOut('');
+
+    const angleLabel = ANGLES.find(a => a.id === stitchAngle)?.label;
+    const today = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+    const query = `What content is going viral RIGHT NOW on ${stitchPlatform} today (${today}) in the ${angleLabel} space? I need 6-8 specific trending videos, audio clips, statements, or posts that people are stitching and responding to. For each trend include: the hook or central claim, why it's resonating, and how a veteran/mindset coach could respond to it authentically. Focus on real trends happening today — not evergreen topics.`;
+
+    const raw = await perp(query);
+    setTrends(raw);
+
+    // Now ask Claude to parse the Perplexity results into clean trend cards
+    const parsePrompt = `Parse this Perplexity research about today's viral content into exactly 6-8 trend cards.
+
+Research:
+${raw}
+
+Return ONLY a JSON array, no markdown, no explanation:
+[
+  {
+    "title": "Short trend name (max 8 words)",
+    "hook": "The viral hook or central claim being made",
+    "why_viral": "One sentence — psychological reason it's spreading",
+    "platform": "Instagram/TikTok/YouTube/Multi-platform",
+    "urgency": "hot right now / trending / rising",
+    "jason_angle": "How Jason Fricka (veteran, mindset coach, Colorado) should approach this specifically",
+    "stitch_hook": "Exact first line Jason should say in his stitch response"
+  }
+]
+
+If the research doesn't have 6-8 clear trends, synthesize what IS there into the best 4-6 cards you can. Always return valid JSON.`;
+
+    try {
+      const parsed = await ai(parsePrompt);
+      // Strip markdown code fences if Claude wraps it
+      const clean = parsed.replace(/```json\n?|```\n?/g, '').trim();
+      const cards = JSON.parse(clean);
+      setTrendCards(cards);
+    } catch (e) {
+      // Fallback: show raw results if parsing fails
+      setTrendError('Could not auto-parse trends — raw results shown below. Pick a topic manually.');
+    }
+
+    setTrendLoading(false);
+  };
+
+  // ── STITCH: generate script for selected trend ────────────────────────────
+  const runStitch = async (trend) => {
+    setSelectedTrend(trend);
+    setStitchLoading(true);
+    setStitchOut('');
+
+    const angleLabel = ANGLES.find(a => a.id === stitchAngle)?.label;
+
+    const prompt = `${VOICE}
+${CONTENT_SOP}
+${SWARBRICK}
+
+Write a viral stitch/response script for this trending content:
+
+TREND: "${trend.title}"
+THE HOOK/CLAIM BEING MADE: "${trend.hook}"
+WHY IT'S VIRAL: ${trend.why_viral}
+JASON'S ANGLE: ${trend.jason_angle}
+SUGGESTED STITCH HOOK: "${trend.stitch_hook}"
+
+Platform: ${stitchPlatform}
+Content angle: ${angleLabel}
+
+Write a complete stitch response script:
+
+**HOOK** (0-3 seconds — starts with the suggested hook above or something better)
+[exact words, no direction notes]
+
+**BRIDGE** (acknowledge the original, set up your response — 3-8 seconds)
+[exact words]
+
+**YOUR TAKE** (2-3 tight points that add genuine value or healthy challenge — 15-45 seconds)
+[exact words, no bullet headers]
+
+**CTA** (drives comments — question format preferred)
+[exact words]
+
+---
+**CAPTION** (Instagram-native, saves-first, 3 hashtag tiers)
+[ready to copy-paste]
+
+Rules:
+- Total spoken time: 45-75 seconds
+- No "Hey guys" or "So I was thinking"
+- Jason's voice: direct, no hype, sounds like real conversation
+- The stitch should add genuine value — not just agree or dunk
+- End with a question that makes his specific audience want to respond`;
+
+    const res = await ai(prompt);
+    setStitchOut(res);
+    setStitchLoading(false);
+  };
+
+  // ── URGENCY COLORS ────────────────────────────────────────────────────────
+  const urgencyColor = (u) => {
+    if (!u) return B.gray;
+    if (u.includes('hot')) return '#FF4D4D';
+    if (u.includes('trending')) return '#F5A623';
+    return '#27AE60';
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // RENDER
+  // ═══════════════════════════════════════════════════════════════════════════
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      {/* Header */}
+      <div style={{display:'flex', alignItems:'center', gap:12, marginBottom:24}}>
         <span style={{fontSize:32}}>✍️</span>
-        <div><h2 style={{color:B.white,margin:0}}>Script Engine</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>3 script variations — Write original or Stitch response <SOPBadge/></p></div>
+        <div>
+          <h2 style={{color:B.white, margin:0}}>Script Engine</h2>
+          <p style={{color:B.gray, margin:'4px 0 0', fontSize:13}}>
+            Write original scripts or stitch today's viral trends in real-time <SOPBadge/>
+          </p>
+        </div>
       </div>
-      <div style={{display:'flex',gap:8,marginBottom:20}}>
-        {[{id:'write',label:'✍️ Write Script'},{id:'stitch',label:'🔗 Stitch Response'}].map(m => (
-          <button key={m.id} onClick={()=>setMode(m.id)}
-            style={{background:mode===m.id?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
-              borderRadius:8,padding:'10px 20px',cursor:'pointer',fontSize:14,fontWeight:mode===m.id?700:400}}>
+
+      {/* Mode toggle */}
+      <div style={{display:'flex', gap:8, marginBottom:24}}>
+        {[
+          {id:'write', label:'✍️ Write Script'},
+          {id:'stitch', label:'🔥 Stitch Trends (Live)'},
+        ].map(m => (
+          <button key={m.id} onClick={() => setMode(m.id)}
+            style={{
+              background: mode===m.id ? B.red : 'rgba(255,255,255,0.07)',
+              color: B.white,
+              border: mode===m.id ? 'none' : '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 8,
+              padding: '10px 20px',
+              cursor: 'pointer',
+              fontSize: 14,
+              fontWeight: mode===m.id ? 700 : 400,
+            }}>
             {m.label}
           </button>
         ))}
       </div>
-      <Card>
-        {mode==='write' ? (
-          <>
-            <SecLabel>Topic / Idea</SecLabel>
-            <input value={topic} onChange={e=>setTopic(e.target.value)}
-              placeholder="e.g. Why most people quit before they see results..."
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
-                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
-            <SecLabel>Content Angle</SecLabel>
-            <AngleGrid selected={angle} onSelect={setAngle}/>
-            <SecLabel>Platform</SecLabel>
-            <div style={{display:'flex',gap:8,marginBottom:16}}>
+
+      {/* ── WRITE MODE ────────────────────────────────────────────────────── */}
+      {mode === 'write' && (
+        <Card>
+          <SecLabel>Topic / Idea</SecLabel>
+          <input value={topic} onChange={e => setTopic(e.target.value)}
+            placeholder="e.g. Why most people quit before they see results..."
+            style={{width:'100%', background:'rgba(0,0,0,0.3)', border:'1px solid rgba(255,255,255,0.15)',
+              borderRadius:8, padding:'10px 12px', color:B.white, fontSize:13,
+              marginBottom:16, boxSizing:'border-box'}}/>
+
+          <SecLabel>Content Angle</SecLabel>
+          <AngleGrid selected={angle} onSelect={setAngle}/>
+
+          <SecLabel>Platform</SecLabel>
+          <div style={{display:'flex', gap:8, marginBottom:20, flexWrap:'wrap'}}>
+            {PLATFORMS.map(p => (
+              <button key={p} onClick={() => setPlatform(p)}
+                style={{background:platform===p ? B.red : 'rgba(255,255,255,0.07)',
+                  color:B.white, border:'none', borderRadius:6, padding:'6px 14px',
+                  cursor:'pointer', fontSize:13, fontWeight:platform===p ? 700 : 400}}>
+                {p}
+              </button>
+            ))}
+          </div>
+
+          <RedBtn onClick={runWrite} disabled={writeLoading || !topic}>
+            {writeLoading ? 'Writing 3 Script Variations...' : 'Write 3 Script Variations'}
+          </RedBtn>
+        </Card>
+      )}
+      {mode === 'write' && writeLoading && <Spin/>}
+      {mode === 'write' && <Output text={writeOut}/>}
+
+      {/* ── STITCH MODE ───────────────────────────────────────────────────── */}
+      {mode === 'stitch' && (
+        <>
+          {/* Step 1: configure + fetch */}
+          <Card style={{marginBottom:16}}>
+            <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:16}}>
+              <div style={{background:B.red, color:B.white, borderRadius:'50%', width:24, height:24,
+                display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:12,
+                flexShrink:0}}>1</div>
+              <span style={{color:B.white, fontWeight:700}}>Pick your angle + platform, then pull today's trends</span>
+            </div>
+
+            <SecLabel>Your Response Angle</SecLabel>
+            <AngleGrid selected={stitchAngle} onSelect={setStitchAngle}/>
+
+            <SecLabel>Platform to Post On</SecLabel>
+            <div style={{display:'flex', gap:8, marginBottom:20, flexWrap:'wrap'}}>
               {PLATFORMS.map(p => (
-                <button key={p} onClick={()=>setPlatform(p)}
-                  style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
-                    borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:platform===p?700:400}}>
+                <button key={p} onClick={() => setStitchPlatform(p)}
+                  style={{background:stitchPlatform===p ? B.red : 'rgba(255,255,255,0.07)',
+                    color:B.white, border:'none', borderRadius:6, padding:'6px 14px',
+                    cursor:'pointer', fontSize:13, fontWeight:stitchPlatform===p ? 700 : 400}}>
                   {p}
                 </button>
               ))}
             </div>
-          </>
-        ) : (
-          <>
-            <SecLabel>Original Content to Stitch</SecLabel>
-            <textarea value={stitchContent} onChange={e=>setStitchContent(e.target.value)} rows={4}
-              placeholder="Paste the original post, video description, or quote you want to stitch/respond to..."
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
-                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
-            <SecLabel>Your Response Angle</SecLabel>
-            <AngleGrid selected={angle} onSelect={setAngle}/>
-          </>
-        )}
-        <RedBtn onClick={run} disabled={loading||(mode==='write'?!topic:!stitchContent)}>
-          {loading?'Writing Script...':mode==='write'?'Write 3 Script Variations':'Write Stitch Response'}
-        </RedBtn>
-      </Card>
-      {loading && <Spin/>}
-      <Output text={out}/>
+
+            <RedBtn onClick={fetchTrends} disabled={trendLoading}
+              style={{display:'flex', alignItems:'center', gap:8}}>
+              {trendLoading ? (
+                <>
+                  <div style={{width:14, height:14, border:'2px solid rgba(255,255,255,0.4)',
+                    borderTopColor:'white', borderRadius:'50%', animation:'spin 0.7s linear infinite'}}/>
+                  Searching Perplexity for today's trends...
+                </>
+              ) : (
+                <>🔥 Pull Today's Viral Trends</>
+              )}
+            </RedBtn>
+          </Card>
+
+          {/* Raw Perplexity data (collapsible feel — small box) */}
+          {trends && !trendLoading && (
+            <details style={{marginBottom:16}}>
+              <summary style={{color:B.gray, fontSize:12, cursor:'pointer', padding:'6px 0',
+                userSelect:'none'}}>
+                📡 Raw Perplexity research (click to expand)
+              </summary>
+              <div style={{background:'rgba(0,0,0,0.3)', borderRadius:8, padding:'12px',
+                fontSize:11, color:'rgba(255,255,255,0.6)', lineHeight:1.6, marginTop:8,
+                maxHeight:200, overflowY:'auto'}}>
+                {trends}
+              </div>
+            </details>
+          )}
+
+          {/* Step 2: Pick a trend */}
+          {trendCards.length > 0 && !trendLoading && (
+            <div style={{marginBottom:16}}>
+              <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:12}}>
+                <div style={{background:B.red, color:B.white, borderRadius:'50%', width:24, height:24,
+                  display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700,
+                  fontSize:12, flexShrink:0}}>2</div>
+                <span style={{color:B.white, fontWeight:700}}>
+                  Pick a trend → Claude writes your stitch script
+                </span>
+              </div>
+
+              <div style={{display:'grid', gap:10}}>
+                {trendCards.map((t, i) => (
+                  <div key={i}
+                    style={{
+                      background: selectedTrend?.title === t.title
+                        ? 'rgba(233,69,96,0.12)' : B.navy2,
+                      border: `1px solid ${selectedTrend?.title === t.title
+                        ? 'rgba(233,69,96,0.5)' : 'rgba(255,255,255,0.08)'}`,
+                      borderRadius: 12,
+                      padding: '14px 16px',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                    onClick={() => runStitch(t)}>
+                    <div style={{display:'flex', justifyContent:'space-between',
+                      alignItems:'flex-start', gap:12, marginBottom:8}}>
+                      <div style={{flex:1}}>
+                        <div style={{color:B.white, fontWeight:700, fontSize:14,
+                          marginBottom:4}}>{t.title}</div>
+                        <div style={{color:'rgba(255,255,255,0.65)', fontSize:12,
+                          lineHeight:1.5, marginBottom:6}}>
+                          "{t.hook}"
+                        </div>
+                      </div>
+                      <div style={{display:'flex', flexDirection:'column', alignItems:'flex-end',
+                        gap:4, flexShrink:0}}>
+                        <span style={{
+                          background: `${urgencyColor(t.urgency)}22`,
+                          color: urgencyColor(t.urgency),
+                          fontSize:10, fontWeight:700, padding:'2px 8px',
+                          borderRadius:20, whiteSpace:'nowrap',
+                          border:`1px solid ${urgencyColor(t.urgency)}44`
+                        }}>
+                          {t.urgency || 'trending'}
+                        </span>
+                        <span style={{color:B.gray, fontSize:10}}>{t.platform}</span>
+                      </div>
+                    </div>
+
+                    <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:8}}>
+                      <div style={{background:'rgba(255,255,255,0.04)', borderRadius:6,
+                        padding:'8px 10px'}}>
+                        <div style={{color:B.red, fontSize:10, fontWeight:700,
+                          textTransform:'uppercase', letterSpacing:1, marginBottom:3}}>
+                          Why it's viral
+                        </div>
+                        <div style={{color:'rgba(255,255,255,0.6)', fontSize:11,
+                          lineHeight:1.5}}>
+                          {t.why_viral}
+                        </div>
+                      </div>
+                      <div style={{background:'rgba(255,255,255,0.04)', borderRadius:6,
+                        padding:'8px 10px'}}>
+                        <div style={{color:B.red, fontSize:10, fontWeight:700,
+                          textTransform:'uppercase', letterSpacing:1, marginBottom:3}}>
+                          Jason's angle
+                        </div>
+                        <div style={{color:'rgba(255,255,255,0.6)', fontSize:11,
+                          lineHeight:1.5}}>
+                          {t.jason_angle}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{marginTop:10, display:'flex', alignItems:'center',
+                      justifyContent:'space-between'}}>
+                      <div style={{color:'rgba(255,255,255,0.4)', fontSize:11}}>
+                        Suggested hook: <em>"{t.stitch_hook}"</em>
+                      </div>
+                      <button
+                        style={{background:B.red, color:B.white, border:'none',
+                          borderRadius:6, padding:'6px 14px', cursor:'pointer',
+                          fontSize:12, fontWeight:700, flexShrink:0,
+                          opacity: stitchLoading && selectedTrend?.title===t.title ? 0.6 : 1}}
+                        onClick={(e) => { e.stopPropagation(); runStitch(t); }}>
+                        {stitchLoading && selectedTrend?.title===t.title
+                          ? 'Writing...' : 'Write Stitch →'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Fallback: raw error + manual input */}
+          {trendError && (
+            <Card style={{marginBottom:16,
+              border:'1px solid rgba(245,166,35,0.3)',
+              background:'rgba(245,166,35,0.07)'}}>
+              <div style={{color:'#F5A623', fontSize:13, marginBottom:12}}>{trendError}</div>
+              <div style={{color:'rgba(255,255,255,0.6)', fontSize:12}}>
+                You can still paste a specific trend or post below and run the stitch manually:
+              </div>
+            </Card>
+          )}
+
+          {/* Step 3: Script output */}
+          {stitchLoading && (
+            <div style={{marginTop:8}}>
+              <div style={{color:B.gray, fontSize:13, marginBottom:12, display:'flex',
+                alignItems:'center', gap:8}}>
+                <div style={{width:14, height:14, border:'2px solid rgba(255,255,255,0.3)',
+                  borderTopColor:B.red, borderRadius:'50%',
+                  animation:'spin 0.7s linear infinite'}}/>
+                Writing stitch script for "{selectedTrend?.title}"...
+              </div>
+            </div>
+          )}
+
+          {stitchOut && (
+            <div>
+              <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:12}}>
+                <div style={{background:'#27AE60', color:B.white, borderRadius:'50%', width:24,
+                  height:24, display:'flex', alignItems:'center', justifyContent:'center',
+                  fontWeight:700, fontSize:12, flexShrink:0}}>3</div>
+                <span style={{color:B.white, fontWeight:700}}>Your stitch script is ready</span>
+              </div>
+              <Output text={stitchOut}/>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
@@ -1501,7 +1785,7 @@ function WeeklyReview() {
             borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
         <SecLabel>Struggles / Challenges</SecLabel>
         <textarea value={struggles} onChange={e=>setStruggles(e.target.value)} rows={2}
-          placeholder="e.g. Low engagement on financial content, ran out of ideas mid-week, missed 2 posting days..."
+          placeholder="e.g. Low engagement on financial content, ran out of ideas mid-week..."
           style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
             borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
         <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!metrics}>
@@ -1607,7 +1891,6 @@ export default function App() {
       </Head>
 
       <div style={{minHeight:'100vh',background:B.navy,color:B.white}}>
-        {/* TOP NAV */}
         <nav style={{background:B.navy2,borderBottom:`1px solid rgba(255,255,255,0.08)`,
           padding:'0 16px',position:'sticky',top:0,zIndex:100}}>
           <div style={{maxWidth:1100,margin:'0 auto',display:'flex',alignItems:'center',gap:4}}>
@@ -1626,7 +1909,6 @@ export default function App() {
           </div>
         </nav>
 
-        {/* SUB NAV */}
         {subItems && nav !== 'home' && (
           <div style={{background:'rgba(255,255,255,0.03)',borderBottom:`1px solid rgba(255,255,255,0.06)`,
             padding:'0 16px'}}>
@@ -1644,7 +1926,6 @@ export default function App() {
           </div>
         )}
 
-        {/* MAIN CONTENT */}
         <main style={{maxWidth:1100,margin:'0 auto',padding:'2rem 16px'}}>
           {ActiveComponent
             ? <ActiveComponent setNav={handleNav} setSub={setSub}/>
