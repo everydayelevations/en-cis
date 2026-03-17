@@ -20,9 +20,9 @@ const ANGLES = [
 // ─── FRAMEWORKS (invisible infrastructure) ───────────────────────────────────
 const SWARBRICK = `Swarbrick 8 Dimensions: Mental/Emotional, Physical, Social, Environmental, Financial, Intellectual, Occupational, Spiritual. Weave these naturally — never name them explicitly.`;
 
-const CONTENT_SOP = `Content Standards: No intros or fluff — value first. Four-Layer Viewer Journey: See It→Click It→Watch It→Go Deeper. CTA distribution: 60% comment, 20% DM, 20% link. Success metrics prioritize shares+saves over likes.`;
+const CONTENT_SOP = `Content standards I've built my system on: No intros, no fluff — drop them into value on the first frame. Four-layer journey: See It→Click It→Watch It→Go Deeper. CTA split: 60% comment-based, 20% DM, 20% link. I measure wins by shares and saves first — not likes.`;
 
-const VOICE = `Jason Fricka voice: direct, real, no corporate speak. Veteran energy. Elevation Nation community — everyday people who refuse to stay where they are. Instagram @everydayelevations.`;
+const VOICE = `Write in Jason Fricka's voice. He's a veteran, HR manager, mindset coach, endurance athlete, dad, and real estate agent in Colorado. He talks like he's sitting across the table from you — direct, no fluff, no corporate speak. Short sentences. Real stories. He doesn't hype things up. He doesn't use words like "transform" or "journey" or "unlock your potential." He says what he means. He talks about hard days, early mornings, the work nobody sees, and why showing up matters even when it doesn't feel like it. His community is Elevation Nation — everyday people who refuse to stay where they are. He roots for them out loud. Write like him, not like a marketer writing about him.`;
 
 // ─── PLATFORMS ───────────────────────────────────────────────────────────────
 const PLATFORMS = ['Instagram','YouTube','Facebook','LinkedIn'];
@@ -136,7 +136,7 @@ const SecLabel = ({children}) => (
 const SOPBadge = () => (
   <span style={{background:'rgba(233,69,96,0.15)',color:B.red,fontSize:10,
     fontWeight:700,padding:'2px 8px',borderRadius:20,letterSpacing:1}}>
-    Content Strategy Active
+    MY SYSTEM
   </span>
 );
 
@@ -478,7 +478,7 @@ Goals: ${goals}
 Current State: ${currentState}
 Weekly Time Available: ${timeCommitment} hours
 
-Build a complete 90-Day Elevation Nation Content Strategy:
+Build a complete 90-Day Elevation Nation Content Strategy. Write it like Jason would explain it to himself — clear, no fluff, actionable. Not a corporate strategy deck. A real plan he can execute.
 
 **PHASE 1 (Days 1-30): Foundation**
 - Platform priority + rationale
@@ -1179,5 +1179,332 @@ function EpisodeClips() {
       {loading && <Spin/>}
       <Output text={out}/>
     </div>
+  );
+}
+
+function RepurposeEngine() {
+  const [script,setScript] = useState('');
+  const [originalPlatform,setOriginalPlatform] = useState('Instagram');
+  const [out,setOut] = useState('');
+  const [loading,setLoading] = useState(false);
+  const run = async () => {
+    if(!script) return;
+    setLoading(true); setOut('');
+    const res = await ai(REPURPOSE_PROMPT(script, originalPlatform));
+    setOut(res); setLoading(false);
+  };
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>♻️</span>
+        <div><h2 style={{color:B.white,margin:0}}>Repurpose Engine</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>One script → 4 platform-native versions <SOPBadge/></p></div>
+      </div>
+      <Card>
+        <SecLabel>Original Platform</SecLabel>
+        <div style={{display:'flex',gap:8,marginBottom:12}}>
+          {PLATFORMS.map(p => (
+            <button key={p} onClick={()=>setOriginalPlatform(p)}
+              style={{background:originalPlatform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:originalPlatform===p?700:400}}>
+              {p}
+            </button>
+          ))}
+        </div>
+        <SecLabel>Original Script</SecLabel>
+        <textarea value={script} onChange={e=>setScript(e.target.value)} rows={6}
+          placeholder="Paste your existing script or content to repurpose..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!script}>
+          {loading?'Repurposing...':'Repurpose to All Platforms'}
+        </RedBtn></div>
+      </Card>
+      {loading && <Spin/>}
+      <Output text={out}/>
+    </div>
+  );
+}
+
+function HookLibrary() {
+  const [topic,setTopic] = useState('');
+  const [quantity,setQuantity] = useState(20);
+  const [out,setOut] = useState('');
+  const [loading,setLoading] = useState(false);
+  const run = async () => {
+    if(!topic) return;
+    setLoading(true); setOut('');
+    const res = await ai(HOOK_PROMPT(topic, quantity));
+    setOut(res); setLoading(false);
+  };
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🪝</span>
+        <div><h2 style={{color:B.white,margin:0}}>Hook Library</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>5 hook types — Pattern Interrupt, Question, Bold Statement, Story, Data</p></div>
+      </div>
+      <Card>
+        <SecLabel>Topic</SecLabel>
+        <input value={topic} onChange={e=>setTopic(e.target.value)}
+          placeholder="e.g. Veteran transition, Mindset shift, Real estate investing, Morning routines..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+        <SecLabel>How Many Hooks?</SecLabel>
+        <div style={{display:'flex',gap:8,marginBottom:16}}>
+          {[10,20,30,40].map(q => (
+            <button key={q} onClick={()=>setQuantity(q)}
+              style={{background:quantity===q?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:quantity===q?700:400}}>
+              {q}
+            </button>
+          ))}
+        </div>
+        <RedBtn onClick={run} disabled={loading||!topic}>
+          {loading?'Writing Hooks...':'Generate Hooks'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      <Output text={out}/>
+    </div>
+  );
+}
+
+function DesignStudio() {
+  const [topic,setTopic] = useState('');
+  const [format,setFormat] = useState('Carousel');
+  const [angle,setAngle] = useState('mindset');
+  const [out,setOut] = useState('');
+  const [loading,setLoading] = useState(false);
+  const run = async () => {
+    if(!topic) return;
+    setLoading(true); setOut('');
+    const angleLabel = ANGLES.find(a=>a.id===angle)?.label;
+    const res = await ai(DESIGN_PROMPT(topic, format, angleLabel));
+    setOut(res); setLoading(false);
+  };
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🎨</span>
+        <div><h2 style={{color:B.white,margin:0}}>Design Studio</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Carousel + static post concepts with visual direction + captions</p></div>
+      </div>
+      <Card>
+        <SecLabel>Topic</SecLabel>
+        <input value={topic} onChange={e=>setTopic(e.target.value)}
+          placeholder="e.g. 5 signs you're ready for a mindset shift..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+        <SecLabel>Format</SecLabel>
+        <div style={{display:'flex',gap:8,marginBottom:12}}>
+          {['Carousel','Static Post','Story Sequence'].map(f => (
+            <button key={f} onClick={()=>setFormat(f)}
+              style={{background:format===f?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:format===f?700:400}}>
+              {f}
+            </button>
+          ))}
+        </div>
+        <SecLabel>Content Angle</SecLabel>
+        <AngleGrid selected={angle} onSelect={setAngle}/>
+        <RedBtn onClick={run} disabled={loading||!topic}>
+          {loading?'Designing...':'Generate Design Concepts'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      <Output text={out}/>
+    </div>
+  );
+}
+
+function WeeklyReview() {
+  const [metrics,setMetrics] = useState('');
+  const [wins,setWins] = useState('');
+  const [struggles,setStruggles] = useState('');
+  const [out,setOut] = useState('');
+  const [loading,setLoading] = useState(false);
+  const run = async () => {
+    if(!metrics) return;
+    setLoading(true); setOut('');
+    const res = await ai(REVIEW_PROMPT(metrics, wins, struggles));
+    setOut(res); setLoading(false);
+  };
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>📊</span>
+        <div><h2 style={{color:B.white,margin:0}}>Weekly Review</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Performance analysis + Swarbrick 8-dimension audit + next week's focus</p></div>
+      </div>
+      <Card>
+        <SecLabel>This Week's Metrics</SecLabel>
+        <textarea value={metrics} onChange={e=>setMetrics(e.target.value)} rows={3}
+          placeholder="e.g. Instagram: 3 Reels, 12K reach, 340 new followers, 2 DMs, 89 saves. Best post: veteran story reel..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+        <SecLabel>Wins This Week</SecLabel>
+        <textarea value={wins} onChange={e=>setWins(e.target.value)} rows={2}
+          placeholder="e.g. Posted consistently 5x, first viral reel hit 50K, landed podcast guest..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+        <SecLabel>Struggles / Challenges</SecLabel>
+        <textarea value={struggles} onChange={e=>setStruggles(e.target.value)} rows={2}
+          placeholder="e.g. Low engagement on financial content, ran out of ideas mid-week, missed 2 posting days..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!metrics}>
+          {loading?'Analyzing Week...':'Run Weekly Review'}
+        </RedBtn></div>
+      </Card>
+      {loading && <Spin/>}
+      <Output text={out}/>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAIN APP
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const TOP_NAV = [
+  { id:'home',     emoji:'⚡', label:'Command Center' },
+  { id:'strategy', emoji:'📋', label:'Strategy' },
+  { id:'research', emoji:'🔬', label:'Research' },
+  { id:'create',   emoji:'🎬', label:'Create' },
+  { id:'optimize', emoji:'📊', label:'Optimize' },
+];
+
+const SUB_NAV = {
+  strategy: [
+    { id:'onboard',   emoji:'🚀', label:'Onboarding' },
+    { id:'calendar',  emoji:'📅', label:'Calendar' },
+    { id:'profile',   emoji:'👤', label:'Profile Audit' },
+    { id:'magnet',    emoji:'🧲', label:'Lead Magnet' },
+    { id:'community', emoji:'🏔️', label:'Community' },
+  ],
+  research: [
+    { id:'pipeline', emoji:'🔬', label:'Pipeline' },
+    { id:'vault',    emoji:'🗄️', label:'Prompt Vault' },
+    { id:'collab',   emoji:'🤝', label:'Collab Finder' },
+    { id:'extract',  emoji:'💡', label:'Insight Extractor' },
+  ],
+  create: [
+    { id:'script',    emoji:'✍️', label:'Script Engine' },
+    { id:'episode',   emoji:'🎙️', label:'Episode Clips' },
+    { id:'repurpose', emoji:'♻️', label:'Repurpose' },
+    { id:'hooks',     emoji:'🪝', label:'Hook Library' },
+    { id:'design',    emoji:'🎨', label:'Design Studio' },
+  ],
+  optimize: [
+    { id:'review', emoji:'📊', label:'Weekly Review' },
+  ],
+};
+
+const COMPONENT_MAP = {
+  home: Home,
+  onboard: Onboarding,
+  calendar: ContentCalendar,
+  profile: ProfileAudit,
+  magnet: LeadMagnet,
+  community: CommunityBuilder,
+  pipeline: Pipeline,
+  vault: Vault,
+  collab: CollabFinder,
+  extract: Extract,
+  script: ScriptEngine,
+  episode: EpisodeClips,
+  repurpose: RepurposeEngine,
+  hooks: HookLibrary,
+  design: DesignStudio,
+  review: WeeklyReview,
+};
+
+export default function App() {
+  const [nav, setNav] = useState('home');
+  const [sub, setSub] = useState(null);
+
+  const handleNav = (id) => {
+    setNav(id);
+    if(id === 'home') { setSub(null); return; }
+    const subs = SUB_NAV[id];
+    if(subs) setSub(subs[0].id);
+  };
+
+  const ActiveComponent = sub
+    ? (COMPONENT_MAP[sub] || Home)
+    : (nav === 'home' ? Home : null);
+
+  const subItems = SUB_NAV[nav];
+
+  return (
+    <>
+      <Head>
+        <title>EN-CIS | Elevation Nation Content Intelligence System</title>
+        <meta name="description" content="Elevation Nation Content Intelligence System"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <style>{`
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+          body { background: ${B.navy}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+          textarea, input { outline: none; color-scheme: dark; }
+          textarea:focus, input:focus { border-color: ${B.red} !important; }
+          @keyframes spin { to { transform: rotate(360deg); } }
+          ::-webkit-scrollbar { width: 6px; }
+          ::-webkit-scrollbar-track { background: transparent; }
+          ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+        `}</style>
+      </Head>
+
+      <div style={{minHeight:'100vh',background:B.navy,color:B.white}}>
+        {/* TOP NAV */}
+        <nav style={{background:B.navy2,borderBottom:`1px solid rgba(255,255,255,0.08)`,
+          padding:'0 16px',position:'sticky',top:0,zIndex:100}}>
+          <div style={{maxWidth:1100,margin:'0 auto',display:'flex',alignItems:'center',gap:4}}>
+            <div style={{marginRight:12,padding:'12px 0'}}>
+              <img src="/E-E-Logo.jpg" alt="EN" style={{width:32,height:32,borderRadius:'50%'}}/>
+            </div>
+            {TOP_NAV.map(n => (
+              <button key={n.id} onClick={()=>handleNav(n.id)}
+                style={{background:'none',border:'none',color:nav===n.id?B.red:B.gray,
+                  padding:'16px 14px',cursor:'pointer',fontSize:13,fontWeight:nav===n.id?700:400,
+                  borderBottom:`2px solid ${nav===n.id?B.red:'transparent'}`,
+                  transition:'all 0.15s',whiteSpace:'nowrap'}}>
+                {n.emoji} {n.label}
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {/* SUB NAV */}
+        {subItems && nav !== 'home' && (
+          <div style={{background:'rgba(255,255,255,0.03)',borderBottom:`1px solid rgba(255,255,255,0.06)`,
+            padding:'0 16px'}}>
+            <div style={{maxWidth:1100,margin:'0 auto',display:'flex',gap:4}}>
+              {subItems.map(s => (
+                <button key={s.id} onClick={()=>setSub(s.id)}
+                  style={{background:'none',border:'none',color:sub===s.id?B.white:B.gray,
+                    padding:'10px 14px',cursor:'pointer',fontSize:12,fontWeight:sub===s.id?700:400,
+                    borderBottom:`2px solid ${sub===s.id?B.red:'transparent'}`,
+                    transition:'all 0.15s',whiteSpace:'nowrap'}}>
+                  {s.emoji} {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* MAIN CONTENT */}
+        <main style={{maxWidth:1100,margin:'0 auto',padding:'2rem 16px'}}>
+          {ActiveComponent
+            ? <ActiveComponent setNav={handleNav} setSub={setSub}/>
+            : (
+              <div style={{textAlign:'center',padding:'4rem 0',color:B.gray}}>
+                <p>Select a tool from the navigation above</p>
+              </div>
+            )
+          }
+        </main>
+      </div>
+    </>
   );
 }
