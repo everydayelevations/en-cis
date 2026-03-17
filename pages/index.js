@@ -37,59 +37,95 @@ const TIER_PROMPTS = [
 
 // ─── PROMPT VAULT TABS ───────────────────────────────────────────────────────
 const VAULT_TABS = [
-  { id:'instagram', label:'Instagram', prompts:[
-    'Write a Reel hook that stops the scroll for [topic]',
-    'Give me 5 pattern-interrupt openers for [niche]',
-    'Write a carousel outline: problem→solution→CTA for [topic]',
-    'Create a Story sequence that drives DMs for [offer]',
-    'Write a caption that gets saves for [topic]',
-    'Repurpose this blog post into a 3-slide carousel: [paste]',
+  // ── MARKET RESEARCH ──────────────────────────────────────────────────────
+  { id:'market', label:'🔍 Market Research', color:'#1B4F72', sections:[
+    { title:'Tier 1 — Audience Intelligence', when:'Run first', prompts:[
+      'Who is the core audience following health and wellness mindset podcasts on Instagram in 2025? Break down by age, pain points, content habits, and what makes them follow a new account. Compare @hubermanlab, @jayshetty, @richroll. Sources max 3 months old.',
+      'What emotional triggers cause someone to follow a health/wellness Instagram account vs. just watching one video? Pull from recent social behavior studies, Reddit, and creator interviews from the past 6 months.',
+      'What are the top complaints about health and wellness podcast Instagram accounts? Search Reddit, YouTube comments, podcast reviews — what do followers wish creators did differently?',
+    ]},
+    { title:'Tier 2 — Content Gap & Positioning', when:'Run second', prompts:[
+      'Analyze content pillars of @hubermanlab, @jayshetty, @mindpumpmedia, @richroll on Instagram. For each: 3 core themes, what topic they own, and gaps where audience demand exists but nobody is filling it.',
+      'What health/wellness Instagram content formats are generating the highest follower conversion in 2025? Focus on Reels under 90 seconds.',
+      'Analyze the top 10 performing pieces from @hubermanlab, @jayshetty, @richroll in the past 3 months. What themes, formats, and hooks appear most frequently?',
+    ]},
+    { title:'Tier 3 — Growth Mechanics', when:'Run third', prompts:[
+      'Which health/wellness Instagram creators had the fastest organic follower growth in 2025 and what specific tactics preceded those spikes? Focus on accounts under 100K.',
+      'What collaboration patterns are driving the most follower growth for mid-size health/wellness podcast accounts right now?',
+      'How did @jayshetty build his Instagram community identity — specifically when he named his audience, and how that affected engagement and growth?',
+    ]},
+    { title:'Tier 4 — Deep Dive', when:'Run fourth', prompts:[
+      'Social media audit of top wellness podcast Instagram accounts — posting cadence, content pillars, engagement patterns, growth signals. Comparison table: @hubermanlab, @jayshetty, @richroll, @mindpumpmedia. Sources max 3 months.',
+      'What questions are health/wellness audiences asking most on Reddit, Quora, and YouTube comments in 2025? Group by theme. Which ones is no major creator answering consistently?',
+      'Top 5 fastest-growing health/wellness podcast Instagram accounts right now. For each: follower count, growth rate, content breakdown, posting frequency, and the single tactic most responsible for their growth.',
+    ]},
   ]},
-  { id:'youtube', label:'YouTube', prompts:[
-    'Write a YouTube title + thumbnail concept for [topic]',
-    'Create a 10-minute video outline with retention hooks',
-    'Write a YouTube description with SEO keywords for [topic]',
-    'Give me a strong open for a YouTube video on [topic]',
-    'Write end screen CTA script for [channel goal]',
+
+  // ── INSTAGRAM ────────────────────────────────────────────────────────────
+  { id:'instagram', label:'📸 Instagram', color:'#E94560', sections:[
+    { title:'Profile Diagnostics — @everydayelevations', when:'Run in order', prompts:[
+      'Analyze the Instagram profile @everydayelevations. What does the bio, highlight structure, pinned content, and posting frequency signal to a first-time visitor? What specific elements would cause someone to leave without following?',
+      'Compare content style, hook patterns, caption length, and posting frequency of @everydayelevations vs @jayshetty and @hubermanlab. Where is @everydayelevations losing potential followers in the first 3 seconds of a Reel?',
+      'What specific elements are missing from @everydayelevations that accounts with 50K–200K followers in health/mindset consistently have?',
+      'Analyze the last 30 days of visible content from @everydayelevations. Is there a clear content identity and brand voice? Does each post reinforce a single clear message?',
+      'What are the most common reasons a health/wellness Instagram account stays stuck under 10K followers despite consistent posting? Which of these apply to @everydayelevations?',
+    ]},
   ]},
-  { id:'facebook', label:'Facebook', prompts:[
-    'Write a Facebook post that drives comments for [topic]',
-    'Create a Facebook Group engagement prompt for [niche]',
-    'Write a long-form Facebook story post for [personal story]',
-    'Give me a Facebook Live outline for [topic]',
+
+  // ── FACEBOOK ─────────────────────────────────────────────────────────────
+  { id:'facebook', label:'👥 Facebook', color:'#1877F2', sections:[
+    { title:'Profile Diagnostics — facebook.com/jason.fricka', when:'Run in order', prompts:[
+      'Analyze the Facebook profile facebook.com/jason.fricka. What does the page structure, about section, and content mix signal to someone discovering Jason for the first time?',
+      "How does Facebook's 2025 algorithm treat health/wellness mindset content from personal profiles vs pages? What formats are getting the most organic reach?",
+      'What are the top Facebook growth strategies working for health/wellness coaches and podcast hosts in 2025? How does facebook.com/jason.fricka compare to these benchmarks?',
+      'What Facebook community-building tactics are driving the most engagement for mindset and wellness creators right now? Should @everydayelevations be running a Facebook Group?',
+      'How can Jason Fricka at facebook.com/jason.fricka best repurpose Instagram and podcast content for Facebook without it feeling like cross-posted filler?',
+    ]},
   ]},
-  { id:'linkedin', label:'LinkedIn', prompts:[
-    'Write a LinkedIn post that builds authority for [topic]',
-    'Create a LinkedIn carousel: insight→lesson→CTA',
-    'Write a LinkedIn connection request message for [context]',
-    'Give me a LinkedIn hook for a professional audience on [topic]',
-    'Write a thought leadership post about [experience]',
+
+  // ── YOUTUBE ──────────────────────────────────────────────────────────────
+  { id:'youtube', label:'▶️ YouTube', color:'#CC0000', sections:[
+    { title:'Channel Diagnostics — @everydayelevations', when:'Run in order', prompts:[
+      'Analyze the YouTube channel youtube.com/@everydayelevations. What does the channel art, about section, playlist structure, and upload frequency signal to a first-time visitor?',
+      'What YouTube SEO strategies are working best for health/wellness podcast channels in 2025? What keywords, thumbnail styles, and title formats drive the most discovery?',
+      "How does YouTube's 2025 algorithm treat long-form podcast content vs. short-form clips for health/wellness creators? What's the optimal content mix?",
+      'What are the most common reasons a health/wellness YouTube channel stays under 1K subscribers despite good content? Which apply to youtube.com/@everydayelevations?',
+      'How can youtube.com/@everydayelevations best use YouTube Shorts to drive subscribers to long-form content?',
+    ]},
   ]},
-  { id:'hooks', label:'Hooks', prompts:[
-    'Give me 10 pattern-interrupt hooks for [topic]',
-    'Write 5 question hooks that create curiosity for [topic]',
-    'Give me bold statement hooks that challenge [belief]',
-    'Write personal story hooks starting with "The day I..."',
-    'Give me data-driven hooks with surprising stats about [topic]',
+
+  // ── LINKEDIN ─────────────────────────────────────────────────────────────
+  { id:'linkedin', label:'💼 LinkedIn', color:'#0A66C2', sections:[
+    { title:'Dual-Lane Strategy — HR Manager + Podcast Host', when:'Run in order', prompts:[
+      'Analyze linkedin.com/in/jason-fricka. He operates in two lanes: HR leadership (Highland Cabinetry HR Manager, HiBob HRIS) and health/wellness mindset coaching via Everyday Elevations podcast. Is the current profile communicating both lanes clearly?',
+      'What LinkedIn content strategy lets Jason Fricka build authority in both HR leadership and health/wellness mindset coaching without the lanes conflicting?',
+      "What are the fastest-growing LinkedIn content formats for HR professionals in 2025? How can Jason leverage his Highland Cabinetry experience and veteran background to build a People & Culture following?",
+      'What LinkedIn formats and topics are driving the most growth for mindset coaches and podcast hosts in 2025? How can Jason bridge Everyday Elevations with his professional HR audience?',
+      'How should Jason Fricka position the Everyday Elevations podcast on LinkedIn to attract both HR professionals and general professionals interested in personal growth?',
+    ]},
   ]},
-  { id:'repurpose', label:'Repurpose', prompts:[
-    'Turn this Instagram script into a LinkedIn post: [paste]',
-    'Convert this YouTube script into an Instagram Reel: [paste]',
-    'Repurpose this podcast episode into 5 social posts: [paste]',
-    'Turn this blog post into a Twitter/X thread: [paste]',
-    'Convert this long-form content into a carousel: [paste]',
+
+  // ── CROSS-PLATFORM ───────────────────────────────────────────────────────
+  { id:'crossplatform', label:'🌐 Cross-Platform', color:'#8B4EBF', sections:[
+    { title:'Brand Consistency & Repurposing Strategy', when:'Run after individual audits', prompts:[
+      'Analyze brand consistency of Jason Fricka across Instagram (@everydayelevations), Facebook (facebook.com/jason.fricka), YouTube (youtube.com/@everydayelevations), and LinkedIn (linkedin.com/in/jason-fricka). Where does messaging break down?',
+      'What content from Everyday Elevations podcast and @everydayelevations is being left on the table for repurposing across Facebook, YouTube, LinkedIn? Build a repurposing framework.',
+      'What is the optimal cross-platform posting sequence for a health/wellness podcast creator in 2025? If Jason records one episode, what is the ideal content extraction workflow?',
+      'Which platform should be Jason Fricka's primary growth focus right now given his goals? Rank platforms by growth potential and explain sequencing strategy.',
+      'What cross-platform collaboration opportunities exist for a veteran health/wellness podcast host in Colorado? Which creator types make the strongest cross-promotion partners?',
+    ]},
   ]},
 ];
 
 // ─── AI HELPERS ──────────────────────────────────────────────────────────────
-async function ai(prompt, system='') {
+async function ai(message, system='You are a helpful content strategist.') {
   const res = await fetch('/api/claude', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ prompt, system })
+    body: JSON.stringify({ system, message })
   });
   const d = await res.json();
-  return d.result || d.error || 'No response';
+  return d.text || d.result || d.error || 'No response';
 }
 
 async function perp(query) {
@@ -473,7 +509,7 @@ Find and structure collaboration opportunities:
    [The mutual value]
    [CTA]`;
 
-const ONBOARD_PROMPT = (goals, currentState, timeCommitment) => `
+const ONBOARD_PROMPT = (goals, currentState, timeCommitment, uploadedDoc='') => `
 ${VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
@@ -481,28 +517,129 @@ ${SWARBRICK}
 Goals: ${goals}
 Current State: ${currentState}
 Weekly Time Available: ${timeCommitment} hours
+${uploadedDoc ? `\nUploaded Onboarding Document / Additional Context:\n${uploadedDoc}\n` : ''}
 
-Build a complete 90-Day Elevation Nation Content Strategy. Write it like Jason would explain it to himself — clear, no fluff, actionable. Not a corporate strategy deck. A real plan he can execute.
+Build a complete, detailed 90-Day Elevation Nation Content Strategy for Jason Fricka. This is a working document — not a summary, not bullet points. Write every section with enough detail that Jason can open it on Monday morning and know exactly what to do.
 
-**PHASE 1 (Days 1-30): Foundation**
-- Platform priority + rationale
-- Content pillars (3-4 max)
-- Posting frequency per platform
-- First 5 pieces of content to create
+---
 
-**PHASE 2 (Days 31-60): Momentum**
-- Content expansion strategy
-- Community building moves
-- Lead magnet deployment
-- Collaboration targets
+## BRAND POSITIONING & IDENTITY
 
-**PHASE 3 (Days 61-90): Scale**
-- Repurposing system
-- Analytics review process
-- Offer alignment
-- Revenue pathway
+**Core Brand Statement** (what @everydayelevations stands for in one sentence)
 
-Include: Weekly schedule template, content batching strategy, tools needed.`;
+**Elevation Nation Identity**
+- Who they are (specific description — not vague)
+- What they believe
+- What they refuse to accept
+- Why they follow Jason specifically
+
+**Jason's Unique Authority** (what gives him the right to speak — veteran + HR + coach + athlete + dad + Colorado)
+
+**Voice & Tone Guardrails** (what Jason always does / never does in content)
+
+---
+
+## CONTENT PILLARS (4 max)
+
+For each pillar:
+- Pillar name + one-line description
+- The Swarbrick dimension it addresses
+- 5 specific content ideas within this pillar (specific enough to film tomorrow)
+- Best format (Reel / Carousel / Long-form / Story)
+- CTA type that works best for this pillar
+
+---
+
+## PLATFORM STRATEGY
+
+For each platform (Instagram, YouTube, Facebook, LinkedIn):
+- Role in the ecosystem (primary / support / repurpose)
+- Posting frequency (specific: X times per week)
+- Content types that work on this platform
+- Current state → target state in 90 days
+- Top 3 actions to take in Week 1 on this platform
+
+---
+
+## 90-DAY EXECUTION PLAN
+
+**PHASE 1 (Days 1–30): Foundation**
+Goal: Establish consistent presence and community identity
+- Week 1 actions (specific, numbered)
+- Week 2 actions
+- Week 3 actions
+- Week 4 actions
+- Content to batch in Phase 1 (specific topics)
+- Success metrics: what numbers signal Phase 1 is working
+
+**PHASE 2 (Days 31–60): Momentum**
+Goal: Grow audience and build email list
+- Weekly focus areas
+- Lead magnet to deploy (specific concept)
+- Collaboration moves (who to contact, what to say)
+- Content to batch in Phase 2
+- Success metrics
+
+**PHASE 3 (Days 61–90): Scale**
+Goal: Monetize attention and build systems
+- Repurposing workflow (step-by-step)
+- Analytics review process (what to check, when, what to do with the data)
+- Offer alignment (how content connects to real estate, coaching, podcast)
+- Revenue pathway (realistic — no hype)
+- Success metrics
+
+---
+
+## WEEKLY SCHEDULE TEMPLATE
+
+Show a specific 7-day schedule based on ${timeCommitment} hours per week:
+- Content creation blocks (when, how long, what to produce)
+- Engagement windows (when to reply to comments/DMs)
+- Research + planning time
+- Batching days
+
+---
+
+## CONTENT BATCHING SYSTEM
+
+- How to batch 1 week of content in one session
+- Tools needed (free where possible)
+- File organization system
+- Caption writing workflow
+- Hashtag research cadence
+
+---
+
+## LEAD MAGNET + EMAIL STRATEGY
+
+- Specific lead magnet concept (title, format, core promise)
+- How to deliver it (which platform, what the DM flow looks like)
+- 3-email welcome sequence (subject line + core idea for each)
+- Email list goal by Day 90
+
+---
+
+## COLLABORATION ROADMAP
+
+- 3 specific podcast guest targets (name, why they fit, how to pitch)
+- 3 stitch/collab targets on Instagram (who + angle)
+- Community partnership opportunity
+
+---
+
+## ANALYTICS + REVIEW PROCESS
+
+- What to track weekly (specific metrics, not just "engagement")
+- What numbers mean you're on track
+- What numbers trigger a pivot
+- Monthly strategy review checklist
+
+---
+
+## QUICK WINS (First 7 Days)
+
+List 5 specific actions Jason can do in his first 7 days that will immediately move the needle. Each one should take under 2 hours and produce a visible result.`;
+
 
 const DESIGN_PROMPT = (topic, format, angle) => `
 ${VOICE}
@@ -597,43 +734,73 @@ function Home({setNav,setSub}) {
 }
 
 function Onboarding() {
-  const [goals,setGoals] = useState(
-    `Grow @everydayelevations from ~2,400 Instagram followers to 10,000 by end of 2025. Post consistently 5x/week on Instagram. Launch Elevation Nation as a recognizable community identity. Start building an email list from zero — target 500 subscribers in 90 days. Book 3 meaningful podcast guests. Generate at least 1 real estate lead per month through content. Keep it real — no fake hype, no gimmicks.`
+  const [mode,        setMode]       = useState('form'); // 'form' | 'upload'
+  const [goals,       setGoals]      = useState(
+    `Grow @everydayelevations from ~2,400 Instagram followers to 10,000 by end of 2026. Post consistently 5x/week on Instagram. Launch Elevation Nation as a recognizable community identity. Start building an email list from zero — target 500 subscribers in 90 days. Book 3 meaningful podcast guests. Generate at least 1 real estate lead per month through content. Keep it real — no fake hype, no gimmicks.`
   );
-  const [current,setCurrent] = useState(
+  const [current,     setCurrent]    = useState(
     `Instagram: ~2,400 followers, posting 2-3x/week inconsistently, no clear content schedule. YouTube: @everydayelevations exists but underused. Facebook: facebook.com/jason.fricka active but no strategy. LinkedIn: linkedin.com/in/jason-fricka — HR Manager at Highland Cabinetry + podcast host, dual-lane not leveraged. No email list. No lead magnet. Everyday Elevations podcast running. Colorado-based. Full-time HR job + real estate license + family.`
   );
-  const [hours,setHours] = useState('10');
-  const [out,setOut] = useState('');
-  const [loading,setLoading] = useState(false);
-  const [downloading,setDownloading] = useState(false);
+  const [hours,       setHours]      = useState('10');
+  const [uploadedDoc, setUploadedDoc] = useState('');
+  const [fileName,    setFileName]   = useState('');
+  const [out,         setOut]        = useState('');
+  const [loading,     setLoading]    = useState(false);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setUploadedDoc(ev.target.result);
+    };
+    reader.readAsText(file);
+  };
 
   const run = async () => {
-    if(!goals) return;
     setLoading(true); setOut('');
-    const res = await ai(ONBOARD_PROMPT(goals, current, hours));
+    const docContext = uploadedDoc ? uploadedDoc : '';
+    const res = await ai(ONBOARD_PROMPT(goals, current, hours, docContext));
     setOut(res); setLoading(false);
   };
 
   const downloadDoc = async () => {
-    if(!out) return;
+    if (!out) return;
     setDownloading(true);
     try {
       const res = await fetch('/api/claude', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          prompt: `Convert this strategy document into clean HTML. Use h1, h2, h3, bullet points, bold. Professional and readable. Return ONLY the HTML body content, no html or body tags:\n\n${out}`,
-          system: 'You convert markdown/text documents into clean HTML. Return only inner HTML content.'
+          system: 'You convert text strategy documents into clean HTML. Return ONLY inner HTML body content, no html/body/head tags.',
+          message: `Convert this to clean, well-formatted HTML. Use h1 for main title, h2 for major sections, h3 for subsections, p for paragraphs, ul/li for lists, strong for bold. Make it professional and printable. Return only the HTML content, no markdown:\n\n${out}`
         })
       });
       const d = await res.json();
-      const html = d.result || '';
-      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Everyday Elevations — 90-Day Strategy</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#111;line-height:1.7}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#0A1628;margin-top:32px}h3{color:#E94560}strong{color:#0A1628}li{margin-bottom:6px}</style></head><body><h1>Everyday Elevations — 90-Day Content Strategy</h1>${html}</body></html>`;
-      const blob = new Blob([fullHtml], {type:'text/html'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'EverydayElevations-90DayStrategy.html';
+      const html = d.text || d.result || '';
+      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Everyday Elevations — 90-Day Strategy</title>
+<style>
+  body{font-family:Georgia,serif;max-width:820px;margin:40px auto;padding:0 28px;color:#111;line-height:1.75;font-size:15px}
+  h1{color:#0A1628;font-size:26px;border-bottom:3px solid #E94560;padding-bottom:10px;margin-bottom:8px}
+  h2{color:#0A1628;font-size:18px;margin-top:36px;margin-bottom:8px;border-left:4px solid #E94560;padding-left:10px}
+  h3{color:#E94560;font-size:15px;margin-top:20px;margin-bottom:4px}
+  p{margin:6px 0 10px}li{margin-bottom:5px}
+  strong{color:#0A1628}
+  hr{border:none;border-top:1px solid #ddd;margin:24px 0}
+  @media print{body{margin:24px;font-size:13px}h2{page-break-before:auto}}
+</style></head>
+<body>
+<h1>Everyday Elevations — 90-Day Content Strategy</h1>
+<p style="color:#666;font-size:13px;margin-bottom:24px">Generated by EN-CIS · Elevation Nation Content Intelligence System</p>
+${html}
+</body></html>`;
+      const blob = new Blob([fullHtml], {type: 'text/html'});
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url;
+      a.download = 'EverydayElevations-90DayStrategy.html';
       document.body.appendChild(a); a.click();
       document.body.removeChild(a); URL.revokeObjectURL(url);
     } catch(e) { console.error(e); }
@@ -642,50 +809,177 @@ function Onboarding() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex', alignItems:'center', gap:12, marginBottom:24}}>
         <span style={{fontSize:32}}>🚀</span>
-        <div><h2 style={{color:B.white,margin:0}}>90-Day Strategy Builder</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pre-filled with your numbers. Edit anything, then generate.</p></div>
-      </div>
-      <Card>
-        <SecLabel>Your Goals</SecLabel>
-        <textarea value={goals} onChange={e=>setGoals(e.target.value)} rows={5}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
-        <SecLabel style={{marginTop:16}}>Current State</SecLabel>
-        <textarea value={current} onChange={e=>setCurrent(e.target.value)} rows={5}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
-        <div style={{display:'flex',alignItems:'center',gap:12,marginTop:16,flexWrap:'wrap'}}>
-          <SecLabel style={{margin:0}}>Hours/Week:</SecLabel>
-          {['3','5','10','15','20+'].map(h => (
-            <button key={h} onClick={()=>setHours(h)}
-              style={{background:hours===h?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
-                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:hours===h?700:400}}>
-              {h}
-            </button>
-          ))}
+        <div>
+          <h2 style={{color:B.white, margin:0}}>90-Day Strategy Builder</h2>
+          <p style={{color:B.gray, margin:'4px 0 0', fontSize:13}}>
+            Pre-filled with your numbers. Edit anything, then generate a complete strategy document.
+          </p>
         </div>
-        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!goals}>
-          {loading?'Building Strategy...':'Build 90-Day Strategy'}
-        </RedBtn></div>
+      </div>
+
+      {/* Mode toggle */}
+      <div style={{display:'flex', gap:8, marginBottom:20}}>
+        {[
+          {id:'form',   label:'📝 Fill Out Form'},
+          {id:'upload', label:'📎 Upload Existing Doc'},
+        ].map(m => (
+          <button key={m.id} onClick={() => setMode(m.id)}
+            style={{background: mode===m.id ? B.red : 'rgba(255,255,255,0.07)',
+              color:B.white, border: mode===m.id ? 'none' : '1px solid rgba(255,255,255,0.12)',
+              borderRadius:8, padding:'9px 18px', cursor:'pointer',
+              fontSize:13, fontWeight:mode===m.id ? 700 : 400}}>
+            {m.label}
+          </button>
+        ))}
+      </div>
+
+      <Card>
+        {/* UPLOAD MODE */}
+        {mode === 'upload' && (
+          <div>
+            <div style={{background:'rgba(233,69,96,0.08)', border:'1px solid rgba(233,69,96,0.2)',
+              borderRadius:8, padding:'12px 14px', marginBottom:16, fontSize:13,
+              color:'rgba(255,255,255,0.75)', lineHeight:1.6}}>
+              Upload a previous strategy doc, intake form, notes file, or any text document.
+              Claude will read it and build your 90-day strategy around what's already there.
+            </div>
+            <label style={{display:'block', cursor:'pointer'}}>
+              <div style={{border:'2px dashed rgba(233,69,96,0.4)', borderRadius:10,
+                padding:'28px', textAlign:'center', transition:'all 0.2s',
+                background: fileName ? 'rgba(39,174,96,0.08)' : 'rgba(255,255,255,0.03)'}}>
+                {fileName ? (
+                  <>
+                    <div style={{fontSize:28, marginBottom:8}}>✅</div>
+                    <div style={{color:B.white, fontWeight:700, fontSize:14}}>{fileName}</div>
+                    <div style={{color:B.gray, fontSize:12, marginTop:4}}>File loaded — ready to generate</div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{fontSize:28, marginBottom:8}}>📎</div>
+                    <div style={{color:B.white, fontWeight:600, fontSize:14}}>Click to upload a document</div>
+                    <div style={{color:B.gray, fontSize:12, marginTop:4}}>.txt, .md, or any text file</div>
+                  </>
+                )}
+              </div>
+              <input type="file" accept=".txt,.md,.csv,.text,text/plain" onChange={handleFileUpload}
+                style={{display:'none'}}/>
+            </label>
+            {uploadedDoc && (
+              <div style={{marginTop:12, background:'rgba(0,0,0,0.3)', borderRadius:8,
+                padding:'10px 12px', maxHeight:120, overflowY:'auto'}}>
+                <div style={{color:B.gray, fontSize:10, fontWeight:700, textTransform:'uppercase',
+                  letterSpacing:1, marginBottom:6}}>Document preview</div>
+                <pre style={{color:'rgba(255,255,255,0.55)', fontSize:11, whiteSpace:'pre-wrap',
+                  margin:0, lineHeight:1.6}}>{uploadedDoc.slice(0, 600)}{uploadedDoc.length > 600 ? '...' : ''}</pre>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* FORM MODE */}
+        {mode === 'form' && (
+          <>
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
+                textTransform:'uppercase',marginBottom:6}}>Your Goals</div>
+              <textarea value={goals} onChange={e => setGoals(e.target.value)} rows={4}
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                  borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                  resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
+            </div>
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
+                textTransform:'uppercase',marginBottom:6}}>Current State</div>
+              <textarea value={current} onChange={e => setCurrent(e.target.value)} rows={4}
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                  borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                  resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
+            </div>
+          </>
+        )}
+
+        {/* Always show: hours/week + optional additional context + generate button */}
+        <div style={{marginTop:mode==='upload'?16:0}}>
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16,flexWrap:'wrap'}}>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
+              textTransform:'uppercase'}}>Hours/Week:</div>
+            {['3','5','10','15','20+'].map(h => (
+              <button key={h} onClick={() => setHours(h)}
+                style={{background:hours===h?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                  borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,
+                  fontWeight:hours===h?700:400}}>
+                {h}
+              </button>
+            ))}
+          </div>
+
+          {/* Additional context — always optional */}
+          <div style={{marginBottom:16}}>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.gray,
+              textTransform:'uppercase',marginBottom:6}}>
+              Additional Context <span style={{fontWeight:400,textTransform:'none',letterSpacing:0,fontSize:12}}>(optional)</span>
+            </div>
+            <textarea
+              placeholder="Anything else Claude should know — recent wins, specific struggles, offers you're launching, audience insights from DMs..."
+              rows={2}
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.1)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                resize:'vertical',boxSizing:'border-box',lineHeight:1.5}}
+              onChange={e => {
+                // Append to uploadedDoc or store separately — combine at run time
+                // We'll just store in uploadedDoc if upload mode, else prefix
+                if (mode !== 'upload') setUploadedDoc(e.target.value);
+              }}
+            />
+          </div>
+
+          <RedBtn onClick={run} disabled={loading || (mode==='upload' && !uploadedDoc)}>
+            {loading ? 'Building Your Strategy...' : '🚀 Build 90-Day Strategy'}
+          </RedBtn>
+          {mode==='upload' && !uploadedDoc && (
+            <div style={{color:B.gray, fontSize:12, marginTop:8}}>Upload a document first</div>
+          )}
+        </div>
       </Card>
-      {loading && <Spin/>}
+
+      {loading && (
+        <div style={{textAlign:'center', padding:'2rem 0', color:B.gray}}>
+          <Spin/>
+          <div style={{marginTop:8, fontSize:13}}>Building your complete strategy — this takes 20-30 seconds...</div>
+        </div>
+      )}
+
       {out && (
-        <div style={{marginTop:16}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:10}}>
-            <span style={{color:B.white,fontWeight:700,fontSize:15}}>Your 90-Day Strategy</span>
-            <div style={{display:'flex',gap:8}}>
-              <CopyBtn text={out}/>
+        <div style={{marginTop:20}}>
+          <div style={{display:'flex', justifyContent:'space-between', alignItems:'center',
+            marginBottom:14, flexWrap:'wrap', gap:10}}>
+            <div style={{color:B.white, fontWeight:700, fontSize:16}}>
+              Your 90-Day Strategy
+            </div>
+            <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
+              <button onClick={() => {navigator.clipboard.writeText(out);}}
+                style={{background:'rgba(255,255,255,0.1)',color:B.white,border:'none',
+                  borderRadius:8,padding:'8px 16px',fontWeight:700,cursor:'pointer',fontSize:13}}>
+                Copy
+              </button>
               <button onClick={downloadDoc} disabled={downloading}
-                style={{background:downloading?B.gray:'#0A1628',color:B.white,border:`1px solid rgba(255,255,255,0.2)`,
-                  borderRadius:8,padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',
-                  fontSize:13,display:'flex',alignItems:'center',gap:6}}>
-                {downloading ? 'Preparing...' : '⬇ Download Strategy Doc'}
+                style={{background:downloading?B.gray:'rgba(233,69,96,0.9)',color:B.white,
+                  border:'none',borderRadius:8,padding:'8px 16px',fontWeight:700,
+                  cursor:downloading?'not-allowed':'pointer',fontSize:13,
+                  display:'flex',alignItems:'center',gap:6}}>
+                {downloading ? 'Preparing...' : '⬇ Download as Document'}
               </button>
             </div>
           </div>
-          <Output text={out}/>
+          <div style={{background:'rgba(0,0,0,0.3)', borderRadius:10, padding:'1.25rem',
+            border:'1px solid rgba(255,255,255,0.1)', position:'relative'}}>
+            <pre style={{color:B.white, fontSize:13, whiteSpace:'pre-wrap', margin:0,
+              lineHeight:1.8, fontFamily:'inherit'}}>
+              {out}
+            </pre>
+          </div>
         </div>
       )}
     </div>
@@ -1045,42 +1339,98 @@ function Pipeline() {
 }
 
 function Vault() {
-  const [activeTab,setActiveTab] = useState('instagram');
-  const [copied,setCopied] = useState(null);
-  const current = VAULT_TABS.find(t=>t.id===activeTab);
-  const copyPrompt = (p,i) => {
+  const [activeTab, setActiveTab] = useState('market');
+  const [copied, setCopied] = useState(null);
+
+  const current = VAULT_TABS.find(t => t.id === activeTab);
+
+  const copyPrompt = (p, id) => {
     navigator.clipboard.writeText(p);
-    setCopied(i);
-    setTimeout(()=>setCopied(null),2000);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
   };
+
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex', alignItems:'center', gap:12, marginBottom:24}}>
         <span style={{fontSize:32}}>🗄️</span>
-        <div><h2 style={{color:B.white,margin:0}}>Prompt Vault</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>25+ battle-tested prompts — copy and run anywhere</p></div>
+        <div>
+          <h2 style={{color:B.white, margin:0}}>Prompt Vault</h2>
+          <p style={{color:B.gray, margin:'4px 0 0', fontSize:13}}>
+            Research prompts built for Jason's specific accounts — copy and run in Perplexity
+          </p>
+        </div>
       </div>
-      <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
+
+      {/* Tab bar */}
+      <div style={{display:'flex', gap:6, marginBottom:24, flexWrap:'wrap'}}>
         {VAULT_TABS.map(t => (
-          <button key={t.id} onClick={()=>setActiveTab(t.id)}
-            style={{background:activeTab===t.id?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
-              borderRadius:8,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:activeTab===t.id?700:400}}>
+          <button key={t.id} onClick={() => setActiveTab(t.id)}
+            style={{
+              background: activeTab===t.id ? (t.color || B.red) : 'rgba(255,255,255,0.07)',
+              color: B.white,
+              border: `1px solid ${activeTab===t.id ? (t.color || B.red) : 'rgba(255,255,255,0.12)'}`,
+              borderRadius: 8,
+              padding: '8px 14px',
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: activeTab===t.id ? 700 : 400,
+            }}>
             {t.label}
           </button>
         ))}
       </div>
-      <div style={{display:'grid',gap:10}}>
-        {current.prompts.map((p,i) => (
-          <Card key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'14px 16px'}}>
-            <span style={{color:B.white,fontSize:13,flex:1}}>{p}</span>
-            <button onClick={()=>copyPrompt(p,i)}
-              style={{background:copied===i?'rgba(46,204,113,0.2)':B.red,color:B.white,border:'none',
-                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:700,marginLeft:12,whiteSpace:'nowrap'}}>
-              {copied===i?'✓ Copied':'Copy'}
-            </button>
-          </Card>
-        ))}
-      </div>
+
+      {/* Sections */}
+      {current?.sections?.map((section, si) => (
+        <div key={si} style={{marginBottom:28}}>
+          <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:12}}>
+            <div style={{width:3, height:18, background: current.color || B.red, borderRadius:2}}/>
+            <div>
+              <div style={{color:B.white, fontWeight:700, fontSize:14}}>{section.title}</div>
+              <div style={{color:B.gray, fontSize:11, marginTop:2}}>{section.when}</div>
+            </div>
+          </div>
+          <div style={{display:'grid', gap:8}}>
+            {section.prompts.map((p, i) => {
+              const copyId = `${si}-${i}`;
+              return (
+                <div key={i} style={{
+                  background: B.navy2,
+                  border: `1px solid ${copied===copyId ? (current.color||B.red) : 'rgba(255,255,255,0.08)'}`,
+                  borderLeft: `3px solid ${current.color || B.red}`,
+                  borderRadius: 8,
+                  padding: '12px 14px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  gap: 12,
+                  transition: 'border-color 0.15s',
+                }}>
+                  <span style={{color:'rgba(255,255,255,0.85)', fontSize:13, lineHeight:1.6, flex:1}}>
+                    {p}
+                  </span>
+                  <button onClick={() => copyPrompt(p, copyId)}
+                    style={{
+                      background: copied===copyId ? 'rgba(39,174,96,0.2)' : B.red,
+                      color: B.white,
+                      border: 'none',
+                      borderRadius: 6,
+                      padding: '6px 14px',
+                      cursor: 'pointer',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      flexShrink: 0,
+                      whiteSpace: 'nowrap',
+                    }}>
+                    {copied===copyId ? '✓ Copied' : 'Copy'}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
