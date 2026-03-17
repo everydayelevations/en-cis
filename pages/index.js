@@ -353,55 +353,70 @@ Rules:
 - Every hook must make viewer think "wait, what?"
 - Specific beats vague every time`;
 
-const MAGNET_PROMPT = (audience, problem, offer) => `
+const MAGNET_PROMPT = (audience, problem, offer, currentContent, whatWorks) => `
 ${VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
 
-Audience: ${audience}
-Core Problem: ${problem}
-Existing Offer: ${offer}
+Who Jason is trying to reach: ${audience}
+The core problem he solves: ${problem}
+Existing offer or service: ${offer}
+What Jason currently posts / his content style: ${currentContent || 'Not provided'}
+What has resonated most with his audience so far: ${whatWorks || 'Not provided'}
 
-Create a complete lead magnet system:
+Build a lead magnet system grounded in what Jason actually does and what his audience already responds to. Not a generic template — specific to him and Elevation Nation.
 
 1. **Lead Magnet Concept**
-   - Title (value-packed, specific)
-   - Format (checklist/guide/video/challenge)
-   - Core promise
-   - 5-7 key deliverables
+   - Title (specific, sounds like Jason said it — not a marketer)
+   - Format (checklist/guide/video series/challenge/email course)
+   - Core promise (one sentence, no fluff)
+   - 5-7 key deliverables inside it
 
-2. **Delivery Reel Script** (the content that promotes the magnet)
-   - Hook
-   - Value preview (tease 3 things inside)
-   - CTA: "Comment X to get it"
+2. **Why This Magnet Works for Elevation Nation**
+   (connect it directly to what already resonates with his audience)
 
-3. **3-Email Welcome Sequence**
-   Email 1: Deliver + quick win
-   Email 2: Story + deeper value
-   Email 3: Soft offer or next step
+3. **Delivery Reel Script** (the Reel that gets people to request it)
+   - Hook (3 seconds, pattern interrupt)
+   - Value preview (tease 3 things inside without giving them away)
+   - CTA: "Comment [KEYWORD] and I'll send it to you"
 
-4. **Instagram Story Sequence** (5 slides to promote)`;
+4. **3-Email Welcome Sequence**
+   Email 1: Deliver the magnet + one quick win they can use today
+   Email 2: Personal story that connects to the problem + deeper value
+   Email 3: Soft CTA to next step (coaching, call, community)
 
-const COMMUNITY_PROMPT = (focus) => `
+5. **Instagram Story Sequence** (5 slides to promote it organically)\`;
+
+const COMMUNITY_PROMPT = (focus, currentEngagement, whereTheyAre, whatTheyAsk) => `
 ${VOICE}
 ${SWARBRICK}
 
-Build an Elevation Nation community system around: "${focus}"
+Community focus / theme: ${focus}
+What Jason's current engagement looks like: ${currentEngagement || 'Not provided'}
+Where his audience currently lives (comments, DMs, Facebook, etc.): ${whereTheyAre || 'Not provided'}
+What people ask Jason most or respond to most: ${whatTheyAsk || 'Not provided'}
 
-1. **Community Identity Statement** (why people belong here)
+Build an Elevation Nation community system built around what is actually happening in Jason's audience right now. Not a theoretical framework. One that works with the people already showing up.
 
-2. **Core Challenge/Ritual** (weekly or monthly recurring thing members do together)
+1. **Community Identity Statement**
+   (why people belong here — specific to Elevation Nation, in Jason's voice)
+
+2. **The Core Ritual**
+   (one recurring weekly or monthly thing members do together — simple enough to actually happen)
 
 3. **Engagement Architecture**
-   - Daily: [prompt/question]
-   - Weekly: [challenge/event]
-   - Monthly: [milestone/celebration]
+   - Daily: [specific prompt or question in Jason's voice]
+   - Weekly: [challenge or event tied to his content angles]
+   - Monthly: [milestone or celebration that recognizes members]
 
-4. **Onboarding Script** (what new members see first)
+4. **New Member Onboarding**
+   (exactly what they see and receive when they join — what to say, what to send)
 
-5. **Content Themes** (5 recurring series that keep people coming back)
+5. **5 Recurring Content Series**
+   (series name + what it is + why people keep coming back for it)
 
-6. **Growth Loop** (how members naturally invite others)`;
+6. **Growth Loop**
+   (how members naturally bring other people in without being asked to)\`;
 
 const REVIEW_PROMPT = (metrics, wins, struggles) => `
 ${VOICE}
@@ -428,25 +443,28 @@ Analyze:
 
 6. **Content to Create This Week** (3 specific post ideas based on what performed)`;
 
-const PROFILE_PROMPT = (platform, currentBio) => `
+const PROFILE_PROMPT = (platform, liveData, extraContext) => `
 ${VOICE}
 ${CONTENT_SOP}
 
 Platform: ${platform}
-Current bio/profile: ${currentBio || 'Not provided'}
+Live profile data pulled from the web: ${liveData}
+Extra context from Jason: ${extraContext || 'None'}
 
-Optimize the complete profile for maximum conversion:
+You are auditing Jason Fricka's actual live ${platform} profile based on real data above. Not assumptions. Be specific. Call out exactly what is working, what is dead weight, and what is missing. Then rewrite it.
 
-1. **Profile Photo Direction** (what to wear, background, expression)
-2. **Username/Handle** (if improvable)
-3. **Name Field** (SEO + searchability)
-4. **Bio** (complete rewrite — hook, value, CTA, keywords)
-5. **Link Strategy** (what to put in link-in-bio)
-6. **Highlight Covers** (for Instagram — names + strategy)
-${platform === 'LinkedIn' ? `
-7. **Dual-Lane Strategy** (HR Manager + Podcast Host — how to serve both audiences)
-8. **Featured Section** (what to pin)
-9. **About Section** (full rewrite)` : ''}`;
+1. **What's Actually on the Profile Right Now** (summarize what the live data shows)
+2. **What's Working** (keep this, say why)
+3. **What's Killing Conversions** (specific problems, no softening)
+4. **Rewritten Bio** (ready to copy-paste)
+5. **Name Field** (SEO + searchability)
+6. **Link Strategy** (what belongs in link-in-bio and why)
+${platform === 'Instagram' ? '7. **Highlight Cover Strategy** (names + what goes in each)\n8. **Pinned Post Recommendation** (what and why)' : ''}
+${platform === 'LinkedIn' ? '7. **Dual-Lane Strategy** (HR Manager at Highland Cabinetry + Everyday Elevations podcast)\n8. **Featured Section** (what to pin, in order)\n9. **Rewritten About Section** (full copy, ready to paste)' : ''}
+${platform === 'YouTube' ? '7. **Channel Description Rewrite** (searchable, keyword-rich)\n8. **About Section** (full copy)\n9. **Thumbnail and Banner Direction**' : ''}
+${platform === 'Facebook' ? '7. **Page vs Profile Strategy** (which to prioritize and why)\n8. **About Section Rewrite**\n9. **Cover Photo Direction**' : ''}
+
+Be direct. Write like Jason would actually use this today.\`;
 
 const COLLAB_PROMPT = (niche, goal) => `
 ${VOICE}
@@ -751,41 +769,85 @@ function ContentCalendar() {
 }
 
 function ProfileAudit() {
-  const [platform,setPlatform] = useState('Instagram');
-  const [currentBio,setCurrentBio] = useState('');
-  const [out,setOut] = useState('');
-  const [loading,setLoading] = useState(false);
+  const [platform, setPlatform] = useState('Instagram');
+  const [extraContext, setExtraContext] = useState('');
+  const [liveData, setLiveData] = useState('');
+  const [out, setOut] = useState('');
+  const [fetching, setFetching] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handles = {
+    Instagram: '@everydayelevations on Instagram — instagram.com/everydayelevations',
+    YouTube: 'youtube.com/@everydayelevations',
+    Facebook: 'facebook.com/jason.fricka',
+    LinkedIn: 'linkedin.com/in/jason-fricka — HR Manager + podcast host Jason Fricka',
+  };
+
+  const fetchLive = async () => {
+    setFetching(true); setLiveData(''); setOut('');
+    const res = await perp(`Audit this social media profile right now and report exactly what is on it: ${handles[platform]}. Report the exact bio text, follower count if visible, recent post types, highlights or featured sections, and overall profile structure. Be specific and factual.`);
+    setLiveData(res); setFetching(false);
+  };
+
   const run = async () => {
+    if (!liveData) return;
     setLoading(true); setOut('');
-    const res = await ai(PROFILE_PROMPT(platform, currentBio));
+    const res = await ai(PROFILE_PROMPT(platform, liveData, extraContext));
     setOut(res); setLoading(false);
   };
+
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
         <span style={{fontSize:32}}>👤</span>
-        <div><h2 style={{color:B.white,margin:0}}>Profile Audit & Optimizer</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>4-platform conversion optimization</p></div>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Profile Audit</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Perplexity pulls your live profile first. Then Claude audits what's actually there.</p>
+        </div>
       </div>
-      <Card>
+
+      <Card style={{marginBottom:16}}>
         <SecLabel>Platform</SecLabel>
-        <div style={{display:'flex',gap:8,marginBottom:16,flexWrap:'wrap'}}>
+        <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
           {PLATFORMS.map(p => (
-            <button key={p} onClick={()=>setPlatform(p)}
+            <button key={p} onClick={() => { setPlatform(p); setLiveData(''); setOut(''); }}
               style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
                 borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:platform===p?700:400}}>
-              {p} {p==='LinkedIn'?'(Dual-Lane)':''}
+              {p}{p==='LinkedIn'?' (Dual-Lane)':''}
             </button>
           ))}
         </div>
-        <SecLabel>Current Bio / Profile (optional)</SecLabel>
-        <textarea value={currentBio} onChange={e=>setCurrentBio(e.target.value)} rows={4}
-          placeholder="Paste your current bio, about section, or leave blank for a fresh start..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
+
+        <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:8,padding:'10px 14px',marginBottom:16,fontSize:12,color:'rgba(255,255,255,0.7)'}}>
+          <strong style={{color:B.red}}>Step 1</strong> — Perplexity looks up your live {platform} profile right now. Hit the button below.
+        </div>
+        <button onClick={fetchLive} disabled={fetching}
+          style={{background:fetching?B.gray:'rgba(255,255,255,0.08)',color:B.white,border:'1px solid rgba(255,255,255,0.2)',
+            borderRadius:8,padding:'9px 20px',fontWeight:700,cursor:fetching?'not-allowed':'pointer',fontSize:13,marginBottom:16}}>
+          {fetching ? 'Pulling live profile...' : `🔍 Pull Live ${platform} Profile`}
+        </button>
+
+        {liveData && (
+          <div style={{marginBottom:16}}>
+            <SecLabel>What Perplexity Found</SecLabel>
+            <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'12px',fontSize:12,color:'rgba(255,255,255,0.75)',lineHeight:1.7,maxHeight:180,overflowY:'auto'}}>
+              {liveData}
+            </div>
+          </div>
+        )}
+
+        <SecLabel>Anything Perplexity Can't See (optional)</SecLabel>
+        <textarea value={extraContext} onChange={e=>setExtraContext(e.target.value)} rows={3}
+          placeholder={`e.g. My current DM volume, what posts get the most saves, my email list size, what my audience asks most...`}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
             borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
-        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading}>
-          {loading?'Analyzing...':'Optimize Profile'}
-        </RedBtn></div>
+
+        <div style={{marginTop:16}}>
+          <RedBtn onClick={run} disabled={loading || !liveData}>
+            {loading ? 'Auditing...' : 'Run Full Audit'}
+          </RedBtn>
+          {!liveData && <span style={{color:B.gray,fontSize:12,marginLeft:12}}>Pull live profile first</span>}
+        </div>
       </Card>
       {loading && <Spin/>}
       <Output text={out}/>
@@ -794,43 +856,61 @@ function ProfileAudit() {
 }
 
 function LeadMagnet() {
-  const [audience,setAudience] = useState('');
-  const [problem,setProblem] = useState('');
-  const [offer,setOffer] = useState('');
-  const [out,setOut] = useState('');
-  const [loading,setLoading] = useState(false);
+  const [audience, setAudience] = useState('Veterans transitioning out, everyday people working on their mindset, people who feel stuck and want to start moving again');
+  const [problem, setProblem] = useState('They know they need to change but don't know where to start. They feel like everyone else has it figured out. They're showing up but not seeing results.');
+  const [offer, setOffer] = useState('Mindset coaching, Everyday Elevations podcast, Elevation Nation community, real estate (Fricka Sells Colorado)');
+  const [currentContent, setCurrentContent] = useState('Reels on mindset, veteran life, everyday wins, outdoor Colorado lifestyle, family lessons, real estate tips. Voice is direct, real, no hype.');
+  const [whatWorks, setWhatWorks] = useState('');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
   const run = async () => {
-    if(!audience||!problem) return;
     setLoading(true); setOut('');
-    const res = await ai(MAGNET_PROMPT(audience, problem, offer));
+    const res = await ai(MAGNET_PROMPT(audience, problem, offer, currentContent, whatWorks));
     setOut(res); setLoading(false);
   };
+
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
         <span style={{fontSize:32}}>🧲</span>
-        <div><h2 style={{color:B.white,margin:0}}>Lead Magnet Builder</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Magnet concept + delivery Reel + email sequence <SOPBadge/></p></div>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Lead Magnet Builder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pre-filled with your context. Add what's actually working, then generate.</p>
+        </div>
       </div>
       <Card>
-        <SecLabel>Target Audience</SecLabel>
-        <input value={audience} onChange={e=>setAudience(e.target.value)}
-          placeholder="e.g. Veterans transitioning to civilian life, First-time home buyers..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
-        <SecLabel>Core Problem You Solve</SecLabel>
-        <input value={problem} onChange={e=>setProblem(e.target.value)}
-          placeholder="e.g. Feeling lost after military service, Not knowing where to start with real estate..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
-        <SecLabel>Existing Offer (optional)</SecLabel>
-        <input value={offer} onChange={e=>setOffer(e.target.value)}
-          placeholder="e.g. Mindset coaching, Real estate consultation, Podcast community..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
-        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!audience||!problem}>
-          {loading?'Building Magnet System...':'Build Lead Magnet System'}
-        </RedBtn></div>
+        <SecLabel>Who You're Trying to Reach</SecLabel>
+        <textarea value={audience} onChange={e=>setAudience(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+
+        <SecLabel>The Core Problem You Solve</SecLabel>
+        <textarea value={problem} onChange={e=>setProblem(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+
+        <SecLabel>Your Offers / Services</SecLabel>
+        <textarea value={offer} onChange={e=>setOffer(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+
+        <SecLabel>What You Currently Post / Your Content Style</SecLabel>
+        <textarea value={currentContent} onChange={e=>setCurrentContent(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+
+        <SecLabel>What's Resonated Most With Your Audience (comments, DMs, saves, shares)</SecLabel>
+        <textarea value={whatWorks} onChange={e=>setWhatWorks(e.target.value)} rows={3}
+          placeholder="e.g. My veteran transition story got 200 saves. Posts about early mornings get the most DMs. People always ask me about my morning routine..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+
+        <div style={{marginTop:16}}>
+          <RedBtn onClick={run} disabled={loading}>
+            {loading ? 'Building...' : 'Build Lead Magnet System'}
+          </RedBtn>
+        </div>
       </Card>
       {loading && <Spin/>}
       <Output text={out}/>
@@ -839,31 +919,56 @@ function LeadMagnet() {
 }
 
 function CommunityBuilder() {
-  const [focus,setFocus] = useState('');
-  const [out,setOut] = useState('');
-  const [loading,setLoading] = useState(false);
+  const [focus, setFocus] = useState('Everyday people who refuse to stay where they are. Mindset, resilience, showing up when it's hard. Veterans, parents, professionals, athletes.');
+  const [currentEngagement, setCurrentEngagement] = useState('');
+  const [whereTheyAre, setWhereTheyAre] = useState('Instagram comments and DMs primarily. Some Facebook. Podcast listeners.');
+  const [whatTheyAsk, setWhatTheyAsk] = useState('');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
   const run = async () => {
-    if(!focus) return;
     setLoading(true); setOut('');
-    const res = await ai(COMMUNITY_PROMPT(focus));
+    const res = await ai(COMMUNITY_PROMPT(focus, currentEngagement, whereTheyAre, whatTheyAsk));
     setOut(res); setLoading(false);
   };
+
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
         <span style={{fontSize:32}}>🏔️</span>
-        <div><h2 style={{color:B.white,margin:0}}>Community Builder</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Elevation Nation systems — everyday people who refuse to stay where they are</p></div>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Community Builder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Built from what's actually happening in your audience — not a template.</p>
+        </div>
       </div>
       <Card>
-        <SecLabel>Community Focus / Theme</SecLabel>
-        <input value={focus} onChange={e=>setFocus(e.target.value)}
-          placeholder="e.g. Veterans building their next chapter, Mindset for everyday wins..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
-        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!focus}>
-          {loading?'Building Community System...':'Build Community System'}
-        </RedBtn></div>
+        <SecLabel>Who Elevation Nation Is For</SecLabel>
+        <textarea value={focus} onChange={e=>setFocus(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+
+        <SecLabel>What Your Current Engagement Actually Looks Like</SecLabel>
+        <textarea value={currentEngagement} onChange={e=>setCurrentEngagement(e.target.value)} rows={2}
+          placeholder="e.g. I get 10-15 DMs a week. Most comments are people saying they needed this today. My veteran posts get the most replies..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+
+        <SecLabel>Where Your Audience Lives Right Now</SecLabel>
+        <textarea value={whereTheyAre} onChange={e=>setWhereTheyAre(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+
+        <SecLabel>What People Ask You or Tell You Most (comments, DMs, real life)</SecLabel>
+        <textarea value={whatTheyAsk} onChange={e=>setWhatTheyAsk(e.target.value)} rows={3}
+          placeholder="e.g. How do you stay consistent? How did you get through your transition? Can you do more content on morning routines?..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+
+        <div style={{marginTop:16}}>
+          <RedBtn onClick={run} disabled={loading}>
+            {loading ? 'Building...' : 'Build Elevation Nation System'}
+          </RedBtn>
+        </div>
       </Card>
       {loading && <Spin/>}
       <Output text={out}/>
