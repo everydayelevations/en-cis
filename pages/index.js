@@ -594,37 +594,67 @@ function Home({setNav,setSub}) {
 }
 
 function Onboarding() {
-  const [goals,setGoals] = useState('');
-  const [current,setCurrent] = useState('');
-  const [hours,setHours] = useState('5');
+  const [goals,setGoals] = useState(
+    `Grow @everydayelevations from ~2,400 Instagram followers to 10,000 by end of 2025. Post consistently 5x/week on Instagram. Launch Elevation Nation as a recognizable community identity. Start building an email list from zero — target 500 subscribers in 90 days. Book 3 meaningful podcast guests. Generate at least 1 real estate lead per month through content. Keep it real — no fake hype, no gimmicks.`
+  );
+  const [current,setCurrent] = useState(
+    `Instagram: ~2,400 followers, posting 2-3x/week inconsistently, no clear content schedule. YouTube: @everydayelevations exists but underused. Facebook: facebook.com/jason.fricka active but no strategy. LinkedIn: linkedin.com/in/jason-fricka — HR Manager at Highland Cabinetry + podcast host, dual-lane not leveraged. No email list. No lead magnet. Everyday Elevations podcast running. Colorado-based. Full-time HR job + real estate license + family.`
+  );
+  const [hours,setHours] = useState('10');
   const [out,setOut] = useState('');
   const [loading,setLoading] = useState(false);
+  const [downloading,setDownloading] = useState(false);
+
   const run = async () => {
     if(!goals) return;
     setLoading(true); setOut('');
     const res = await ai(ONBOARD_PROMPT(goals, current, hours));
     setOut(res); setLoading(false);
   };
+
+  const downloadDoc = async () => {
+    if(!out) return;
+    setDownloading(true);
+    try {
+      const res = await fetch('/api/claude', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          prompt: `Convert this strategy document into clean HTML that could be printed or saved as a document. Use proper headings (h1, h2, h3), bullet points, and bold text. Make it professional and readable. Return ONLY the HTML body content, no <html> or <body> tags:\n\n${out}`,
+          system: 'You convert markdown/text strategy documents into clean, well-formatted HTML. Return only the inner HTML content.'
+        })
+      });
+      const d = await res.json();
+      const html = d.result || '';
+      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Everyday Elevations — 90-Day Strategy</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#111;line-height:1.7}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#0A1628;margin-top:32px}h3{color:#E94560}strong{color:#0A1628}li{margin-bottom:6px}@media print{body{margin:24px}}</style></head><body><h1>Everyday Elevations — 90-Day Content Strategy</h1>${html}</body></html>`;
+      const blob = new Blob([fullHtml], {type:'text/html'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'EverydayElevations-90DayStrategy.html';
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+    } catch(e) { console.error(e); }
+    setDownloading(false);
+  };
+
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
         <span style={{fontSize:32}}>🚀</span>
-        <div><h2 style={{color:B.white,margin:0}}>90-Day Onboarding Strategy</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Complete content roadmap in minutes <SOPBadge/></p></div>
+        <div><h2 style={{color:B.white,margin:0}}>90-Day Strategy Builder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pre-filled with your numbers. Edit anything, then generate.</p></div>
       </div>
       <Card>
         <SecLabel>Your Goals</SecLabel>
-        <textarea value={goals} onChange={e=>setGoals(e.target.value)} rows={3}
-          placeholder="e.g. Grow to 10k followers, launch a course, book podcast guests..."
+        <textarea value={goals} onChange={e=>setGoals(e.target.value)} rows={5}
           style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
         <SecLabel style={{marginTop:16}}>Current State</SecLabel>
-        <textarea value={current} onChange={e=>setCurrent(e.target.value)} rows={2}
-          placeholder="e.g. 2,400 Instagram followers, post 2x/week, no email list..."
+        <textarea value={current} onChange={e=>setCurrent(e.target.value)} rows={5}
           style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
-        <div style={{display:'flex',alignItems:'center',gap:12,marginTop:16}}>
-          <SecLabel style={{margin:0}}>Hours/Week Available:</SecLabel>
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
+        <div style={{display:'flex',alignItems:'center',gap:12,marginTop:16,flexWrap:'wrap'}}>
+          <SecLabel style={{margin:0}}>Hours/Week:</SecLabel>
           {['3','5','10','15','20+'].map(h => (
             <button key={h} onClick={()=>setHours(h)}
               style={{background:hours===h?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
@@ -638,7 +668,23 @@ function Onboarding() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <Output text={out}/>
+      {out && (
+        <div style={{marginTop:16}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:10}}>
+            <span style={{color:B.white,fontWeight:700,fontSize:15}}>Your 90-Day Strategy</span>
+            <div style={{display:'flex',gap:8}}>
+              <CopyBtn text={out}/>
+              <button onClick={downloadDoc} disabled={downloading}
+                style={{background:downloading?B.gray:'#0A1628',color:B.white,border:`1px solid rgba(255,255,255,0.2)`,
+                  borderRadius:8,padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',
+                  fontSize:13,display:'flex',alignItems:'center',gap:6,transition:'all 0.2s'}}>
+                {downloading ? 'Preparing...' : '⬇ Download Strategy Doc'}
+              </button>
+            </div>
+          </div>
+          <Output text={out}/>
+        </div>
+      )}
     </div>
   );
 }
