@@ -29,7 +29,33 @@ const ANGLES = [
   { id:"finance",  label:"Finance & Real Estate",        icon:"💰", color:B.navy   },
   { id:"podcast",  label:"Podcast & Personal Growth",    icon:"🎙️", color:B.navy   },
   { id:"family",   label:"Family & Life Lessons",        icon:"❤️", color:B.navy   },
+  { id:"health",   label:"Health & Physical Wellness",   icon:"💪", color:B.navy   },
 ];
+
+// Dr. Peggy Swarbrick's 8 Dimensions of Wellness -- baked into all content generation
+const SWARBRICK_FRAMEWORK = `
+CONTENT WELLNESS FRAMEWORK (Dr. Peggy Swarbrick's 8 Dimensions -- apply as relevant):
+1. Mental/Emotional Wellness: stress management, emotional balance, mindset resilience
+2. Physical Wellness: training, nutrition, recovery, body as a tool for life, endurance
+3. Social Wellness: relationships, community, Elevation Nation, connection
+4. Environmental Wellness: sustainable lifestyle, Colorado outdoors, personal space and energy
+5. Financial Wellness: financial management, real estate, debt reduction, building wealth
+6. Intellectual Wellness: cognitive growth, learning, curiosity, podcast insights, continuous education
+7. Occupational Wellness: career satisfaction, work-life balance, veteran-to-civilian transition, HR leadership
+8. Spiritual Wellness: purpose, meaning, faith, existential peace, legacy
+
+Content Angle to Dimension mapping:
+- Veteran/Resilience: Mental/Emotional + Spiritual + Occupational
+- Mindset & Mental Toughness: Mental/Emotional + Intellectual + Spiritual
+- Everyday Wins: Mental/Emotional + Physical + Intellectual
+- Outdoor Living & Community: Environmental + Social + Physical
+- Finance & Real Estate: Financial + Occupational + Intellectual
+- Podcast & Personal Growth: Intellectual + Spiritual + Mental/Emotional
+- Family & Life Lessons: Social + Spiritual + Mental/Emotional
+- Health & Physical Wellness: Physical + Mental/Emotional + Environmental
+
+When generating content, identify which 1-2 dimensions are most relevant to the topic and angle, then weave in language and framing that speaks to those dimensions authentically. Do NOT mention "dimensions" or "Swarbrick" explicitly -- the framework should be invisible infrastructure, not content topic.
+`;
 
 const NAV = [
   { id:"home",      icon:"⚡", label:"Command Center"    },
@@ -355,6 +381,8 @@ GREENSPAN CONTENT STANDARDS:
 
 VOICE: Conversational, direct, no fluff. Veteran, mindset coach, endurance athlete, father in Colorado. Elevation Nation community identity woven in naturally.
 
+${SWARBRICK_FRAMEWORK}
+
 Generate 3 script variations for the given topic, platform, and content type. Return ONLY JSON:
 {
   "platform": "platform name",
@@ -385,12 +413,14 @@ const STITCH_PROMPT = `You are a social media script writer trained on Greenspan
 You are writing a STITCH/RESPONSE script -- reacting to a viral piece of content with Jason Fricka's unique POV.
 
 GREENSPAN STITCH STANDARDS:
-- Hook must reference or respond to the original viral content immediately -- viewers watching the original should feel this is FOR them
+- Hook must reference or respond to the original viral content immediately
 - Take a clear stance -- agree, disagree, add nuance, or share a real story that connects
 - Bring the veteran, mindset coach, endurance athlete perspective that nobody else in wellness has
 - Optimize for SHARES -- stitch content gets shared when the response adds real value or sparks debate
 - 30-60 seconds. No intro. No fluff. Pure value and POV.
 - End with a comment-based CTA that continues the conversation
+
+${SWARBRICK_FRAMEWORK}
 
 Return ONLY JSON:
 {
@@ -1021,12 +1051,17 @@ const PIPELINE_ANGLES = [
   { id:"finance",  label:"Finance & Real Estate",        icon:"💰" },
   { id:"podcast",  label:"Podcast & Personal Growth",    icon:"🎙️" },
   { id:"family",   label:"Family & Life Lessons",        icon:"❤️" },
+  { id:"health",   label:"Health & Physical Wellness",   icon:"💪" },
 ];
 
 const PIPELINE_EP = `You are the Elevation Nation Content Intelligence Engine for @everydayelevations. Analyze this research and return ONLY JSON:
-{"summary":"2-3 sentence synthesis","reelIdeas":[{"title":"hook-driven title","hook":"exact opening line","why":"why drives follows","cta":"specific CTA"}],"topGap":"single most important content gap in one sentence","elevationNationAngle":"how to leverage Elevation Nation community identity"}`;
+{"summary":"2-3 sentence synthesis","reelIdeas":[{"title":"hook-driven title","hook":"exact opening line","why":"why drives follows","cta":"specific CTA","wellnessDimension":"which of Swarbrick's 8 dimensions this touches"}],"topGap":"single most important content gap in one sentence","elevationNationAngle":"how to leverage Elevation Nation community identity"}`;
 
-const PIPELINE_SP = `You are a Reel script writer for @everydayelevations. VOICE: Conversational, no fluff, direct, short punchy sentences, Elevation Nation community woven in. TARGET: 30-60 seconds. Return ONLY JSON:
+const PIPELINE_SP = `You are a Reel script writer for @everydayelevations. VOICE: Conversational, no fluff, direct, short punchy sentences, Elevation Nation community woven in. TARGET: 30-60 seconds.
+
+${SWARBRICK_FRAMEWORK}
+
+Return ONLY JSON:
 {"hook":"first line","hookNote":"delivery direction","body":["l1","l2","l3","l4","l5"],"bodyNotes":["n1","n2","n3","n4","n5"],"cta":"closing line","ctaNote":"how to land it","onScreenText":"opening overlay","caption":"full Instagram caption 3-5 paragraphs","hashtags":["#t1","#t2","#t3","#t4","#t5","#t6","#t7"],"estimatedSeconds":45}`;
 
 function Pipeline() {
@@ -1282,7 +1317,9 @@ function Pipeline() {
 
 const DESIGN_PROMPT = `You are a social media content designer for @everydayelevations — a health, wellness and mindset Instagram account. Brand colors: Navy #0A1628, Red #E94560, White #FFFFFF.
 
-Given a topic and angle, generate BOTH a carousel post concept AND a static post concept. Return ONLY JSON:
+${SWARBRICK_FRAMEWORK}
+
+Given a topic and angle, identify which wellness dimensions are most relevant and let them shape the visual direction, headlines, and body copy. Then generate BOTH a carousel post concept AND a static post concept. Return ONLY JSON:
 {
   "carousel": {
     "title": "carousel series title",
@@ -1567,6 +1604,10 @@ GREENSPAN CONTENT STANDARDS TO APPLY:
 - Success metrics: Shares + Saves first, non-follower reach second, qualified leads third
 - Content types: Educational (saves), Trend-Responsive (shares), Personal Story (follows)
 - Testing framework: A/B test length, CTA type, authority placement, topic angle, posting time weekly
+
+${SWARBRICK_FRAMEWORK}
+
+The strategy document must reflect all 8 wellness dimensions across the content pillars -- ensuring the brand speaks to the whole person, not just one aspect of health. Content pillars should map to specific wellness dimensions so every piece of content serves a clear purpose in the audience's full wellness journey.
 
 Generate a complete strategy document. Return ONLY JSON:
 {
