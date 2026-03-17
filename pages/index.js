@@ -1172,25 +1172,48 @@ function Extract() {
 function ScriptEngine() {
   const [mode, setMode] = useState('write'); // write | stitch
 
-  // ── WRITE MODE state ──────────────────────────────────────────────────────
-  const [topic, setTopic] = useState('');
-  const [angle, setAngle] = useState('mindset');
-  const [platform, setPlatform] = useState('Instagram');
-  const [writeOut, setWriteOut] = useState('');
-  const [writeLoading, setWriteLoading] = useState(false);
+  // ── WRITE MODE ──────────────────────────────────────────────────────────
+  const [topic,         setTopic]        = useState('');
+  const [angle,         setAngle]        = useState('mindset');
+  const [platform,      setPlatform]     = useState('Instagram');
+  const [writeOut,      setWriteOut]     = useState('');
+  const [writeLoading,  setWriteLoading] = useState(false);
 
-  // ── STITCH MODE state ─────────────────────────────────────────────────────
-  const [stitchAngle, setStitchAngle] = useState('mindset');
-  const [stitchPlatform, setStitchPlatform] = useState('Instagram');
-  const [trends, setTrends] = useState(null);       // raw Perplexity result
-  const [trendCards, setTrendCards] = useState([]); // parsed trend objects
-  const [trendLoading, setTrendLoading] = useState(false);
-  const [trendError, setTrendError] = useState('');
-  const [selectedTrend, setSelectedTrend] = useState(null);
-  const [stitchOut, setStitchOut] = useState('');
-  const [stitchLoading, setStitchLoading] = useState(false);
+  // ── STITCH MODE ─────────────────────────────────────────────────────────
+  const [stitchDimension, setStitchDimension] = useState('');   // selected Swarbrick dimension
+  const [stitchPlatform,  setStitchPlatform]  = useState('YouTube + Instagram');
+  const [rawTrends,       setRawTrends]       = useState('');   // Perplexity raw text
+  const [trendCards,      setTrendCards]      = useState([]);   // parsed cards
+  const [trendLoading,    setTrendLoading]    = useState(false);
+  const [trendPhase,      setTrendPhase]      = useState('');   // status label
+  const [trendError,      setTrendError]      = useState('');
+  const [selectedTrend,   setSelectedTrend]   = useState(null);
+  const [stitchOut,       setStitchOut]       = useState('');
+  const [stitchLoading,   setStitchLoading]   = useState(false);
 
-  // ── WRITE: generate script ────────────────────────────────────────────────
+  // ── Swarbrick 8 Dimensions (picker) ─────────────────────────────────────
+  const DIMENSIONS = [
+    { id:'emotional',    label:'Emotional',    icon:'💛', desc:'Resilience, stress, self-acceptance' },
+    { id:'physical',     label:'Physical',     icon:'💪', desc:'Movement, sleep, nutrition, body' },
+    { id:'social',       label:'Social',       icon:'🤝', desc:'Relationships, community, belonging' },
+    { id:'intellectual', label:'Intellectual', icon:'🧠', desc:'Learning, curiosity, creativity' },
+    { id:'spiritual',    label:'Spiritual',    icon:'🌅', desc:'Purpose, meaning, values, faith' },
+    { id:'environmental',label:'Environmental',icon:'🏔️', desc:'Nature, spaces, sustainable living' },
+    { id:'financial',    label:'Financial',    icon:'💰', desc:'Money, debt, security, planning' },
+    { id:'occupational', label:'Occupational', icon:'⚙️', desc:'Work purpose, balance, contribution' },
+  ];
+
+  const SWARBRICK_FULL = `Dr. Peggy Swarbrick's 8 Dimensions of Wellness (2010):
+1. EMOTIONAL — Coping, resilience, self-acceptance, managing stress and emotions
+2. PHYSICAL — Movement, sleep, nutrition, avoiding harm, body as instrument of life
+3. SOCIAL — Deep relationships, communication, community belonging, support networks
+4. INTELLECTUAL — Lifelong curiosity, learning, creativity, cognitive growth, open-mindedness
+5. SPIRITUAL — Purpose, meaning, personal values, faith, connection to something beyond self
+6. ENVIRONMENTAL — Safe/nourishing spaces, relationship with nature, sustainable choices
+7. FINANCIAL — Managing money well, reducing debt, building security, planning for the future
+8. OCCUPATIONAL — Purpose in work, career alignment, work-life balance, contributing meaningfully`;
+
+  // ── WRITE: generate 3 script variations ────────────────────────────────
   const runWrite = async () => {
     if (!topic) return;
     setWriteLoading(true); setWriteOut('');
@@ -1199,131 +1222,187 @@ function ScriptEngine() {
     setWriteOut(res); setWriteLoading(false);
   };
 
-  // ── STITCH: fetch today's viral trends via Perplexity ────────────────────
+  // ── STITCH: 2-stage Perplexity search for real viral content ────────────
   const fetchTrends = async () => {
+    if (!stitchDimension) return;
+    const dim = DIMENSIONS.find(d => d.id === stitchDimension);
+
     setTrendLoading(true);
-    setTrends(null);
+    setRawTrends('');
     setTrendCards([]);
     setTrendError('');
     setSelectedTrend(null);
     setStitchOut('');
 
-    const angleLabel = ANGLES.find(a => a.id === stitchAngle)?.label;
-    const today = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    const today = new Date().toLocaleDateString('en-US', {
+      weekday:'long', year:'numeric', month:'long', day:'numeric'
+    });
 
-    const query = `What content is going viral RIGHT NOW on ${stitchPlatform} today (${today}) in the ${angleLabel} space? I need 6-8 specific trending videos, audio clips, statements, or posts that people are stitching and responding to. For each trend include: the hook or central claim, why it's resonating, and how a veteran/mindset coach could respond to it authentically. Focus on real trends happening today — not evergreen topics.`;
+    // ── Stage 1: search for real viral videos with view counts + links ──
+    setTrendPhase('Searching YouTube & Instagram for viral wellness content...');
 
-    const raw = await perp(query);
-    setTrends(raw);
+    const searchQuery = `Find 6-8 specific YouTube videos OR Instagram Reels that are currently viral (2 million+ views) related to ${dim.label} wellness — specifically: ${dim.desc}. Today is ${today}.
 
-    // Now ask Claude to parse the Perplexity results into clean trend cards
-    const parsePrompt = `Parse this Perplexity research about today's viral content into exactly 6-8 trend cards.
+For each video/reel I need:
+- Exact title of the video/post
+- Creator name and channel/handle
+- Direct URL or link (youtube.com or instagram.com)
+- Approximate view count
+- The core claim, argument, or message being made
+- Why it's resonating with audiences right now
 
-Research:
+Search for content from the past 30-60 days that has 2M+ views. Focus on wellness, mindset, mental health, personal development, and lifestyle content. Include content that is controversial, counterintuitive, or sparks strong reactions — those make the best stitch targets.`;
+
+    const raw = await perp(searchQuery);
+    setRawTrends(raw);
+
+    // ── Stage 2: Claude parses raw results into structured cards ──────────
+    setTrendPhase('Parsing trends and mapping to Swarbrick framework...');
+
+    const parsePrompt = `You are analyzing Perplexity search results about viral wellness videos (2M+ views) related to the "${dim.label}" dimension of Dr. Peggy Swarbrick's 8 Dimensions of Wellness.
+
+${SWARBRICK_FULL}
+
+The "${dim.label}" dimension specifically covers: ${dim.desc}
+
+PERPLEXITY SEARCH RESULTS:
 ${raw}
 
-Return ONLY a JSON array, no markdown, no explanation:
+Parse these results into exactly 6-8 trend cards. For each viral piece of content found, create a card.
+
+Return ONLY valid JSON, no markdown fences, no explanation:
 [
   {
-    "title": "Short trend name (max 8 words)",
-    "hook": "The viral hook or central claim being made",
-    "why_viral": "One sentence — psychological reason it's spreading",
-    "platform": "Instagram/TikTok/YouTube/Multi-platform",
-    "urgency": "hot right now / trending / rising",
-    "jason_angle": "How Jason Fricka (veteran, mindset coach, Colorado) should approach this specifically",
-    "stitch_hook": "Exact first line Jason should say in his stitch response"
+    "title": "Exact or close-to-exact video/post title",
+    "creator": "Creator name / channel name",
+    "handle": "@handle or channel URL fragment",
+    "url": "Full URL if found, or best approximation like youtube.com/@channelname or instagram.com/handle",
+    "views": "e.g. 4.2M views",
+    "platform": "YouTube or Instagram",
+    "core_claim": "The central argument or message of the video in 1-2 sentences",
+    "why_viral": "Psychological reason it's spreading — what emotion or belief it triggers",
+    "swarbrick_dimension": "${dim.label}",
+    "swarbrick_angle": "How this content connects to the ${dim.label} dimension of wellness specifically",
+    "jason_stitch_angle": "Specific angle for Jason Fricka (veteran, HR manager, mindset coach, endurance athlete, Colorado dad) to respond — what lived experience does he have that adds genuine value here?",
+    "stitch_opener": "Exact first 1-2 sentences Jason should say — in his voice, direct, no hype",
+    "stitch_stance": "agree-and-add / respectfully-challenge / personal-story / veteran-lens / deeper-context",
+    "urgency": "hot right now / trending / viral this month"
   }
 ]
 
-If the research doesn't have 6-8 clear trends, synthesize what IS there into the best 4-6 cards you can. Always return valid JSON.`;
+If the search results don't have clean URLs, construct the most likely URL from creator name and platform. Always include something in the url field. If view counts aren't explicit, estimate from context clues. Always return valid JSON with all fields.`;
 
     try {
       const parsed = await ai(parsePrompt);
-      // Strip markdown code fences if Claude wraps it
       const clean = parsed.replace(/```json\n?|```\n?/g, '').trim();
       const cards = JSON.parse(clean);
       setTrendCards(cards);
-    } catch (e) {
-      // Fallback: show raw results if parsing fails
-      setTrendError('Could not auto-parse trends — raw results shown below. Pick a topic manually.');
+    } catch(e) {
+      setTrendError('Could not parse trend data — raw research shown below. Try refreshing or pick a different dimension.');
     }
 
+    setTrendPhase('');
     setTrendLoading(false);
   };
 
-  // ── STITCH: generate script for selected trend ────────────────────────────
+  // ── STITCH: write the full response script ───────────────────────────────
   const runStitch = async (trend) => {
     setSelectedTrend(trend);
     setStitchLoading(true);
     setStitchOut('');
 
-    const angleLabel = ANGLES.find(a => a.id === stitchAngle)?.label;
+    const dim = DIMENSIONS.find(d => d.id === stitchDimension);
 
     const prompt = `${VOICE}
 ${CONTENT_SOP}
-${SWARBRICK}
 
-Write a viral stitch/response script for this trending content:
+${SWARBRICK_FULL}
 
-TREND: "${trend.title}"
-THE HOOK/CLAIM BEING MADE: "${trend.hook}"
-WHY IT'S VIRAL: ${trend.why_viral}
-JASON'S ANGLE: ${trend.jason_angle}
-SUGGESTED STITCH HOOK: "${trend.stitch_hook}"
+You are writing a stitch/response script for Jason Fricka (@everydayelevations).
 
-Platform: ${stitchPlatform}
-Content angle: ${angleLabel}
+ORIGINAL VIRAL CONTENT:
+Title: "${trend.title}"
+Creator: ${trend.creator} (${trend.handle})
+Platform: ${trend.platform}
+Views: ${trend.views}
+Core message: "${trend.core_claim}"
+Why it went viral: ${trend.why_viral}
 
-Write a complete stitch response script:
+WELLNESS CONTEXT:
+Swarbrick Dimension: ${trend.swarbrick_dimension}
+Connection to this dimension: ${trend.swarbrick_angle}
 
-**HOOK** (0-3 seconds — starts with the suggested hook above or something better)
-[exact words, no direction notes]
+JASON'S SPECIFIC ANGLE: ${trend.jason_stitch_angle}
+STITCH STANCE: ${trend.stitch_stance}
+OPENING LINE TO BUILD FROM: "${trend.stitch_opener}"
 
-**BRIDGE** (acknowledge the original, set up your response — 3-8 seconds)
-[exact words]
+Platform to post on: ${stitchPlatform}
 
-**YOUR TAKE** (2-3 tight points that add genuine value or healthy challenge — 15-45 seconds)
-[exact words, no bullet headers]
+Write a complete, camera-ready stitch script. Structure:
 
-**CTA** (drives comments — question format preferred)
-[exact words]
+**HOOK** (0-3 sec)
+[Exact words. Start with the opener or improve it. Must make viewer stop scrolling immediately.]
+
+**BRIDGE** (3-8 sec)
+[Acknowledge the original — enough context so viewers understand what Jason is responding to, even if they haven't seen it.]
+
+**JASON'S TAKE** (15-50 sec)
+[2-3 punchy points. No bullet headers in the actual script — just spoken lines. Add genuine value: veteran lens, lived experience, or depth the original missed. Keep it conversational — like he's talking to one person, not presenting to an audience.]
+
+**CTA** (3-5 sec)
+[One specific question that drives comments from Elevation Nation. Should connect to the ${dim.label} dimension theme — make it personal and answerable.]
 
 ---
-**CAPTION** (Instagram-native, saves-first, 3 hashtag tiers)
-[ready to copy-paste]
 
-Rules:
-- Total spoken time: 45-75 seconds
-- No "Hey guys" or "So I was thinking"
-- Jason's voice: direct, no hype, sounds like real conversation
-- The stitch should add genuine value — not just agree or dunk
-- End with a question that makes his specific audience want to respond`;
+**CAPTION**
+[Full Instagram/YouTube caption. Saves-first formatting. 150-250 words. End with the same CTA question. Include a line break between every 2-3 sentences for readability.]
+
+**HASHTAGS**
+[20 tags in 3 tiers: 5 niche (under 500K), 10 mid (500K-5M), 5 broad (5M+). Focused on wellness, ${dim.label.toLowerCase()} wellness, veteran, mindset, Elevation Nation.]
+
+---
+
+Script rules:
+- Total spoken time: 45-90 seconds
+- No "Hey guys" / "So I wanted to talk about" / corporate-speak
+- Jason's voice: direct, real, like he's sitting across from you at a table
+- The stitch adds something — doesn't just agree or dunk
+- Every line earns its place — cut anything that doesn't move the video forward`;
 
     const res = await ai(prompt);
     setStitchOut(res);
     setStitchLoading(false);
   };
 
-  // ── URGENCY COLORS ────────────────────────────────────────────────────────
-  const urgencyColor = (u) => {
-    if (!u) return B.gray;
-    if (u.includes('hot')) return '#FF4D4D';
-    if (u.includes('trending')) return '#F5A623';
-    return '#27AE60';
+  // ── Urgency pill color ───────────────────────────────────────────────────
+  const urgencyColor = (u='') => {
+    if (u.includes('hot'))   return { bg:'rgba(255,77,77,0.15)',   text:'#FF4D4D',  border:'rgba(255,77,77,0.3)' };
+    if (u.includes('trend')) return { bg:'rgba(245,166,35,0.15)',  text:'#F5A623',  border:'rgba(245,166,35,0.3)' };
+    return                          { bg:'rgba(39,174,96,0.15)',   text:'#27AE60',  border:'rgba(39,174,96,0.3)' };
   };
 
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ── Stance label ─────────────────────────────────────────────────────────
+  const stanceLabel = {
+    'agree-and-add':         { label:'Agree + Add', color:'#27AE60' },
+    'respectfully-challenge':{ label:'Respectful Challenge', color:'#F5A623' },
+    'personal-story':        { label:'Personal Story', color:'#4A9EE0' },
+    'veteran-lens':          { label:'Veteran Lens', color:'#8B4EBF' },
+    'deeper-context':        { label:'Deeper Context', color:'#E94560' },
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════
   // RENDER
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════
   return (
     <div>
+
       {/* Header */}
       <div style={{display:'flex', alignItems:'center', gap:12, marginBottom:24}}>
         <span style={{fontSize:32}}>✍️</span>
         <div>
           <h2 style={{color:B.white, margin:0}}>Script Engine</h2>
           <p style={{color:B.gray, margin:'4px 0 0', fontSize:13}}>
-            Write original scripts or stitch today's viral trends in real-time <SOPBadge/>
+            Write original scripts or find real 2M+ view viral content to stitch — mapped to Swarbrick's 8 Wellness Dimensions <SOPBadge/>
           </p>
         </div>
       </div>
@@ -1331,26 +1410,20 @@ Rules:
       {/* Mode toggle */}
       <div style={{display:'flex', gap:8, marginBottom:24}}>
         {[
-          {id:'write', label:'✍️ Write Script'},
-          {id:'stitch', label:'🔥 Stitch Trends (Live)'},
+          {id:'write',  label:'✍️  Write Script'},
+          {id:'stitch', label:'🔥  Viral Stitch (Live)'},
         ].map(m => (
           <button key={m.id} onClick={() => setMode(m.id)}
-            style={{
-              background: mode===m.id ? B.red : 'rgba(255,255,255,0.07)',
-              color: B.white,
-              border: mode===m.id ? 'none' : '1px solid rgba(255,255,255,0.12)',
-              borderRadius: 8,
-              padding: '10px 20px',
-              cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: mode===m.id ? 700 : 400,
-            }}>
+            style={{background:mode===m.id ? B.red : 'rgba(255,255,255,0.07)',
+              color:B.white, border:mode===m.id ? 'none' : '1px solid rgba(255,255,255,0.12)',
+              borderRadius:8, padding:'10px 22px', cursor:'pointer',
+              fontSize:14, fontWeight:mode===m.id ? 700 : 400}}>
             {m.label}
           </button>
         ))}
       </div>
 
-      {/* ── WRITE MODE ────────────────────────────────────────────────────── */}
+      {/* ════════════════════ WRITE MODE ══════════════════════════════════ */}
       {mode === 'write' && (
         <Card>
           <SecLabel>Topic / Idea</SecLabel>
@@ -1359,10 +1432,8 @@ Rules:
             style={{width:'100%', background:'rgba(0,0,0,0.3)', border:'1px solid rgba(255,255,255,0.15)',
               borderRadius:8, padding:'10px 12px', color:B.white, fontSize:13,
               marginBottom:16, boxSizing:'border-box'}}/>
-
           <SecLabel>Content Angle</SecLabel>
           <AngleGrid selected={angle} onSelect={setAngle}/>
-
           <SecLabel>Platform</SecLabel>
           <div style={{display:'flex', gap:8, marginBottom:20, flexWrap:'wrap'}}>
             {PLATFORMS.map(p => (
@@ -1374,209 +1445,294 @@ Rules:
               </button>
             ))}
           </div>
-
           <RedBtn onClick={runWrite} disabled={writeLoading || !topic}>
-            {writeLoading ? 'Writing 3 Script Variations...' : 'Write 3 Script Variations'}
+            {writeLoading ? 'Writing 3 Variations...' : 'Write 3 Script Variations'}
           </RedBtn>
         </Card>
       )}
       {mode === 'write' && writeLoading && <Spin/>}
       {mode === 'write' && <Output text={writeOut}/>}
 
-      {/* ── STITCH MODE ───────────────────────────────────────────────────── */}
+      {/* ════════════════════ STITCH MODE ════════════════════════════════ */}
       {mode === 'stitch' && (
         <>
-          {/* Step 1: configure + fetch */}
+          {/* ── Step 1: Pick Swarbrick dimension ─────────────────────── */}
           <Card style={{marginBottom:16}}>
-            <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:16}}>
-              <div style={{background:B.red, color:B.white, borderRadius:'50%', width:24, height:24,
-                display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:12,
-                flexShrink:0}}>1</div>
-              <span style={{color:B.white, fontWeight:700}}>Pick your angle + platform, then pull today's trends</span>
+            <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:18}}>
+              <div style={{background:B.red, color:B.white, borderRadius:'50%', width:26, height:26,
+                display:'flex', alignItems:'center', justifyContent:'center',
+                fontWeight:800, fontSize:13, flexShrink:0}}>1</div>
+              <div>
+                <div style={{color:B.white, fontWeight:700, fontSize:15}}>
+                  Pick a Swarbrick Wellness Dimension
+                </div>
+                <div style={{color:B.gray, fontSize:12, marginTop:2}}>
+                  Dr. Peggy Swarbrick's 8 Dimensions — Perplexity will find real 2M+ view viral content in this space
+                </div>
+              </div>
             </div>
 
-            <SecLabel>Your Response Angle</SecLabel>
-            <AngleGrid selected={stitchAngle} onSelect={setStitchAngle}/>
-
-            <SecLabel>Platform to Post On</SecLabel>
-            <div style={{display:'flex', gap:8, marginBottom:20, flexWrap:'wrap'}}>
-              {PLATFORMS.map(p => (
-                <button key={p} onClick={() => setStitchPlatform(p)}
-                  style={{background:stitchPlatform===p ? B.red : 'rgba(255,255,255,0.07)',
-                    color:B.white, border:'none', borderRadius:6, padding:'6px 14px',
-                    cursor:'pointer', fontSize:13, fontWeight:stitchPlatform===p ? 700 : 400}}>
-                  {p}
+            <div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8, marginBottom:20}}>
+              {DIMENSIONS.map(d => (
+                <button key={d.id} onClick={() => setStitchDimension(d.id)}
+                  style={{
+                    background: stitchDimension===d.id
+                      ? 'rgba(233,69,96,0.18)'
+                      : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${stitchDimension===d.id ? B.red : 'rgba(255,255,255,0.1)'}`,
+                    borderRadius:10, padding:'12px 8px', cursor:'pointer',
+                    textAlign:'left', transition:'all 0.15s',
+                  }}>
+                  <div style={{fontSize:20, marginBottom:5}}>{d.icon}</div>
+                  <div style={{color:stitchDimension===d.id ? B.white : 'rgba(255,255,255,0.85)',
+                    fontWeight:700, fontSize:12, marginBottom:3}}>{d.label}</div>
+                  <div style={{color:B.gray, fontSize:10, lineHeight:1.4}}>{d.desc}</div>
                 </button>
               ))}
             </div>
 
-            <RedBtn onClick={fetchTrends} disabled={trendLoading}
-              style={{display:'flex', alignItems:'center', gap:8}}>
+            <div style={{marginBottom:16}}>
+              <SecLabel>Post To Platform</SecLabel>
+              <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
+                {['YouTube + Instagram','Instagram','YouTube','Facebook','LinkedIn'].map(p => (
+                  <button key={p} onClick={() => setStitchPlatform(p)}
+                    style={{background:stitchPlatform===p ? B.red : 'rgba(255,255,255,0.07)',
+                      color:B.white, border:'none', borderRadius:6, padding:'6px 14px',
+                      cursor:'pointer', fontSize:13, fontWeight:stitchPlatform===p ? 700 : 400}}>
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button onClick={fetchTrends} disabled={trendLoading || !stitchDimension}
+              style={{
+                background: (!stitchDimension || trendLoading) ? 'rgba(255,255,255,0.1)' : B.red,
+                color: B.white, border:'none', borderRadius:8, padding:'11px 22px',
+                cursor: (!stitchDimension || trendLoading) ? 'not-allowed' : 'pointer',
+                fontSize:14, fontWeight:700, display:'flex', alignItems:'center', gap:8,
+              }}>
               {trendLoading ? (
                 <>
-                  <div style={{width:14, height:14, border:'2px solid rgba(255,255,255,0.4)',
-                    borderTopColor:'white', borderRadius:'50%', animation:'spin 0.7s linear infinite'}}/>
-                  Searching Perplexity for today's trends...
+                  <div style={{width:14, height:14, border:'2px solid rgba(255,255,255,0.35)',
+                    borderTopColor:B.white, borderRadius:'50%', animation:'spin 0.7s linear infinite'}}/>
+                  {trendPhase || 'Searching...'}
                 </>
               ) : (
-                <>🔥 Pull Today's Viral Trends</>
+                <>🔥 Find Viral Content (2M+ Views)</>
               )}
-            </RedBtn>
+            </button>
+
+            {!stitchDimension && (
+              <div style={{color:B.gray, fontSize:12, marginTop:10}}>
+                ↑ Select a dimension first
+              </div>
+            )}
           </Card>
 
-          {/* Raw Perplexity data (collapsible feel — small box) */}
-          {trends && !trendLoading && (
-            <details style={{marginBottom:16}}>
-              <summary style={{color:B.gray, fontSize:12, cursor:'pointer', padding:'6px 0',
-                userSelect:'none'}}>
-                📡 Raw Perplexity research (click to expand)
+          {/* ── Collapsible raw research ──────────────────────────────── */}
+          {rawTrends && !trendLoading && (
+            <details style={{marginBottom:14}}>
+              <summary style={{color:B.gray, fontSize:12, cursor:'pointer',
+                padding:'6px 0', userSelect:'none', listStyle:'none'}}>
+                📡 Raw Perplexity research — click to expand
               </summary>
-              <div style={{background:'rgba(0,0,0,0.3)', borderRadius:8, padding:'12px',
-                fontSize:11, color:'rgba(255,255,255,0.6)', lineHeight:1.6, marginTop:8,
-                maxHeight:200, overflowY:'auto'}}>
-                {trends}
+              <div style={{background:'rgba(0,0,0,0.35)', borderRadius:8, padding:'12px',
+                fontSize:11, color:'rgba(255,255,255,0.55)', lineHeight:1.65,
+                marginTop:8, maxHeight:220, overflowY:'auto', whiteSpace:'pre-wrap'}}>
+                {rawTrends}
               </div>
             </details>
           )}
 
-          {/* Step 2: Pick a trend */}
+          {/* ── Step 2: Trend cards ───────────────────────────────────── */}
           {trendCards.length > 0 && !trendLoading && (
             <div style={{marginBottom:16}}>
-              <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:12}}>
-                <div style={{background:B.red, color:B.white, borderRadius:'50%', width:24, height:24,
-                  display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700,
-                  fontSize:12, flexShrink:0}}>2</div>
-                <span style={{color:B.white, fontWeight:700}}>
-                  Pick a trend → Claude writes your stitch script
-                </span>
+              <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:14}}>
+                <div style={{background:B.red, color:B.white, borderRadius:'50%', width:26, height:26,
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  fontWeight:800, fontSize:13, flexShrink:0}}>2</div>
+                <div>
+                  <div style={{color:B.white, fontWeight:700, fontSize:15}}>
+                    Pick a viral video → Claude writes your stitch script
+                  </div>
+                  <div style={{color:B.gray, fontSize:12, marginTop:2}}>
+                    {trendCards.length} trends found · mapped to {DIMENSIONS.find(d=>d.id===stitchDimension)?.label} wellness dimension
+                  </div>
+                </div>
               </div>
 
-              <div style={{display:'grid', gap:10}}>
-                {trendCards.map((t, i) => (
-                  <div key={i}
-                    style={{
-                      background: selectedTrend?.title === t.title
-                        ? 'rgba(233,69,96,0.12)' : B.navy2,
-                      border: `1px solid ${selectedTrend?.title === t.title
-                        ? 'rgba(233,69,96,0.5)' : 'rgba(255,255,255,0.08)'}`,
-                      borderRadius: 12,
-                      padding: '14px 16px',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s',
-                    }}
-                    onClick={() => runStitch(t)}>
-                    <div style={{display:'flex', justifyContent:'space-between',
-                      alignItems:'flex-start', gap:12, marginBottom:8}}>
-                      <div style={{flex:1}}>
-                        <div style={{color:B.white, fontWeight:700, fontSize:14,
-                          marginBottom:4}}>{t.title}</div>
-                        <div style={{color:'rgba(255,255,255,0.65)', fontSize:12,
-                          lineHeight:1.5, marginBottom:6}}>
-                          "{t.hook}"
-                        </div>
-                      </div>
-                      <div style={{display:'flex', flexDirection:'column', alignItems:'flex-end',
-                        gap:4, flexShrink:0}}>
-                        <span style={{
-                          background: `${urgencyColor(t.urgency)}22`,
-                          color: urgencyColor(t.urgency),
-                          fontSize:10, fontWeight:700, padding:'2px 8px',
-                          borderRadius:20, whiteSpace:'nowrap',
-                          border:`1px solid ${urgencyColor(t.urgency)}44`
-                        }}>
-                          {t.urgency || 'trending'}
-                        </span>
-                        <span style={{color:B.gray, fontSize:10}}>{t.platform}</span>
-                      </div>
-                    </div>
+              <div style={{display:'grid', gap:12}}>
+                {trendCards.map((t, i) => {
+                  const uc = urgencyColor(t.urgency);
+                  const sl = stanceLabel[t.stitch_stance] || {label: t.stitch_stance, color: B.gray};
+                  const isSelected = selectedTrend?.title === t.title;
+                  return (
+                    <div key={i} style={{
+                      background: isSelected ? 'rgba(233,69,96,0.1)' : B.navy2,
+                      border: `1px solid ${isSelected ? 'rgba(233,69,96,0.45)' : 'rgba(255,255,255,0.08)'}`,
+                      borderRadius:12, padding:'16px', transition:'all 0.15s',
+                    }}>
 
-                    <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:8}}>
-                      <div style={{background:'rgba(255,255,255,0.04)', borderRadius:6,
-                        padding:'8px 10px'}}>
-                        <div style={{color:B.red, fontSize:10, fontWeight:700,
-                          textTransform:'uppercase', letterSpacing:1, marginBottom:3}}>
-                          Why it's viral
+                      {/* Top row: title + badges */}
+                      <div style={{display:'flex', justifyContent:'space-between',
+                        alignItems:'flex-start', gap:12, marginBottom:10}}>
+                        <div style={{flex:1}}>
+                          <div style={{color:B.white, fontWeight:700, fontSize:14,
+                            lineHeight:1.4, marginBottom:3}}>{t.title}</div>
+                          <div style={{display:'flex', alignItems:'center', gap:8, flexWrap:'wrap'}}>
+                            <span style={{color:B.gray, fontSize:12}}>{t.creator}</span>
+                            <span style={{color:'rgba(255,255,255,0.3)', fontSize:11}}>·</span>
+                            <span style={{color:B.red, fontSize:12, fontWeight:700}}>{t.views}</span>
+                            <span style={{color:'rgba(255,255,255,0.3)', fontSize:11}}>·</span>
+                            <span style={{color:B.gray, fontSize:11}}>{t.platform}</span>
+                          </div>
                         </div>
-                        <div style={{color:'rgba(255,255,255,0.6)', fontSize:11,
-                          lineHeight:1.5}}>
-                          {t.why_viral}
+                        <div style={{display:'flex', flexDirection:'column', alignItems:'flex-end', gap:5, flexShrink:0}}>
+                          <span style={{background:uc.bg, color:uc.text, border:`1px solid ${uc.border}`,
+                            fontSize:10, fontWeight:700, padding:'2px 9px', borderRadius:20,
+                            whiteSpace:'nowrap'}}>
+                            {t.urgency || 'viral'}
+                          </span>
+                          <span style={{background:'rgba(255,255,255,0.05)', color:sl.color,
+                            fontSize:10, fontWeight:600, padding:'2px 8px', borderRadius:20,
+                            border:`1px solid ${sl.color}44`, whiteSpace:'nowrap'}}>
+                            {sl.label}
+                          </span>
                         </div>
                       </div>
-                      <div style={{background:'rgba(255,255,255,0.04)', borderRadius:6,
-                        padding:'8px 10px'}}>
-                        <div style={{color:B.red, fontSize:10, fontWeight:700,
-                          textTransform:'uppercase', letterSpacing:1, marginBottom:3}}>
-                          Jason's angle
-                        </div>
-                        <div style={{color:'rgba(255,255,255,0.6)', fontSize:11,
-                          lineHeight:1.5}}>
-                          {t.jason_angle}
-                        </div>
-                      </div>
-                    </div>
 
-                    <div style={{marginTop:10, display:'flex', alignItems:'center',
-                      justifyContent:'space-between'}}>
-                      <div style={{color:'rgba(255,255,255,0.4)', fontSize:11}}>
-                        Suggested hook: <em>"{t.stitch_hook}"</em>
+                      {/* Link */}
+                      {t.url && (
+                        <a href={t.url} target="_blank" rel="noopener noreferrer"
+                          style={{display:'inline-flex', alignItems:'center', gap:5,
+                            color:'#4A9EE0', fontSize:12, textDecoration:'none',
+                            background:'rgba(74,158,224,0.1)', padding:'4px 10px',
+                            borderRadius:6, border:'1px solid rgba(74,158,224,0.25)',
+                            marginBottom:10}}
+                          onClick={e => e.stopPropagation()}>
+                          🔗 View original content ↗
+                        </a>
+                      )}
+
+                      {/* Core claim */}
+                      <div style={{background:'rgba(255,255,255,0.04)', borderRadius:8,
+                        padding:'10px 12px', marginBottom:10}}>
+                        <div style={{color:B.red, fontSize:10, fontWeight:700,
+                          textTransform:'uppercase', letterSpacing:1, marginBottom:4}}>
+                          What they're saying
+                        </div>
+                        <div style={{color:'rgba(255,255,255,0.75)', fontSize:12, lineHeight:1.55}}>
+                          {t.core_claim}
+                        </div>
                       </div>
-                      <button
-                        style={{background:B.red, color:B.white, border:'none',
-                          borderRadius:6, padding:'6px 14px', cursor:'pointer',
-                          fontSize:12, fontWeight:700, flexShrink:0,
-                          opacity: stitchLoading && selectedTrend?.title===t.title ? 0.6 : 1}}
-                        onClick={(e) => { e.stopPropagation(); runStitch(t); }}>
-                        {stitchLoading && selectedTrend?.title===t.title
-                          ? 'Writing...' : 'Write Stitch →'}
-                      </button>
+
+                      {/* 3-column grid */}
+                      <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginBottom:12}}>
+                        <div style={{background:'rgba(255,255,255,0.03)', borderRadius:6, padding:'8px 10px'}}>
+                          <div style={{color:'#F5A623', fontSize:10, fontWeight:700,
+                            textTransform:'uppercase', letterSpacing:1, marginBottom:4}}>
+                            Why viral
+                          </div>
+                          <div style={{color:'rgba(255,255,255,0.6)', fontSize:11, lineHeight:1.45}}>
+                            {t.why_viral}
+                          </div>
+                        </div>
+                        <div style={{background:'rgba(255,255,255,0.03)', borderRadius:6, padding:'8px 10px'}}>
+                          <div style={{color:'#4A9EE0', fontSize:10, fontWeight:700,
+                            textTransform:'uppercase', letterSpacing:1, marginBottom:4}}>
+                            {DIMENSIONS.find(d=>d.id===stitchDimension)?.icon} Wellness link
+                          </div>
+                          <div style={{color:'rgba(255,255,255,0.6)', fontSize:11, lineHeight:1.45}}>
+                            {t.swarbrick_angle}
+                          </div>
+                        </div>
+                        <div style={{background:'rgba(255,255,255,0.03)', borderRadius:6, padding:'8px 10px'}}>
+                          <div style={{color:B.red, fontSize:10, fontWeight:700,
+                            textTransform:'uppercase', letterSpacing:1, marginBottom:4}}>
+                            Jason's angle
+                          </div>
+                          <div style={{color:'rgba(255,255,255,0.6)', fontSize:11, lineHeight:1.45}}>
+                            {t.jason_stitch_angle}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Opener + Write button */}
+                      <div style={{display:'flex', alignItems:'flex-end',
+                        justifyContent:'space-between', gap:12, flexWrap:'wrap'}}>
+                        <div style={{flex:1}}>
+                          <div style={{color:B.gray, fontSize:10, fontWeight:700,
+                            textTransform:'uppercase', letterSpacing:1, marginBottom:4}}>
+                            Suggested opener
+                          </div>
+                          <div style={{color:'rgba(255,255,255,0.55)', fontSize:12,
+                            fontStyle:'italic', lineHeight:1.45}}>
+                            "{t.stitch_opener}"
+                          </div>
+                        </div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); runStitch(t); }}
+                          disabled={stitchLoading && selectedTrend?.title === t.title}
+                          style={{background:B.red, color:B.white, border:'none',
+                            borderRadius:8, padding:'9px 18px', cursor:'pointer',
+                            fontSize:13, fontWeight:700, flexShrink:0, whiteSpace:'nowrap',
+                            opacity: (stitchLoading && selectedTrend?.title===t.title) ? 0.55 : 1}}>
+                          {(stitchLoading && selectedTrend?.title===t.title)
+                            ? '✍️ Writing...'
+                            : '✍️ Write Stitch Script →'}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {/* Fallback: raw error + manual input */}
-          {trendError && (
-            <Card style={{marginBottom:16,
-              border:'1px solid rgba(245,166,35,0.3)',
-              background:'rgba(245,166,35,0.07)'}}>
-              <div style={{color:'#F5A623', fontSize:13, marginBottom:12}}>{trendError}</div>
-              <div style={{color:'rgba(255,255,255,0.6)', fontSize:12}}>
-                You can still paste a specific trend or post below and run the stitch manually:
+          {/* ── Parse error fallback ──────────────────────────────────── */}
+          {trendError && !trendLoading && (
+            <Card style={{marginBottom:16, border:'1px solid rgba(245,166,35,0.3)',
+              background:'rgba(245,166,35,0.06)'}}>
+              <div style={{color:'#F5A623', fontWeight:700, fontSize:13, marginBottom:6}}>
+                ⚠️ {trendError}
+              </div>
+              <div style={{color:'rgba(255,255,255,0.55)', fontSize:12}}>
+                Raw research is available above — try refreshing or pick a different dimension.
               </div>
             </Card>
           )}
 
-          {/* Step 3: Script output */}
+          {/* ── Step 3: Stitch output ─────────────────────────────────── */}
           {stitchLoading && (
-            <div style={{marginTop:8}}>
-              <div style={{color:B.gray, fontSize:13, marginBottom:12, display:'flex',
-                alignItems:'center', gap:8}}>
-                <div style={{width:14, height:14, border:'2px solid rgba(255,255,255,0.3)',
-                  borderTopColor:B.red, borderRadius:'50%',
-                  animation:'spin 0.7s linear infinite'}}/>
-                Writing stitch script for "{selectedTrend?.title}"...
-              </div>
+            <div style={{display:'flex', alignItems:'center', gap:10,
+              padding:'20px 0', color:B.gray, fontSize:13}}>
+              <div style={{width:16, height:16, border:'2px solid rgba(255,255,255,0.25)',
+                borderTopColor:B.red, borderRadius:'50%',
+                animation:'spin 0.7s linear infinite'}}/>
+              Writing stitch script for "{selectedTrend?.title}"...
             </div>
           )}
 
-          {stitchOut && (
-            <div>
-              <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:12}}>
-                <div style={{background:'#27AE60', color:B.white, borderRadius:'50%', width:24,
-                  height:24, display:'flex', alignItems:'center', justifyContent:'center',
-                  fontWeight:700, fontSize:12, flexShrink:0}}>3</div>
-                <span style={{color:B.white, fontWeight:700}}>Your stitch script is ready</span>
+          {stitchOut && !stitchLoading && (
+            <>
+              <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:14}}>
+                <div style={{background:'#27AE60', color:B.white, borderRadius:'50%', width:26, height:26,
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  fontWeight:800, fontSize:13, flexShrink:0}}>3</div>
+                <div style={{color:B.white, fontWeight:700, fontSize:15}}>
+                  Stitch script ready — "{selectedTrend?.title}"
+                </div>
               </div>
               <Output text={stitchOut}/>
-            </div>
+            </>
           )}
         </>
       )}
     </div>
   );
 }
+
 
 function EpisodeClips() {
   const [title,setTitle] = useState('');
