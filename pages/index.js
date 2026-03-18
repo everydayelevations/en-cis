@@ -385,7 +385,7 @@ Build a lead magnet system grounded in what Jason actually does and what his aud
    Email 2: Personal story that connects to the problem + deeper value
    Email 3: Soft CTA to next step (coaching, call, community)
 
-5. **Instagram Story Sequence** (5 slides to promote it organically)\`;
+5. **Instagram Story Sequence** (5 slides to promote it organically)`;
 
 const COMMUNITY_PROMPT = (focus, currentEngagement, whereTheyAre, whatTheyAsk) => `
 ${VOICE}
@@ -1363,7 +1363,7 @@ function ProfileAudit() {
 
 function LeadMagnet() {
   const [audience, setAudience] = useState('Veterans transitioning out, everyday people working on their mindset, people who feel stuck and want to start moving again');
-  const [problem, setProblem] = useState('They know they need to change but don't know where to start. They feel like everyone else has it figured out. They're showing up but not seeing results.');
+  const [problem, setProblem] = useState("They know they need to change but don't know where to start. They feel like everyone else has it figured out. They're showing up but not seeing results.");
   const [offer, setOffer] = useState('Mindset coaching, Everyday Elevations podcast, Elevation Nation community, real estate (Fricka Sells Colorado)');
   const [currentContent, setCurrentContent] = useState('Reels on mindset, veteran life, everyday wins, outdoor Colorado lifestyle, family lessons, real estate tips. Voice is direct, real, no hype.');
   const [whatWorks, setWhatWorks] = useState('');
