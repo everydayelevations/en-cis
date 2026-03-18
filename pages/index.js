@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Head from 'next/head';
 
 // ─── BRAND ───────────────────────────────────────────────────────────────────
@@ -2154,6 +2154,7 @@ function ScriptEngine() {
   const [stitchContent,setStitchContent] = useState('');
   const [out,setOut] = useState('');
   const [loading,setLoading] = useState(false);
+  const [teleprompter,setTeleprompter] = useState(false);
 
   const run = async () => {
     setLoading(true); setOut('');
@@ -2225,7 +2226,30 @@ function ScriptEngine() {
         </RedBtn>
       </Card>
       {loading && <Spin/>}
-      <Output text={out}/>
+
+      {/* Output + Teleprompter launch */}
+      {out && (
+        <div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:8}}>
+            <span style={{color:B.white,fontWeight:700,fontSize:14}}>Your Script</span>
+            <div style={{display:'flex',gap:8}}>
+              <CopyBtn text={out}/>
+              <button onClick={()=>setTeleprompter(true)}
+                style={{background:'linear-gradient(135deg,#1a1a2e,#16213e)',color:'#00d4ff',
+                  border:'1px solid rgba(0,212,255,0.4)',borderRadius:8,padding:'7px 16px',
+                  fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:6}}>
+                📺 Teleprompter Mode
+              </button>
+            </div>
+          </div>
+          <Output text={out}/>
+        </div>
+      )}
+
+      {/* Teleprompter fullscreen overlay */}
+      {teleprompter && (
+        <Teleprompter text={out} onClose={()=>setTeleprompter(false)}/>
+      )}
     </div>
   );
 }
@@ -2451,6 +2475,474 @@ function WeeklyReview() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// TELEPROMPTER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function Teleprompter({ text, onClose }) {
+  const [speed, setSpeed] = useState(2);        // px per second × 10
+  const [running, setRunning] = useState(false);
+  const [fontSize, setFontSize] = useState(42);
+  const [mirror, setMirror] = useState(false);
+  const scrollRef = useRef(null);
+  const rafRef   = useRef(null);
+  const lastRef  = useRef(null);
+
+  // Clean script text — strip markdown bold/italic, keep structure
+  const cleanText = text
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/#{1,3} /g, '')
+    .trim();
+
+  const tick = (ts) => {
+    if (!lastRef.current) lastRef.current = ts;
+    const delta = ts - lastRef.current;
+    lastRef.current = ts;
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop += (speed * delta) / 1000;
+    }
+    rafRef.current = requestAnimationFrame(tick);
+  };
+
+  useEffect(() => {
+    if (running) {
+      lastRef.current = null;
+      rafRef.current = requestAnimationFrame(tick);
+    } else {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    }
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [running, speed]);
+
+  // Keyboard controls
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setRunning(r => !r); }
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowUp')   setSpeed(s => Math.min(s + 0.5, 10));
+      if (e.key === 'ArrowDown') setSpeed(s => Math.max(s - 0.5, 0.5));
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  return (
+    <div style={{position:'fixed',inset:0,background:'#000',zIndex:9999,display:'flex',flexDirection:'column'}}>
+      {/* Controls bar */}
+      <div style={{background:'rgba(255,255,255,0.05)',borderBottom:'1px solid rgba(255,255,255,0.1)',
+        padding:'10px 20px',display:'flex',alignItems:'center',gap:16,flexWrap:'wrap',flexShrink:0}}>
+        <button onClick={() => setRunning(r => !r)}
+          style={{background:running?B.red:'#00d4ff',color:'#000',border:'none',borderRadius:8,
+            padding:'8px 22px',fontWeight:900,fontSize:14,cursor:'pointer',minWidth:90}}>
+          {running ? '⏸ Pause' : '▶ Start'}
+        </button>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <span style={{color:B.gray,fontSize:12}}>Speed</span>
+          <button onClick={()=>setSpeed(s=>Math.max(s-0.5,0.5))}
+            style={{background:'rgba(255,255,255,0.1)',color:B.white,border:'none',borderRadius:6,width:28,height:28,cursor:'pointer',fontSize:16}}>−</button>
+          <span style={{color:B.white,fontWeight:700,fontSize:13,minWidth:24,textAlign:'center'}}>{speed.toFixed(1)}</span>
+          <button onClick={()=>setSpeed(s=>Math.min(s+0.5,10))}
+            style={{background:'rgba(255,255,255,0.1)',color:B.white,border:'none',borderRadius:6,width:28,height:28,cursor:'pointer',fontSize:16}}>+</button>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <span style={{color:B.gray,fontSize:12}}>Size</span>
+          <button onClick={()=>setFontSize(s=>Math.max(s-4,24))}
+            style={{background:'rgba(255,255,255,0.1)',color:B.white,border:'none',borderRadius:6,width:28,height:28,cursor:'pointer',fontSize:14}}>A-</button>
+          <button onClick={()=>setFontSize(s=>Math.min(s+4,80))}
+            style={{background:'rgba(255,255,255,0.1)',color:B.white,border:'none',borderRadius:6,width:28,height:28,cursor:'pointer',fontSize:14}}>A+</button>
+        </div>
+        <button onClick={()=>setMirror(m=>!m)}
+          style={{background:mirror?'rgba(0,212,255,0.15)':'rgba(255,255,255,0.07)',
+            color:mirror?'#00d4ff':B.gray,border:`1px solid ${mirror?'rgba(0,212,255,0.4)':'transparent'}`,
+            borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+          ↔ Mirror
+        </button>
+        <div style={{marginLeft:'auto',color:B.gray,fontSize:11,lineHeight:1.6,textAlign:'right'}}>
+          Space/Enter — play/pause<br/>↑↓ — speed &nbsp;·&nbsp; Esc — exit
+        </div>
+        <button onClick={onClose}
+          style={{background:'rgba(233,69,96,0.15)',color:B.red,border:'1px solid rgba(233,69,96,0.3)',
+            borderRadius:8,padding:'7px 16px',cursor:'pointer',fontSize:13,fontWeight:700}}>
+          ✕ Exit
+        </button>
+      </div>
+
+      {/* Focus line */}
+      <div style={{position:'absolute',top:'42%',left:0,right:0,height:4,
+        background:'rgba(0,212,255,0.25)',pointerEvents:'none',zIndex:1}}/>
+      <div style={{position:'absolute',top:'42%',left:0,right:0,height:'18%',
+        background:'linear-gradient(transparent,rgba(0,212,255,0.04),transparent)',
+        pointerEvents:'none',zIndex:1}}/>
+
+      {/* Script text */}
+      <div ref={scrollRef} style={{flex:1,overflowY:'hidden',padding:'0 10vw',
+        transform:mirror?'scaleX(-1)':'none'}}>
+        <div style={{paddingTop:'44vh',paddingBottom:'60vh'}}>
+          {cleanText.split('\n').filter(l=>l.trim()).map((line, i) => {
+            const isHook = i === 0;
+            const isCTA  = line.toLowerCase().includes('cta') || line.toLowerCase().startsWith('comment') || line.toLowerCase().startsWith('follow');
+            return (
+              <p key={i} style={{
+                fontSize: isHook ? fontSize * 1.15 : fontSize,
+                fontWeight: isHook ? 900 : (line.startsWith('**')||line.startsWith('VARIATION')||line.startsWith('Hook')||line.startsWith('Body')||line.startsWith('CTA') ? 700 : 400),
+                color: isCTA ? '#00d4ff' : isHook ? B.white : 'rgba(255,255,255,0.88)',
+                lineHeight: 1.55,
+                marginBottom: '0.9em',
+                textAlign: 'center',
+                letterSpacing: fontSize > 50 ? '-0.02em' : 'normal',
+                transition: 'color 0.3s',
+              }}>
+                {line.replace(/^\*\*|\*\*$/g,'').replace(/^#+\s/,'')}
+              </p>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TREND ALERTS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const TREND_ALERTS_KEY  = 'encis_trend_alerts';
+const TREND_ALERTS_DATE = 'encis_trend_date';
+
+function useTrendAlerts() {
+  const [alerts,  setAlerts]  = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [lastRun, setLastRun] = useState(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(TREND_ALERTS_KEY);
+      const date   = localStorage.getItem(TREND_ALERTS_DATE);
+      if (stored) setAlerts(JSON.parse(stored));
+      if (date)   setLastRun(date);
+    } catch {}
+  }, []);
+
+  const checkTrends = async () => {
+    setLoading(true);
+    try {
+      const today = new Date().toDateString();
+      const query = `What content is going viral right now in these niches: veteran mindset, mental toughness, everyday wins, outdoor lifestyle Colorado, personal finance real estate, podcast growth, family life lessons, health fitness? Give me the top 3 trending topics or formats blowing up in the last 48 hours across Instagram and YouTube. Be specific — name the trend, why it's blowing up, and the best hook angle.`;
+      const res = await fetch('/api/perplexity', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ query })
+      });
+      const d = await res.json();
+      const raw = d.result || d.text || '';
+
+      // Parse into alert objects
+      const parsed = raw.split('\n').filter(l => l.trim().length > 20).slice(0, 8).map((line, i) => ({
+        id: Date.now() + i,
+        text: line.replace(/^\d+\.\s*/, '').replace(/^\*+/, '').trim(),
+        angle: ANGLES[i % ANGLES.length]?.label || 'General',
+        ts: Date.now(),
+        seen: false,
+      }));
+
+      localStorage.setItem(TREND_ALERTS_KEY, JSON.stringify(parsed));
+      localStorage.setItem(TREND_ALERTS_DATE, today);
+      setAlerts(parsed);
+      setLastRun(today);
+    } catch(e) { console.error(e); }
+    setLoading(false);
+  };
+
+  // Auto-check once per day on mount
+  useEffect(() => {
+    const today = new Date().toDateString();
+    try {
+      const date = localStorage.getItem(TREND_ALERTS_DATE);
+      if (date !== today && !loading) checkTrends();
+    } catch {}
+  }, []);
+
+  const markSeen = () => {
+    const updated = alerts.map(a => ({...a, seen:true}));
+    setAlerts(updated);
+    try { localStorage.setItem(TREND_ALERTS_KEY, JSON.stringify(updated)); } catch {}
+  };
+
+  const unseen = alerts.filter(a => !a.seen).length;
+  return { alerts, loading, lastRun, checkTrends, markSeen, unseen };
+}
+
+function TrendAlertBanner() {
+  const { alerts, loading, lastRun, checkTrends, markSeen, unseen } = useTrendAlerts();
+  const [expanded, setExpanded] = useState(false);
+
+  if (!alerts.length && !loading) return null;
+
+  return (
+    <div style={{background:'rgba(233,69,96,0.08)',borderBottom:'1px solid rgba(233,69,96,0.2)'}}>
+      <div style={{maxWidth:1100,margin:'0 auto',padding:'0 16px'}}>
+        {/* Banner bar */}
+        <div style={{display:'flex',alignItems:'center',gap:12,padding:'10px 0',cursor:'pointer'}}
+          onClick={()=>{ setExpanded(e=>!e); if(unseen>0) markSeen(); }}>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <span style={{fontSize:16}}>🔥</span>
+            <span style={{color:B.red,fontWeight:700,fontSize:13}}>Trend Alerts</span>
+            {unseen > 0 && (
+              <span style={{background:B.red,color:'#fff',borderRadius:10,padding:'1px 7px',fontSize:10,fontWeight:700}}>
+                {unseen} new
+              </span>
+            )}
+          </div>
+          {loading
+            ? <span style={{color:B.gray,fontSize:12}}>Checking trends...</span>
+            : <span style={{color:B.gray,fontSize:12}}>{alerts[0]?.text?.slice(0,80)}...</span>
+          }
+          <button onClick={e=>{e.stopPropagation();checkTrends();}}
+            style={{marginLeft:'auto',background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',
+              borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer',flexShrink:0}}>
+            {loading ? '...' : '↻ Refresh'}
+          </button>
+          <span style={{color:B.gray,fontSize:12}}>{expanded?'▲':'▼'}</span>
+        </div>
+
+        {/* Expanded alerts */}
+        {expanded && (
+          <div style={{paddingBottom:14,display:'flex',flexDirection:'column',gap:8}}>
+            {lastRun && <div style={{color:B.gray,fontSize:11,marginBottom:4}}>Last checked: {lastRun}</div>}
+            {alerts.map(alert => (
+              <div key={alert.id} style={{background:'rgba(0,0,0,0.25)',borderRadius:8,padding:'10px 14px',
+                borderLeft:`3px solid ${alert.seen?'rgba(255,255,255,0.1)':B.red}`}}>
+                <div style={{color:alert.seen?'rgba(255,255,255,0.6)':B.white,fontSize:13,lineHeight:1.6}}>
+                  {alert.text}
+                </div>
+                <div style={{color:B.gray,fontSize:11,marginTop:4}}>{alert.angle}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ROI DASHBOARD
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const ROI_KEY = 'encis_roi_data';
+
+function ROIDashboard() {
+  const [weeks,    setWeeks]    = useState([]);
+  const [form,     setForm]     = useState({ week:'', followers:'', reach:'', saves:'', shares:'', leads:'', topContent:'', notes:'' });
+  const [showForm, setShowForm] = useState(false);
+  const [editIdx,  setEditIdx]  = useState(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(ROI_KEY);
+      if (stored) setWeeks(JSON.parse(stored));
+    } catch {}
+  }, []);
+
+  const saveWeeks = (updated) => {
+    setWeeks(updated);
+    try { localStorage.setItem(ROI_KEY, JSON.stringify(updated)); } catch {}
+  };
+
+  const submit = () => {
+    if (!form.week) return;
+    const entry = { ...form, id: editIdx !== null ? weeks[editIdx].id : Date.now() };
+    let updated;
+    if (editIdx !== null) {
+      updated = weeks.map((w,i) => i === editIdx ? entry : w);
+      setEditIdx(null);
+    } else {
+      updated = [...weeks, entry].sort((a,b) => new Date(a.week) - new Date(b.week));
+    }
+    saveWeeks(updated);
+    setForm({ week:'', followers:'', reach:'', saves:'', shares:'', leads:'', topContent:'', notes:'' });
+    setShowForm(false);
+  };
+
+  const deleteWeek = (i) => {
+    if (window.confirm('Delete this week?')) saveWeeks(weeks.filter((_,idx)=>idx!==i));
+  };
+
+  // Simple SVG sparkline
+  const Sparkline = ({ data, color='#E94560', height=40 }) => {
+    if (data.length < 2) return null;
+    const nums = data.map(Number).filter(n=>!isNaN(n));
+    if (!nums.length) return null;
+    const min = Math.min(...nums), max = Math.max(...nums);
+    const range = max - min || 1;
+    const w = 120, h = height;
+    const pts = nums.map((v,i) => `${(i/(nums.length-1))*w},${h - ((v-min)/range)*(h-4)+2}`).join(' ');
+    return (
+      <svg width={w} height={h} style={{display:'block'}}>
+        <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round"/>
+        <circle cx={(nums.length-1)/(nums.length-1)*w} cy={h - ((nums[nums.length-1]-min)/range)*(h-4)+2} r="3" fill={color}/>
+      </svg>
+    );
+  };
+
+  // Growth calculations
+  const latest  = weeks[weeks.length - 1];
+  const prev    = weeks[weeks.length - 2];
+  const growth  = (field) => {
+    if (!latest || !prev || !latest[field] || !prev[field]) return null;
+    const pct = ((Number(latest[field]) - Number(prev[field])) / Number(prev[field]) * 100);
+    return pct.toFixed(1);
+  };
+
+  const fields = [
+    { k:'followers', label:'Followers',  color:'#00d4ff' },
+    { k:'reach',     label:'Weekly Reach', color:'#E94560' },
+    { k:'saves',     label:'Saves',       color:'#f5a623' },
+    { k:'shares',    label:'Shares',      color:'#27ae60' },
+    { k:'leads',     label:'Leads/DMs',   color:'#9b59b6' },
+  ];
+
+  const formFields = [
+    { k:'week',       label:'Week (date)',       ph:'e.g. Jan 13, 2025',            full:false },
+    { k:'followers',  label:'Total Followers',   ph:'e.g. 2847',                    full:false },
+    { k:'reach',      label:'Total Reach',       ph:'e.g. 18400',                   full:false },
+    { k:'saves',      label:'Total Saves',       ph:'e.g. 234',                     full:false },
+    { k:'shares',     label:'Total Shares',      ph:'e.g. 67',                      full:false },
+    { k:'leads',      label:'Leads / DMs',       ph:'e.g. 8',                       full:false },
+    { k:'topContent', label:'Top Performing Post',ph:'e.g. Veteran morning routine got 900 saves', full:true },
+    { k:'notes',      label:'Notes',             ph:'e.g. Tried shorter captions — engagement up 40%', full:true },
+  ];
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <span style={{fontSize:32}}>📈</span>
+          <div>
+            <h2 style={{color:B.white,margin:0}}>ROI Dashboard</h2>
+            <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Weekly scorecard — track growth, identify what drives real results</p>
+          </div>
+        </div>
+        <button onClick={()=>{ setForm({ week:'', followers:'', reach:'', saves:'', shares:'', leads:'', topContent:'', notes:'' }); setEditIdx(null); setShowForm(true); }}
+          style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'8px 18px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+          + Log This Week
+        </button>
+      </div>
+
+      {/* Empty state */}
+      {weeks.length === 0 && !showForm && (
+        <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.03)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
+          <div style={{fontSize:48,marginBottom:16}}>📊</div>
+          <div style={{color:B.white,fontWeight:700,fontSize:18,marginBottom:8}}>No data yet</div>
+          <div style={{color:B.gray,fontSize:14,lineHeight:1.7,marginBottom:20}}>Log your first week of metrics and the dashboard builds automatically.<br/>Takes 60 seconds. Pays off every week after.</div>
+          <button onClick={()=>setShowForm(true)}
+            style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'10px 22px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+            + Log First Week
+          </button>
+        </div>
+      )}
+
+      {/* Metric cards + sparklines */}
+      {weeks.length > 0 && (
+        <>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:12,marginBottom:24}}>
+            {fields.map(f => {
+              const g = growth(f.k);
+              const vals = weeks.map(w => w[f.k]);
+              return (
+                <div key={f.k} style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:12,padding:'14px 16px'}}>
+                  <div style={{fontSize:11,color:B.gray,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:6}}>{f.label}</div>
+                  <div style={{fontSize:26,fontWeight:800,color:B.white,marginBottom:4}}>{latest?.[f.k] || '—'}</div>
+                  {g !== null && (
+                    <div style={{fontSize:12,fontWeight:700,color:Number(g)>=0?'#27ae60':'#e74c3c',marginBottom:8}}>
+                      {Number(g)>=0?'▲':'▼'} {Math.abs(Number(g))}% vs last week
+                    </div>
+                  )}
+                  <Sparkline data={vals} color={f.color}/>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Top content tracker */}
+          {weeks.some(w=>w.topContent) && (
+            <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:12,padding:'16px',marginBottom:20}}>
+              <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:12}}>Top Content Log</div>
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {[...weeks].reverse().filter(w=>w.topContent).slice(0,6).map((w,i) => (
+                  <div key={i} style={{display:'flex',gap:12,alignItems:'flex-start'}}>
+                    <span style={{color:B.gray,fontSize:11,whiteSpace:'nowrap',paddingTop:2}}>{w.week}</span>
+                    <span style={{color:B.white,fontSize:13,lineHeight:1.5}}>{w.topContent}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Week log table */}
+          <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:12,overflow:'hidden',marginBottom:20}}>
+            <div style={{overflowX:'auto'}}>
+              <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+                <thead>
+                  <tr style={{borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+                    {['Week','Followers','Reach','Saves','Shares','Leads','Notes',''].map(h => (
+                      <th key={h} style={{padding:'10px 12px',textAlign:'left',color:B.gray,fontWeight:700,letterSpacing:1,fontSize:10,textTransform:'uppercase',whiteSpace:'nowrap'}}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...weeks].reverse().map((w,i) => (
+                    <tr key={w.id} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
+                      <td style={{padding:'10px 12px',color:B.white,fontWeight:600,whiteSpace:'nowrap'}}>{w.week}</td>
+                      {['followers','reach','saves','shares','leads'].map(f => (
+                        <td key={f} style={{padding:'10px 12px',color:'rgba(255,255,255,0.75)'}}>{w[f]||'—'}</td>
+                      ))}
+                      <td style={{padding:'10px 12px',color:B.gray,maxWidth:200,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{w.notes||'—'}</td>
+                      <td style={{padding:'10px 12px'}}>
+                        <div style={{display:'flex',gap:6}}>
+                          <button onClick={()=>{ setForm({...w}); setEditIdx(weeks.length-1-i); setShowForm(true); }}
+                            style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',borderRadius:5,padding:'3px 8px',fontSize:11,cursor:'pointer'}}>Edit</button>
+                          <button onClick={()=>deleteWeek(weeks.length-1-i)}
+                            style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',borderRadius:5,padding:'3px 6px',fontSize:12,cursor:'pointer'}}>✕</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Entry form */}
+      {showForm && (
+        <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:14,padding:'22px',marginBottom:20}}>
+          <div style={{color:B.white,fontWeight:700,fontSize:15,marginBottom:18}}>{editIdx!==null?'Edit Week':'Log This Week'}</div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+            {formFields.map(f => (
+              <div key={f.k} style={{gridColumn:f.full?'1/-1':'auto'}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:B.red,textTransform:'uppercase',marginBottom:5}}>{f.label}</div>
+                {f.full
+                  ? <textarea value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} rows={2} placeholder={f.ph}
+                      style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+                  : <input value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} placeholder={f.ph}
+                      style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                }
+              </div>
+            ))}
+          </div>
+          <div style={{display:'flex',gap:10,marginTop:18}}>
+            <RedBtn onClick={submit} disabled={!form.week}>{editIdx!==null?'Save Changes':'Log Week'}</RedBtn>
+            <button onClick={()=>{ setShowForm(false); setEditIdx(null); }}
+              style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,cursor:'pointer'}}>Cancel</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // MAIN APP
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -2487,6 +2979,7 @@ const SUB_NAV = {
   ],
   optimize: [
     { id:'review',  emoji:'📊', label:'Weekly Review' },
+    { id:'roi',     emoji:'📈', label:'ROI Dashboard' },
     { id:'memory',  emoji:'🧠', label:'Content Memory' },
   ],
   agency: [
@@ -2512,6 +3005,7 @@ const COMPONENT_MAP = {
   hooks: HookLibrary,
   design: DesignStudio,
   review: WeeklyReview,
+  roi: ROIDashboard,
   memory: ContentMemory,
   clients: ClientMode,
 };
@@ -2524,6 +3018,7 @@ export default function App() {
 
   // Register memory save function globally so all tools can log to it
   useEffect(() => { registerMemorySave(memorySave); }, [memorySave]);
+  useEffect(() => { document.title = 'EN-CIS | Elevation Nation CIS'; }, []);
 
   const handleNav = (id) => {
     setNav(id);
@@ -2599,6 +3094,9 @@ export default function App() {
             </div>
           </div>
         )}
+
+        {/* TREND ALERT BANNER */}
+        <TrendAlertBanner/>
 
         {/* MAIN CONTENT */}
         <main style={{maxWidth:1100,margin:'0 auto',padding:'2rem 16px'}}>
