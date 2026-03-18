@@ -165,6 +165,102 @@ const CopyBtn = ({text}) => {
   );
 };
 
+// ── Strategy Markdown Renderer ───────────────────────────────────────────────
+const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
+  if (!text) return null;
+
+  // Parse markdown into structured sections
+  const renderLine = (line, idx) => {
+    if (line.startsWith('# ')) return (
+      <div key={idx} style={{fontSize:22,fontWeight:900,color:B.white,marginBottom:8,marginTop:24,paddingBottom:10,borderBottom:`2px solid ${B.red}`}}>
+        {line.replace('# ','')}
+      </div>
+    );
+    if (line.startsWith('## ')) return (
+      <div key={idx} style={{fontSize:15,fontWeight:800,color:B.red,letterSpacing:1.5,textTransform:'uppercase',marginTop:28,marginBottom:10}}>
+        {line.replace('## ','')}
+      </div>
+    );
+    if (line.startsWith('### ')) return (
+      <div key={idx} style={{fontSize:13,fontWeight:700,color:'#00d4ff',marginTop:18,marginBottom:8,paddingLeft:12,borderLeft:'3px solid #00d4ff'}}>
+        {line.replace('### ','')}
+      </div>
+    );
+    if (line.startsWith('#### ')) return (
+      <div key={idx} style={{fontSize:12,fontWeight:700,color:'rgba(255,255,255,0.7)',marginTop:12,marginBottom:6,textTransform:'uppercase',letterSpacing:1}}>
+        {line.replace('#### ','')}
+      </div>
+    );
+    // Numbered items
+    if (/^\d+\.\s/.test(line)) return (
+      <div key={idx} style={{display:'flex',gap:10,marginBottom:7,paddingLeft:4}}>
+        <span style={{color:B.red,fontWeight:800,fontSize:13,minWidth:20,flexShrink:0}}>{line.match(/^\d+/)[0]}.</span>
+        <span style={{color:'rgba(255,255,255,0.88)',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^\d+\.\s/,''))}</span>
+      </div>
+    );
+    // Bullet items
+    if (line.startsWith('- ') || line.startsWith('* ')) return (
+      <div key={idx} style={{display:'flex',gap:10,marginBottom:6,paddingLeft:4}}>
+        <span style={{color:B.red,fontSize:12,marginTop:3,flexShrink:0}}>▸</span>
+        <span style={{color:'rgba(255,255,255,0.85)',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^[-*]\s/,''))}</span>
+      </div>
+    );
+    // Bold-only lines (labels)
+    if (line.startsWith('**') && line.endsWith('**') && line.length > 4) return (
+      <div key={idx} style={{color:B.white,fontWeight:700,fontSize:13,marginTop:12,marginBottom:4}}>
+        {line.replace(/\*\*/g,'')}
+      </div>
+    );
+    // Horizontal rule
+    if (line === '---' || line === '***') return (
+      <div key={idx} style={{borderTop:'1px solid rgba(255,255,255,0.08)',margin:'16px 0'}}/>
+    );
+    // Empty line -> spacing
+    if (!line.trim()) return <div key={idx} style={{height:6}}/>;
+    // Regular paragraph
+    return (
+      <div key={idx} style={{color:'rgba(255,255,255,0.82)',fontSize:13,lineHeight:1.75,marginBottom:6}}>
+        {renderInline(line)}
+      </div>
+    );
+  };
+
+  const renderInline = (text) => {
+    // Handle **bold** inline
+    const parts = text.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((p, i) =>
+      p.startsWith('**') && p.endsWith('**')
+        ? <strong key={i} style={{color:B.white,fontWeight:700}}>{p.replace(/\*\*/g,'')}</strong>
+        : p
+    );
+  };
+
+  const lines = text.split('\n');
+
+  return (
+    <div style={{marginTop:20}}>
+      {/* Header bar */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16,flexWrap:'wrap',gap:10}}>
+        <div style={{color:B.white,fontWeight:700,fontSize:15}}>Your 90-Day Strategy</div>
+        <div style={{display:'flex',gap:8}}>
+          <CopyBtn text={text}/>
+          <button onClick={onDownload} disabled={downloading}
+            style={{background:downloading?B.gray:B.red,color:'#fff',border:'none',
+              borderRadius:8,padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',
+              fontSize:13,display:'flex',alignItems:'center',gap:6}}>
+            {downloading ? 'Preparing...' : '⬇ Download Doc'}
+          </button>
+        </div>
+      </div>
+
+      {/* Rendered strategy */}
+      <div style={{background:B.navy2,border:`1px solid rgba(255,255,255,0.08)`,borderRadius:14,padding:'28px 32px'}}>
+        {lines.map((line, idx) => renderLine(line, idx))}
+      </div>
+    </div>
+  );
+};
+
 const Output = ({text}) => text ? (
   <div style={{marginTop:16,background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'1rem',
     position:'relative',border:`1px solid rgba(255,255,255,0.1)`}}>
@@ -489,17 +585,26 @@ Find and structure collaboration opportunities:
    [The mutual value]
    [CTA]`;
 
-const ONBOARD_PROMPT = (fields, uploadedDoc='') => `
-${VOICE}
-${CONTENT_SOP}
-${SWARBRICK}
+const ONBOARD_PROMPT = (fields, uploadedDoc='') => {
+  const sopSection = uploadedDoc
+    ? `=== STRATEGY DOCUMENT / SOP ===
+Follow this document as the authoritative source. Mirror its brand voice, content pillars, platform priorities, posting cadence, lead magnets, CTA split, content production standards, and success metrics exactly. Execute the strategy defined here - do not invent new frameworks.
 
+${uploadedDoc}
+=== END STRATEGY DOCUMENT ===`
+    : `${VOICE}
+${CONTENT_SOP}
+${SWARBRICK}`;
+
+  return `${sopSection}
+
+=== CLIENT BRIEF ===
 Goals: ${fields.goals}
 Current State: ${fields.current}
 Weekly Time Available: ${fields.hours} hours
 Brand Personality: ${fields.brandPersonality}
 Business Name: ${fields.businessName}
-Affiliate/Brand Deals: ${fields.affiliateDeals}
+Affiliate / Brand Deals: ${fields.affiliateDeals}
 Filming Schedule & Batch Capacity: ${fields.filmingSchedule}
 Inspiration Accounts: ${fields.inspirationAccounts}
 Off-Limit Topics: ${fields.offLimitTopics}
@@ -508,29 +613,59 @@ Ideal Audience Profile: ${fields.idealAudience}
 Desired Transformation: ${fields.desiredTransformation}
 Emotional Journey (Before/After): ${fields.emotionalJourney}
 Additional Context: ${fields.additionalContext}
-${uploadedDoc ? '\nUploaded Document:\n' + uploadedDoc : ''}
 
-Build a complete 90-Day Elevation Nation Content Strategy. Write it like Jason would explain it to himself — clear, no fluff, actionable. Not a corporate strategy deck. A real plan he can execute.
+=== OUTPUT FORMAT ===
+Write a professional, structured 90-day strategy document. Be specific and data-driven.
 
-**PHASE 1 (Days 1-30): Foundation**
-- Platform priority + rationale
-- Content pillars (3-4 max)
-- Posting frequency per platform
-- First 5 pieces of content to create
+# [Client Name] - 90-Day Content Strategy
+## Executive Summary
+2-3 sentences: who this is for, what the 90 days accomplish, the single strategic bet.
 
-**PHASE 2 (Days 31-60): Momentum**
-- Content expansion strategy
-- Community building moves
-- Lead magnet deployment
-- Collaboration targets
+## Brand Positioning
+- Social identity and unique positioning statement
+- Voice and tone guardrails (do / never do)
+- Ideal client profile: who to attract, who to repel
+- Competitive edge
 
-**PHASE 3 (Days 61-90): Scale**
-- Repurposing system
-- Analytics review process
-- Offer alignment
-- Revenue pathway
+## Content Pillars
+For each pillar (3-4 max): name, one-line description, 5 specific filmable content ideas, best format (Reel/Carousel/Long-form), CTA type.
 
-Include: Weekly schedule template, content batching strategy, tools needed.`;
+## Platform Strategy
+For each active platform: role in the ecosystem, posting frequency (specific X/week), content types, top 3 Week 1 actions.
+
+## 90-Day Execution Plan
+
+### Phase 1 - Foundation (Days 1-30)
+Goal: [specific]
+Weekly numbered action plan. Content to batch (specific topics). Success metrics.
+
+### Phase 2 - Momentum (Days 31-60)
+Goal: [specific]
+Lead magnet (title, format, delivery). Community moves. Collaboration targets. Success metrics.
+
+### Phase 3 - Scale (Days 61-90)
+Goal: [specific]
+Repurposing workflow step-by-step. Analytics review process. Revenue alignment. Success metrics.
+
+## Content Production Standards
+Opening, editing, and retention rules specific to this client.
+
+## Engagement SOP
+Pre-post and post-post windows. Daily comment and DM targets. Response time SLAs.
+
+## Weekly Schedule Template
+Based on ${fields.hours} hours/week. Specific day-by-day time blocks.
+
+## Success Metrics
+Primary KPIs with specific numerical targets. Secondary KPIs.
+
+## Quick Wins - First 7 Days
+5 specific actions, each under 2 hours, each producing a visible result.
+
+${uploadedDoc ? 'CRITICAL: Match the exact section names, terminology, frameworks, and metric targets from the strategy document. This is a client-facing deliverable.' : 'Write in the client voice. Direct, specific, actionable. No corporate speak.'}
+`;
+};
+
 
 const DESIGN_PROMPT = (topic, format, angle) => `
 ${VOICE}
@@ -1591,7 +1726,7 @@ function Onboarding() {
               </button>
             </div>
           </div>
-          <Output text={out}/>
+          <StrategyOutput text={out} onDownload={downloadDoc} downloading={downloading}/>
         </div>
       )}
     </div>
