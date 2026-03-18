@@ -592,11 +592,10 @@ Find and structure collaboration opportunities:
 
 const ONBOARD_PROMPT = (fields, uploadedDoc='') => {
   const sopSection = uploadedDoc
-    ? `=== STRATEGY DOCUMENT / SOP ===
-Follow this document as the authoritative source. Mirror its brand voice, content pillars, platform priorities, posting cadence, lead magnets, CTA split, content production standards, and success metrics exactly. Execute the strategy defined here - do not invent new frameworks.
-
+    ? `=== UPLOADED STRATEGY DOCUMENT (treat as authoritative source) ===
 ${uploadedDoc}
-=== END STRATEGY DOCUMENT ===`
+=== END UPLOADED DOCUMENT ===
+Mirror this document's voice, frameworks, and structure exactly. Use it as the foundation and expand every section with full depth below.`
     : `${VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}`;
@@ -606,68 +605,225 @@ ${SWARBRICK}`;
 === CLIENT BRIEF ===
 Goals: ${fields.goals}
 Current State: ${fields.current}
-Weekly Time Available: ${fields.hours} hours
+Weekly Time Available: ${fields.hours} hours/week
 Brand Personality: ${fields.brandPersonality}
 Business Name: ${fields.businessName}
 Affiliate / Brand Deals: ${fields.affiliateDeals}
 Filming Schedule & Batch Capacity: ${fields.filmingSchedule}
-Inspiration Accounts: ${fields.inspirationAccounts}
+Inspiration Accounts (study structure, NOT style): ${fields.inspirationAccounts}
 Off-Limit Topics: ${fields.offLimitTopics}
 Content to Repurpose: ${fields.repurposeLinks}
-Ideal Audience Profile: ${fields.idealAudience}
+Ideal Audience: ${fields.idealAudience}
 Desired Transformation: ${fields.desiredTransformation}
 Emotional Journey (Before/After): ${fields.emotionalJourney}
 Additional Context: ${fields.additionalContext}
 
-=== OUTPUT FORMAT ===
-Write a professional, structured 90-day strategy document. Be specific and data-driven.
+=== YOUR TASK ===
+Write a complete, specific, client-ready 90-day content strategy document. Every section must be fully built out — no placeholders, no vague instructions. Write what you would actually hand to a client tomorrow. Use the client's real voice, real goals, and real constraints throughout.
 
-# [Client Name] - 90-Day Content Strategy
+Mandatory frameworks to weave throughout (never name them explicitly):
+- Swarbrick 8 Dimensions: content must serve Mental/Emotional, Physical, Social, Environmental, Financial, Intellectual, Occupational, and Spiritual dimensions naturally
+- 4-Layer Viewer Journey on every content recommendation: See It (pattern interrupt) → Click It (avatar callout + credibility) → Watch It (value delivery, no filler) → Go Deeper (CTA that drives action)
+- CTA Distribution rule: 60% comment-based, 20% DM-trigger, 20% link-in-bio — apply this across all content recommendations
+- Saves and shares are the primary success signal, not likes — prioritize content that earns saves
+
+=== REQUIRED SECTIONS (build ALL of these fully) ===
+
+# [Client/Brand Name] — 90-Day Content Strategy
+
 ## Executive Summary
-2-3 sentences: who this is for, what the 90 days accomplish, the single strategic bet.
+3-4 sentences. Who this is for. What the 90 days accomplish. The single strategic bet. Why this approach over others.
 
 ## Brand Positioning
-- Social identity and unique positioning statement
-- Voice and tone guardrails (do / never do)
-- Ideal client profile: who to attract, who to repel
-- Competitive edge
+
+### Social Identity
+One sharp paragraph: who this person is online, what category they own, what makes them impossible to confuse with anyone else.
+
+### Voice & Tone Guardrails
+DO (minimum 6 specific rules with examples):
+NEVER (minimum 6 specific rules with examples):
+
+### Ideal Client Profile
+Attract — list 5 specific types with why they belong
+Repel — list 5 specific types with why they don't
+
+### Competitive Edge
+What nobody else in this space is doing. Be specific — name the gap.
+
+### The Transformation Promise
+Before state (exactly how the audience feels before finding this creator) → After state (how they feel after engaging consistently). One sentence version.
 
 ## Content Pillars
-For each pillar (3-4 max): name, one-line description, 5 specific filmable content ideas, best format (Reel/Carousel/Long-form), CTA type.
+
+For EACH pillar (build 4 pillars minimum):
+
+### Pillar [N]: [Name]
+**Core Idea:** One sentence — the specific angle this pillar owns
+**Why It Works:** The psychological reason this resonates with the audience
+**Swarbrick Dimension:** Which life dimension(s) this serves
+**5 Specific Filmable Ideas:** (specific enough to film tomorrow — not topics, actual titles/hooks)
+**Best Format:** Reel / Carousel / Long-form — with exact reason why
+**Ideal Length:** Specific seconds or minutes
+**CTA Type:** Which CTA from the 60/20/20 split and exact wording
+**Hashtag Strategy:** 5 niche + 5 mid + 5 broad tags specific to this pillar
 
 ## Platform Strategy
-For each active platform: role in the ecosystem, posting frequency (specific X/week), content types, top 3 Week 1 actions.
+
+For EACH active platform:
+
+### [Platform Name]
+**Role in Ecosystem:** One sentence — what this platform does that no other platform does
+**Posting Frequency:** X posts/week — specific days
+**Content Types:** List with % breakdown (e.g. 70% Reels, 20% Carousels, 10% Static)
+**4-Layer Journey Application:** How See It → Click It → Watch It → Go Deeper applies specifically on this platform
+**Algorithm Priority:** What this platform's algorithm rewards right now and how to exploit it
+**Week 1 Priority Actions:** 3 specific numbered actions with time estimates
+**What to Never Post Here:** 3 things that kill reach on this platform
 
 ## 90-Day Execution Plan
 
-### Phase 1 - Foundation (Days 1-30)
-Goal: [specific]
-Weekly numbered action plan. Content to batch (specific topics). Success metrics.
+### Phase 1 — Foundation (Days 1–30)
+**Goal:** [Specific, measurable]
+**Theme:** [The one thing this phase is about]
 
-### Phase 2 - Momentum (Days 31-60)
-Goal: [specific]
-Lead magnet (title, format, delivery). Community moves. Collaboration targets. Success metrics.
+Week 1 — Day by Day:
+(List Day 1 through Day 7 with specific tasks and time estimates)
 
-### Phase 3 - Scale (Days 61-90)
-Goal: [specific]
-Repurposing workflow step-by-step. Analytics review process. Revenue alignment. Success metrics.
+Week 2:
+(3-4 key focus areas with specific actions)
+
+Week 3:
+(3-4 key focus areas with specific actions)
+
+Week 4:
+(3-4 key focus areas with specific actions)
+
+Content to Batch This Phase:
+(List 15-20 specific content pieces with titles, format, and platform)
+
+Success Gate — Phase 1 Complete When:
+(3 specific measurable conditions)
+
+### Phase 2 — Momentum (Days 31–60)
+**Goal:** [Specific, measurable]
+**Theme:** [The one thing this phase is about]
+
+Lead Magnet:
+- Title:
+- Format:
+- Delivery mechanism:
+- The exact DM or comment trigger word:
+- Welcome email first line:
+
+Community Building Moves:
+(5 specific actions with timelines)
+
+Collaboration Targets:
+(3 specific creator types + why + how to pitch)
+
+Content Evolution from Phase 1:
+(What changes, what stays, what gets added)
+
+Success Gate — Phase 2 Complete When:
+(3 specific measurable conditions)
+
+### Phase 3 — Scale (Days 61–90)
+**Goal:** [Specific, measurable]
+**Theme:** [The one thing this phase is about]
+
+Repurposing Workflow (step-by-step):
+Step 1: [Source content]
+Step 2: [First derivative]
+Step 3: [Second derivative]
+Step 4: [Third derivative]
+Step 5: [Distribution]
+
+Revenue Pathway:
+(Exactly how content converts to money — specific funnel with steps)
+
+Analytics Review Process:
+(What to check, when, what decisions to make based on what data)
+
+Success Gate — Phase 3 Complete When:
+(3 specific measurable conditions)
 
 ## Content Production Standards
-Opening, editing, and retention rules specific to this client.
+
+### Pre-Production
+(What to prepare before filming — specific checklist)
+
+### Opening Rules
+(Specific rules for the first 3 seconds of every piece of content — with examples)
+
+### Editing Standards
+(Jump cuts, captions, pacing, overlays — specific rules)
+
+### Retention Rules
+(The 4-layer journey applied to editing — how to keep people watching)
+
+### What Kills Content (Never Do List)
+(8-10 specific things that will tank performance)
 
 ## Engagement SOP
-Pre-post and post-post windows. Daily comment and DM targets. Response time SLAs.
+
+### Pre-Post Window (15-30 min before publishing)
+(Exact actions to prime the algorithm)
+
+### Post-Post Window (first 60 min after publishing)
+(Exact actions to boost early engagement signal)
+
+### Daily Engagement Targets
+- Comments on aligned accounts: [specific number] meaningful comments (not emoji)
+- DM outreach: [specific number] targeted conversations
+- Story engagement: [specific actions]
+- Response time SLA: Comments within [X hours], DMs within [X hours]
+
+### Comment Response Framework
+(How to respond to: positive comments / questions / negative comments / spam)
 
 ## Weekly Schedule Template
-Based on ${fields.hours} hours/week. Specific day-by-day time blocks.
+
+Based on ${fields.hours} hours/week. Build a realistic day-by-day schedule.
+
+For each active day: Start time, task, duration, platform, specific output
+
+## Lead Magnet System
+
+### Lead Magnet 1
+- Title:
+- Core promise:
+- Format:
+- 5-7 key deliverables inside:
+- Delivery Reel script (hook + preview + CTA):
+- Welcome email subject line + first paragraph:
+
+### Lead Magnet 2 (Phase 2)
+- Title:
+- Core promise:
+- Format:
+- Trigger content that promotes it:
 
 ## Success Metrics
-Primary KPIs with specific numerical targets. Secondary KPIs.
 
-## Quick Wins - First 7 Days
-5 specific actions, each under 2 hours, each producing a visible result.
+### Primary KPIs (the numbers that matter most)
+For each: metric name, current baseline, 30-day target, 60-day target, 90-day target
 
-${uploadedDoc ? 'CRITICAL: Match the exact section names, terminology, frameworks, and metric targets from the strategy document. This is a client-facing deliverable.' : 'Write in the client voice. Direct, specific, actionable. No corporate speak.'}
+### Secondary KPIs
+List 5-6 with specific targets
+
+### What to Ignore
+(Vanity metrics that don't drive the business — with explanation)
+
+## Quick Wins — First 7 Days
+List 7 specific actions (one per day):
+- Day 1: [action] — [time required] — [expected result]
+- Day 2: [action] — [time required] — [expected result]
+(continue through Day 7)
+
+## The Non-Negotiables
+3-5 rules that cannot be broken regardless of what's happening. These are the foundation everything else is built on.
+
+${uploadedDoc ? 'This is a client-facing deliverable. Every section must be complete. No placeholders. Match the voice and energy of the uploaded document exactly.' : 'Write in the client voice throughout. Direct, specific, no corporate speak. Every recommendation should feel like it came from someone who knows this person and their business.'}
 `;
 };
 
@@ -3356,6 +3512,7 @@ const TOP_NAV = [
   { id:'create',   emoji:'🎬', label:'Create' },
   { id:'optimize', emoji:'📊', label:'Optimize' },
   { id:'agency',   emoji:'🏢', label:'Agency' },
+  { id:'youtube',  emoji:'▶️',  label:'YouTube' },
 ];
 
 const SUB_NAV = {
@@ -3365,12 +3522,15 @@ const SUB_NAV = {
     { id:'profile',   emoji:'👤', label:'Profile Audit' },
     { id:'magnet',    emoji:'🧲', label:'Lead Magnet' },
     { id:'community', emoji:'🏔️', label:'Community' },
+    { id:'email',     emoji:'📧',  label:'Email Sequences' },
+    { id:'challenge', emoji:'🔥',  label:'Challenge Builder' },
   ],
   research: [
     { id:'pipeline', emoji:'🔬', label:'Pipeline' },
     { id:'vault',    emoji:'🗄️', label:'Prompt Vault' },
     { id:'collab',   emoji:'🤝', label:'Collab Finder' },
     { id:'extract',  emoji:'💡', label:'Insight Extractor' },
+    { id:'spy',      emoji:'🕵️', label:'Competitor Spy' },
   ],
   create: [
     { id:'script',    emoji:'✍️',  label:'Script Engine' },
@@ -3380,6 +3540,10 @@ const SUB_NAV = {
     { id:'repurpose', emoji:'♻️',  label:'Repurpose' },
     { id:'hooks',     emoji:'🪝',  label:'Hook Library' },
     { id:'design',    emoji:'🎨',  label:'Design Studio' },
+    { id:'comment',   emoji:'💬',  label:'Comment Responder' },
+    { id:'hooktester',emoji:'🧪',  label:'Hook Tester' },
+    { id:'podcast',   emoji:'🎙️',  label:'Podcast Prep' },
+    { id:'dmscripts', emoji:'📩',  label:'DM Scripts' },
   ],
   optimize: [
     { id:'review',   emoji:'📊', label:'Weekly Review' },
@@ -3391,6 +3555,9 @@ const SUB_NAV = {
   agency: [
     { id:'clients', emoji:'👥', label:'Client Profiles' },
     { id:'tracker', emoji:'📋', label:'Collab Tracker' },
+  ],
+  youtube: [
+    { id:'yttoolkit', emoji:'▶️', label:'YouTube Toolkit' },
   ],
 };
 
@@ -4061,6 +4228,1549 @@ function CollabTracker() {
 }
 
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMMENT RESPONDER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const COMMENT_REPLY_PROMPT = (comments, mode, client) => `
+${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
+
+${mode === 'bulk'
+  ? `Write a reply to EACH of these comments. Number your replies to match. Each reply should feel personal and human — not copy-pasted. Build community, acknowledge what they said, and where natural, invite more conversation.`
+  : `Write 3 different reply options for this comment. Each option should have a different energy — one warm/personal, one direct/punchy, one community-building. All in Jason's voice.`
+}
+
+${mode === 'bulk' ? 'COMMENTS:\n' + comments : 'COMMENT:\n' + comments}
+
+Rules:
+- Sound like a real person talking, not a brand
+- No "Great comment!" or "Thanks for sharing!" openers — they're dead
+- Keep replies under 3 sentences unless the comment warrants more
+- Use the person's name if they signed it
+- If it's a question, answer it directly first
+- End with something that invites the next reply where it makes sense`;
+
+function CommentResponder() {
+  const [mode, setMode] = useState('single');
+  const [input, setInput] = useState('');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [teleprompter, setTeleprompter] = useState(false);
+  const [activeClient] = useActiveClient();
+
+  const run = async () => {
+    if (!input.trim()) return;
+    setLoading(true); setOut('');
+    const res = await ai(COMMENT_REPLY_PROMPT(input, mode, activeClient));
+    setOut(res);
+    setLoading(false);
+  };
+
+  const placeholder = mode === 'single'
+    ? 'Paste the comment here...\n\ne.g. "This hit different today. Been struggling with the transition and nobody talks about how lonely it gets. How did you get through it?"'
+    : 'Paste multiple comments, one per line or numbered:\n\n1. This is exactly what I needed today\n2. How long did it take you to get consistent?\n3. Do you offer coaching?\n4. Sharing this with my whole team';
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>💬</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Comment Responder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Reply in your voice — single comment with 3 options, or bulk paste up to 20 at once.</p>
+        </div>
+      </div>
+      {activeClient && <ClientBanner client={activeClient}/>}
+
+      <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
+        💡 The first-hour engagement window is everything. Respond fast, respond real, and the algorithm rewards you. Use bulk mode after a post drops to clear your comment queue in one shot.
+      </div>
+
+      <Card>
+        <div style={{display:'flex',gap:8,marginBottom:16}}>
+          {[{id:'single',label:'Single Comment',desc:'3 reply options'},
+            {id:'bulk',label:'Bulk Mode',desc:'Up to 20 comments at once'}].map(m => (
+            <button key={m.id} onClick={() => { setMode(m.id); setOut(''); }}
+              style={{flex:1,background:mode===m.id?B.red:'rgba(255,255,255,0.06)',color:B.white,
+                border:`1px solid ${mode===m.id?B.red:'rgba(255,255,255,0.1)'}`,
+                borderRadius:10,padding:'12px',cursor:'pointer',textAlign:'left'}}>
+              <div style={{fontWeight:700,fontSize:13}}>{m.label}</div>
+              <div style={{color:mode===m.id?'rgba(255,255,255,0.8)':B.gray,fontSize:11,marginTop:2}}>{m.desc}</div>
+            </button>
+          ))}
+        </div>
+
+        <SecLabel>{mode === 'single' ? 'The Comment' : 'Comments (paste all at once)'}</SecLabel>
+        <textarea value={input} onChange={e=>setInput(e.target.value)}
+          rows={mode === 'bulk' ? 8 : 4}
+          placeholder={placeholder}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            resize:'vertical',marginBottom:16,boxSizing:'border-box',lineHeight:1.6}}/>
+
+        <RedBtn onClick={run} disabled={loading||!input.trim()}>
+          {loading ? 'Writing replies...' : mode === 'single' ? '💬 Write 3 Reply Options' : '💬 Reply to All Comments'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && (
+        <div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:8}}>
+            <span style={{color:B.white,fontWeight:700,fontSize:14}}>
+              {mode === 'single' ? '3 Reply Options' : 'Bulk Replies'}
+            </span>
+            <CopyBtn text={out}/>
+          </div>
+          <Output text={out}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// HOOK TESTER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const HOOK_TEST_PROMPT = (hooks, topic) => `
+${VOICE}
+
+Topic: ${topic}
+
+You are a viral content strategist who has analyzed thousands of hooks. Score and improve each of these hook variations.
+
+HOOKS TO TEST:
+${hooks.map((h,i) => `${i+1}. ${h}`).join('\n')}
+
+For EACH hook, provide:
+
+**HOOK [N]: [quote the hook]**
+Score: [X/10]
+Scroll-Stop Power: [1-10] — does the first word make them stop?
+Curiosity Gap: [1-10] — does it create an itch they need to scratch?
+Specificity: [1-10] — is it concrete or vague?
+Weakness: [one sentence — the exact problem]
+Rewrite: [improved version that fixes the weakness]
+
+---
+
+After scoring all hooks:
+
+**WINNER:** Hook [N] — [one sentence why it wins]
+
+**THE OPTIMAL HOOK:**
+[Best possible version combining the strongest elements from all of them]
+
+**Why This Wins:**
+[3 specific reasons — psychology, format, first word]`;
+
+function HookTester() {
+  const [topic, setTopic] = useState('');
+  const [hooks, setHooks] = useState(['', '', '']);
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const addHook = () => { if (hooks.length < 6) setHooks([...hooks, '']); };
+  const removeHook = (i) => { if (hooks.length > 2) setHooks(hooks.filter((_,idx) => idx !== i)); };
+  const updateHook = (i, val) => setHooks(hooks.map((h,idx) => idx === i ? val : h));
+
+  const run = async () => {
+    const filledHooks = hooks.filter(h => h.trim());
+    if (!topic || filledHooks.length < 2) return;
+    setLoading(true); setOut('');
+    const res = await ai(HOOK_TEST_PROMPT(filledHooks, topic));
+    setOut(res);
+    setLoading(false);
+  };
+
+  const filledCount = hooks.filter(h => h.trim()).length;
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🧪</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Hook Tester</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Write 2-6 hook variations — AI scores each one and builds the optimal version.</p>
+        </div>
+      </div>
+
+      <div style={{background:'rgba(233,69,96,0.06)',border:'1px solid rgba(233,69,96,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
+        🎯 Your hook is 80% of the result. Same video, different hook = 10x difference in views. Test before you post.
+      </div>
+
+      <Card>
+        <SecLabel>What's the video about?</SecLabel>
+        <input value={topic} onChange={e=>setTopic(e.target.value)}
+          placeholder="e.g. Why most people quit before they see results"
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            marginBottom:20,boxSizing:'border-box'}}/>
+
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+          <SecLabel style={{margin:0}}>Your Hook Variations ({filledCount} entered, 2 minimum)</SecLabel>
+          {hooks.length < 6 && (
+            <button onClick={addHook}
+              style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',
+                borderRadius:6,padding:'4px 12px',cursor:'pointer',fontSize:12}}>
+              + Add Hook
+            </button>
+          )}
+        </div>
+
+        <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
+          {hooks.map((hook, i) => (
+            <div key={i} style={{display:'flex',gap:8,alignItems:'center'}}>
+              <span style={{color:B.red,fontWeight:800,fontSize:13,minWidth:20}}>{i+1}.</span>
+              <input value={hook} onChange={e=>updateHook(i,e.target.value)}
+                placeholder={i === 0 ? 'e.g. Nobody told me this about getting out...' :
+                             i === 1 ? 'e.g. I spent 3 years doing it wrong. Here\'s the truth.' :
+                             'Another hook variation...'}
+                style={{flex:1,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                  borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              {hooks.length > 2 && (
+                <button onClick={() => removeHook(i)}
+                  style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',
+                    borderRadius:6,padding:'4px 8px',fontSize:16,cursor:'pointer',flexShrink:0}}>✕</button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <RedBtn onClick={run} disabled={loading || !topic || filledCount < 2}>
+          {loading ? 'Testing hooks...' : `🧪 Test ${filledCount} Hook${filledCount!==1?'s':''}`}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && (
+        <div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+            <span style={{color:B.white,fontWeight:700,fontSize:14}}>Hook Analysis</span>
+            <CopyBtn text={out}/>
+          </div>
+          <Output text={out}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// EMAIL SEQUENCE BUILDER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const EMAIL_PROMPT = (magnet, audience, offer, length, client) => `
+${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
+${SWARBRICK}
+
+Lead Magnet: ${magnet}
+Audience: ${audience}
+Offer / Next Step: ${offer}
+Sequence Length: ${length} emails
+
+Write a complete ${length}-email nurture sequence for someone who just opted in to receive "${magnet}".
+
+This is not a corporate drip campaign. It reads like real emails from a real person.
+
+${length >= 3 ? `
+**EMAIL 1 — DELIVER + QUICK WIN**
+Subject: [subject line]
+Preview text: [50 chars]
+Body: Deliver the magnet. Give one immediate action they can take today. Make them glad they signed up.
+[Full email body]
+
+**EMAIL 2 — PERSONAL STORY**
+Subject: [subject line]
+Preview text: [50 chars]
+Body: The real story behind why this matters. A specific moment from Jason's life. No pitch. Just connection.
+[Full email body]
+
+**EMAIL 3 — PURE VALUE**
+Subject: [subject line]
+Preview text: [50 chars]
+Body: Teach something they didn't get in the lead magnet. Make it so good they forward it.
+[Full email body]` : ''}
+
+${length >= 5 ? `
+**EMAIL 4 — SOCIAL PROOF + SHIFT**
+Subject: [subject line]
+Preview text: [50 chars]
+Body: A win from the community. Something that happened when someone applied the method. Transition toward the offer.
+[Full email body]
+
+**EMAIL 5 — SOFT PITCH**
+Subject: [subject line]
+Preview text: [50 chars]
+Body: The invitation. What the next step is, why now, what it costs to stay stuck. No pressure — real talk.
+[Full email body]` : ''}
+
+${length >= 7 ? `
+**EMAIL 6 — OBJECTION HANDLER**
+Subject: [subject line]
+Preview text: [50 chars]
+Body: Address the real reasons people haven't taken the next step yet. Be honest about what this is and isn't.
+[Full email body]
+
+**EMAIL 7 — LAST CALL**
+Subject: [subject line]
+Preview text: [50 chars]
+Body: Final email in the sequence. Clear, direct, no drama. Either they're in or they're not — respect both.
+[Full email body]` : ''}
+
+Rules: No corporate speak. No "I hope this email finds you well." No numbered lists in the body — write like a person. Short paragraphs. Real subject lines people actually open.`;
+
+function EmailSequenceBuilder() {
+  const [magnet, setMagnet] = useState('');
+  const [audience, setAudience] = useState('Veterans transitioning out, everyday people working on mindset, people who feel stuck');
+  const [offer, setOffer] = useState('Mindset coaching, Everyday Elevations podcast, Elevation Nation community, real estate');
+  const [length, setLength] = useState('5');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [activeClient] = useActiveClient();
+
+  const run = async () => {
+    if (!magnet) return;
+    setLoading(true); setOut('');
+    const res = await ai(EMAIL_PROMPT(magnet, audience, offer, length, activeClient));
+    setOut(res);
+    logToMemory({ type:'email', title:`Email Seq: ${magnet}`, preview:res.slice(0,200), client:activeClient?.name });
+    setLoading(false);
+  };
+
+  const downloadEmails = async () => {
+    if (!out) return;
+    setDownloading(true);
+    try {
+      const res = await fetch('/api/claude', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          message: `Convert this email sequence into clean HTML. Each email should be in its own section with a clear header. Use proper formatting — subject lines bold, body text readable, preview text in italics. Return only the HTML body content:\n\n${out}`,
+          system: 'You convert email sequences into clean HTML. Return only inner HTML content.'
+        })
+      });
+      const d = await res.json();
+      const html = d.text || d.result || '';
+      const full = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Email Sequence</title><style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 24px;color:#111;line-height:1.8}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#E94560;margin-top:48px;border-top:1px solid #eee;padding-top:24px}strong{color:#0A1628}.subject{font-size:18px;font-weight:bold;margin-bottom:4px}.preview{color:#666;font-style:italic;font-size:13px;margin-bottom:20px}@media print{body{margin:24px}}</style></head><body><h1>${magnet} — Email Sequence</h1>${html}</body></html>`;
+      const blob = new Blob([full], {type:'text/html'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'EmailSequence.html';
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+    } catch(e) { console.error(e); }
+    setDownloading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>📧</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Email Sequence Builder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Full nurture sequences — deliver, connect, convert. Written in your voice, not a template.</p>
+        </div>
+      </div>
+      {activeClient && <ClientBanner client={activeClient}/>}
+
+      <Card>
+        <SecLabel>Lead Magnet / Opt-in Trigger</SecLabel>
+        <input value={magnet} onChange={e=>setMagnet(e.target.value)}
+          placeholder="e.g. 5 AM Success Protocol PDF, Performance Longevity Blueprint, Free Mindset Audit"
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            marginBottom:16,boxSizing:'border-box'}}/>
+
+        <SecLabel>Who Opted In</SecLabel>
+        <textarea value={audience} onChange={e=>setAudience(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+
+        <SecLabel>Your Offer / Next Step You Want Them to Take</SecLabel>
+        <textarea value={offer} onChange={e=>setOffer(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+
+        <SecLabel>Sequence Length</SecLabel>
+        <div style={{display:'flex',gap:8,marginBottom:20}}>
+          {[
+            {v:'3', label:'3 emails', desc:'Quick intro'},
+            {v:'5', label:'5 emails', desc:'Standard nurture'},
+            {v:'7', label:'7 emails', desc:'Full funnel'},
+          ].map(opt => (
+            <button key={opt.v} onClick={() => setLength(opt.v)}
+              style={{flex:1,background:length===opt.v?B.red:'rgba(255,255,255,0.06)',
+                color:B.white,border:`1px solid ${length===opt.v?B.red:'rgba(255,255,255,0.1)'}`,
+                borderRadius:10,padding:'12px',cursor:'pointer',textAlign:'center'}}>
+              <div style={{fontWeight:700,fontSize:14}}>{opt.label}</div>
+              <div style={{color:length===opt.v?'rgba(255,255,255,0.8)':B.gray,fontSize:11,marginTop:2}}>{opt.desc}</div>
+            </button>
+          ))}
+        </div>
+
+        <RedBtn onClick={run} disabled={loading||!magnet}>
+          {loading ? 'Writing sequence...' : `Write ${length}-Email Sequence`}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && (
+        <div style={{marginTop:16}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:10}}>
+            <span style={{color:B.white,fontWeight:700,fontSize:15}}>Your Email Sequence</span>
+            <div style={{display:'flex',gap:8}}>
+              <CopyBtn text={out}/>
+              <button onClick={downloadEmails} disabled={downloading}
+                style={{background:B.red,color:'#fff',border:'none',borderRadius:8,
+                  padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',fontSize:13}}>
+                {downloading ? 'Preparing...' : '⬇ Download Emails'}
+              </button>
+            </div>
+          </div>
+          <Output text={out}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PODCAST PRE-PRODUCTION SUITE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const PODCAST_PREPROD_PROMPT = (guestName, guestBio, episode_angle, showContext) => `
+${VOICE}
+
+Show: Everyday Elevations Podcast (Host: Jason Fricka — veteran, HR manager, mindset coach, Colorado)
+Guest: ${guestName}
+Guest Background: ${guestBio}
+Episode Angle / Theme: ${episode_angle}
+Additional Context: ${showContext || 'None'}
+
+Build the complete pre-production package for this episode.
+
+# ${guestName} — Episode Pre-Production
+
+## Guest Intelligence Brief
+- Who they are in 3 sentences (what Jason needs to know before the call)
+- Their core message / what they stand for
+- What their audience cares about
+- One potential point of disagreement or productive tension
+- The thing they probably never get asked
+
+## Episode Positioning
+- Episode title (3 options — specific, not generic)
+- The one thing this episode must deliver
+- Why Elevation Nation specifically needs to hear this
+
+## Opening (First 3 Minutes)
+[Full scripted intro Jason reads — sets the guest up without overselling, teases the transformation]
+
+## Interview Outline (12 questions)
+Grouped in 3 acts:
+Act 1 — Who They Are (3 questions): Background, journey, the turn
+Act 2 — The Method (5 questions): What they know, how they know it, the counterintuitive stuff
+Act 3 — The Application (4 questions): What listeners do Monday morning, the hard truth, the invitation
+
+For each question: the question + why it matters + the follow-up if they give a surface answer
+
+## Closing Script
+[Full word-for-word outro — thanks guest, tells audience what to do next, teases next episode]
+
+## Show Notes (SEO-optimized)
+[Full show notes — 200 words, guest bio, key topics, timestamps placeholder, links section]
+
+## Content Extraction Plan
+5 specific clip moments to watch for during the interview (with suggested hooks for each)
+1 carousel concept from this episode
+LinkedIn post angle for Jason post-release`;
+
+const PODCAST_SOLO_PROMPT = (topic, angle, duration) => `
+${VOICE}
+${SWARBRICK}
+
+Solo episode topic: ${topic}
+Angle: ${angle}
+Target length: ${duration} minutes
+
+Build the complete solo episode framework.
+
+# Solo Episode: ${topic}
+
+## Episode Hook (First 60 Seconds)
+[Full scripted cold open — drop them into a moment or a question, no intro yet]
+
+## Why This Episode, Why Now
+[2-3 sentences Jason says before diving in — context without fluff]
+
+## Episode Outline
+For a ${duration}-minute episode, structured in acts:
+
+Opening Hook (60 sec)
+Act 1 — The Problem / Setup (${Math.round(parseInt(duration)*0.2)} min)
+Act 2 — The Turn / Insight (${Math.round(parseInt(duration)*0.4)} min)
+Act 3 — The Method / Application (${Math.round(parseInt(duration)*0.3)} min)
+Close + CTA (${Math.round(parseInt(duration)*0.1)} min)
+
+For each section: talking points, transitions, stories to pull from Jason's life
+
+## Retention Hooks (3 mid-episode teases)
+[Specific lines to say mid-episode to keep people listening]
+
+## Show Notes
+[150-word SEO-optimized description]
+
+## 5 Short-Form Clips to Pull
+[Specific moments from the outline that will work as Reels/Shorts — with hooks]`;
+
+function PodcastPreProd() {
+  const [mode, setMode] = useState('guest');
+  const [guestName, setGuestName] = useState('');
+  const [guestBio, setGuestBio] = useState('');
+  const [angle, setAngle] = useState('');
+  const [showContext, setShowContext] = useState('');
+  const [soloTopic, setSoloTopic] = useState('');
+  const [soloAngle, setSoloAngle] = useState('veteran');
+  const [duration, setDuration] = useState('30');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
+
+  const fetchGuestIntel = async () => {
+    if (!guestName) return;
+    setFetching(true);
+    const res = await perp(`Who is ${guestName}? What do they do, what is their background, what are they known for, what podcast or speaking topics do they cover? Give me a detailed bio.`);
+    setGuestBio(res);
+    setFetching(false);
+  };
+
+  const run = async () => {
+    setLoading(true); setOut('');
+    let res;
+    if (mode === 'guest') {
+      res = await ai(PODCAST_PREPROD_PROMPT(guestName, guestBio, angle, showContext));
+      logToMemory({ type:'podcast', title:`Episode Prep: ${guestName}`, preview:res.slice(0,200) });
+    } else {
+      const angleLabel = ANGLES.find(a=>a.id===soloAngle)?.label || soloAngle;
+      res = await ai(PODCAST_SOLO_PROMPT(soloTopic, angleLabel, duration));
+      logToMemory({ type:'podcast', title:`Solo Episode: ${soloTopic}`, preview:res.slice(0,200) });
+    }
+    setOut(res);
+    setLoading(false);
+  };
+
+  const canRun = mode === 'guest' ? (guestName && guestBio && angle) : (soloTopic);
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🎙️</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Podcast Pre-Production</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Guest research brief, full interview outline, show notes, and clip plan — before you hit record.</p>
+        </div>
+      </div>
+
+      <div style={{display:'flex',gap:8,marginBottom:20}}>
+        {[{id:'guest',label:'🎤 Guest Episode',desc:'Interview prep + research'},
+          {id:'solo',label:'🎙️ Solo Episode',desc:'Outline + structure'}].map(m => (
+          <button key={m.id} onClick={() => { setMode(m.id); setOut(''); }}
+            style={{flex:1,background:mode===m.id?B.red:'rgba(255,255,255,0.06)',color:B.white,
+              border:`1px solid ${mode===m.id?B.red:'rgba(255,255,255,0.1)'}`,
+              borderRadius:10,padding:'14px',cursor:'pointer',textAlign:'left'}}>
+            <div style={{fontWeight:700,fontSize:14}}>{m.label}</div>
+            <div style={{color:mode===m.id?'rgba(255,255,255,0.8)':B.gray,fontSize:11,marginTop:3}}>{m.desc}</div>
+          </button>
+        ))}
+      </div>
+
+      <Card>
+        {mode === 'guest' ? (
+          <>
+            <SecLabel>Guest Name</SecLabel>
+            <div style={{display:'flex',gap:8,marginBottom:16}}>
+              <input value={guestName} onChange={e=>setGuestName(e.target.value)}
+                placeholder="e.g. David Goggins, Jocko Willink, your next guest..."
+                style={{flex:1,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                  borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              <button onClick={fetchGuestIntel} disabled={fetching||!guestName}
+                style={{background:'rgba(0,212,255,0.1)',color:'#00d4ff',border:'1px solid rgba(0,212,255,0.3)',
+                  borderRadius:8,padding:'10px 16px',fontWeight:700,cursor:(!guestName||fetching)?'not-allowed':'pointer',
+                  fontSize:12,whiteSpace:'nowrap'}}>
+                {fetching ? 'Researching...' : '🔍 Research Guest'}
+              </button>
+            </div>
+
+            <SecLabel>Guest Bio / Background</SecLabel>
+            <textarea value={guestBio} onChange={e=>setGuestBio(e.target.value)} rows={4}
+              placeholder="Paste their bio, or hit Research Guest above to pull it automatically..."
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+
+            <SecLabel>Episode Angle / What This Episode Is Really About</SecLabel>
+            <input value={angle} onChange={e=>setAngle(e.target.value)}
+              placeholder="e.g. How high performers recover from identity loss, The truth about discipline nobody talks about"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                marginBottom:16,boxSizing:'border-box'}}/>
+
+            <SecLabel>Additional Context (optional)</SecLabel>
+            <textarea value={showContext} onChange={e=>setShowContext(e.target.value)} rows={2}
+              placeholder="e.g. We connected at a veteran event, he's been on Rogan twice, my audience loved my last episode on recovery..."
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                resize:'vertical',boxSizing:'border-box'}}/>
+          </>
+        ) : (
+          <>
+            <SecLabel>Episode Topic</SecLabel>
+            <input value={soloTopic} onChange={e=>setSoloTopic(e.target.value)}
+              placeholder="e.g. Why I almost quit at month 4, What the Army taught me about consistency, The real cost of staying comfortable"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                marginBottom:16,boxSizing:'border-box'}}/>
+
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+              <div>
+                <SecLabel>Content Angle</SecLabel>
+                <AngleGrid selected={soloAngle} onSelect={setSoloAngle}/>
+              </div>
+              <div>
+                <SecLabel>Target Length</SecLabel>
+                <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                  {['15','20','30','45','60'].map(d => (
+                    <button key={d} onClick={() => setDuration(d)}
+                      style={{background:duration===d?B.red:'rgba(255,255,255,0.07)',color:B.white,
+                        border:'none',borderRadius:6,padding:'8px 14px',cursor:'pointer',
+                        fontSize:13,fontWeight:duration===d?700:400}}>
+                      {d} min
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        <div style={{marginTop:20}}>
+          <RedBtn onClick={run} disabled={loading||!canRun}>
+            {loading ? 'Building pre-production package...' : mode==='guest' ? '🎤 Build Full Episode Package' : '🎙️ Build Solo Episode Framework'}
+          </RedBtn>
+          {mode === 'guest' && !guestBio && guestName && (
+            <span style={{color:B.gray,fontSize:12,marginLeft:12}}>Research guest first for best results</span>
+          )}
+        </div>
+      </Card>
+      {loading && <Spin/>}
+      {out && <StrategyOutput text={out} onDownload={null} downloading={false}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// YOUTUBE TOOLKIT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const YT_TITLE_PROMPT = (topic, angle) => `
+${VOICE}
+
+Topic: ${topic}
+Angle: ${angle}
+
+Write 7 YouTube title variations for this topic. Each must be distinct — different psychological trigger, different format.
+
+For each title:
+**TITLE [N]:** [The title]
+CTR Trigger: [curiosity / controversy / how-to / personal story / data / listicle / fear of missing out]
+Thumbnail Direction: [what image/text overlay makes this title pop]
+Why It Works: [one sentence]
+
+After all 7:
+**WINNER:** Title [N]
+**Best Thumbnail Text:** [3-5 words that go on the thumbnail]
+**A/B Test:** Title [X] vs Title [Y] — test these two first`;
+
+const YT_CHAPTERS_PROMPT = (script) => `
+You are a YouTube SEO specialist. Based on this video script, create:
+
+1. **Timestamp Chapters** (for YouTube description)
+Format: 0:00 Title
+Create chapters every 2-4 minutes at natural topic breaks. First chapter always 0:00.
+
+2. **SEO Description** (for YouTube)
+- First 2 sentences: hook with primary keywords (these show before "Show More")
+- Full description: 200-300 words, keyword-rich, natural language
+- Relevant links section placeholder
+- Hashtags: 5 most relevant
+
+3. **Tags** (30 tags, comma-separated)
+Mix: exact match, broad match, related topics, creator name variations
+
+4. **Pinned Comment** (to post immediately after publishing)
+Something that drives engagement and adds value
+
+SCRIPT:
+${script}`;
+
+const YT_AUDIT_PROMPT = (channelData) => `
+${VOICE}
+
+YouTube Channel Data:
+${channelData}
+
+You are auditing Jason Fricka's YouTube channel @everydayelevations. Be direct. No softening.
+
+# YouTube Channel Audit — @everydayelevations
+
+## Channel Health Score: [X/10]
+
+## What the Data Shows
+[Specific observations from the channel data above]
+
+## 3 Biggest Problems Right Now
+[Specific, actionable — not generic YouTube advice]
+
+## What's Actually Working
+[Double down on these immediately]
+
+## Title & Thumbnail Audit
+[Score the approach, specific fixes]
+
+## The Content Gap
+[What your audience is searching for that you're not making]
+
+## 30-Day YouTube Sprint
+[Specific week-by-week plan to grow the channel]
+
+## The One Change That Moves the Needle Most
+[Single highest-leverage action]`;
+
+const YT_ENDSCREEN_PROMPT = (videoTopic, channelGoal) => `
+${VOICE}
+
+Video topic: ${videoTopic}
+Channel goal: ${channelGoal}
+
+Write 3 end screen CTA scripts (last 20 seconds of video). Each version has a different primary goal.
+
+**VERSION 1 — SUBSCRIBE FOCUS**
+[Word-for-word script, 15-20 seconds when spoken]
+Visual direction: [what should be on screen]
+
+**VERSION 2 — NEXT VIDEO FOCUS**
+[Word-for-word script]
+Visual direction: [what video to suggest and why]
+
+**VERSION 3 — EMAIL LIST FOCUS**
+[Word-for-word script]
+Visual direction: [how to point to link in description]
+
+Make them feel like Jason is talking to a friend, not reading a script.`;
+
+function YouTubeToolkit() {
+  const [tool, setTool] = useState('titles');
+  const [topic, setTopic] = useState('');
+  const [angle, setAngle] = useState('mindset');
+  const [script, setScript] = useState('');
+  const [channelData, setChannelData] = useState('');
+  const [channelGoal, setChannelGoal] = useState('grow subscribers and build email list');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
+
+  const tools = [
+    { id:'titles',   emoji:'📝', label:'Title Optimizer',    desc:'7 title variations + CTR analysis' },
+    { id:'seo',      emoji:'🔍', label:'SEO + Chapters',     desc:'Description, tags, chapters, pinned comment' },
+    { id:'audit',    emoji:'📊', label:'Channel Audit',      desc:'Perplexity pulls your channel, Claude audits it' },
+    { id:'endscreen',emoji:'🎬', label:'End Screen Scripts', desc:'3 CTA variations for last 20 seconds' },
+  ];
+
+  const fetchChannel = async () => {
+    setFetching(true); setChannelData('');
+    const res = await perp(`Audit the YouTube channel @everydayelevations. Report: subscriber count, total views, number of videos, recent upload frequency, most viewed videos (titles + approximate views), channel description, content topics covered, what's working and what isn't based on the data visible.`);
+    setChannelData(res);
+    setFetching(false);
+  };
+
+  const run = async () => {
+    setLoading(true); setOut('');
+    let res;
+    const angleLabel = ANGLES.find(a=>a.id===angle)?.label || angle;
+
+    if (tool === 'titles') res = await ai(YT_TITLE_PROMPT(topic, angleLabel));
+    else if (tool === 'seo') res = await ai(YT_CHAPTERS_PROMPT(script));
+    else if (tool === 'audit') res = await ai(YT_AUDIT_PROMPT(channelData));
+    else if (tool === 'endscreen') res = await ai(YT_ENDSCREEN_PROMPT(topic, channelGoal));
+
+    setOut(res);
+    logToMemory({ type:'youtube', title:`YT ${tool}: ${topic || 'audit'}`, preview:res.slice(0,200) });
+    setLoading(false);
+  };
+
+  const canRun = () => {
+    if (tool === 'titles') return !!topic;
+    if (tool === 'seo') return !!script;
+    if (tool === 'audit') return !!channelData;
+    if (tool === 'endscreen') return !!topic;
+    return false;
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>▶️</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>YouTube Toolkit</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Title optimizer, SEO engine, channel audit, and end screen scripts — built for YouTube's algorithm.</p>
+        </div>
+      </div>
+
+      {/* Tool selector */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:8,marginBottom:20}}>
+        {tools.map(t => (
+          <button key={t.id} onClick={() => { setTool(t.id); setOut(''); }}
+            style={{background:tool===t.id?B.red:'rgba(255,255,255,0.04)',color:B.white,
+              border:`1px solid ${tool===t.id?B.red:'rgba(255,255,255,0.08)'}`,
+              borderRadius:10,padding:'14px',cursor:'pointer',textAlign:'left',transition:'all 0.15s'}}>
+            <div style={{fontSize:18,marginBottom:4}}>{t.emoji}</div>
+            <div style={{fontWeight:700,fontSize:13}}>{t.label}</div>
+            <div style={{color:tool===t.id?'rgba(255,255,255,0.75)':B.gray,fontSize:11,marginTop:2}}>{t.desc}</div>
+          </button>
+        ))}
+      </div>
+
+      <Card>
+        {tool === 'titles' && (
+          <>
+            <SecLabel>Video Topic</SecLabel>
+            <input value={topic} onChange={e=>setTopic(e.target.value)}
+              placeholder="e.g. Why I stopped chasing motivation and what I do instead"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                marginBottom:16,boxSizing:'border-box'}}/>
+            <SecLabel>Content Angle</SecLabel>
+            <AngleGrid selected={angle} onSelect={setAngle}/>
+          </>
+        )}
+
+        {tool === 'seo' && (
+          <>
+            <SecLabel>Video Script or Summary</SecLabel>
+            <textarea value={script} onChange={e=>setScript(e.target.value)} rows={8}
+              placeholder="Paste your full script or a detailed summary of the video content..."
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                resize:'vertical',boxSizing:'border-box'}}/>
+          </>
+        )}
+
+        {tool === 'audit' && (
+          <>
+            <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:8,padding:'12px 16px',marginBottom:16,fontSize:12,color:'rgba(255,255,255,0.7)'}}>
+              <strong style={{color:B.red}}>Step 1</strong> — Pull your live channel data from Perplexity, then run the audit.
+            </div>
+            <button onClick={fetchChannel} disabled={fetching}
+              style={{background:'rgba(255,255,255,0.08)',color:B.white,border:'1px solid rgba(255,255,255,0.2)',
+                borderRadius:8,padding:'10px 20px',fontWeight:700,cursor:fetching?'not-allowed':'pointer',
+                fontSize:13,marginBottom:16}}>
+              {fetching ? 'Pulling channel data...' : '🔍 Pull @everydayelevations Data'}
+            </button>
+            {channelData && (
+              <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'12px',marginBottom:16,
+                fontSize:12,color:'rgba(255,255,255,0.7)',maxHeight:160,overflowY:'auto',lineHeight:1.7}}>
+                {channelData}
+              </div>
+            )}
+          </>
+        )}
+
+        {tool === 'endscreen' && (
+          <>
+            <SecLabel>Video Topic</SecLabel>
+            <input value={topic} onChange={e=>setTopic(e.target.value)}
+              placeholder="e.g. Why discipline beats motivation every time"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                marginBottom:16,boxSizing:'border-box'}}/>
+            <SecLabel>Primary Channel Goal Right Now</SecLabel>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:4}}>
+              {['grow subscribers','build email list','drive real estate leads','promote podcast'].map(g => (
+                <button key={g} onClick={() => setChannelGoal(g)}
+                  style={{background:channelGoal===g?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                    borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,
+                    fontWeight:channelGoal===g?700:400,textTransform:'capitalize'}}>
+                  {g}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        <div style={{marginTop:20}}>
+          <RedBtn onClick={run} disabled={loading||!canRun()}>
+            {loading ? 'Working...' : tools.find(t=>t.id===tool)?.label}
+          </RedBtn>
+        </div>
+      </Card>
+      {loading && <Spin/>}
+      {out && (
+        <div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:8}}>
+            <span style={{color:B.white,fontWeight:700,fontSize:14}}>{tools.find(t=>t.id===tool)?.label} Results</span>
+            <CopyBtn text={out}/>
+          </div>
+          <Output text={out}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DM SCRIPT LIBRARY
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const DM_SCRIPTS_KEY = 'encis_dm_scripts';
+
+const DM_GEN_PROMPT = (trigger, context, goal, client) => `
+${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
+
+Someone just triggered a DM conversation. Write the scripts for handling this.
+
+Trigger: ${trigger}
+Context: ${context || 'Standard inbound DM'}
+Goal: ${goal}
+
+Write a complete DM conversation flow — not just one message. The full sequence from first reply to close.
+
+**OPENING MESSAGE** (the first reply you send)
+[Write it — under 3 sentences, warm, human, direct]
+
+**IF THEY RESPOND POSITIVELY** (they're interested)
+[Next message — move toward the goal without being pushy]
+
+**IF THEY GIVE A SHORT REPLY** (one word, emoji, low engagement)
+[Re-engage message — ask one good question]
+
+**IF THEY ASK FOR PRICE/MORE INFO**
+[How to handle this — deliver value before the ask]
+
+**THE CLOSE MESSAGE** (when the time is right)
+[Clear ask — specific, easy to say yes to]
+
+**IF THEY GO COLD** (no reply in 48+ hours)
+[Follow-up message — no desperation, just a genuine check-in]
+
+Rules: Sound like Jason texting a real person. No emojis unless they feel natural. No "Hey there!" No corporate words. Move the conversation forward with every message.`;
+
+function DMScriptLibrary() {
+  const [saved, setSaved] = useState([]);
+  const [showGen, setShowGen] = useState(false);
+  const [showSaved, setShowSaved] = useState(true);
+  const [trigger, setTrigger] = useState('');
+  const [context, setContext] = useState('');
+  const [goal, setGoal] = useState('book a call');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [scriptName, setScriptName] = useState('');
+  const [activeClient] = useActiveClient();
+
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem(DM_SCRIPTS_KEY);
+      if (s) setSaved(JSON.parse(s));
+    } catch {}
+  }, []);
+
+  const saveScript = (list) => {
+    setSaved(list);
+    try { localStorage.setItem(DM_SCRIPTS_KEY, JSON.stringify(list)); } catch {}
+  };
+
+  const run = async () => {
+    if (!trigger) return;
+    setLoading(true); setOut('');
+    const res = await ai(DM_GEN_PROMPT(trigger, context, goal, activeClient));
+    setOut(res);
+    setLoading(false);
+  };
+
+  const saveToLibrary = () => {
+    if (!out || !scriptName) return;
+    const entry = {
+      id: Date.now().toString(),
+      name: scriptName || trigger,
+      trigger,
+      goal,
+      script: out,
+      createdAt: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
+    };
+    saveScript([entry, ...saved]);
+    setScriptName('');
+    setSaving(false);
+  };
+
+  const removeScript = (id) => saveScript(saved.filter(s => s.id !== id));
+
+  const goals = [
+    'book a call',
+    'deliver lead magnet',
+    'podcast guest invite',
+    'real estate inquiry',
+    'coaching interest',
+    'collab pitch',
+    'community invite',
+  ];
+
+  const quickTriggers = [
+    { label: 'Commented keyword', trigger: 'They commented a keyword (PERFORMANCE, BRAIN, FREE, etc.) on a post to receive a lead magnet' },
+    { label: 'Asked about coaching', trigger: 'They sent a DM asking about coaching or working together' },
+    { label: 'Real estate inquiry', trigger: 'They saw a real estate post and asked about buying or selling in Colorado' },
+    { label: 'Podcast guest interest', trigger: 'They expressed interest in being on Everyday Elevations podcast or had me on theirs' },
+    { label: 'Just followed', trigger: 'They just followed the account and sent a generic hello or no message' },
+    { label: 'Shared my post', trigger: 'They shared one of my posts and I want to start a conversation' },
+    { label: 'Cold outreach', trigger: 'I am reaching out cold to someone I want to collaborate with or connect with' },
+  ];
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <span style={{fontSize:32}}>📩</span>
+          <div>
+            <h2 style={{color:B.white,margin:0}}>DM Script Library</h2>
+            <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Build and save full conversation flows — from first reply to close.</p>
+          </div>
+        </div>
+        <button onClick={() => { setShowGen(g => !g); setOut(''); }}
+          style={{background:showGen?B.red:'rgba(255,255,255,0.08)',color:B.white,border:'none',
+            borderRadius:8,padding:'8px 18px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+          {showGen ? '✕ Close' : '+ Generate New Script'}
+        </button>
+      </div>
+      {activeClient && <ClientBanner client={activeClient}/>}
+
+      {/* Generator */}
+      {showGen && (
+        <Card style={{marginBottom:20}}>
+          <SecLabel>Quick Trigger Templates</SecLabel>
+          <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:16}}>
+            {quickTriggers.map((qt, i) => (
+              <button key={i} onClick={() => setTrigger(qt.trigger)}
+                style={{background:trigger===qt.trigger?B.red:'rgba(255,255,255,0.06)',
+                  color:trigger===qt.trigger?'#fff':'rgba(255,255,255,0.75)',
+                  border:`1px solid ${trigger===qt.trigger?B.red:'rgba(255,255,255,0.1)'}`,
+                  borderRadius:20,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:500}}>
+                {qt.label}
+              </button>
+            ))}
+          </div>
+
+          <SecLabel>What Triggered This DM?</SecLabel>
+          <textarea value={trigger} onChange={e=>setTrigger(e.target.value)} rows={2}
+            placeholder="e.g. They commented PERFORMANCE on my reel about morning routines..."
+            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+              borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+              resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+
+          <SecLabel>Goal of This Conversation</SecLabel>
+          <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:16}}>
+            {goals.map(g => (
+              <button key={g} onClick={() => setGoal(g)}
+                style={{background:goal===g?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',
+                  borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,
+                  fontWeight:goal===g?700:400,textTransform:'capitalize'}}>
+                {g}
+              </button>
+            ))}
+          </div>
+
+          <SecLabel>Extra Context (optional)</SecLabel>
+          <input value={context} onChange={e=>setContext(e.target.value)}
+            placeholder="e.g. They have 5K followers, run a fitness account, mentioned they're a veteran..."
+            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+              borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+              marginBottom:16,boxSizing:'border-box'}}/>
+
+          <RedBtn onClick={run} disabled={loading||!trigger}>
+            {loading ? 'Writing scripts...' : '📩 Build Full DM Flow'}
+          </RedBtn>
+
+          {loading && <Spin/>}
+
+          {out && (
+            <div style={{marginTop:16}}>
+              <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'1rem',
+                border:'1px solid rgba(255,255,255,0.1)',marginBottom:12}}>
+                <pre style={{color:B.white,fontSize:13,whiteSpace:'pre-wrap',margin:0,
+                  lineHeight:1.7,fontFamily:'inherit'}}>{out}</pre>
+              </div>
+              <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+                <CopyBtn text={out}/>
+                {!saving ? (
+                  <button onClick={() => setSaving(true)}
+                    style={{background:'rgba(39,174,96,0.15)',color:'#27ae60',
+                      border:'1px solid rgba(39,174,96,0.3)',borderRadius:8,
+                      padding:'6px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+                    💾 Save to Library
+                  </button>
+                ) : (
+                  <div style={{display:'flex',gap:8,flex:1}}>
+                    <input value={scriptName} onChange={e=>setScriptName(e.target.value)}
+                      placeholder="Name this script (e.g. Lead Magnet Delivery)..."
+                      style={{flex:1,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                        borderRadius:8,padding:'7px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                    <button onClick={saveToLibrary} disabled={!scriptName}
+                      style={{background:B.red,color:'#fff',border:'none',borderRadius:8,
+                        padding:'7px 14px',fontSize:12,fontWeight:700,cursor:scriptName?'pointer':'not-allowed'}}>
+                      Save
+                    </button>
+                    <button onClick={() => setSaving(false)}
+                      style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',
+                        borderRadius:8,padding:'7px 12px',fontSize:12,cursor:'pointer'}}>
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Saved Library */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+        <div style={{color:B.white,fontWeight:700,fontSize:14}}>
+          Saved Scripts <span style={{color:B.gray,fontWeight:400,fontSize:12}}>({saved.length})</span>
+        </div>
+        {saved.length > 0 && (
+          <button onClick={() => setShowSaved(s => !s)}
+            style={{background:'none',border:'none',color:B.gray,cursor:'pointer',fontSize:12}}>
+            {showSaved ? 'Hide' : 'Show'}
+          </button>
+        )}
+      </div>
+
+      {saved.length === 0 && !showGen && (
+        <div style={{textAlign:'center',padding:'3rem 2rem',background:'rgba(255,255,255,0.02)',
+          borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
+          <div style={{fontSize:40,marginBottom:12}}>📩</div>
+          <div style={{color:B.white,fontWeight:700,fontSize:15,marginBottom:8}}>No saved scripts yet</div>
+          <div style={{color:B.gray,fontSize:13,marginBottom:20}}>Generate a DM flow and save it — build your library over time.</div>
+          <button onClick={() => setShowGen(true)}
+            style={{background:B.red,color:'#fff',border:'none',borderRadius:8,
+              padding:'10px 20px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+            + Generate First Script
+          </button>
+        </div>
+      )}
+
+      {showSaved && saved.length > 0 && (
+        <div style={{display:'flex',flexDirection:'column',gap:10}}>
+          {saved.map(s => (
+            <div key={s.id} style={{background:'rgba(255,255,255,0.03)',
+              border:'1px solid rgba(255,255,255,0.08)',borderRadius:12,overflow:'hidden'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',
+                padding:'14px 16px',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+                <div>
+                  <div style={{color:B.white,fontWeight:700,fontSize:13}}>{s.name}</div>
+                  <div style={{color:B.gray,fontSize:11,marginTop:2}}>
+                    Goal: {s.goal} · Saved {s.createdAt}
+                  </div>
+                </div>
+                <div style={{display:'flex',gap:8}}>
+                  <CopyBtn text={s.script}/>
+                  <button onClick={() => removeScript(s.id)}
+                    style={{background:'transparent',color:'rgba(255,255,255,0.2)',
+                      border:'none',fontSize:16,cursor:'pointer',padding:'4px 8px'}}>✕</button>
+                </div>
+              </div>
+              <div style={{padding:'14px 16px',maxHeight:200,overflowY:'auto'}}>
+                <pre style={{color:'rgba(255,255,255,0.7)',fontSize:12,whiteSpace:'pre-wrap',
+                  margin:0,lineHeight:1.7,fontFamily:'inherit'}}>{s.script}</pre>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 30-DAY CHALLENGE BUILDER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const CHALLENGE_PROMPT = (name, transformation, audience, platform, client) => `
+${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
+${SWARBRICK}
+${CONTENT_SOP}
+
+Challenge Name: ${name}
+Transformation Promise: ${transformation}
+Target Audience: ${audience}
+Primary Platform: ${platform}
+
+Build a complete 30-day challenge system. This is not a generic template — it needs to feel like Jason built it specifically for Elevation Nation.
+
+# ${name} — Complete Challenge System
+
+## The Concept
+- Core promise in one sentence (what they have at day 30 that they didn't at day 1)
+- Why 30 days (the psychology of this timeframe)
+- The one rule that makes this work
+
+## Lead Magnet Integration
+- Challenge landing page headline
+- Email opt-in hook (what they get when they sign up)
+- Welcome email subject line + first paragraph
+
+## Week-by-Week Architecture
+**Week 1 — Foundation (Days 1-7)**
+Theme: [what this week is about]
+Daily prompt format: [how each day works]
+Days 1-7: [specific daily challenge for each day]
+Week 1 win: [what they achieve by Sunday]
+
+**Week 2 — Resistance (Days 8-14)**
+Theme: [this is where people quit — what you do about it]
+Days 8-14: [specific daily challenges]
+Mid-challenge check-in: [what you post on day 14]
+
+**Week 3 — Momentum (Days 15-21)**
+Theme: [the turn — things start clicking]
+Days 15-21: [specific daily challenges]
+Community spotlight: [how you feature participants]
+
+**Week 4 — Identity (Days 22-30)**
+Theme: [they're not the same person they were on day 1]
+Days 22-30: [specific daily challenges]
+Day 30 celebration: [exactly what happens]
+
+## Content Series (10 posts that run alongside the challenge)
+For each: day to post, format, hook, topic
+
+## Engagement Mechanics
+- Daily accountability prompt (the question you ask every day)
+- How participants share progress (hashtag, format, where)
+- How you feature participant wins
+- What happens when someone misses a day (the re-entry script)
+
+## Email Sequence (5 emails during the 30 days)
+Day 1, Day 7, Day 14, Day 21, Day 30 — subject line + 2-sentence summary of each
+
+## Post-Challenge Offer
+- What you invite them into at day 30
+- The transition message (how you move from challenge to offer without it feeling like a pitch)`;
+
+function ChallengeBuilder() {
+  const [name, setName] = useState('');
+  const [transformation, setTransformation] = useState('');
+  const [audience, setAudience] = useState('Everyday people who want to build a daily discipline practice — veterans, parents, professionals who feel stuck');
+  const [platform, setPlatform] = useState('Instagram');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [activeClient] = useActiveClient();
+
+  const quickChallenges = [
+    { name: '30-Day 5AM Club', transformation: 'Wake up at 5AM every day for 30 days and build the morning routine that changes everything' },
+    { name: '30-Day No Excuse Challenge', transformation: 'Show up every single day regardless of how you feel — build the identity of someone who does not quit' },
+    { name: '30-Day Elevation Challenge', transformation: 'One small elevation action per day — in mindset, fitness, relationships, or finances' },
+    { name: '30-Day Real Talk Challenge', transformation: 'Say the hard thing, do the hard thing, face the hard thing — daily prompts for radical honesty' },
+  ];
+
+  const run = async () => {
+    if (!name || !transformation) return;
+    setLoading(true); setOut('');
+    const res = await ai(CHALLENGE_PROMPT(name, transformation, audience, platform, activeClient));
+    setOut(res);
+    logToMemory({ type:'challenge', title:`Challenge: ${name}`, preview:res.slice(0,200), client:activeClient?.name });
+    setLoading(false);
+  };
+
+  const downloadChallenge = async () => {
+    if (!out) return;
+    setDownloading(true);
+    try {
+      const res = await fetch('/api/claude', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          message: `Convert this 30-day challenge plan into clean, well-formatted HTML. Use proper headings, tables for the daily schedule, and make it easy to read and print. Return only the HTML body content:\n\n${out}`,
+          system: 'Convert challenge plans to clean HTML. Return only inner HTML.'
+        })
+      });
+      const d = await res.json();
+      const html = d.text || d.result || '';
+      const full = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name}</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#111;line-height:1.7}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#E94560;margin-top:36px}h3{color:#0A1628}strong{color:#0A1628}table{width:100%;border-collapse:collapse;margin:16px 0}td,th{border:1px solid #ddd;padding:8px 12px;text-align:left}th{background:#0A1628;color:#fff}@media print{body{margin:24px}}</style></head><body>${html}</body></html>`;
+      const blob = new Blob([full], {type:'text/html'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download=`${name.replace(/\s+/g,'-')}.html`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    } catch(e) { console.error(e); }
+    setDownloading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🔥</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>30-Day Challenge Builder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Full challenge system — 30 daily prompts, content series, email sequence, and post-challenge offer.</p>
+        </div>
+      </div>
+      {activeClient && <ClientBanner client={activeClient}/>}
+
+      <Card>
+        <SecLabel>Quick Start Templates</SecLabel>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:8,marginBottom:20}}>
+          {quickChallenges.map((qc, i) => (
+            <button key={i} onClick={() => { setName(qc.name); setTransformation(qc.transformation); }}
+              style={{background:name===qc.name?'rgba(233,69,96,0.15)':'rgba(255,255,255,0.04)',
+                border:`1px solid ${name===qc.name?'rgba(233,69,96,0.4)':'rgba(255,255,255,0.08)'}`,
+                borderRadius:10,padding:'12px',cursor:'pointer',textAlign:'left'}}>
+              <div style={{color:B.white,fontWeight:700,fontSize:12,marginBottom:4}}>{qc.name}</div>
+              <div style={{color:B.gray,fontSize:11,lineHeight:1.5}}>{qc.transformation.slice(0,70)}...</div>
+            </button>
+          ))}
+        </div>
+
+        <SecLabel>Challenge Name</SecLabel>
+        <input value={name} onChange={e=>setName(e.target.value)}
+          placeholder="e.g. 30-Day Elevation Challenge, 30-Day 5AM Club..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            marginBottom:16,boxSizing:'border-box'}}/>
+
+        <SecLabel>The Transformation Promise</SecLabel>
+        <textarea value={transformation} onChange={e=>setTransformation(e.target.value)} rows={2}
+          placeholder="What does someone have at day 30 that they didn't at day 1? Be specific."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+
+        <SecLabel>Target Audience</SecLabel>
+        <textarea value={audience} onChange={e=>setAudience(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+
+        <SecLabel>Primary Platform</SecLabel>
+        <div style={{display:'flex',gap:8,marginBottom:20}}>
+          {PLATFORMS.map(p => (
+            <button key={p} onClick={() => setPlatform(p)}
+              style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                borderRadius:6,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:platform===p?700:400}}>
+              {p}
+            </button>
+          ))}
+        </div>
+
+        <RedBtn onClick={run} disabled={loading||!name||!transformation}>
+          {loading ? 'Building challenge system...' : '🔥 Build Full 30-Day Challenge'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && (
+        <div style={{marginTop:16}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:10}}>
+            <span style={{color:B.white,fontWeight:700,fontSize:15}}>{name}</span>
+            <div style={{display:'flex',gap:8}}>
+              <CopyBtn text={out}/>
+              <button onClick={downloadChallenge} disabled={downloading}
+                style={{background:B.red,color:'#fff',border:'none',borderRadius:8,
+                  padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',fontSize:13}}>
+                {downloading ? 'Preparing...' : '⬇ Download Plan'}
+              </button>
+            </div>
+          </div>
+          <StrategyOutput text={out} onDownload={downloadChallenge} downloading={downloading}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPETITOR CONTENT SPY
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const SPY_PROMPT = (handle, platform, rawData, angle) => `
+${VOICE}
+
+You are analyzing a competitor's content strategy to find gaps Jason Fricka can own.
+
+Creator: ${handle}
+Platform: ${platform}
+Live data pulled: ${rawData}
+Jason's angle to compete from: ${angle || 'Veteran/mindset/real estate/Colorado lifestyle'}
+
+This is intelligence work — not copying. Find what they are missing so Jason can own it.
+
+# Competitor Intel: ${handle}
+
+## Who They Are (Quick Brief)
+[3 sentences — what they do, who their audience is, what they're known for]
+
+## What's Working for Them
+[Top 3-5 content formats/topics that are clearly resonating — with specific examples from the data]
+
+## Their Posting Pattern
+[Frequency, timing, content mix — what's consistent]
+
+## Audience They're Attracting
+[Who comments, what they ask, what the community looks like]
+
+## THE GAPS — What They're NOT Doing
+[This is the most important section. Be specific. What angles, formats, or topics are they avoiding or doing poorly?]
+
+## What Jason Can Own That They Can't
+[Based on Jason's unique background — veteran, HR, real estate, Colorado, endurance athlete — what can he cover authentically that this creator cannot?]
+
+## 5 Specific Content Ideas to Beat Them
+[Specific filmable concepts — not generic topics. Each one directly counters a gap you identified above]
+
+## The One Thing That Would Make Jason Stand Out in This Space
+[Single highest-leverage differentiator]`;
+
+function CompetitorSpy() {
+  const [handle, setHandle] = useState('');
+  const [platform, setPlatform] = useState('Instagram');
+  const [angle, setAngle] = useState('');
+  const [rawData, setRawData] = useState('');
+  const [out, setOut] = useState('');
+  const [fetching, setFetching] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem('encis_spy_history');
+      if (s) setHistory(JSON.parse(s));
+    } catch {}
+  }, []);
+
+  const fetchProfile = async () => {
+    if (!handle) return;
+    setFetching(true); setRawData(''); setOut('');
+    const cleanHandle = handle.replace('@','');
+    const q = platform === 'YouTube'
+      ? `Analyze the YouTube channel ${handle}. Report: subscriber count, total views, upload frequency, most popular videos with view counts, content topics, what formats they use, what their audience responds to most.`
+      : `Analyze the ${platform} account ${handle.startsWith('@') ? handle : '@'+handle}. Report: follower count, engagement patterns, most popular recent posts, content themes, posting frequency, what their audience engages with most, what hashtags they use.`;
+    const res = await perp(q);
+    setRawData(res);
+    setFetching(false);
+  };
+
+  const run = async () => {
+    if (!rawData) return;
+    setLoading(true); setOut('');
+    const res = await ai(SPY_PROMPT(handle, platform, rawData, angle));
+    setOut(res);
+    // Save to history
+    const entry = { id: Date.now().toString(), handle, platform, date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), preview: res.slice(0,100) };
+    const updated = [entry, ...history].slice(0, 10);
+    setHistory(updated);
+    try { localStorage.setItem('encis_spy_history', JSON.stringify(updated)); } catch {}
+    setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🕵️</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Competitor Content Spy</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pull any creator's content strategy — find the gaps Jason can own.</p>
+        </div>
+      </div>
+
+      <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
+        🎯 This is intelligence, not imitation. The goal is to find what they are NOT doing so you can own it. Every gap they leave is an opening.
+      </div>
+
+      <Card>
+        <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:10,marginBottom:16,alignItems:'end'}}>
+          <div>
+            <SecLabel>Creator Handle or Channel</SecLabel>
+            <input value={handle} onChange={e=>setHandle(e.target.value)}
+              placeholder="e.g. @hubermanlab, @davidgoggins, ThinkMedia..."
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Platform</SecLabel>
+            <div style={{display:'flex',gap:6}}>
+              {PLATFORMS.map(p => (
+                <button key={p} onClick={() => setPlatform(p)}
+                  style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                    borderRadius:6,padding:'8px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <button onClick={fetchProfile} disabled={fetching||!handle}
+          style={{background:fetching?B.gray:'rgba(0,212,255,0.1)',color:'#00d4ff',
+            border:'1px solid rgba(0,212,255,0.3)',borderRadius:8,padding:'10px 20px',
+            fontWeight:700,cursor:(!handle||fetching)?'not-allowed':'pointer',
+            fontSize:13,marginBottom:16,display:'block'}}>
+          {fetching ? 'Pulling profile data...' : `🔍 Pull ${platform} Data for ${handle||'this creator'}`}
+        </button>
+
+        {rawData && (
+          <div style={{background:'rgba(0,0,0,0.25)',borderRadius:8,padding:'12px',marginBottom:16,
+            maxHeight:140,overflowY:'auto',border:'1px solid rgba(255,255,255,0.07)'}}>
+            <div style={{fontSize:10,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>Live Data Pulled</div>
+            <div style={{color:'rgba(255,255,255,0.65)',fontSize:12,lineHeight:1.7}}>{rawData}</div>
+          </div>
+        )}
+
+        <SecLabel>Jason's Angle (optional — helps focus the gap analysis)</SecLabel>
+        <input value={angle} onChange={e=>setAngle(e.target.value)}
+          placeholder="e.g. Veteran mindset, Colorado real estate, endurance athlete over 40..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            marginBottom:16,boxSizing:'border-box'}}/>
+
+        <RedBtn onClick={run} disabled={loading||!rawData}>
+          {loading ? 'Running intel analysis...' : '🕵️ Run Competitor Intel'}
+        </RedBtn>
+      </Card>
+
+      {loading && <Spin/>}
+      {out && <StrategyOutput text={out} onDownload={null} downloading={false}/>}
+
+      {/* Recent spy history */}
+      {history.length > 0 && (
+        <div style={{marginTop:24}}>
+          <div style={{fontSize:11,color:B.gray,fontWeight:700,letterSpacing:1.5,
+            textTransform:'uppercase',marginBottom:10}}>Recent Profiles Analyzed</div>
+          <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+            {history.map(h => (
+              <button key={h.id}
+                onClick={() => { setHandle(h.handle); setPlatform(h.platform); }}
+                style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',
+                  borderRadius:8,padding:'6px 12px',cursor:'pointer',color:'rgba(255,255,255,0.7)',fontSize:12}}>
+                {h.handle} <span style={{color:B.gray}}>· {h.platform} · {h.date}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 const COMPONENT_MAP = {
   home: Home,
   onboard: Onboarding,
@@ -4086,6 +5796,14 @@ const COMPONENT_MAP = {
   gaps: ContentGapAnalyzer,
   tracker: CollabTracker,
   clients: ClientMode,
+  comment: CommentResponder,
+  hooktester: HookTester,
+  email: EmailSequenceBuilder,
+  podcast: PodcastPreProd,
+  yttoolkit: YouTubeToolkit,
+  dmscripts: DMScriptLibrary,
+  challenge: ChallengeBuilder,
+  spy: CompetitorSpy,
 };
 
 export default function App() {
@@ -4101,6 +5819,7 @@ export default function App() {
   const handleNav = (id) => {
     setNav(id);
     if(id === 'home') { setSub(null); return; }
+    if(id === 'youtube') { setSub('yttoolkit'); return; }
     const subs = SUB_NAV[id];
     if(subs) setSub(subs[0].id);
   };
