@@ -2799,14 +2799,33 @@ function useTrendAlerts() {
             );
             const hook = hookLine?.replace(/^[\d*#.\-]+\s*/, '').trim() || null;
 
+            // Build fallback search links from trend data
+            // Extract trend name — first bold phrase or first short line
+            const boldMatch = raw.match(/\*\*([^*]{5,60})\*\*/);
+            const trendName = boldMatch?.[1] ||
+              lines.find(l => l.trim().length > 8 && l.trim().length < 80 && !l.includes('http'))
+                ?.replace(/^[\d*#.\-"]+\s*/, '').slice(0, 60) || angle;
+
+            // Construct platform search links
+            const searchTerm = encodeURIComponent(
+              (creator ? creator.replace('@','') + ' ' : '') + trendName
+            );
+            const ytSearch  = `https://www.youtube.com/results?search_query=${searchTerm}&sp=EgQIARAB`; // filtered to this week
+            const igSearch  = `https://www.instagram.com/explore/tags/${encodeURIComponent(trendName.replace(/\s+/g,''))}`;
+            const perpLink  = `https://www.perplexity.ai/search?q=${encodeURIComponent(trendName + ' viral video 2M views 2026')}`;
+
             return {
               id: Date.now() + i,
               angle,
               text,
               hook,
-              url,
+              url,           // direct URL if Perplexity included one
               views,
               creator,
+              trendName,
+              ytSearch,      // always present
+              igSearch,      // always present
+              perpLink,      // always present
               raw,
               ts: Date.now(),
               seen: false,
@@ -2946,20 +2965,35 @@ function TrendAlertBanner() {
                     </div>
                   )}
 
-                  {/* Video link */}
-                  {alert.url && (
-                    <a href={alert.url} target="_blank" rel="noopener noreferrer"
-                      style={{display:'flex',alignItems:'center',gap:6,background:B.red,color:'#fff',
-                        borderRadius:8,padding:'8px 12px',fontSize:12,fontWeight:700,textDecoration:'none',
-                        justifyContent:'center',marginTop:'auto'}}>
-                      ▶ Watch the Video
+                  {/* Links row — always shown */}
+                  <div style={{display:'flex',gap:6,marginTop:'auto',flexWrap:'wrap'}}>
+                    {alert.url && (
+                      <a href={alert.url} target="_blank" rel="noopener noreferrer"
+                        style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:5,
+                          background:B.red,color:'#fff',borderRadius:8,padding:'8px 10px',
+                          fontSize:12,fontWeight:700,textDecoration:'none',minWidth:100}}>
+                        ▶ Direct Link
+                      </a>
+                    )}
+                    <a href={alert.ytSearch} target="_blank" rel="noopener noreferrer"
+                      style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:5,
+                        background:'rgba(255,0,0,0.15)',color:'#ff4444',border:'1px solid rgba(255,0,0,0.25)',
+                        borderRadius:8,padding:'8px 10px',fontSize:12,fontWeight:700,textDecoration:'none',minWidth:80}}>
+                      ▶ YouTube
                     </a>
-                  )}
-                  {!alert.url && (
-                    <div style={{color:B.gray,fontSize:11,textAlign:'center',marginTop:'auto'}}>
-                      No direct link found — search manually
-                    </div>
-                  )}
+                    <a href={alert.igSearch} target="_blank" rel="noopener noreferrer"
+                      style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:5,
+                        background:'rgba(193,53,132,0.15)',color:'#c13584',border:'1px solid rgba(193,53,132,0.25)',
+                        borderRadius:8,padding:'8px 10px',fontSize:12,fontWeight:700,textDecoration:'none',minWidth:80}}>
+                      📸 Instagram
+                    </a>
+                    <a href={alert.perpLink} target="_blank" rel="noopener noreferrer"
+                      style={{display:'flex',alignItems:'center',justifyContent:'center',
+                        background:'rgba(255,255,255,0.06)',color:B.gray,border:'1px solid rgba(255,255,255,0.1)',
+                        borderRadius:8,padding:'8px 10px',fontSize:11,textDecoration:'none',whiteSpace:'nowrap'}}>
+                      🔍 Verify
+                    </a>
+                  </div>
                 </div>
               ))}
             </div>
