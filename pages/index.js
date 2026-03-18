@@ -82,14 +82,14 @@ const VAULT_TABS = [
 ];
 
 // ─── AI HELPERS ──────────────────────────────────────────────────────────────
-async function ai(prompt, system='') {
+async function ai(message, system='You are a helpful content strategist.') {
   const res = await fetch('/api/claude', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ prompt, system })
+    body: JSON.stringify({ system, message })
   });
   const d = await res.json();
-  return d.result || d.error || 'No response';
+  return d.text || d.result || d.error || 'No response';
 }
 
 async function perp(query) {
@@ -1189,12 +1189,12 @@ function Onboarding() {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
-          prompt: `Convert this strategy document into clean HTML that could be printed or saved as a document. Use proper headings (h1, h2, h3), bullet points, and bold text. Make it professional and readable. Return ONLY the HTML body content, no <html> or <body> tags:\n\n${out}`,
+          message: `Convert this strategy document into clean HTML that could be printed or saved as a document. Use proper headings (h1, h2, h3), bullet points, and bold text. Make it professional and readable. Return ONLY the HTML body content, no <html> or <body> tags:\n\n${out}`,
           system: 'You convert markdown/text strategy documents into clean, well-formatted HTML. Return only the inner HTML content.'
         })
       });
       const d = await res.json();
-      const html = d.result || '';
+      const html = d.text || d.result || '';
       const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Everyday Elevations — 90-Day Strategy</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#111;line-height:1.7}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#0A1628;margin-top:32px}h3{color:#E94560}strong{color:#0A1628}li{margin-bottom:6px}@media print{body{margin:24px}}</style></head><body><h1>Everyday Elevations — 90-Day Content Strategy</h1>${html}</body></html>`;
       const blob = new Blob([fullHtml], {type:'text/html'});
       const url = URL.createObjectURL(blob);
