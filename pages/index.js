@@ -2734,6 +2734,17 @@ function Teleprompter({ text, onClose }) {
 
 const TREND_ALERTS_KEY  = 'encis_trend_alerts';
 const TREND_ALERTS_DATE = 'encis_trend_date';
+const APP_VERSION_KEY   = 'encis_version';
+const CURRENT_VERSION   = '2.1';
+
+// One-time migration: clear stale data from old format on version bump
+try {
+  if (typeof window !== 'undefined' && localStorage.getItem(APP_VERSION_KEY) !== CURRENT_VERSION) {
+    localStorage.removeItem(TREND_ALERTS_KEY);
+    localStorage.removeItem(TREND_ALERTS_DATE);
+    localStorage.setItem(APP_VERSION_KEY, CURRENT_VERSION);
+  }
+} catch {}
 
 function useTrendAlerts() {
   const [alerts,  setAlerts]  = useState([]);
@@ -2876,7 +2887,8 @@ function useTrendAlerts() {
   // Auto-check twice per day — trends move fast, 12-hour refresh window
   useEffect(() => {
     try {
-      const lastTs = parseInt(localStorage.getItem(TREND_ALERTS_DATE) || '0');
+      const stored = localStorage.getItem(TREND_ALERTS_DATE) || '0';
+      const lastTs = /^\d+$/.test(stored) ? parseInt(stored) : 0; // guard against old date-string format
       const hoursSinceLast = (Date.now() - lastTs) / (1000 * 60 * 60);
       if (hoursSinceLast > 12 && !loading) checkTrends();
     } catch {}
@@ -2915,7 +2927,7 @@ function TrendAlertBanner() {
 
   return (
     <div style={{background:'rgba(233,69,96,0.06)',borderBottom:'1px solid rgba(233,69,96,0.15)',
-      position:'sticky',top:subItems?88:52,zIndex:90}}>
+      position:'sticky',top:52,zIndex:90}}>
       <div style={{maxWidth:1100,margin:'0 auto',padding:'0 16px'}}>
 
         {/* Collapsed bar — toggle button only, no full-row onClick so links inside always work */}
