@@ -93,13 +93,18 @@ async function ai(message, system='You are a helpful content strategist.') {
 }
 
 async function perp(query) {
-  const res = await fetch('/api/perplexity', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ query })
-  });
-  const d = await res.json();
-  return d.result || d.error || 'No response';
+  try {
+    const res = await fetch('/api/perplexity', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ query })
+    });
+    if (!res.ok) return `API error: ${res.status}`;
+    const d = await res.json();
+    return d.text || d.result || d.content || d.answer || d.output || d.error || 'No response';
+  } catch(e) {
+    return `Network error: ${e.message}`;
+  }
 }
 
 // ─── UI PRIMITIVES ────────────────────────────────────────────────────────────
@@ -2749,9 +2754,10 @@ function useTrendAlerts() {
     try {
       const today = new Date().toDateString();
 
-      // Structured query — asks for specific account + title so we can build real links
+      // Strict 24-48 hour window, 2M+ views only
+      const todayStr = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
       const makeQuery = (niche) =>
-        `Search Instagram Reels and YouTube Shorts right now for the single most viral video in the ${niche} space this week. I need ONLY these specific details, nothing else:\n\nACCOUNT: [exact Instagram handle or YouTube channel name, e.g. @handle or ChannelName]\nPLATFORM: [Instagram or YouTube]\nVIDEO TITLE: [exact title or first line of caption]\nVIEWS: [number like 3.2M or 890K]\nWHY IT BLEW UP: [one sentence]\nHOOK TO STEAL: [specific opening line Jason Fricka could use]\n\nOnly report content from the last 14 days. Be specific — name the real account.`;
+        `Today is ${todayStr}. Search right now for a specific viral video about ${niche} posted on Instagram Reels or YouTube Shorts within the last 24-48 hours that has already surpassed 2 million views. This must be brand new content — posted today or yesterday only. Do not report anything older than 48 hours. Do not estimate view counts — only report if you can verify over 2M views. If no video in this niche meets both requirements (posted in last 48 hours AND verified 2M+ views), respond with exactly: NO_RESULT\n\nIf you find one, respond ONLY in this exact format:\n\nACCOUNT: [exact @handle or YouTube channel name]\nPLATFORM: [Instagram or YouTube]\nVIDEO TITLE: [exact title or caption]\nVIEWS: [verified count — must exceed 2M]\nPOSTED: [exact date posted, e.g. March 18, 2026]\nWHY IT BLEW UP: [one sentence — specific psychology or format reason]\nHOOK TO STEAL: [opening line Jason Fricka could use to make a similar video]`;
 
       const angleQueries = [
         { angle: "Veteran / Resilience",       q: makeQuery("veteran, military resilience, or veteran transition") },
@@ -2774,6 +2780,13 @@ function useTrendAlerts() {
             const d = await res.json();
             const raw = (d.result || d.text || '').trim();
 
+            // Skip if Perplexity couldn't find a verified 2M+ video
+            if (!raw || raw.includes('NO_RESULT') || raw.toLowerCase().includes('cannot find') ||
+                raw.toLowerCase().includes('no specific') || raw.toLowerCase().includes("i don't have")) {
+              return null;
+            }
+
+
             // Parse structured labeled fields from the response
             const getField = (label) => {
               const regex = new RegExp(`${label}:\\s*(.+)`, 'i');
@@ -2785,8 +2798,20 @@ function useTrendAlerts() {
             const platform = getField('PLATFORM') || 'Instagram';
             const title    = getField('VIDEO TITLE');
             const views    = getField('VIEWS');
+            const posted   = getField('POSTED');
             const why      = getField('WHY IT BLEW UP');
             const hook     = getField('HOOK TO STEAL');
+
+            // Hard filter — reject anything under 2M views
+            if (views) {
+              const vNum  = parseFloat(views.replace(/[^0-9.]/g, '')) || 0;
+              const vUp   = views.toUpperCase();
+              const vMil  = vUp.includes('B') ? vNum * 1000 : vUp.includes('M') ? vNum : vUp.includes('K') ? vNum / 1000 : vNum / 1000000;
+              if (vMil < 2) return null;
+            }
+            // Reject if account is missing or clearly fabricated
+            if (!account || account.toLowerCase().includes('not available') || account === 'N/A') return null;
+
 
             // Clean handle — strip @ for URL construction
             const handleRaw = account || '';
@@ -2825,6 +2850,7 @@ function useTrendAlerts() {
               platform,
               title,
               views,
+              posted,
               text,
               hook,
               profileUrl,
@@ -2840,19 +2866,19 @@ function useTrendAlerts() {
 
       const parsed = results.filter(Boolean);
       localStorage.setItem(TREND_ALERTS_KEY, JSON.stringify(parsed));
-      localStorage.setItem(TREND_ALERTS_DATE, today);
+      localStorage.setItem(TREND_ALERTS_DATE, Date.now().toString());
       setAlerts(parsed);
-      setLastRun(today);
+      setLastRun(new Date().toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', month:'short', day:'numeric'}));
     } catch(e) { console.error(e); }
     setLoading(false);
   };
 
-  // Auto-check once per day on mount
+  // Auto-check twice per day — trends move fast, 12-hour refresh window
   useEffect(() => {
-    const today = new Date().toDateString();
     try {
-      const date = localStorage.getItem(TREND_ALERTS_DATE);
-      if (date !== today && !loading) checkTrends();
+      const lastTs = parseInt(localStorage.getItem(TREND_ALERTS_DATE) || '0');
+      const hoursSinceLast = (Date.now() - lastTs) / (1000 * 60 * 60);
+      if (hoursSinceLast > 12 && !loading) checkTrends();
     } catch {}
   }, []);
 
@@ -2888,12 +2914,12 @@ function TrendAlertBanner() {
   const preview = alerts.find(a => a.text?.length > 10)?.text?.slice(0, 90) || 'Checking your 8 content angles...';
 
   return (
-    <div style={{background:'rgba(233,69,96,0.06)',borderBottom:'1px solid rgba(233,69,96,0.15)'}}>
+    <div style={{background:'rgba(233,69,96,0.06)',borderBottom:'1px solid rgba(233,69,96,0.15)',
+      position:'sticky',top:subItems?88:52,zIndex:90}}>
       <div style={{maxWidth:1100,margin:'0 auto',padding:'0 16px'}}>
 
-        {/* Collapsed bar */}
-        <div style={{display:'flex',alignItems:'center',gap:12,padding:'9px 0',cursor:'pointer',minHeight:40}}
-          onClick={()=>{ setExpanded(e=>!e); if(unseen>0) markSeen(); }}>
+        {/* Collapsed bar — toggle button only, no full-row onClick so links inside always work */}
+        <div style={{display:'flex',alignItems:'center',gap:12,padding:'9px 0',minHeight:40}}>
           <span style={{fontSize:14,flexShrink:0}}>🔥</span>
           <span style={{color:B.red,fontWeight:700,fontSize:12,whiteSpace:'nowrap',flexShrink:0}}>Trend Alerts</span>
           {unseen > 0 && !expanded && (
@@ -2906,12 +2932,17 @@ function TrendAlertBanner() {
             : !expanded && <span style={{color:'rgba(255,255,255,0.55)',fontSize:12,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{preview}...</span>
           }
           <div style={{display:'flex',alignItems:'center',gap:8,marginLeft:'auto',flexShrink:0}}>
-            <button onClick={e=>{e.stopPropagation();checkTrends();}}
+            <button onClick={checkTrends}
               style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',
                 borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer'}}>
               {loading ? '⏳' : '↻ Refresh'}
             </button>
-            <span style={{color:B.gray,fontSize:11}}>{expanded?'▲':'▼'}</span>
+            <button
+              onClick={()=>{ setExpanded(e=>!e); if(unseen>0) markSeen(); }}
+              style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',
+                borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer',fontWeight:700}}>
+              {expanded ? '▲ Hide' : '▼ Show All'}
+            </button>
           </div>
         </div>
 
@@ -2919,8 +2950,12 @@ function TrendAlertBanner() {
         {expanded && (
           <div style={{paddingBottom:16}}>
             {lastRun && (
-              <div style={{color:B.gray,fontSize:11,marginBottom:10}}>
-                Last checked: {lastRun} · {alerts.length} angles covered
+              <div style={{color:B.gray,fontSize:11,marginBottom:10,display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+                <span>Last checked: {lastRun}</span>
+                <span style={{color:B.red,fontWeight:700}}>{alerts.length} verified 2M+ trends found</span>
+                {alerts.length < 8 && (
+                  <span style={{color:'rgba(255,255,255,0.35)'}}>· {8 - alerts.length} angles had no verified 2M+ content this week</span>
+                )}
               </div>
             )}
             <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:10}}>
@@ -2942,7 +2977,7 @@ function TrendAlertBanner() {
                     )}
                   </div>
 
-                  {/* Views + Account row */}
+                  {/* Views + Account + Posted row */}
                   <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
                     {alert.views && (
                       <span style={{background:'rgba(233,69,96,0.2)',color:B.red,borderRadius:6,padding:'3px 9px',fontSize:11,fontWeight:800}}>
@@ -2950,13 +2985,18 @@ function TrendAlertBanner() {
                       </span>
                     )}
                     {alert.account && (
-                      <span style={{background:'rgba(255,255,255,0.08)',color:'rgba(255,255,255,0.8)',borderRadius:6,padding:'3px 9px',fontSize:11,fontWeight:700}}>
+                      <span style={{background:'rgba(255,255,255,0.08)',color:'rgba(255,255,255,0.85)',borderRadius:6,padding:'3px 9px',fontSize:11,fontWeight:700}}>
                         {alert.account}
                       </span>
                     )}
                     {alert.platform && (
                       <span style={{color:B.gray,fontSize:10,textTransform:'uppercase',letterSpacing:1}}>
                         {alert.platform}
+                      </span>
+                    )}
+                    {alert.posted && (
+                      <span style={{color:'rgba(0,212,255,0.7)',fontSize:10,marginLeft:'auto'}}>
+                        📅 {alert.posted}
                       </span>
                     )}
                   </div>
@@ -3403,4 +3443,3 @@ export default function App() {
     </>
   );
 }
-      
