@@ -1295,7 +1295,7 @@ function BulkBatch() {
         {loading ? 'Generating full batch...' : '⚡ Generate Full Content Batch'}
       </RedBtn>
       {loading && <Spin/>}
-      <Output text={out}/>
+      <OutputWithTeleprompter text={out}/>
     </div>
   );
 }
@@ -1823,7 +1823,7 @@ function ContentCalendar() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <Output text={out}/>
+      <OutputWithTeleprompter text={out}/>
     </div>
   );
 }
@@ -1910,7 +1910,7 @@ function ProfileAudit() {
         </div>
       </Card>
       {loading && <Spin/>}
-      <Output text={out}/>
+      <OutputWithTeleprompter text={out}/>
     </div>
   );
 }
@@ -1973,7 +1973,7 @@ function LeadMagnet() {
         </div>
       </Card>
       {loading && <Spin/>}
-      <Output text={out}/>
+      <OutputWithTeleprompter text={out}/>
     </div>
   );
 }
@@ -2031,7 +2031,7 @@ function CommunityBuilder() {
         </div>
       </Card>
       {loading && <Spin/>}
-      <Output text={out}/>
+      <OutputWithTeleprompter text={out}/>
     </div>
   );
 }
@@ -2289,7 +2289,7 @@ function CollabFinder() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <Output text={out}/>
+      <OutputWithTeleprompter text={out}/>
     </div>
   );
 }
@@ -2328,7 +2328,7 @@ function Extract() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <Output text={out}/>
+      <OutputWithTeleprompter text={out}/>
     </div>
   );
 }
@@ -2429,7 +2429,7 @@ function ScriptEngine() {
               </button>
             </div>
           </div>
-          <Output text={out}/>
+          <OutputWithTeleprompter text={out}/>
         </div>
       )}
 
@@ -2475,7 +2475,7 @@ function EpisodeClips() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <Output text={out}/>
+      <OutputWithTeleprompter text={out}/>
     </div>
   );
 }
@@ -2519,7 +2519,7 @@ function RepurposeEngine() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <Output text={out}/>
+      <OutputWithTeleprompter text={out}/>
     </div>
   );
 }
@@ -2563,7 +2563,7 @@ function HookLibrary() {
         </RedBtn>
       </Card>
       {loading && <Spin/>}
-      <Output text={out}/>
+      <OutputWithTeleprompter text={out}/>
     </div>
   );
 }
@@ -2611,7 +2611,7 @@ function DesignStudio() {
         </RedBtn>
       </Card>
       {loading && <Spin/>}
-      <Output text={out}/>
+      <OutputWithTeleprompter text={out}/>
     </div>
   );
 }
@@ -2656,7 +2656,7 @@ function WeeklyReview() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <Output text={out}/>
+      <OutputWithTeleprompter text={out}/>
     </div>
   );
 }
@@ -2826,10 +2826,10 @@ function useTrendAlerts() {
     try {
       const today = new Date().toDateString();
 
-      // Strict 24-48 hour window, 2M+ views only
+      // Strict 24-48 hour window, 1M+ views only
       const todayStr = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
       const makeQuery = (niche) =>
-        `Today is ${todayStr}. Search right now for a specific viral video about ${niche} posted on Instagram Reels or YouTube Shorts within the last 24-48 hours that has already surpassed 2 million views. This must be brand new content — posted today or yesterday only. Do not report anything older than 48 hours. Do not estimate view counts — only report if you can verify over 2M views. If no video in this niche meets both requirements (posted in last 48 hours AND verified 2M+ views), respond with exactly: NO_RESULT\n\nIf you find one, respond ONLY in this exact format:\n\nACCOUNT: [exact @handle or YouTube channel name]\nPLATFORM: [Instagram or YouTube]\nVIDEO TITLE: [exact title or caption]\nVIEWS: [verified count — must exceed 2M]\nPOSTED: [exact date posted, e.g. March 18, 2026]\nWHY IT BLEW UP: [one sentence — specific psychology or format reason]\nHOOK TO STEAL: [opening line Jason Fricka could use to make a similar video]`;
+        `Today is ${todayStr}. Search right now for a specific viral video about ${niche} posted on Instagram Reels or YouTube Shorts within the last 24-48 hours that has already surpassed 1 million views. This must be brand new content — posted today or yesterday only. Do not report anything older than 48 hours. Do not estimate view counts — only report if you can verify over 1M views. If no video in this niche meets both requirements (posted in last 48 hours AND verified 1M+ views), respond with exactly: NO_RESULT\n\nIf you find one, respond ONLY in this exact format:\n\nACCOUNT: [exact @handle or YouTube channel name]\nPLATFORM: [Instagram or YouTube]\nVIDEO TITLE: [exact title or caption]\nVIEWS: [verified count — must exceed 1M]\nPOSTED: [exact date posted, e.g. March 18, 2026]\nWHY IT BLEW UP: [one sentence — specific psychology or format reason]\nHOOK TO STEAL: [opening line Jason Fricka could use to make a similar video]`;
 
       const angleQueries = [
         { angle: "Veteran / Resilience",       q: makeQuery("veteran, military resilience, or veteran transition") },
@@ -2852,7 +2852,7 @@ function useTrendAlerts() {
             const d = await res.json();
             const raw = (d.result || d.text || '').trim();
 
-            // Skip if Perplexity couldn't find a verified 2M+ video
+            // Skip if Perplexity couldn't find a verified 1M+ video
             if (!raw || raw.includes('NO_RESULT') || raw.toLowerCase().includes('cannot find') ||
                 raw.toLowerCase().includes('no specific') || raw.toLowerCase().includes("i don't have")) {
               return null;
@@ -2874,12 +2874,12 @@ function useTrendAlerts() {
             const why      = getField('WHY IT BLEW UP');
             const hook     = getField('HOOK TO STEAL');
 
-            // Hard filter — reject anything under 2M views
+            // Hard filter — reject anything under 1M views
             if (views) {
               const vNum  = parseFloat(views.replace(/[^0-9.]/g, '')) || 0;
               const vUp   = views.toUpperCase();
               const vMil  = vUp.includes('B') ? vNum * 1000 : vUp.includes('M') ? vNum : vUp.includes('K') ? vNum / 1000 : vNum / 1000000;
-              if (vMil < 2) return null;
+              if (vMil < 1) return null;
             }
             // Reject if account is missing or clearly fabricated
             if (!account || account.toLowerCase().includes('not available') || account === 'N/A') return null;
@@ -3025,9 +3025,9 @@ function TrendAlertBanner() {
             {lastRun && (
               <div style={{color:B.gray,fontSize:11,marginBottom:10,display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
                 <span>Last checked: {lastRun}</span>
-                <span style={{color:B.red,fontWeight:700}}>{alerts.length} verified 2M+ trends found</span>
+                <span style={{color:B.red,fontWeight:700}}>{alerts.length} verified 1M+ trends found</span>
                 {alerts.length < 8 && (
-                  <span style={{color:'rgba(255,255,255,0.35)'}}>· {8 - alerts.length} angles had no verified 2M+ content this week</span>
+                  <span style={{color:'rgba(255,255,255,0.35)'}}>· {8 - alerts.length} angles had no verified 1M+ content this week</span>
                 )}
               </div>
             )}
@@ -3374,6 +3374,7 @@ const SUB_NAV = {
   ],
   create: [
     { id:'script',    emoji:'✍️',  label:'Script Engine' },
+    { id:'caption',   emoji:'💬',  label:'Caption Writer' },
     { id:'batch',     emoji:'⚡',  label:'Bulk Batch' },
     { id:'episode',   emoji:'🎙️',  label:'Episode Clips' },
     { id:'repurpose', emoji:'♻️',  label:'Repurpose' },
@@ -3381,14 +3382,684 @@ const SUB_NAV = {
     { id:'design',    emoji:'🎨',  label:'Design Studio' },
   ],
   optimize: [
-    { id:'review',  emoji:'📊', label:'Weekly Review' },
-    { id:'roi',     emoji:'📈', label:'ROI Dashboard' },
-    { id:'memory',  emoji:'🧠', label:'Content Memory' },
+    { id:'review',   emoji:'📊', label:'Weekly Review' },
+    { id:'roi',      emoji:'📈', label:'ROI Dashboard' },
+    { id:'memory',   emoji:'🧠', label:'Content Memory' },
+    { id:'schedule', emoji:'🗓️', label:'Schedule' },
+    { id:'gaps',     emoji:'🔍', label:'Gap Analyzer' },
   ],
   agency: [
     { id:'clients', emoji:'👥', label:'Client Profiles' },
+    { id:'tracker', emoji:'📋', label:'Collab Tracker' },
   ],
 };
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE 1 — CAPTION WRITER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const CAPTION_PROMPT = (topic, platform, angle, hook, cta) => `
+${VOICE}
+${CONTENT_SOP}
+
+Topic: ${topic}
+Platform: ${platform}
+Angle: ${angle}
+Hook to open with: ${hook || 'Write your own strong hook'}
+CTA style: ${cta}
+
+Write 3 caption variations for this ${platform} post. Each must feel completely different — different energy, different structure, different length.
+
+**CAPTION 1 — SHORT & PUNCHY** (under 100 words)
+[Hook line]
+[2-3 lines of value]
+[CTA]
+[10 hashtags]
+
+**CAPTION 2 — STORY-DRIVEN** (150-250 words)
+[Personal moment or scene-setter]
+[The lesson or shift]
+[Connect to audience]
+[CTA]
+[15 hashtags]
+
+**CAPTION 3 — EDUCATE & CONVERT** (100-150 words)
+[Bold statement hook]
+[3 punchy insight lines]
+[CTA with keyword trigger]
+[15 hashtags]
+
+Rules: No "Hey guys." No emojis unless they add something. Hashtags tiered — 5 niche, 5 mid, 5 broad. CTA matches the platform's culture.`;
+
+function CaptionWriter() {
+  const [topic, setTopic] = useState('');
+  const [platform, setPlatform] = useState('Instagram');
+  const [angle, setAngle] = useState('mindset');
+  const [hook, setHook] = useState('');
+  const [cta, setCta] = useState('comment');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [teleprompter, setTeleprompter] = useState(false);
+  const [activeClient] = useActiveClient();
+
+  const run = async () => {
+    if (!topic) return;
+    setLoading(true); setOut('');
+    const angleLabel = ANGLES.find(a => a.id === angle)?.label || angle;
+    const res = await ai(CAPTION_PROMPT(topic, platform, angleLabel, hook, cta));
+    setOut(res);
+    logToMemory({ type:'caption', title:`Caption: ${topic}`, topic, platform, angle:angleLabel, client:activeClient?.name, preview:res.slice(0,200) });
+    setLoading(false);
+  };
+
+  const ctaTypes = [
+    { id:'comment', label:'Comment CTA', desc:'Drop a word to get something' },
+    { id:'dm', label:'DM CTA', desc:'Send me a message' },
+    { id:'link', label:'Link CTA', desc:'Check link in bio' },
+    { id:'save', label:'Save CTA', desc:'Save this for later' },
+    { id:'share', label:'Share CTA', desc:'Send this to someone' },
+  ];
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>✍️</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Caption Writer</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>3 caption variations — short, story, and educational. Platform-native, saves-first.</p>
+        </div>
+      </div>
+      {activeClient && <ClientBanner client={activeClient}/>}
+      <Card>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+          <div>
+            <SecLabel>Platform</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {PLATFORMS.map(p => (
+                <button key={p} onClick={() => setPlatform(p)}
+                  style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                    borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <SecLabel>CTA Type</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {ctaTypes.map(c => (
+                <button key={c.id} onClick={() => setCta(c.id)}
+                  style={{background:cta===c.id?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                    borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:cta===c.id?700:400}}>
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <SecLabel>Topic / What the post is about</SecLabel>
+        <textarea value={topic} onChange={e=>setTopic(e.target.value)} rows={2}
+          placeholder="e.g. Why I wake up at 4:45 AM even on weekends, what nobody tells you about veteran transition..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+
+        <SecLabel>Opening Hook (optional — paste from Script Engine or write your own)</SecLabel>
+        <input value={hook} onChange={e=>setHook(e.target.value)}
+          placeholder="e.g. Nobody talks about what happens the week after you get out..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+
+        <SecLabel>Content Angle</SecLabel>
+        <AngleGrid selected={angle} onSelect={setAngle}/>
+
+        <RedBtn onClick={run} disabled={loading||!topic}>
+          {loading ? 'Writing Captions...' : 'Write 3 Caption Variations'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && (
+        <div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:8}}>
+            <span style={{color:B.white,fontWeight:700,fontSize:14}}>Your Captions</span>
+            <div style={{display:'flex',gap:8}}>
+              <CopyBtn text={out}/>
+              <button onClick={() => setTeleprompter(true)}
+                style={{background:'linear-gradient(135deg,#1a1a2e,#16213e)',color:'#00d4ff',
+                  border:'1px solid rgba(0,212,255,0.4)',borderRadius:8,padding:'7px 16px',
+                  fontSize:12,fontWeight:700,cursor:'pointer'}}>
+                📺 Teleprompter
+              </button>
+            </div>
+          </div>
+          <OutputWithTeleprompter text={out}/>
+        </div>
+      )}
+      {teleprompter && <Teleprompter text={out} onClose={() => setTeleprompter(false)}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE 2 — SCHEDULE OPTIMIZER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function ScheduleOptimizer() {
+  const [weeks] = useState(() => {
+    try { const s = localStorage.getItem('encis_roi_data'); return s ? JSON.parse(s) : []; } catch { return []; }
+  });
+  const [log] = useState(() => {
+    try { const s = localStorage.getItem('encis_content_log'); return s ? JSON.parse(s) : []; } catch { return []; }
+  });
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [hours, setHours] = useState('10');
+
+  const run = async () => {
+    setLoading(true); setOut('');
+    const roiSummary = weeks.length
+      ? weeks.slice(-8).map(w => `Week of ${w.week}: Followers ${w.followers}, Reach ${w.reach}, Saves ${w.saves}, Shares ${w.shares}, Top content: ${w.topContent || 'none'}, Notes: ${w.notes || 'none'}`).join('\n')
+      : 'No ROI data logged yet.';
+    const memorySummary = log.length
+      ? log.slice(0, 30).map(e => `${e.date} — ${e.type} — ${e.title} — Rating: ${e.perf || 'unrated'}`).join('\n')
+      : 'No content memory logged yet.';
+
+    const prompt = `${VOICE}
+
+You are analyzing Jason Fricka's actual content performance data to build a specific posting schedule.
+
+ROI DATA (last 8 weeks):
+${roiSummary}
+
+CONTENT MEMORY (recent 30 pieces):
+${memorySummary}
+
+Available hours per week: ${hours}
+
+Based on this actual data, build a specific weekly posting schedule. Do not give generic advice — base every recommendation on what the data shows.
+
+# Optimal Posting Schedule for @everydayelevations
+
+## What the Data Shows
+[Specific patterns from the ROI and content memory data above — what's working, what's not, best performing content types]
+
+## Recommended Weekly Schedule
+[Day-by-day posting plan based on ${hours} hours/week]
+For each day: Platform, Content Type, Best Time to Post, Why (based on data)
+
+## Content Mix Breakdown
+[Exact % split across content types based on what's performing]
+
+## What to Stop Doing
+[Specific underperforming patterns from the data]
+
+## 30-Day Execution Plan
+[Week by week focus based on what the numbers say]
+
+## Key Metrics to Watch
+[The 3 numbers that matter most based on this data]`;
+
+    const res = await ai(prompt);
+    setOut(res);
+    setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🗓️</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Schedule Optimizer</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Reads your ROI data and Content Memory — tells you exactly when and what to post.</p>
+        </div>
+      </div>
+
+      {weeks.length === 0 && log.length === 0 && (
+        <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:10,padding:'16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
+          ⚠️ No performance data yet. Log a few weeks in the ROI Dashboard and generate some content first — then come back for a data-driven schedule.
+        </div>
+      )}
+
+      <Card>
+        <SecLabel>Hours Available Per Week</SecLabel>
+        <div style={{display:'flex',gap:8,marginBottom:20}}>
+          {['3','5','10','15','20+'].map(h => (
+            <button key={h} onClick={() => setHours(h)}
+              style={{background:hours===h?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                borderRadius:6,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:hours===h?700:400}}>
+              {h}h
+            </button>
+          ))}
+        </div>
+
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:20}}>
+          <div style={{background:'rgba(255,255,255,0.03)',borderRadius:10,padding:'14px'}}>
+            <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>ROI Data</div>
+            <div style={{fontSize:22,fontWeight:800,color:B.white}}>{weeks.length}</div>
+            <div style={{fontSize:12,color:B.gray}}>weeks logged</div>
+          </div>
+          <div style={{background:'rgba(255,255,255,0.03)',borderRadius:10,padding:'14px'}}>
+            <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>Content Memory</div>
+            <div style={{fontSize:22,fontWeight:800,color:B.white}}>{log.length}</div>
+            <div style={{fontSize:12,color:B.gray}}>pieces tracked</div>
+          </div>
+        </div>
+
+        <RedBtn onClick={run} disabled={loading}>
+          {loading ? 'Analyzing your data...' : '🗓️ Build My Optimal Schedule'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && <StrategyOutput text={out} onDownload={null} downloading={false}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE 3 — CONTENT GAP ANALYZER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function ContentGapAnalyzer() {
+  const [log] = useState(() => {
+    try { const s = localStorage.getItem('encis_content_log'); return s ? JSON.parse(s) : []; } catch { return []; }
+  });
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const run = async () => {
+    setLoading(true); setOut('');
+
+    // Build angle frequency map
+    const angleCount = {};
+    const typeCount = {};
+    const rated = { viral: [], good: [], flopped: [] };
+    const recent = log.slice(0, 50);
+
+    recent.forEach(e => {
+      if (e.angle) angleCount[e.angle] = (angleCount[e.angle] || 0) + 1;
+      if (e.type) typeCount[e.type] = (typeCount[e.type] || 0) + 1;
+      if (e.perf === '🔥') rated.viral.push(e.title || e.topic);
+      if (e.perf === '⭐') rated.good.push(e.title || e.topic);
+      if (e.perf === '💀') rated.flopped.push(e.title || e.topic);
+    });
+
+    const summary = `
+Content logged: ${log.length} total pieces
+Most used angles: ${Object.entries(angleCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} (${v}x)`).join(', ') || 'none'}
+Content types used: ${Object.entries(typeCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} (${v}x)`).join(', ') || 'none'}
+Viral content: ${rated.viral.slice(0,5).join(' | ') || 'none rated yet'}
+Good performers: ${rated.good.slice(0,5).join(' | ') || 'none rated yet'}
+Flopped content: ${rated.flopped.slice(0,5).join(' | ') || 'none rated yet'}
+Available angles: ${ANGLES.map(a=>a.label).join(', ')}
+`;
+
+    const prompt = `${VOICE}
+
+You are analyzing Jason Fricka's content library to find gaps, over-posting, and missed opportunities.
+
+CONTENT AUDIT DATA:
+${summary}
+
+# Content Gap Analysis — @everydayelevations
+
+## What You're Over-Posting
+[Angles and formats appearing too frequently — risk of audience fatigue]
+
+## What You're Under-Posting
+[Angles with zero or low coverage — specific missed opportunities for each]
+
+## Dead Angles (Not Touched in 30+ Days)
+[List each untouched angle with ONE specific content idea for each]
+
+## Your Viral Pattern
+[What the 🔥 rated content has in common — format, angle, topic type]
+
+## What's Flopping and Why
+[Pattern in the 💀 content — what to stop or change]
+
+## 10 Specific Pieces to Create This Week
+[Based on the gaps — specific filmable titles, not generic topics]
+
+## 30-Day Content Rebalancing Plan
+[How to fix the distribution over the next month]`;
+
+    const res = await ai(prompt);
+    setOut(res);
+    setLoading(false);
+  };
+
+  const angleCount = {};
+  log.slice(0, 50).forEach(e => {
+    if (e.angle) angleCount[e.angle] = (angleCount[e.angle] || 0) + 1;
+  });
+  const allAngles = ANGLES.map(a => a.label);
+  const missingAngles = allAngles.filter(a => !angleCount[a]);
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🔍</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Content Gap Analyzer</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Scans your content library — finds what you're over-posting, under-posting, and missing entirely.</p>
+        </div>
+      </div>
+
+      {log.length === 0 && (
+        <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:10,padding:'16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
+          ⚠️ No content in memory yet. Generate content using any tool — it auto-saves here — then run the analyzer.
+        </div>
+      )}
+
+      {log.length > 0 && (
+        <>
+          {/* Quick visual breakdown */}
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:8,marginBottom:20}}>
+            {ANGLES.map(a => {
+              const count = angleCount[a.label] || 0;
+              const max = Math.max(...Object.values(angleCount), 1);
+              const pct = Math.round((count / max) * 100);
+              return (
+                <div key={a.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'12px'}}>
+                  <div style={{fontSize:12,color:B.white,fontWeight:600,marginBottom:6}}>{a.emoji} {a.label}</div>
+                  <div style={{height:4,background:'rgba(255,255,255,0.08)',borderRadius:2,marginBottom:4}}>
+                    <div style={{height:'100%',width:`${pct}%`,background:count===0?'rgba(233,69,96,0.3)':count===max?B.red:'#00d4ff',borderRadius:2,transition:'width 0.3s'}}/>
+                  </div>
+                  <div style={{fontSize:11,color:count===0?B.red:B.gray}}>{count===0?'⚠️ Gap':count + ' pieces'}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          {missingAngles.length > 0 && (
+            <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:10,padding:'12px 16px',marginBottom:16,fontSize:12,color:'rgba(255,255,255,0.8)'}}>
+              <strong style={{color:B.red}}>⚠️ Untouched angles:</strong> {missingAngles.join(', ')}
+            </div>
+          )}
+        </>
+      )}
+
+      <Card>
+        <div style={{color:B.gray,fontSize:13,lineHeight:1.7,marginBottom:16}}>
+          Analyzing <strong style={{color:B.white}}>{log.length} pieces</strong> across your content library.
+          {log.filter(e=>e.perf==='🔥').length > 0 && <span> Found <strong style={{color:B.red}}>{log.filter(e=>e.perf==='🔥').length} viral hits</strong> to pattern-match.</span>}
+        </div>
+        <RedBtn onClick={run} disabled={loading||log.length===0}>
+          {loading ? 'Analyzing library...' : '🔍 Run Gap Analysis'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && <StrategyOutput text={out} onDownload={null} downloading={false}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE 4 — TELEPROMPTER BUTTON ON ALL OUTPUTS
+// (injected via enhanced Output component)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function OutputWithTeleprompter({text}) {
+  const [teleprompter, setTeleprompter] = useState(false);
+  if (!text) return null;
+  return (
+    <div style={{marginTop:16}}>
+      <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginBottom:8}}>
+        <CopyBtn text={text}/>
+        <button onClick={() => setTeleprompter(true)}
+          style={{background:'linear-gradient(135deg,#1a1a2e,#16213e)',color:'#00d4ff',
+            border:'1px solid rgba(0,212,255,0.4)',borderRadius:8,padding:'6px 14px',
+            fontSize:12,fontWeight:700,cursor:'pointer'}}>
+          📺 Teleprompter
+        </button>
+      </div>
+      <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'1rem',
+        border:'1px solid rgba(255,255,255,0.1)'}}>
+        <pre style={{color:B.white,fontSize:13,whiteSpace:'pre-wrap',margin:0,lineHeight:1.7,
+          fontFamily:'inherit'}}>{text}</pre>
+      </div>
+      {teleprompter && <Teleprompter text={text} onClose={() => setTeleprompter(false)}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE 5 — COLLAB OUTREACH TRACKER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const COLLAB_TRACKER_KEY = 'encis_collab_tracker';
+
+function CollabTracker() {
+  const [contacts, setContacts] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [filter, setFilter] = useState('all');
+  const blank = { name:'', handle:'', platform:'Instagram', type:'podcast guest', status:'not contacted', notes:'', pitchSent:'', lastContact:'' };
+  const [form, setForm] = useState(blank);
+
+  useEffect(() => {
+    try { const s = localStorage.getItem(COLLAB_TRACKER_KEY); if (s) setContacts(JSON.parse(s)); } catch {}
+  }, []);
+
+  const save = (list) => {
+    setContacts(list);
+    try { localStorage.setItem(COLLAB_TRACKER_KEY, JSON.stringify(list)); } catch {}
+  };
+
+  const submit = () => {
+    if (!form.name) return;
+    const entry = { ...form, id: editId || Date.now().toString(), updatedAt: Date.now() };
+    if (editId) {
+      save(contacts.map(c => c.id === editId ? entry : c));
+    } else {
+      save([entry, ...contacts]);
+    }
+    setForm(blank); setShowForm(false); setEditId(null);
+  };
+
+  const remove = (id) => { if (window.confirm('Remove this contact?')) save(contacts.filter(c => c.id !== id)); };
+
+  const statusColors = {
+    'not contacted': 'rgba(255,255,255,0.15)',
+    'pitched': 'rgba(245,166,35,0.4)',
+    'in conversation': 'rgba(0,212,255,0.4)',
+    'confirmed': 'rgba(39,174,96,0.4)',
+    'passed': 'rgba(233,69,96,0.3)',
+  };
+  const statusText = {
+    'not contacted': B.gray,
+    'pitched': '#f5a623',
+    'in conversation': '#00d4ff',
+    'confirmed': '#27ae60',
+    'passed': B.red,
+  };
+
+  const statuses = ['not contacted','pitched','in conversation','confirmed','passed'];
+  const types = ['podcast guest','stitch/collab','community partner','brand deal'];
+  const platforms = ['Instagram','YouTube','Facebook','LinkedIn','Podcast','Other'];
+
+  const filtered = filter === 'all' ? contacts : contacts.filter(c => c.status === filter);
+
+  const stats = statuses.map(s => ({ status:s, count:contacts.filter(c=>c.status===s).length }));
+
+  const formFields = [
+    { k:'name', l:'Name / Brand', ph:'e.g. Joe Schmoe', full:false },
+    { k:'handle', l:'Handle / Channel', ph:'e.g. @joeschmoe', full:false },
+    { k:'pitchSent', l:'Pitch Sent On', ph:'e.g. Mar 18, 2026', full:false },
+    { k:'lastContact', l:'Last Contact', ph:'e.g. Mar 20, 2026', full:false },
+    { k:'notes', l:'Notes / Context', ph:'e.g. Responded positively, wants to schedule for May...', full:true },
+  ];
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <span style={{fontSize:32}}>📋</span>
+          <div>
+            <h2 style={{color:B.white,margin:0}}>Collab Outreach Tracker</h2>
+            <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Track every pitch, conversation, and confirmed collab in one place.</p>
+          </div>
+        </div>
+        <button onClick={() => { setForm(blank); setEditId(null); setShowForm(true); }}
+          style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'8px 18px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+          + Add Contact
+        </button>
+      </div>
+
+      {/* Stats row */}
+      <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
+        {stats.map(s => (
+          <div key={s.status} style={{background:'rgba(255,255,255,0.03)',border:`1px solid ${statusColors[s.status]}`,
+            borderRadius:8,padding:'10px 16px',textAlign:'center',minWidth:100}}>
+            <div style={{fontSize:20,fontWeight:800,color:statusText[s.status]}}>{s.count}</div>
+            <div style={{fontSize:10,color:B.gray,textTransform:'capitalize',marginTop:2}}>{s.status}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filter tabs */}
+      <div style={{display:'flex',gap:6,marginBottom:16,flexWrap:'wrap'}}>
+        {['all', ...statuses].map(s => (
+          <button key={s} onClick={() => setFilter(s)}
+            style={{background:filter===s?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',
+              borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:filter===s?700:400,textTransform:'capitalize'}}>
+            {s} {s!=='all'?`(${contacts.filter(c=>c.status===s).length})`:`(${contacts.length})`}
+          </button>
+        ))}
+      </div>
+
+      {/* Empty state */}
+      {contacts.length === 0 && (
+        <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.02)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)',marginBottom:20}}>
+          <div style={{fontSize:48,marginBottom:12}}>🤝</div>
+          <div style={{color:B.white,fontWeight:700,fontSize:16,marginBottom:8}}>No contacts yet</div>
+          <div style={{color:B.gray,fontSize:13,marginBottom:20}}>Add podcast guests, collab targets, and brand partners. Track every conversation.</div>
+          <button onClick={() => setShowForm(true)}
+            style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+            + Add First Contact
+          </button>
+        </div>
+      )}
+
+      {/* Contact cards */}
+      {filtered.length > 0 && (
+        <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
+          {filtered.map(contact => (
+            <div key={contact.id} style={{background:'rgba(255,255,255,0.03)',
+              border:`1px solid ${statusColors[contact.status] || 'rgba(255,255,255,0.07)'}`,
+              borderRadius:12,padding:'16px'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:10}}>
+                <div style={{flex:1}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
+                    <span style={{color:B.white,fontWeight:700,fontSize:14}}>{contact.name}</span>
+                    <span style={{color:B.gray,fontSize:12}}>{contact.handle}</span>
+                    <span style={{background:'rgba(255,255,255,0.07)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>{contact.platform}</span>
+                    <span style={{background:'rgba(255,255,255,0.07)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10,textTransform:'capitalize'}}>{contact.type}</span>
+                  </div>
+                  {contact.notes && (
+                    <div style={{color:'rgba(255,255,255,0.65)',fontSize:12,lineHeight:1.6,marginBottom:6}}>{contact.notes}</div>
+                  )}
+                  <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+                    {contact.pitchSent && <span style={{color:B.gray,fontSize:11}}>Pitched: {contact.pitchSent}</span>}
+                    {contact.lastContact && <span style={{color:B.gray,fontSize:11}}>Last contact: {contact.lastContact}</span>}
+                  </div>
+                </div>
+                <div style={{display:'flex',flexDirection:'column',gap:6,alignItems:'flex-end'}}>
+                  {/* Status selector */}
+                  <select value={contact.status}
+                    onChange={e => save(contacts.map(c => c.id===contact.id ? {...c,status:e.target.value,updatedAt:Date.now()} : c))}
+                    style={{background:'rgba(0,0,0,0.4)',color:statusText[contact.status],border:`1px solid ${statusColors[contact.status]}`,
+                      borderRadius:6,padding:'4px 8px',fontSize:11,fontWeight:700,cursor:'pointer',textTransform:'capitalize'}}>
+                    {statuses.map(s => <option key={s} value={s} style={{color:'#fff',background:'#0D1F3C'}}>{s}</option>)}
+                  </select>
+                  <div style={{display:'flex',gap:6}}>
+                    <button onClick={() => { setForm({...contact}); setEditId(contact.id); setShowForm(true); }}
+                      style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer'}}>
+                      Edit
+                    </button>
+                    <button onClick={() => remove(contact.id)}
+                      style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',borderRadius:6,padding:'4px 8px',fontSize:12,cursor:'pointer'}}>✕</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Platform + Type selector in form */}
+      {showForm && (
+        <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:14,padding:'22px',marginBottom:20}}>
+          <div style={{color:B.white,fontWeight:700,fontSize:15,marginBottom:16}}>{editId ? 'Edit Contact' : 'Add Contact'}</div>
+
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+            <div>
+              <SecLabel>Platform</SecLabel>
+              <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                {platforms.map(p => (
+                  <button key={p} onClick={() => setForm(f => ({...f, platform:p}))}
+                    style={{background:form.platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                      borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:form.platform===p?700:400}}>
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <SecLabel>Collab Type</SecLabel>
+              <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                {types.map(t => (
+                  <button key={t} onClick={() => setForm(f => ({...f, type:t}))}
+                    style={{background:form.type===t?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                      borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:form.type===t?700:400,textTransform:'capitalize'}}>
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+            {formFields.map(f => (
+              <div key={f.k} style={{gridColumn:f.full?'1/-1':'auto'}}>
+                <SecLabel>{f.l}</SecLabel>
+                {f.full
+                  ? <textarea value={form[f.k]||''} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} rows={2} placeholder={f.ph}
+                      style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+                  : <input value={form[f.k]||''} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} placeholder={f.ph}
+                      style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                }
+              </div>
+            ))}
+          </div>
+
+          <div style={{marginTop:16}}>
+            <SecLabel>Status</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+              {statuses.map(s => (
+                <button key={s} onClick={() => setForm(f => ({...f, status:s}))}
+                  style={{background:form.status===s?statusColors[s]:'rgba(255,255,255,0.05)',
+                    color:form.status===s?statusText[s]:B.gray,
+                    border:`1px solid ${form.status===s?statusColors[s]:'rgba(255,255,255,0.08)'}`,
+                    borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:form.status===s?700:400,textTransform:'capitalize'}}>
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{display:'flex',gap:10}}>
+            <RedBtn onClick={submit} disabled={!form.name}>{editId ? 'Save Changes' : 'Add Contact'}</RedBtn>
+            <button onClick={() => { setShowForm(false); setEditId(null); setForm(blank); }}
+              style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,cursor:'pointer'}}>Cancel</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 const COMPONENT_MAP = {
   home: Home,
@@ -3410,6 +4081,10 @@ const COMPONENT_MAP = {
   review: WeeklyReview,
   roi: ROIDashboard,
   memory: ContentMemory,
+  caption: CaptionWriter,
+  schedule: ScheduleOptimizer,
+  gaps: ContentGapAnalyzer,
+  tracker: CollabTracker,
   clients: ClientMode,
 };
 
