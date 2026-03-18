@@ -2630,14 +2630,14 @@ function useTrendAlerts() {
 
       // One targeted query per angle — guarantees every niche gets coverage
       const angleQueries = [
-        { angle: 'Veteran / Resilience',        q: 'What specific content format or topic about veterans, military resilience, or veteran transition is going viral on Instagram Reels or YouTube Shorts RIGHT NOW this week? Name the exact trend, why it's blowing up, and the best hook.' },
-        { angle: 'Mindset & Mental Toughness',  q: 'What mindset, mental toughness, or discipline content is trending virally on Instagram and YouTube THIS WEEK? Name the exact trend, creator driving it if any, and the best hook angle.' },
-        { angle: 'Everyday Wins',               q: 'What "small wins", consistency, or showing-up content format is going viral on short-form video THIS WEEK? Be specific — name the trend and best hook.' },
-        { angle: 'Outdoor Living & Community',  q: 'What outdoor lifestyle, nature, Colorado, or tight-knit community content is trending on Instagram or YouTube Shorts THIS WEEK? Name the trend and best hook.' },
-        { angle: 'Finance & Real Estate',        q: 'What personal finance, real estate investing, or money mindset content is going viral on Instagram or YouTube THIS WEEK? Name the specific trend and best hook.' },
-        { angle: 'Podcast & Personal Growth',   q: 'What podcast clip, personal growth, or self-improvement content format is trending virally THIS WEEK on short-form video? Name the trend and best hook.' },
-        { angle: 'Family & Life Lessons',       q: 'What family, parenting, or life-lessons content is going viral on Instagram Reels or YouTube Shorts THIS WEEK? Name the specific trend and best hook.' },
-        { angle: 'Health & Physical Wellness',  q: 'What fitness, health, or physical wellness content format or challenge is trending virally THIS WEEK on Instagram or YouTube? Name the exact trend and best hook.' },
+        { angle: "Veteran / Resilience",        q: "What specific content format or topic about veterans, military resilience, or veteran transition is going viral on Instagram Reels or YouTube Shorts RIGHT NOW this week? Name the exact trend, why it's blowing up, and the best hook." },
+        { angle: "Mindset & Mental Toughness",  q: "What mindset, mental toughness, or discipline content is trending virally on Instagram and YouTube THIS WEEK? Name the exact trend, creator driving it if any, and the best hook angle." },
+        { angle: "Everyday Wins",               q: "What \"small wins\", consistency, or showing-up content format is going viral on short-form video THIS WEEK? Be specific — name the trend and best hook." },
+        { angle: "Outdoor Living & Community",  q: "What outdoor lifestyle, nature, Colorado, or tight-knit community content is trending on Instagram or YouTube Shorts THIS WEEK? Name the trend and best hook." },
+        { angle: "Finance & Real Estate",        q: "What personal finance, real estate investing, or money mindset content is going viral on Instagram or YouTube THIS WEEK? Name the specific trend and best hook." },
+        { angle: "Podcast & Personal Growth",   q: "What podcast clip, personal growth, or self-improvement content format is trending virally THIS WEEK on short-form video? Name the trend and best hook." },
+        { angle: "Family & Life Lessons",       q: "What family, parenting, or life-lessons content is going viral on Instagram Reels or YouTube Shorts THIS WEEK? Name the specific trend and best hook." },
+        { angle: "Health & Physical Wellness",  q: "What fitness, health, or physical wellness content format or challenge is trending virally THIS WEEK on Instagram or YouTube? Name the exact trend and best hook." },
       ];
 
       const results = await Promise.all(
