@@ -2808,13 +2808,13 @@ function useTrendAlerts() {
               : `https://www.instagram.com/explore/search/keyword/?q=${titleEnc}`;
 
             // Perplexity deep-dive link
-            const perpLink = \`https://www.perplexity.ai/search?q=\${encodeURIComponent(
+            const perpLink = 'https://www.perplexity.ai/search?q=' + encodeURIComponent(
               (handleRaw || angle) + ' ' + (title || '') + ' viral video 2026'
-            )}\`;
+            );
 
             // Main display text
             const text = [
-              title && \`"\${title}"\`,
+              title && ('"' + title + '"'),
               why,
             ].filter(Boolean).join(' — ') || raw.slice(0, 200);
 
@@ -3403,3 +3403,4 @@ export default function App() {
     </>
   );
 }
+      
