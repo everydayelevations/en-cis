@@ -265,13 +265,15 @@ Write a complete script:
 - Thumbnail/Cover concept
 - Caption with hashtag strategy`;
 
-const CALENDAR_PROMPT = (pillars, platform, duration) => `
+const CALENDAR_PROMPT = (pillars, platform, duration, strategyDoc='') => `
 ${VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
 
+${strategyDoc ? `\n=== 90-DAY STRATEGY (source of truth) ===\n${strategyDoc}\n===END===\n` : ''}
+
 Build a ${duration}-day ${platform} content calendar.
-Content pillars: ${pillars}
+Content pillars: ${pillars || 'Use pillars from strategy document above'}
 
 4-Week Content Framework:
 - Week 1: Pain Awareness (identify the problem)
@@ -416,7 +418,7 @@ Build an Elevation Nation community system built around what is actually happeni
    (series name + what it is + why people keep coming back for it)
 
 6. **Growth Loop**
-   (how members naturally bring other people in without being asked to)\`;
+   (how members naturally bring other people in without being asked to)`;
 
 const REVIEW_PROMPT = (metrics, wins, struggles) => `
 ${VOICE}
@@ -464,7 +466,7 @@ ${platform === 'LinkedIn' ? '7. **Dual-Lane Strategy** (HR Manager at Highland C
 ${platform === 'YouTube' ? '7. **Channel Description Rewrite** (searchable, keyword-rich)\n8. **About Section** (full copy)\n9. **Thumbnail and Banner Direction**' : ''}
 ${platform === 'Facebook' ? '7. **Page vs Profile Strategy** (which to prioritize and why)\n8. **About Section Rewrite**\n9. **Cover Photo Direction**' : ''}
 
-Be direct. Write like Jason would actually use this today.\`;
+Be direct. Write like Jason would actually use this today.`;
 
 const COLLAB_PROMPT = (niche, goal) => `
 ${VOICE}
@@ -487,14 +489,26 @@ Find and structure collaboration opportunities:
    [The mutual value]
    [CTA]`;
 
-const ONBOARD_PROMPT = (goals, currentState, timeCommitment) => `
+const ONBOARD_PROMPT = (fields, uploadedDoc='') => `
 ${VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
 
-Goals: ${goals}
-Current State: ${currentState}
-Weekly Time Available: ${timeCommitment} hours
+Goals: ${fields.goals}
+Current State: ${fields.current}
+Weekly Time Available: ${fields.hours} hours
+Brand Personality: ${fields.brandPersonality}
+Business Name: ${fields.businessName}
+Affiliate/Brand Deals: ${fields.affiliateDeals}
+Filming Schedule & Batch Capacity: ${fields.filmingSchedule}
+Inspiration Accounts: ${fields.inspirationAccounts}
+Off-Limit Topics: ${fields.offLimitTopics}
+Content to Repurpose: ${fields.repurposeLinks}
+Ideal Audience Profile: ${fields.idealAudience}
+Desired Transformation: ${fields.desiredTransformation}
+Emotional Journey (Before/After): ${fields.emotionalJourney}
+Additional Context: ${fields.additionalContext}
+${uploadedDoc ? '\nUploaded Document:\n' + uploadedDoc : ''}
 
 Build a complete 90-Day Elevation Nation Content Strategy. Write it like Jason would explain it to himself — clear, no fluff, actionable. Not a corporate strategy deck. A real plan he can execute.
 
@@ -1118,21 +1132,52 @@ function Home({setNav,setSub}) {
 }
 
 function Onboarding() {
-  const [goals,setGoals] = useState(
-    `Grow @everydayelevations from ~2,400 Instagram followers to 10,000 by end of 2025. Post consistently 5x/week on Instagram. Launch Elevation Nation as a recognizable community identity. Start building an email list from zero — target 500 subscribers in 90 days. Book 3 meaningful podcast guests. Generate at least 1 real estate lead per month through content. Keep it real — no fake hype, no gimmicks.`
+  const [mode,        setMode]       = useState('form');
+  const [goals,       setGoals]      = useState(
+    `Grow @everydayelevations from ~2,400 Instagram followers to 10,000 by end of 2026. Post consistently 5x/week on Instagram. Launch Elevation Nation as a recognizable community identity. Start building an email list from zero — target 500 subscribers in 90 days. Book 3 meaningful podcast guests. Generate at least 1 real estate lead per month through content. Keep it real — no fake hype, no gimmicks.`
   );
-  const [current,setCurrent] = useState(
+  const [current,     setCurrent]    = useState(
     `Instagram: ~2,400 followers, posting 2-3x/week inconsistently, no clear content schedule. YouTube: @everydayelevations exists but underused. Facebook: facebook.com/jason.fricka active but no strategy. LinkedIn: linkedin.com/in/jason-fricka — HR Manager at Highland Cabinetry + podcast host, dual-lane not leveraged. No email list. No lead magnet. Everyday Elevations podcast running. Colorado-based. Full-time HR job + real estate license + family.`
   );
-  const [hours,setHours] = useState('10');
-  const [out,setOut] = useState('');
-  const [loading,setLoading] = useState(false);
-  const [downloading,setDownloading] = useState(false);
+  const [hours,            setHours]            = useState('10');
+  const [brandPersonality, setBrandPersonality] = useState('Direct, Authentic, Gritty, Grounded, Motivating');
+  const [businessName,     setBusinessName]     = useState('Everyday Elevations / Fricka Sells Colorado');
+  const [affiliateDeals,   setAffiliateDeals]   = useState('');
+  const [filmingSchedule,  setFilmingSchedule]  = useState('Weekends + occasional weekday evenings. Can batch 2-3 hours on Saturdays.');
+  const [inspirationAccounts, setInspirationAccounts] = useState('@hubermanlab, @jayshetty, @richroll, @mindpumpmedia');
+  const [offLimitTopics,   setOffLimitTopics]   = useState('No divisive politics. No fake hype or get-rich-quick angles.');
+  const [repurposeLinks,   setRepurposeLinks]   = useState('');
+  const [idealAudience,    setIdealAudience]    = useState(
+    `Everyday people who refuse to stay where they are — veterans transitioning out, working parents, professionals who feel stuck, athletes, people grinding toward something better. Ages 28-50, Colorado-based but broader online. They believe in doing the work nobody sees.`
+  );
+  const [desiredTransformation, setDesiredTransformation] = useState(
+    `From stuck, inconsistent, and invisible — to showing up daily, building a real community, and turning content into real estate leads, coaching clients, and podcast listeners.`
+  );
+  const [emotionalJourney, setEmotionalJourney] = useState(
+    `Before: Overwhelmed, scattered, feeling like they are behind. After: Clear, consistent, part of a community that pushes them forward. One sentence: They came in stuck and left with a plan they actually believe in.`
+  );
+  const [additionalContext, setAdditionalContext] = useState('');
+  const [uploadedDoc,      setUploadedDoc]      = useState('');
+  const [uploadFileName,   setUploadFileName]   = useState('');
+  const [out,              setOut]              = useState('');
+  const [loading,          setLoading]          = useState(false);
+  const [downloading,      setDownloading]      = useState(false);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (ev) => setUploadedDoc(ev.target.result);
+    reader.readAsText(file);
+  };
 
   const run = async () => {
-    if(!goals) return;
     setLoading(true); setOut('');
-    const res = await ai(ONBOARD_PROMPT(goals, current, hours));
+    const fields = { goals, current, hours, brandPersonality, businessName, affiliateDeals,
+      filmingSchedule, inspirationAccounts, offLimitTopics, repurposeLinks,
+      idealAudience, desiredTransformation, emotionalJourney, additionalContext };
+    const res = await ai(ONBOARD_PROMPT(fields, uploadedDoc));
     setOut(res); setLoading(false);
   };
 
@@ -1161,22 +1206,93 @@ function Onboarding() {
     setDownloading(false);
   };
 
+  const fldStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'};
+  const taStyle = {...fldStyle,resize:'vertical',lineHeight:1.6};
+  const sectionHead = (emoji, label) => (
+    <div style={{fontSize:10,fontWeight:700,letterSpacing:2,color:B.red,textTransform:'uppercase',
+      marginBottom:12,marginTop:20,paddingBottom:6,borderBottom:'1px solid rgba(233,69,96,0.25)'}}>
+      {emoji} {label}
+    </div>
+  );
+
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
         <span style={{fontSize:32}}>🚀</span>
         <div><h2 style={{color:B.white,margin:0}}>90-Day Strategy Builder</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pre-filled with your numbers. Edit anything, then generate.</p></div>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pre-filled with your numbers. Edit anything, then generate a complete strategy document.</p></div>
       </div>
       <Card>
+        {sectionHead('📍','Goals & Current State')}
         <SecLabel>Your Goals</SecLabel>
-        <textarea value={goals} onChange={e=>setGoals(e.target.value)} rows={5}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
-        <SecLabel style={{marginTop:16}}>Current State</SecLabel>
-        <textarea value={current} onChange={e=>setCurrent(e.target.value)} rows={5}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
+        <textarea value={goals} onChange={e=>setGoals(e.target.value)} rows={4} style={taStyle}/>
+        <SecLabel style={{marginTop:14}}>Current State</SecLabel>
+        <textarea value={current} onChange={e=>setCurrent(e.target.value)} rows={4} style={taStyle}/>
+
+        {sectionHead('🎯','Brand Identity')}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+          <div>
+            <SecLabel>Brand Personality (3-5 adjectives)</SecLabel>
+            <input value={brandPersonality} onChange={e=>setBrandPersonality(e.target.value)} style={fldStyle}/>
+          </div>
+          <div>
+            <SecLabel>Business Name</SecLabel>
+            <input value={businessName} onChange={e=>setBusinessName(e.target.value)} style={fldStyle}/>
+          </div>
+        </div>
+        <SecLabel>Affiliate / Brand Deals</SecLabel>
+        <textarea value={affiliateDeals} onChange={e=>setAffiliateDeals(e.target.value)} rows={2}
+          placeholder="List any active affiliate partnerships or brand deals..."
+          style={taStyle}/>
+
+        {sectionHead('🎬','Content Details')}
+        <SecLabel>Filming Schedule & Batch Capacity</SecLabel>
+        <textarea value={filmingSchedule} onChange={e=>setFilmingSchedule(e.target.value)} rows={2} style={taStyle}/>
+        <SecLabel style={{marginTop:14}}>Inspiration Accounts</SecLabel>
+        <textarea value={inspirationAccounts} onChange={e=>setInspirationAccounts(e.target.value)} rows={2} style={taStyle}/>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginTop:12}}>
+          <div>
+            <SecLabel>Off-Limit Topics</SecLabel>
+            <textarea value={offLimitTopics} onChange={e=>setOffLimitTopics(e.target.value)} rows={3}
+              placeholder="Topics or angles to avoid..." style={taStyle}/>
+          </div>
+          <div>
+            <SecLabel>Content to Repurpose (links/notes)</SecLabel>
+            <textarea value={repurposeLinks} onChange={e=>setRepurposeLinks(e.target.value)} rows={3}
+              placeholder="YouTube links, podcast episodes, Google Drive links..." style={taStyle}/>
+          </div>
+        </div>
+
+        {sectionHead('👥','Ideal Audience & Transformation')}
+        <SecLabel>Ideal Audience Profile</SecLabel>
+        <textarea value={idealAudience} onChange={e=>setIdealAudience(e.target.value)} rows={3}
+          placeholder="Age, demographics, pain points, beliefs, lifestyle..." style={taStyle}/>
+        <SecLabel style={{marginTop:14}}>Desired Transformation</SecLabel>
+        <textarea value={desiredTransformation} onChange={e=>setDesiredTransformation(e.target.value)} rows={2} style={taStyle}/>
+        <SecLabel style={{marginTop:14}}>Emotional Journey (Before → After)</SecLabel>
+        <textarea value={emotionalJourney} onChange={e=>setEmotionalJourney(e.target.value)} rows={2}
+          placeholder="How they feel before finding you, how they feel after, one-sentence summary..." style={taStyle}/>
+
+        {sectionHead('📎','Optional Upload & Additional Context')}
+        <label style={{cursor:'pointer',display:'block',marginBottom:12}}>
+          <div style={{border:`2px dashed ${uploadedDoc?'rgba(39,174,96,0.5)':'rgba(233,69,96,0.3)'}`,borderRadius:8,
+            padding:'12px 16px',display:'flex',alignItems:'center',gap:12,
+            background:uploadedDoc?'rgba(39,174,96,0.07)':'rgba(255,255,255,0.02)'}}>
+            <span style={{fontSize:20}}>{uploadedDoc?'✅':'📎'}</span>
+            <div>
+              {uploadedDoc
+                ? <><div style={{color:B.white,fontWeight:700,fontSize:13}}>{uploadFileName}</div>
+                    <div style={{color:'rgba(39,174,96,0.9)',fontSize:11,marginTop:2}}>Doc loaded — will be included in strategy</div></>
+                : <><div style={{color:B.white,fontWeight:600,fontSize:13}}>Upload existing doc or notes (optional)</div>
+                    <div style={{color:B.gray,fontSize:11,marginTop:2}}>.txt or .md</div></>}
+            </div>
+          </div>
+          <input type="file" accept=".txt,.md,text/plain" onChange={handleFileUpload} style={{display:'none'}}/>
+        </label>
+        <textarea value={additionalContext} onChange={e=>setAdditionalContext(e.target.value)} rows={2}
+          placeholder="Anything else — recent wins, struggles, offers launching, audience DM insights..."
+          style={taStyle}/>
+
         <div style={{display:'flex',alignItems:'center',gap:12,marginTop:16,flexWrap:'wrap'}}>
           <SecLabel style={{margin:0}}>Hours/Week:</SecLabel>
           {['3','5','10','15','20+'].map(h => (
@@ -1187,8 +1303,8 @@ function Onboarding() {
             </button>
           ))}
         </div>
-        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!goals}>
-          {loading?'Building Strategy...':'Build 90-Day Strategy'}
+        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading}>
+          {loading?'Building Strategy...':'🚀 Build 90-Day Strategy'}
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
@@ -1214,15 +1330,27 @@ function Onboarding() {
 }
 
 function ContentCalendar() {
-  const [pillars,setPillars] = useState('');
-  const [platform,setPlatform] = useState('Instagram');
-  const [duration,setDuration] = useState('30');
-  const [out,setOut] = useState('');
-  const [loading,setLoading] = useState(false);
+  const [pillars,        setPillars]        = useState('');
+  const [platform,       setPlatform]       = useState('Instagram');
+  const [duration,       setDuration]       = useState('30');
+  const [strategyDoc,    setStrategyDoc]    = useState('');
+  const [strategyFileName,setStrategyFileName] = useState('');
+  const [out,            setOut]            = useState('');
+  const [loading,        setLoading]        = useState(false);
+
+  const handleStrategyUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setStrategyFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (ev) => setStrategyDoc(ev.target.result);
+    reader.readAsText(file);
+  };
+
   const run = async () => {
-    if(!pillars) return;
+    if(!pillars && !strategyDoc) return;
     setLoading(true); setOut('');
-    const res = await ai(CALENDAR_PROMPT(pillars, platform, duration));
+    const res = await ai(CALENDAR_PROMPT(pillars, platform, duration, strategyDoc));
     setOut(res); setLoading(false);
   };
   return (
@@ -1233,9 +1361,40 @@ function ContentCalendar() {
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>4-week content framework — every topic filmable tomorrow <SOPBadge/></p></div>
       </div>
       <Card>
+        {/* Strategy Doc Upload */}
+        <div style={{marginBottom:16}}>
+          <SecLabel>
+            📄 Upload Strategy Doc{' '}
+            <span style={{fontWeight:400,textTransform:'none',letterSpacing:0,fontSize:11,color:B.gray}}>
+              (optional — upload your 90-Day Strategy for calendar continuity)
+            </span>
+          </SecLabel>
+          <label style={{cursor:'pointer',display:'block'}}>
+            <div style={{border:`2px dashed ${strategyDoc?'rgba(39,174,96,0.5)':'rgba(233,69,96,0.3)'}`,borderRadius:8,
+              padding:'12px 16px',display:'flex',alignItems:'center',gap:12,
+              background:strategyDoc?'rgba(39,174,96,0.07)':'rgba(255,255,255,0.02)'}}>
+              <span style={{fontSize:20}}>{strategyDoc?'✅':'📎'}</span>
+              <div style={{flex:1}}>
+                {strategyDoc
+                  ? <><div style={{color:B.white,fontWeight:700,fontSize:13}}>{strategyFileName}</div>
+                      <div style={{color:'rgba(39,174,96,0.9)',fontSize:11,marginTop:2}}>Strategy loaded — calendar will align with your goals and brand voice</div></>
+                  : <><div style={{color:B.white,fontWeight:600,fontSize:13}}>Upload your 90-Day Strategy Doc</div>
+                      <div style={{color:B.gray,fontSize:11,marginTop:2}}>Download from Strategy Builder then upload here — gives the calendar full context</div></>}
+              </div>
+              {strategyDoc && (
+                <button onClick={e=>{e.preventDefault();setStrategyDoc('');setStrategyFileName('');}}
+                  style={{background:'rgba(255,255,255,0.08)',border:'none',color:B.gray,borderRadius:6,padding:'4px 10px',cursor:'pointer',fontSize:12}}>
+                  ✕ Remove
+                </button>
+              )}
+            </div>
+            <input type="file" accept=".txt,.md,text/plain" onChange={handleStrategyUpload} style={{display:'none'}}/>
+          </label>
+        </div>
+
         <SecLabel>Content Pillars</SecLabel>
         <input value={pillars} onChange={e=>setPillars(e.target.value)}
-          placeholder="e.g. Veteran mindset, Real estate tips, Family lessons, Fitness..."
+          placeholder={strategyDoc ? 'Override pillars here, or leave blank to use pillars from strategy doc...' : 'e.g. Veteran mindset, Real estate tips, Family lessons, Fitness...'}
           style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
             borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
         <div style={{display:'flex',gap:24,marginTop:16,flexWrap:'wrap'}}>
@@ -1264,8 +1423,8 @@ function ContentCalendar() {
             </div>
           </div>
         </div>
-        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!pillars}>
-          {loading?'Building Calendar...':'Build Calendar'}
+        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||(!pillars&&!strategyDoc)}>
+          {loading ? 'Building Calendar...' : '📅 Build Calendar'}
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
