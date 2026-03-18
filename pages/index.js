@@ -2041,10 +2041,33 @@ function Pipeline() {
   const [angle,setAngle] = useState('veteran');
   const [platform,setPlatform] = useState('Instagram');
   const [tier,setTier] = useState(0);
-  const [step,setStep] = useState('idle'); // idle | researching | extracting | scripting
+  const [step,setStep] = useState('idle');
   const [research,setResearch] = useState('');
   const [intel,setIntel] = useState('');
   const [script,setScript] = useState('');
+
+  // Pull trending topics from the shared Trend Alerts cache
+  const trendingChips = (() => {
+    try {
+      const stored = localStorage.getItem('encis_trend_alerts');
+      if (!stored) return [];
+      const alerts = JSON.parse(stored);
+      return alerts
+        .filter(a => a.title || a.text)
+        .map(a => ({
+          label: a.title || a.text?.slice(0, 50),
+          angle: a.angle,
+          views: a.views,
+          account: a.account,
+        }))
+        .slice(0, 8);
+    } catch { return []; }
+  })();
+
+  // Map angle label back to angle id for auto-selecting the grid
+  const angleIdFromLabel = (label) => {
+    return ANGLES.find(a => a.label === label)?.id || 'mindset';
+  };
 
   const runResearch = async () => {
     if(!query) return;
@@ -2075,6 +2098,44 @@ function Pipeline() {
       </div>
       <Card style={{marginBottom:16}}>
         <SecLabel>Research Topic</SecLabel>
+
+        {/* Trending topic chips — tap to auto-fill */}
+        {trendingChips.length > 0 && (
+          <div style={{marginBottom:12}}>
+            <div style={{fontSize:10,fontWeight:700,letterSpacing:1.5,color:'rgba(0,212,255,0.7)',
+              textTransform:'uppercase',marginBottom:8,display:'flex',alignItems:'center',gap:6}}>
+              <span>🔥</span> Trending Right Now — tap to research
+            </div>
+            <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+              {trendingChips.map((chip, i) => (
+                <button key={i}
+                  onClick={() => {
+                    setQuery(chip.label);
+                    if (chip.angle) setAngle(angleIdFromLabel(chip.angle));
+                  }}
+                  style={{
+                    background: query === chip.label ? B.red : 'rgba(0,212,255,0.08)',
+                    border: `1px solid ${query === chip.label ? B.red : 'rgba(0,212,255,0.2)'}`,
+                    borderRadius:20,padding:'5px 12px',cursor:'pointer',
+                    color: query === chip.label ? '#fff' : 'rgba(255,255,255,0.8)',
+                    fontSize:12,fontWeight:500,textAlign:'left',
+                    display:'flex',alignItems:'center',gap:6,
+                    maxWidth:280,
+                  }}>
+                  <span style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>
+                    {chip.label}
+                  </span>
+                  {chip.views && (
+                    <span style={{color:B.red,fontSize:10,fontWeight:700,flexShrink:0}}>
+                      {chip.views}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <input value={query} onChange={e=>setQuery(e.target.value)}
           placeholder="e.g. Veteran mental health stigma, Colorado real estate 2025..."
           style={{width:'100%',background:'rgba(0,0,0,0.3)',border:`1px solid rgba(255,255,255,0.15)`,
