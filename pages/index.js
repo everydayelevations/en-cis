@@ -509,15 +509,32 @@ Find and structure collaboration opportunities:
    [The mutual value]
    [CTA]`;
 
-const ONBOARD_PROMPT = (goals, currentState, timeCommitment, uploadedDoc='') => `
+const ONBOARD_PROMPT = (fields, uploadedDoc='') => `
 ${VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
 
-Goals: ${goals}
-Current State: ${currentState}
-Weekly Time Available: ${timeCommitment} hours
-${uploadedDoc ? `\nUploaded Onboarding Document / Additional Context:\n${uploadedDoc}\n` : ''}
+=== CLIENT ONBOARDING PROFILE ===
+
+Goals: ${fields.goals}
+Current State: ${fields.current}
+Weekly Time Available: ${fields.hours} hours
+
+Brand Personality (adjectives): ${fields.brandPersonality}
+Business Name: ${fields.businessName}
+Affiliate / Brand Deals: ${fields.affiliateDeals}
+
+Content – Filming Schedule & Batch Capacity: ${fields.filmingSchedule}
+Content – Inspiration Accounts: ${fields.inspirationAccounts}
+Content – Off-Limit Topics: ${fields.offLimitTopics}
+Content – Repurpose Links: ${fields.repurposeLinks}
+
+Ideal Audience Profile: ${fields.idealAudience}
+Desired Transformation: ${fields.desiredTransformation}
+Emotional Journey (Before → After): ${fields.emotionalJourney}
+
+Additional Context: ${fields.additionalContext}
+${uploadedDoc ? `\nUploaded Document / Notes:\n${uploadedDoc}\n` : ''}
 
 Build a complete, detailed 90-Day Elevation Nation Content Strategy for Jason Fricka. This is a working document — not a summary, not bullet points. Write every section with enough detail that Jason can open it on Monday morning and know exactly what to do.
 
@@ -734,7 +751,8 @@ function Home({setNav,setSub}) {
 }
 
 function Onboarding() {
-  const [mode,        setMode]       = useState('form'); // 'form' | 'upload'
+  const [mode,        setMode]       = useState('form');
+  // ── Core ──────────────────────────────────────────────────────────────────
   const [goals,       setGoals]      = useState(
     `Grow @everydayelevations from ~2,400 Instagram followers to 10,000 by end of 2026. Post consistently 5x/week on Instagram. Launch Elevation Nation as a recognizable community identity. Start building an email list from zero — target 500 subscribers in 90 days. Book 3 meaningful podcast guests. Generate at least 1 real estate lead per month through content. Keep it real — no fake hype, no gimmicks.`
   );
@@ -742,27 +760,52 @@ function Onboarding() {
     `Instagram: ~2,400 followers, posting 2-3x/week inconsistently, no clear content schedule. YouTube: @everydayelevations exists but underused. Facebook: facebook.com/jason.fricka active but no strategy. LinkedIn: linkedin.com/in/jason-fricka — HR Manager at Highland Cabinetry + podcast host, dual-lane not leveraged. No email list. No lead magnet. Everyday Elevations podcast running. Colorado-based. Full-time HR job + real estate license + family.`
   );
   const [hours,       setHours]      = useState('10');
-  const [uploadedDoc, setUploadedDoc] = useState('');
-  const [fileName,    setFileName]   = useState('');
-  const [out,         setOut]        = useState('');
-  const [loading,     setLoading]    = useState(false);
-  const [downloading, setDownloading] = useState(false);
+  // ── Brand ─────────────────────────────────────────────────────────────────
+  const [brandPersonality,   setBrandPersonality]   = useState('Direct, Authentic, Gritty, Grounded, Motivating');
+  const [businessName,       setBusinessName]       = useState('Everyday Elevations / Fricka Sells Colorado');
+  const [affiliateDeals,     setAffiliateDeals]     = useState('');
+  // ── Content ───────────────────────────────────────────────────────────────
+  const [filmingSchedule,    setFilmingSchedule]    = useState('Weekends + occasional weekday evenings. Can batch 2–3 hours on Saturdays.');
+  const [inspirationAccounts,setInspirationAccounts]= useState('@hubermanlab, @jayshetty, @richroll, @mindpumpmedia');
+  const [offLimitTopics,     setOffLimitTopics]     = useState('No divisive politics. No fake hype or get-rich-quick angles.');
+  const [repurposeLinks,     setRepurposeLinks]     = useState('');
+  // ── Audience ──────────────────────────────────────────────────────────────
+  const [idealAudience,      setIdealAudience]      = useState(
+    `Everyday people who refuse to stay where they are — veterans transitioning out, working parents, professionals who feel stuck, athletes, people grinding toward something better. Ages 28–50, Colorado-based but broader online. They believe in doing the work nobody sees.`
+  );
+  const [desiredTransformation, setDesiredTransformation] = useState(
+    `From stuck, inconsistent, and invisible — to showing up daily, building a real community, and turning content into real estate leads, coaching clients, and podcast listeners.`
+  );
+  const [emotionalJourney,   setEmotionalJourney]   = useState(
+    `Before: Overwhelmed, scattered, feeling like they're behind. After: Clear, consistent, part of a community that pushes them forward. One sentence: "They came in stuck and left with a plan they actually believe in."`
+  );
+  // ── Extra ─────────────────────────────────────────────────────────────────
+  const [additionalContext,  setAdditionalContext]  = useState('');
+  const [uploadedDoc,        setUploadedDoc]        = useState('');
+  const [fileName,           setFileName]           = useState('');
+  const [out,                setOut]                = useState('');
+  const [loading,            setLoading]            = useState(false);
+  const [downloading,        setDownloading]        = useState(false);
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setFileName(file.name);
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      setUploadedDoc(ev.target.result);
-    };
+    reader.onload = (ev) => { setUploadedDoc(ev.target.result); };
     reader.readAsText(file);
   };
 
   const run = async () => {
     setLoading(true); setOut('');
-    const docContext = uploadedDoc ? uploadedDoc : '';
-    const res = await ai(ONBOARD_PROMPT(goals, current, hours, docContext));
+    const fields = {
+      goals, current, hours,
+      brandPersonality, businessName, affiliateDeals,
+      filmingSchedule, inspirationAccounts, offLimitTopics, repurposeLinks,
+      idealAudience, desiredTransformation, emotionalJourney,
+      additionalContext,
+    };
+    const res = await ai(ONBOARD_PROMPT(fields, uploadedDoc));
     setOut(res); setLoading(false);
   };
 
@@ -881,6 +924,13 @@ ${html}
         {/* FORM MODE */}
         {mode === 'form' && (
           <>
+            {/* ── SECTION: GOALS & CURRENT STATE ── */}
+            <div style={{fontSize:10,fontWeight:700,letterSpacing:2,color:B.red,
+              textTransform:'uppercase',marginBottom:12,paddingBottom:6,
+              borderBottom:`1px solid rgba(233,69,96,0.25)`}}>
+              📍 Goals & Current State
+            </div>
+
             <div style={{marginBottom:14}}>
               <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
                 textTransform:'uppercase',marginBottom:6}}>Your Goals</div>
@@ -889,10 +939,129 @@ ${html}
                   borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
                   resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
             </div>
-            <div style={{marginBottom:14}}>
+            <div style={{marginBottom:20}}>
               <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
                 textTransform:'uppercase',marginBottom:6}}>Current State</div>
               <textarea value={current} onChange={e => setCurrent(e.target.value)} rows={4}
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                  borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                  resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
+            </div>
+
+            {/* ── SECTION: BRAND ── */}
+            <div style={{fontSize:10,fontWeight:700,letterSpacing:2,color:B.red,
+              textTransform:'uppercase',marginBottom:12,paddingBottom:6,
+              borderBottom:`1px solid rgba(233,69,96,0.25)`}}>
+              🎯 Brand Identity
+            </div>
+
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+              <div>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
+                  textTransform:'uppercase',marginBottom:6}}>Brand Personality (3–5 adjectives)</div>
+                <input value={brandPersonality} onChange={e => setBrandPersonality(e.target.value)}
+                  style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                    borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              </div>
+              <div>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
+                  textTransform:'uppercase',marginBottom:6}}>Business Name</div>
+                <input value={businessName} onChange={e => setBusinessName(e.target.value)}
+                  style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                    borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              </div>
+            </div>
+
+            <div style={{marginBottom:20}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
+                textTransform:'uppercase',marginBottom:6}}>Affiliate / Brand Deals</div>
+              <textarea value={affiliateDeals} onChange={e => setAffiliateDeals(e.target.value)} rows={2}
+                placeholder="List any active affiliate partnerships or brand deals..."
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                  borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                  resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
+            </div>
+
+            {/* ── SECTION: CONTENT ── */}
+            <div style={{fontSize:10,fontWeight:700,letterSpacing:2,color:B.red,
+              textTransform:'uppercase',marginBottom:12,paddingBottom:6,
+              borderBottom:`1px solid rgba(233,69,96,0.25)`}}>
+              🎬 Content Details
+            </div>
+
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
+                textTransform:'uppercase',marginBottom:6}}>Filming Schedule & Batch Capacity</div>
+              <textarea value={filmingSchedule} onChange={e => setFilmingSchedule(e.target.value)} rows={2}
+                placeholder="e.g. Weekends + evenings. Can batch 2-3hrs on Saturdays..."
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                  borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                  resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
+            </div>
+
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
+                textTransform:'uppercase',marginBottom:6}}>Inspiration Accounts</div>
+              <textarea value={inspirationAccounts} onChange={e => setInspirationAccounts(e.target.value)} rows={2}
+                placeholder="@accounts that inspire your content style..."
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                  borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                  resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
+            </div>
+
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:20}}>
+              <div>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
+                  textTransform:'uppercase',marginBottom:6}}>Off-Limit Topics</div>
+                <textarea value={offLimitTopics} onChange={e => setOffLimitTopics(e.target.value)} rows={3}
+                  placeholder="Topics, language, or angles to avoid..."
+                  style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                    borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                    resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
+              </div>
+              <div>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
+                  textTransform:'uppercase',marginBottom:6}}>Content to Repurpose (links / notes)</div>
+                <textarea value={repurposeLinks} onChange={e => setRepurposeLinks(e.target.value)} rows={3}
+                  placeholder="Paste YouTube links, podcast episodes, Google Drive links..."
+                  style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                    borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                    resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
+              </div>
+            </div>
+
+            {/* ── SECTION: AUDIENCE ── */}
+            <div style={{fontSize:10,fontWeight:700,letterSpacing:2,color:B.red,
+              textTransform:'uppercase',marginBottom:12,paddingBottom:6,
+              borderBottom:`1px solid rgba(233,69,96,0.25)`}}>
+              👥 Ideal Audience & Transformation
+            </div>
+
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
+                textTransform:'uppercase',marginBottom:6}}>Describe Your Ideal Audience / Ideal Patient Profile</div>
+              <textarea value={idealAudience} onChange={e => setIdealAudience(e.target.value)} rows={4}
+                placeholder="Age, demographics, psychographics, pain points, beliefs, lifestyle..."
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                  borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                  resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
+            </div>
+
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
+                textTransform:'uppercase',marginBottom:6}}>Desired Transformation</div>
+              <textarea value={desiredTransformation} onChange={e => setDesiredTransformation(e.target.value)} rows={3}
+                placeholder="What specific outcomes do your clients/audience achieve working with you?"
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                  borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                  resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
+            </div>
+
+            <div style={{marginBottom:20}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,
+                textTransform:'uppercase',marginBottom:6}}>Emotional Journey (Before → After)</div>
+              <textarea value={emotionalJourney} onChange={e => setEmotionalJourney(e.target.value)} rows={3}
+                placeholder="How do they feel before finding you? How do they feel after? One-sentence summary..."
                 style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
                   borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
                   resize:'vertical',boxSizing:'border-box',lineHeight:1.6}}/>
