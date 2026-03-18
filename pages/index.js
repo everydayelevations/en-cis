@@ -1185,7 +1185,7 @@ function LeadMagnet() {
 }
 
 function CommunityBuilder() {
-  const [focus, setFocus] = useState('Everyday people who refuse to stay where they are. Mindset, resilience, showing up when it's hard. Veterans, parents, professionals, athletes.');
+  const [focus, setFocus] = useState("Everyday people who refuse to stay where they are. Mindset, resilience, showing up when it's hard. Veterans, parents, professionals, athletes.");
   const [currentEngagement, setCurrentEngagement] = useState('');
   const [whereTheyAre, setWhereTheyAre] = useState('Instagram comments and DMs primarily. Some Facebook. Podcast listeners.');
   const [whatTheyAsk, setWhatTheyAsk] = useState('');
