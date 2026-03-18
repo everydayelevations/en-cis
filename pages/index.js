@@ -2627,23 +2627,36 @@ function useTrendAlerts() {
     setLoading(true);
     try {
       const today = new Date().toDateString();
-      const query = `What content is going viral right now in these niches: veteran mindset, mental toughness, everyday wins, outdoor lifestyle Colorado, personal finance real estate, podcast growth, family life lessons, health fitness? Give me the top 3 trending topics or formats blowing up in the last 48 hours across Instagram and YouTube. Be specific — name the trend, why it's blowing up, and the best hook angle.`;
-      const res = await fetch('/api/perplexity', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ query })
-      });
-      const d = await res.json();
-      const raw = d.result || d.text || '';
 
-      // Parse into alert objects
-      const parsed = raw.split('\n').filter(l => l.trim().length > 20).slice(0, 8).map((line, i) => ({
-        id: Date.now() + i,
-        text: line.replace(/^\d+\.\s*/, '').replace(/^\*+/, '').trim(),
-        angle: ANGLES[i % ANGLES.length]?.label || 'General',
-        ts: Date.now(),
-        seen: false,
-      }));
+      // One targeted query per angle — guarantees every niche gets coverage
+      const angleQueries = [
+        { angle: 'Veteran / Resilience',        q: 'What specific content format or topic about veterans, military resilience, or veteran transition is going viral on Instagram Reels or YouTube Shorts RIGHT NOW this week? Name the exact trend, why it's blowing up, and the best hook.' },
+        { angle: 'Mindset & Mental Toughness',  q: 'What mindset, mental toughness, or discipline content is trending virally on Instagram and YouTube THIS WEEK? Name the exact trend, creator driving it if any, and the best hook angle.' },
+        { angle: 'Everyday Wins',               q: 'What "small wins", consistency, or showing-up content format is going viral on short-form video THIS WEEK? Be specific — name the trend and best hook.' },
+        { angle: 'Outdoor Living & Community',  q: 'What outdoor lifestyle, nature, Colorado, or tight-knit community content is trending on Instagram or YouTube Shorts THIS WEEK? Name the trend and best hook.' },
+        { angle: 'Finance & Real Estate',        q: 'What personal finance, real estate investing, or money mindset content is going viral on Instagram or YouTube THIS WEEK? Name the specific trend and best hook.' },
+        { angle: 'Podcast & Personal Growth',   q: 'What podcast clip, personal growth, or self-improvement content format is trending virally THIS WEEK on short-form video? Name the trend and best hook.' },
+        { angle: 'Family & Life Lessons',       q: 'What family, parenting, or life-lessons content is going viral on Instagram Reels or YouTube Shorts THIS WEEK? Name the specific trend and best hook.' },
+        { angle: 'Health & Physical Wellness',  q: 'What fitness, health, or physical wellness content format or challenge is trending virally THIS WEEK on Instagram or YouTube? Name the exact trend and best hook.' },
+      ];
 
+      const results = await Promise.all(
+        angleQueries.map(async ({ angle, q }, i) => {
+          try {
+            const res = await fetch('/api/perplexity', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ query: q })
+            });
+            const d = await res.json();
+            const raw = (d.result || d.text || '').trim();
+            // Take first substantive line as the alert text
+            const text = raw.split('\n').find(l => l.trim().length > 30)?.replace(/^[\d*#.\-]+\s*/, '').trim() || raw.slice(0, 200);
+            return { id: Date.now() + i, text, angle, ts: Date.now(), seen: false };
+          } catch { return null; }
+        })
+      );
+
+      const parsed = results.filter(Boolean);
       localStorage.setItem(TREND_ALERTS_KEY, JSON.stringify(parsed));
       localStorage.setItem(TREND_ALERTS_DATE, today);
       setAlerts(parsed);
