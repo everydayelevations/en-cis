@@ -642,15 +642,188 @@ function registerMemorySave(fn) { _memorySave = fn; }
 function logToMemory(entry) { if (_memorySave) _memorySave(entry); }
 
 function ContentMemory() {
-  const { log, update, remove, clear } = useContentMemory();
+  const { log, save, update, remove, clear } = useContentMemory();
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editNotes, setEditNotes] = useState('');
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState(null);
+  const [showImport, setShowImport] = useState(false);
 
   const perfColors = { '':'rgba(255,255,255,0.06)', '⭐':'rgba(245,166,35,0.15)', '🔥':'rgba(233,69,96,0.15)', '💀':'rgba(100,100,100,0.15)' };
   const perfLabels = { '':'No rating', '⭐':'Good', '🔥':'Viral', '💀':'Flopped' };
-  const typeColors = { script:'#1B4F72', calendar:'#145A32', onboard:'#6E2F8E', batch:'#7E5109', profile:'#0A66C2', magnet:'#C0392B', community:'#1A5276', default:'#2C3E50' };
+  const typeColors = { script:'#1B4F72', calendar:'#145A32', onboard:'#6E2F8E', batch:'#7E5109', profile:'#0A66C2', magnet:'#C0392B', community:'#1A5276', instagram:'#C13584', facebook:'#1877F2', default:'#2C3E50' };
+
+  // ── CSV Parser ────────────────────────────────────────────────────────────
+  const parseCSV = (text) => {
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) return [];
+    // Handle quoted fields
+    const parseRow = (line) => {
+      const cols = []; let cur = ''; let inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"') { inQ = !inQ; }
+        else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+        else { cur += c; }
+      }
+      cols.push(cur.trim());
+      return cols;
+    };
+    const headers = parseRow(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9]/g,'_'));
+    return lines.slice(1).filter(l => l.trim()).map(line => {
+      const vals = parseRow(line);
+      return Object.fromEntries(headers.map((h,i) => [h, vals[i] || '']));
+    });
+  };
+
+  // ── Auto-rate by engagement ───────────────────────────────────────────────
+  const autoRate = (saves, shares, reach) => {
+    const s = parseInt(saves)||0, sh = parseInt(shares)||0, r = parseInt(reach)||1;
+    const engRate = (s + sh*2) / r;
+    if (engRate > 0.05 || s > 50 || sh > 20) return '🔥';
+    if (engRate > 0.01 || s > 10) return '⭐';
+    if (r > 100 && s === 0 && sh === 0) return '💀';
+    return '';
+  };
+
+  // ── Import Handler ────────────────────────────────────────────────────────
+  const handleImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImporting(true); setImportResult(null);
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const text = ev.target.result;
+        let imported = 0; let skipped = 0;
+
+        // ── Detect format ──────────────────────────────────────────────────
+        const isJSON = text.trim().startsWith('{') || text.trim().startsWith('[');
+
+        if (isJSON) {
+          // Instagram "Download Your Information" JSON format
+          let data;
+          try { data = JSON.parse(text); } catch { throw new Error('Invalid JSON'); }
+
+          // Handle both array and {media:[...]} shapes
+          const posts = Array.isArray(data) ? data : (data.media || data.posts || []);
+          posts.forEach(post => {
+            if (!post) return;
+            const caption = post.title || post.media_metadata?.photo_metadata?.exif_data?.[0]?.source || '';
+            const ts = post.creation_timestamp || post.timestamp;
+            const dateStr = ts ? new Date(ts * 1000).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : 'Unknown';
+            save({
+              type: 'instagram',
+              platform: 'Instagram',
+              title: caption ? caption.slice(0, 80) : 'Instagram Post',
+              preview: caption.slice(0, 200),
+              date: dateStr,
+              timestamp: ts ? ts * 1000 : Date.now(),
+              notes: '',
+              perf: '',
+              source: 'instagram-export',
+            });
+            imported++;
+          });
+
+        } else {
+          // CSV format — Meta Business Suite / Creator Studio export
+          const rows = parseCSV(text);
+          if (!rows.length) throw new Error('No rows found in CSV');
+
+          // Detect platform by sniffing headers
+          const firstRow = rows[0];
+          const keys = Object.keys(firstRow).join(' ');
+          const isIG = keys.includes('description') || keys.includes('permalink') || keys.includes('saves');
+          const isFB = keys.includes('post_message') || keys.includes('lifetime_post_total_reach');
+
+          rows.forEach(row => {
+            // ── Instagram CSV mapping ──────────────────────────────────────
+            if (isIG) {
+              const caption = row.description || row.post_caption || '';
+              const postType = row.post_type || row.type || 'Post';
+              const reach = row.reach || row.impressions || '0';
+              const saves = row.saves || '0';
+              const shares = row.shares || '0';
+              const likes = row.likes || '0';
+              const comments = row.comments || '0';
+              const published = row.published || row.date_published || '';
+              const dateStr = published ? new Date(published).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : 'Unknown';
+
+              save({
+                type: 'instagram',
+                platform: 'Instagram',
+                title: caption ? caption.slice(0,80) : `Instagram ${postType}`,
+                preview: caption.slice(0,200),
+                format: postType,
+                date: dateStr,
+                timestamp: published ? new Date(published).getTime() : Date.now(),
+                perf: autoRate(saves, shares, reach),
+                notes: `Reach: ${reach} · Likes: ${likes} · Comments: ${comments} · Saves: ${saves} · Shares: ${shares}`,
+                stats: { reach, saves, shares, likes, comments },
+                permalink: row.permalink || '',
+                source: 'instagram-csv',
+              });
+              imported++;
+
+            // ── Facebook CSV mapping ───────────────────────────────────────
+            } else if (isFB) {
+              const caption = row.post_message || row.description || '';
+              const reach = row.lifetime_post_total_reach || row.reach || '0';
+              const shares = row.share_count || '0';
+              const reactions = row.lifetime_post_reactions_by_type_total || row.likes || '0';
+              const comments = row.comment_count || '0';
+              const published = row.post_published || row.published_date || '';
+              const dateStr = published ? new Date(published).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : 'Unknown';
+
+              save({
+                type: 'facebook',
+                platform: 'Facebook',
+                title: caption ? caption.slice(0,80) : 'Facebook Post',
+                preview: caption.slice(0,200),
+                date: dateStr,
+                timestamp: published ? new Date(published).getTime() : Date.now(),
+                perf: autoRate('0', shares, reach),
+                notes: `Reach: ${reach} · Reactions: ${reactions} · Comments: ${comments} · Shares: ${shares}`,
+                stats: { reach, shares, reactions, comments },
+                source: 'facebook-csv',
+              });
+              imported++;
+
+            } else {
+              // Generic CSV — best-effort mapping
+              const caption = row.description || row.caption || row.message || row.title || row.text || '';
+              if (caption) {
+                save({
+                  type: 'social',
+                  platform: 'Social',
+                  title: caption.slice(0,80),
+                  preview: caption.slice(0,200),
+                  date: new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}),
+                  timestamp: Date.now(),
+                  perf: '',
+                  notes: Object.entries(row).filter(([k,v])=>v&&v!=='0').map(([k,v])=>`${k}: ${v}`).slice(0,6).join(' · '),
+                  source: 'csv-import',
+                });
+                imported++;
+              } else { skipped++; }
+            }
+          });
+        }
+
+        setImportResult({ imported, skipped, success: true });
+      } catch(err) {
+        setImportResult({ error: err.message, success: false });
+      }
+      setImporting(false);
+    };
+    reader.readAsText(file);
+    // Reset input
+    e.target.value = '';
+  };
 
   const types = ['all', ...new Set(log.map(e => e.type).filter(Boolean))];
   const filtered = log.filter(e => {
@@ -659,113 +832,209 @@ function ContentMemory() {
     return true;
   });
 
-  if (log.length === 0) return (
-    <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🧠</span>
-        <div><h2 style={{color:B.white,margin:0}}>Content Memory</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Every piece of content you generate gets saved here automatically.</p></div>
-      </div>
-      <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.03)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
-        <div style={{fontSize:48,marginBottom:16}}>📭</div>
-        <div style={{color:B.white,fontWeight:700,fontSize:18,marginBottom:8}}>Nothing here yet</div>
-        <div style={{color:B.gray,fontSize:14,lineHeight:1.7}}>Generate content with any tool and it will automatically appear here.<br/>Rate performance, add notes, track what works.</div>
-      </div>
-    </div>
-  );
+  const igSteps = [
+    '1. Open Instagram app → Profile → ☰ Menu',
+    '2. Settings → Account → Download Your Information',
+    '3. Select "Posts" and format: JSON',
+    '4. Download and upload the posts_1.json file here',
+    '── OR for stats (requires Business/Creator account) ──',
+    '5. Go to Meta Business Suite → Insights → Export',
+    '6. Choose date range → Export as CSV',
+    '7. Upload that CSV here instead',
+  ];
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+      {/* Header */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
           <span style={{fontSize:32}}>🧠</span>
           <div><h2 style={{color:B.white,margin:0}}>Content Memory</h2>
-            <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>{log.length} pieces saved — rate performance, add notes, track what works</p></div>
-        </div>
-        <button onClick={() => { if(confirm('Clear all content history?')) clear(); }}
-          style={{background:'rgba(233,69,96,0.1)',color:B.red,border:'1px solid rgba(233,69,96,0.2)',borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
-          Clear All
-        </button>
-      </div>
-
-      {/* Search + Filter */}
-      <div style={{display:'flex',gap:10,marginBottom:16,flexWrap:'wrap'}}>
-        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search content..."
-          style={{flex:1,minWidth:200,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',borderRadius:8,padding:'8px 12px',color:B.white,fontSize:13}}/>
-        <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
-          {types.map(t => (
-            <button key={t} onClick={() => setFilter(t)}
-              style={{background:filter===t?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
-                borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:filter===t?700:400,textTransform:'capitalize'}}>
-              {t}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Performance Summary */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:20}}>
-        {[['Total','📝',log.length,''],['Viral 🔥','🔥',log.filter(e=>e.perf==='🔥').length,'rgba(233,69,96,0.15)'],['Good ⭐','⭐',log.filter(e=>e.perf==='⭐').length,'rgba(245,166,35,0.1)'],['Flopped 💀','💀',log.filter(e=>e.perf==='💀').length,'rgba(100,100,100,0.1)']].map(([label,icon,count,bg]) => (
-          <div key={label} style={{background:bg||'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:10,padding:'12px',textAlign:'center'}}>
-            <div style={{fontSize:22,fontWeight:800,color:B.white}}>{count}</div>
-            <div style={{fontSize:11,color:B.gray,marginTop:2}}>{label}</div>
+            <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>
+              {log.length > 0 ? `${log.length} pieces saved — rate, note, and track what works` : 'Auto-saves every generated piece. Import your social posts below.'}
+            </p>
           </div>
-        ))}
+        </div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <button onClick={() => setShowImport(p=>!p)}
+            style={{background:showImport?B.red:'rgba(255,255,255,0.08)',color:B.white,border:`1px solid ${showImport?B.red:'rgba(255,255,255,0.15)'}`,borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+            📥 Import Social Posts
+          </button>
+          {log.length > 0 && (
+            <button onClick={() => { if(window.confirm('Clear all content history?')) clear(); }}
+              style={{background:'rgba(233,69,96,0.1)',color:B.red,border:'1px solid rgba(233,69,96,0.2)',borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+              Clear All
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Content Log */}
-      <div style={{display:'flex',flexDirection:'column',gap:10}}>
-        {filtered.map(entry => (
-          <div key={entry.id} style={{background:perfColors[entry.perf]||perfColors[''],border:'1px solid rgba(255,255,255,0.07)',borderLeft:`3px solid ${typeColors[entry.type]||typeColors.default}`,borderRadius:10,padding:'14px 16px'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12,flexWrap:'wrap'}}>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
-                  <span style={{background:typeColors[entry.type]||typeColors.default,color:'#fff',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:1}}>{entry.type}</span>
-                  <span style={{color:B.gray,fontSize:11}}>{entry.date}</span>
-                  {entry.client && <span style={{background:'rgba(255,255,255,0.08)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>👤 {entry.client}</span>}
-                  {entry.platform && <span style={{background:'rgba(255,255,255,0.05)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>{entry.platform}</span>}
-                </div>
-                <div style={{color:B.white,fontWeight:600,fontSize:13,marginBottom:4,wordBreak:'break-word'}}>{entry.title || entry.topic || 'Untitled'}</div>
-                {entry.notes && editingId !== entry.id && <div style={{color:B.gray,fontSize:12,lineHeight:1.6,marginTop:4}}>{entry.notes}</div>}
-                {editingId === entry.id && (
-                  <div style={{marginTop:8}}>
-                    <textarea value={editNotes} onChange={e=>setEditNotes(e.target.value)} rows={2}
-                      placeholder="Add performance notes, what you learned, what to replicate..."
-                      style={{width:'100%',background:'rgba(0,0,0,0.4)',border:'1px solid rgba(255,255,255,0.2)',borderRadius:6,padding:'8px',color:B.white,fontSize:12,resize:'vertical',boxSizing:'border-box'}}/>
-                    <div style={{display:'flex',gap:8,marginTop:6}}>
-                      <button onClick={() => { update(entry.id, {notes:editNotes}); setEditingId(null); }}
-                        style={{background:B.red,color:'#fff',border:'none',borderRadius:6,padding:'5px 12px',fontSize:11,fontWeight:700,cursor:'pointer'}}>Save</button>
-                      <button onClick={() => setEditingId(null)}
-                        style={{background:'rgba(255,255,255,0.08)',color:B.gray,border:'none',borderRadius:6,padding:'5px 12px',fontSize:11,cursor:'pointer'}}>Cancel</button>
-                    </div>
+      {/* Import Panel */}
+      {showImport && (
+        <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:14,padding:'20px',marginBottom:20}}>
+          <div style={{fontWeight:700,color:B.white,fontSize:15,marginBottom:4}}>📥 Import Instagram / Facebook Posts</div>
+          <div style={{color:B.gray,fontSize:12,lineHeight:1.8,marginBottom:16}}>
+            Upload your Instagram export (JSON) or Meta Business Suite insights export (CSV).<br/>
+            Posts auto-import with engagement stats. Performance is rated automatically based on saves and shares.
+          </div>
+
+          {/* How to export steps */}
+          <div style={{background:'rgba(0,0,0,0.25)',borderRadius:10,padding:'14px 16px',marginBottom:16}}>
+            <div style={{fontSize:11,fontWeight:700,color:B.red,letterSpacing:1.5,textTransform:'uppercase',marginBottom:10}}>How to Export</div>
+            {igSteps.map((step, i) => (
+              <div key={i} style={{fontSize:12,color:step.startsWith('──')?B.red:'rgba(255,255,255,0.7)',lineHeight:1.9,fontStyle:step.startsWith('──')?'italic':'normal'}}>
+                {step}
+              </div>
+            ))}
+          </div>
+
+          {/* Upload zone */}
+          <label style={{cursor:'pointer',display:'block'}}>
+            <div style={{border:'2px dashed rgba(233,69,96,0.35)',borderRadius:10,padding:'24px',textAlign:'center',
+              background:'rgba(255,255,255,0.02)',transition:'all 0.2s'}}>
+              {importing ? (
+                <><div style={{fontSize:28,marginBottom:8}}>⏳</div>
+                  <div style={{color:B.white,fontWeight:600,fontSize:14}}>Importing...</div></>
+              ) : (
+                <><div style={{fontSize:32,marginBottom:8}}>📂</div>
+                  <div style={{color:B.white,fontWeight:600,fontSize:14}}>Click to upload Instagram JSON or Meta CSV</div>
+                  <div style={{color:B.gray,fontSize:12,marginTop:4}}>.json or .csv files accepted</div></>
+              )}
+            </div>
+            <input type="file" accept=".json,.csv,text/csv,application/json" onChange={handleImport}
+              style={{display:'none'}} disabled={importing}/>
+          </label>
+
+          {/* Import result */}
+          {importResult && (
+            <div style={{marginTop:12,padding:'12px 16px',borderRadius:8,
+              background:importResult.success?'rgba(39,174,96,0.1)':'rgba(233,69,96,0.1)',
+              border:`1px solid ${importResult.success?'rgba(39,174,96,0.3)':'rgba(233,69,96,0.3)'}`}}>
+              {importResult.success ? (
+                <div style={{color:'rgba(39,174,96,0.9)',fontWeight:700,fontSize:13}}>
+                  ✅ Imported {importResult.imported} post{importResult.imported!==1?'s':''} successfully
+                  {importResult.skipped > 0 && <span style={{color:B.gray,fontWeight:400}}> · {importResult.skipped} skipped (no caption)</span>}
+                  <div style={{color:B.gray,fontWeight:400,fontSize:12,marginTop:4}}>
+                    Posts with high saves/shares were auto-rated 🔥. Scroll down to review and adjust.
                   </div>
-                )}
-              </div>
-              <div style={{display:'flex',alignItems:'center',gap:6,flexShrink:0}}>
-                {/* Performance rating */}
-                {['⭐','🔥','💀'].map(p => (
-                  <button key={p} onClick={() => update(entry.id, {perf: entry.perf===p?'':p})}
-                    title={perfLabels[p]}
-                    style={{background:entry.perf===p?'rgba(255,255,255,0.15)':'transparent',border:`1px solid ${entry.perf===p?'rgba(255,255,255,0.3)':'rgba(255,255,255,0.08)'}`,borderRadius:6,padding:'4px 7px',fontSize:14,cursor:'pointer',opacity:entry.perf&&entry.perf!==p?0.4:1}}>
-                    {p}
-                  </button>
-                ))}
-                <button onClick={() => { setEditingId(entry.id); setEditNotes(entry.notes||''); }}
-                  style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'4px 9px',fontSize:11,fontWeight:700,cursor:'pointer'}}>
-                  {entry.notes ? 'Edit' : '+ Note'}
+                </div>
+              ) : (
+                <div style={{color:B.red,fontWeight:700,fontSize:13}}>
+                  ❌ Import failed: {importResult.error}
+                  <div style={{color:B.gray,fontWeight:400,fontSize:12,marginTop:4}}>
+                    Make sure you uploaded the correct file format (Instagram JSON or Meta Business Suite CSV).
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Empty state */}
+      {log.length === 0 && !showImport && (
+        <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.03)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
+          <div style={{fontSize:48,marginBottom:16}}>📭</div>
+          <div style={{color:B.white,fontWeight:700,fontSize:18,marginBottom:8}}>Nothing here yet</div>
+          <div style={{color:B.gray,fontSize:14,lineHeight:1.7,marginBottom:20}}>
+            Content you generate auto-saves here. Or import your existing posts above.
+          </div>
+          <button onClick={() => setShowImport(true)}
+            style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+            📥 Import Instagram / Facebook Posts
+          </button>
+        </div>
+      )}
+
+      {/* Main content when log has entries */}
+      {log.length > 0 && (
+        <>
+          {/* Search + Filter */}
+          <div style={{display:'flex',gap:10,marginBottom:16,flexWrap:'wrap'}}>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search content..."
+              style={{flex:1,minWidth:200,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',borderRadius:8,padding:'8px 12px',color:B.white,fontSize:13}}/>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {types.map(t => (
+                <button key={t} onClick={() => setFilter(t)}
+                  style={{background:filter===t?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                    borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:filter===t?700:400,textTransform:'capitalize'}}>
+                  {t}
                 </button>
-                <button onClick={() => remove(entry.id)}
-                  style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',borderRadius:6,padding:'4px 7px',fontSize:14,cursor:'pointer'}}>✕</button>
-              </div>
+              ))}
             </div>
           </div>
-        ))}
-        {filtered.length === 0 && <div style={{textAlign:'center',padding:'3rem',color:B.gray,fontSize:13}}>No results match your filter.</div>}
-      </div>
+
+          {/* Performance Summary */}
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:20}}>
+            {[
+              ['Total','📝',log.length,''],
+              ['Viral 🔥','🔥',log.filter(e=>e.perf==='🔥').length,'rgba(233,69,96,0.15)'],
+              ['Good ⭐','⭐',log.filter(e=>e.perf==='⭐').length,'rgba(245,166,35,0.1)'],
+              ['Flopped 💀','💀',log.filter(e=>e.perf==='💀').length,'rgba(100,100,100,0.1)'],
+            ].map(([label,icon,count,bg]) => (
+              <div key={label} style={{background:bg||'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:10,padding:'12px',textAlign:'center'}}>
+                <div style={{fontSize:22,fontWeight:800,color:B.white}}>{count}</div>
+                <div style={{fontSize:11,color:B.gray,marginTop:2}}>{label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Content Log */}
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            {filtered.map(entry => (
+              <div key={entry.id} style={{background:perfColors[entry.perf]||perfColors[''],border:'1px solid rgba(255,255,255,0.07)',borderLeft:`3px solid ${typeColors[entry.type]||typeColors.default}`,borderRadius:10,padding:'14px 16px'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12,flexWrap:'wrap'}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
+                      <span style={{background:typeColors[entry.type]||typeColors.default,color:'#fff',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:1}}>{entry.type}</span>
+                      <span style={{color:B.gray,fontSize:11}}>{entry.date}</span>
+                      {entry.client && <span style={{background:'rgba(255,255,255,0.08)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>👤 {entry.client}</span>}
+                      {entry.platform && <span style={{background:'rgba(255,255,255,0.05)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>{entry.platform}</span>}
+                      {entry.permalink && <a href={entry.permalink} target="_blank" rel="noopener noreferrer" style={{color:B.red,fontSize:10,textDecoration:'none'}}>↗ View</a>}
+                    </div>
+                    <div style={{color:B.white,fontWeight:600,fontSize:13,marginBottom:4,wordBreak:'break-word'}}>{entry.title || entry.topic || 'Untitled'}</div>
+                    {entry.notes && editingId !== entry.id && <div style={{color:B.gray,fontSize:12,lineHeight:1.6,marginTop:4}}>{entry.notes}</div>}
+                    {editingId === entry.id && (
+                      <div style={{marginTop:8}}>
+                        <textarea value={editNotes} onChange={e=>setEditNotes(e.target.value)} rows={2}
+                          placeholder="Add performance notes, what you learned, what to replicate..."
+                          style={{width:'100%',background:'rgba(0,0,0,0.4)',border:'1px solid rgba(255,255,255,0.2)',borderRadius:6,padding:'8px',color:B.white,fontSize:12,resize:'vertical',boxSizing:'border-box'}}/>
+                        <div style={{display:'flex',gap:8,marginTop:6}}>
+                          <button onClick={() => { update(entry.id, {notes:editNotes}); setEditingId(null); }}
+                            style={{background:B.red,color:'#fff',border:'none',borderRadius:6,padding:'5px 12px',fontSize:11,fontWeight:700,cursor:'pointer'}}>Save</button>
+                          <button onClick={() => setEditingId(null)}
+                            style={{background:'rgba(255,255,255,0.08)',color:B.gray,border:'none',borderRadius:6,padding:'5px 12px',fontSize:11,cursor:'pointer'}}>Cancel</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{display:'flex',alignItems:'center',gap:6,flexShrink:0}}>
+                    {['⭐','🔥','💀'].map(p => (
+                      <button key={p} onClick={() => update(entry.id, {perf: entry.perf===p?'':p})}
+                        title={perfLabels[p]}
+                        style={{background:entry.perf===p?'rgba(255,255,255,0.15)':'transparent',border:`1px solid ${entry.perf===p?'rgba(255,255,255,0.3)':'rgba(255,255,255,0.08)'}`,borderRadius:6,padding:'4px 7px',fontSize:14,cursor:'pointer',opacity:entry.perf&&entry.perf!==p?0.4:1}}>
+                        {p}
+                      </button>
+                    ))}
+                    <button onClick={() => { setEditingId(entry.id); setEditNotes(entry.notes||''); }}
+                      style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'4px 9px',fontSize:11,fontWeight:700,cursor:'pointer'}}>
+                      {entry.notes ? 'Edit' : '+ Note'}
+                    </button>
+                    <button onClick={() => remove(entry.id)}
+                      style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',borderRadius:6,padding:'4px 7px',fontSize:14,cursor:'pointer'}}>✕</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {filtered.length === 0 && log.length > 0 && (
+              <div style={{textAlign:'center',padding:'3rem',color:B.gray,fontSize:13}}>No results match your filter.</div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIER 1 — BULK CONTENT BATCHING
 // ═══════════════════════════════════════════════════════════════════════════════
