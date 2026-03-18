@@ -1713,21 +1713,7 @@ function Onboarding() {
       </Card>
       {loading && <Spin/>}
       {out && (
-        <div style={{marginTop:16}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:10}}>
-            <span style={{color:B.white,fontWeight:700,fontSize:15}}>Your 90-Day Strategy</span>
-            <div style={{display:'flex',gap:8}}>
-              <CopyBtn text={out}/>
-              <button onClick={downloadDoc} disabled={downloading}
-                style={{background:downloading?B.gray:'#0A1628',color:B.white,border:`1px solid rgba(255,255,255,0.2)`,
-                  borderRadius:8,padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',
-                  fontSize:13,display:'flex',alignItems:'center',gap:6,transition:'all 0.2s'}}>
-                {downloading ? 'Preparing...' : '⬇ Download Strategy Doc'}
-              </button>
-            </div>
-          </div>
-          <StrategyOutput text={out} onDownload={downloadDoc} downloading={downloading}/>
-        </div>
+        <StrategyOutput text={out} onDownload={downloadDoc} downloading={downloading}/>
       )}
     </div>
   );
@@ -2763,16 +2749,19 @@ function useTrendAlerts() {
     try {
       const today = new Date().toDateString();
 
-      // One targeted query per angle — guarantees every niche gets coverage
+      // Query template — demands specific video proof with 2M+ views
+      const makeQuery = (niche) =>
+        `Find me a SPECIFIC viral video in the ${niche} space that has gotten over 2 million views on Instagram Reels or YouTube Shorts in the last 7 days. I need: (1) the creator handle or channel name, (2) a direct link to the actual video, (3) the exact view count, (4) a one-sentence description of what the video is about, (5) why it blew up psychologically, (6) the best hook angle to create a similar video. Only report videos with confirmed 2M+ views. If no single video hits 2M, report the highest-performing one you can find with its actual view count and link.`;
+
       const angleQueries = [
-        { angle: "Veteran / Resilience",        q: "What specific content format or topic about veterans, military resilience, or veteran transition is going viral on Instagram Reels or YouTube Shorts RIGHT NOW this week? Name the exact trend, why it's blowing up, and the best hook." },
-        { angle: "Mindset & Mental Toughness",  q: "What mindset, mental toughness, or discipline content is trending virally on Instagram and YouTube THIS WEEK? Name the exact trend, creator driving it if any, and the best hook angle." },
-        { angle: "Everyday Wins",               q: "What \"small wins\", consistency, or showing-up content format is going viral on short-form video THIS WEEK? Be specific — name the trend and best hook." },
-        { angle: "Outdoor Living & Community",  q: "What outdoor lifestyle, nature, Colorado, or tight-knit community content is trending on Instagram or YouTube Shorts THIS WEEK? Name the trend and best hook." },
-        { angle: "Finance & Real Estate",        q: "What personal finance, real estate investing, or money mindset content is going viral on Instagram or YouTube THIS WEEK? Name the specific trend and best hook." },
-        { angle: "Podcast & Personal Growth",   q: "What podcast clip, personal growth, or self-improvement content format is trending virally THIS WEEK on short-form video? Name the trend and best hook." },
-        { angle: "Family & Life Lessons",       q: "What family, parenting, or life-lessons content is going viral on Instagram Reels or YouTube Shorts THIS WEEK? Name the specific trend and best hook." },
-        { angle: "Health & Physical Wellness",  q: "What fitness, health, or physical wellness content format or challenge is trending virally THIS WEEK on Instagram or YouTube? Name the exact trend and best hook." },
+        { angle: "Veteran / Resilience",       q: makeQuery("veteran, military resilience, or veteran transition") },
+        { angle: "Mindset & Mental Toughness", q: makeQuery("mindset, mental toughness, or discipline") },
+        { angle: "Everyday Wins",              q: makeQuery("consistency, daily habits, or showing up every day") },
+        { angle: "Outdoor Living & Community", q: makeQuery("outdoor lifestyle, nature, or tight-knit community") },
+        { angle: "Finance & Real Estate",      q: makeQuery("personal finance, real estate investing, or money mindset") },
+        { angle: "Podcast & Personal Growth",  q: makeQuery("podcast clips, personal growth, or self-improvement") },
+        { angle: "Family & Life Lessons",      q: makeQuery("family, parenting, or life lessons") },
+        { angle: "Health & Physical Wellness", q: makeQuery("fitness, health, or physical wellness") },
       ];
 
       const results = await Promise.all(
@@ -2784,9 +2773,44 @@ function useTrendAlerts() {
             });
             const d = await res.json();
             const raw = (d.result || d.text || '').trim();
-            // Take first substantive line as the alert text
-            const text = raw.split('\n').find(l => l.trim().length > 30)?.replace(/^[\d*#.\-]+\s*/, '').trim() || raw.slice(0, 200);
-            return { id: Date.now() + i, text, angle, ts: Date.now(), seen: false };
+
+            // Extract structured data from the response
+            const lines = raw.split('\n').filter(l => l.trim().length > 5);
+
+            // Try to pull a URL from the response
+            const urlMatch = raw.match(/https?:\/\/[^\s)>'"]+/);
+            const url = urlMatch ? urlMatch[0].replace(/[.,;]+$/, '') : null;
+
+            // Try to extract view count
+            const viewMatch = raw.match(/(\d+(?:\.\d+)?[MKmk]?\+?\s*(?:million|M|m)?\s*views?)/i);
+            const views = viewMatch ? viewMatch[0].trim() : null;
+
+            // Try to extract creator handle
+            const handleMatch = raw.match(/@[\w.]+/);
+            const creator = handleMatch ? handleMatch[0] : null;
+
+            // Get main description — first substantive line that isn't a URL
+            const text = lines.find(l => l.trim().length > 30 && !l.includes('http'))
+              ?.replace(/^[\d*#.\-]+\s*/, '').trim() || raw.slice(0, 250);
+
+            // Get hook angle — look for line mentioning hook or angle
+            const hookLine = lines.find(l =>
+              l.toLowerCase().includes('hook') || l.toLowerCase().includes('angle') || l.toLowerCase().includes('why it')
+            );
+            const hook = hookLine?.replace(/^[\d*#.\-]+\s*/, '').trim() || null;
+
+            return {
+              id: Date.now() + i,
+              angle,
+              text,
+              hook,
+              url,
+              views,
+              creator,
+              raw,
+              ts: Date.now(),
+              seen: false,
+            };
           } catch { return null; }
         })
       );
@@ -2825,46 +2849,120 @@ function TrendAlertBanner() {
 
   if (!alerts.length && !loading) return null;
 
+  // Angle emoji map
+  const angleEmoji = {
+    'Veteran / Resilience': '🎖️',
+    'Mindset & Mental Toughness': '🧠',
+    'Everyday Wins': '⚡',
+    'Outdoor Living & Community': '🏔️',
+    'Finance & Real Estate': '💰',
+    'Podcast & Personal Growth': '🎙️',
+    'Family & Life Lessons': '❤️',
+    'Health & Physical Wellness': '💪',
+  };
+
+  // Truncate alert text cleanly
+  const preview = alerts.find(a => a.text?.length > 10)?.text?.slice(0, 90) || 'Checking your 8 content angles...';
+
   return (
-    <div style={{background:'rgba(233,69,96,0.08)',borderBottom:'1px solid rgba(233,69,96,0.2)'}}>
+    <div style={{background:'rgba(233,69,96,0.06)',borderBottom:'1px solid rgba(233,69,96,0.15)'}}>
       <div style={{maxWidth:1100,margin:'0 auto',padding:'0 16px'}}>
-        {/* Banner bar */}
-        <div style={{display:'flex',alignItems:'center',gap:12,padding:'10px 0',cursor:'pointer'}}
+
+        {/* Collapsed bar */}
+        <div style={{display:'flex',alignItems:'center',gap:12,padding:'9px 0',cursor:'pointer',minHeight:40}}
           onClick={()=>{ setExpanded(e=>!e); if(unseen>0) markSeen(); }}>
-          <div style={{display:'flex',alignItems:'center',gap:8}}>
-            <span style={{fontSize:16}}>🔥</span>
-            <span style={{color:B.red,fontWeight:700,fontSize:13}}>Trend Alerts</span>
-            {unseen > 0 && (
-              <span style={{background:B.red,color:'#fff',borderRadius:10,padding:'1px 7px',fontSize:10,fontWeight:700}}>
-                {unseen} new
-              </span>
-            )}
-          </div>
+          <span style={{fontSize:14,flexShrink:0}}>🔥</span>
+          <span style={{color:B.red,fontWeight:700,fontSize:12,whiteSpace:'nowrap',flexShrink:0}}>Trend Alerts</span>
+          {unseen > 0 && !expanded && (
+            <span style={{background:B.red,color:'#fff',borderRadius:10,padding:'1px 6px',fontSize:10,fontWeight:700,flexShrink:0}}>
+              {unseen} new
+            </span>
+          )}
           {loading
-            ? <span style={{color:B.gray,fontSize:12}}>Checking trends...</span>
-            : <span style={{color:B.gray,fontSize:12}}>{alerts[0]?.text?.slice(0,80)}...</span>
+            ? <span style={{color:B.gray,fontSize:12,flex:1}}>Checking all 8 content angles...</span>
+            : !expanded && <span style={{color:'rgba(255,255,255,0.55)',fontSize:12,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{preview}...</span>
           }
-          <button onClick={e=>{e.stopPropagation();checkTrends();}}
-            style={{marginLeft:'auto',background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',
-              borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer',flexShrink:0}}>
-            {loading ? '...' : '↻ Refresh'}
-          </button>
-          <span style={{color:B.gray,fontSize:12}}>{expanded?'▲':'▼'}</span>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginLeft:'auto',flexShrink:0}}>
+            <button onClick={e=>{e.stopPropagation();checkTrends();}}
+              style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',
+                borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer'}}>
+              {loading ? '⏳' : '↻ Refresh'}
+            </button>
+            <span style={{color:B.gray,fontSize:11}}>{expanded?'▲':'▼'}</span>
+          </div>
         </div>
 
-        {/* Expanded alerts */}
+        {/* Expanded grid */}
         {expanded && (
-          <div style={{paddingBottom:14,display:'flex',flexDirection:'column',gap:8}}>
-            {lastRun && <div style={{color:B.gray,fontSize:11,marginBottom:4}}>Last checked: {lastRun}</div>}
-            {alerts.map(alert => (
-              <div key={alert.id} style={{background:'rgba(0,0,0,0.25)',borderRadius:8,padding:'10px 14px',
-                borderLeft:`3px solid ${alert.seen?'rgba(255,255,255,0.1)':B.red}`}}>
-                <div style={{color:alert.seen?'rgba(255,255,255,0.6)':B.white,fontSize:13,lineHeight:1.6}}>
-                  {alert.text}
-                </div>
-                <div style={{color:B.gray,fontSize:11,marginTop:4}}>{alert.angle}</div>
+          <div style={{paddingBottom:16}}>
+            {lastRun && (
+              <div style={{color:B.gray,fontSize:11,marginBottom:10}}>
+                Last checked: {lastRun} · {alerts.length} angles covered
               </div>
-            ))}
+            )}
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:10}}>
+              {alerts.map(alert => (
+                <div key={alert.id} style={{
+                  background:'rgba(0,0,0,0.25)',
+                  border:`1px solid ${alert.seen?'rgba(255,255,255,0.07)':'rgba(233,69,96,0.3)'}`,
+                  borderRadius:12,padding:'14px 16px',
+                  display:'flex',flexDirection:'column',gap:8,
+                }}>
+                  {/* Angle label + badge */}
+                  <div style={{display:'flex',alignItems:'center',gap:6}}>
+                    <span style={{fontSize:15}}>{angleEmoji[alert.angle] || '📌'}</span>
+                    <span style={{color:B.red,fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:1,flex:1}}>
+                      {alert.angle}
+                    </span>
+                    {!alert.seen && (
+                      <span style={{background:B.red,color:'#fff',borderRadius:8,padding:'1px 6px',fontSize:9,fontWeight:700}}>NEW</span>
+                    )}
+                  </div>
+
+                  {/* View count + creator */}
+                  {(alert.views || alert.creator) && (
+                    <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                      {alert.views && (
+                        <span style={{background:'rgba(233,69,96,0.15)',color:B.red,borderRadius:6,padding:'3px 8px',fontSize:11,fontWeight:700}}>
+                          🔥 {alert.views}
+                        </span>
+                      )}
+                      {alert.creator && (
+                        <span style={{color:'rgba(255,255,255,0.6)',fontSize:11}}>{alert.creator}</span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Description */}
+                  <div style={{color:alert.seen?'rgba(255,255,255,0.5)':'rgba(255,255,255,0.88)',fontSize:12,lineHeight:1.7}}>
+                    {alert.text}
+                  </div>
+
+                  {/* Hook angle */}
+                  {alert.hook && (
+                    <div style={{background:'rgba(0,212,255,0.07)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:8,padding:'8px 10px'}}>
+                      <div style={{color:'rgba(0,212,255,0.7)',fontSize:10,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:3}}>Your Hook Angle</div>
+                      <div style={{color:'rgba(255,255,255,0.8)',fontSize:12,lineHeight:1.6}}>{alert.hook}</div>
+                    </div>
+                  )}
+
+                  {/* Video link */}
+                  {alert.url && (
+                    <a href={alert.url} target="_blank" rel="noopener noreferrer"
+                      style={{display:'flex',alignItems:'center',gap:6,background:B.red,color:'#fff',
+                        borderRadius:8,padding:'8px 12px',fontSize:12,fontWeight:700,textDecoration:'none',
+                        justifyContent:'center',marginTop:'auto'}}>
+                      ▶ Watch the Video
+                    </a>
+                  )}
+                  {!alert.url && (
+                    <div style={{color:B.gray,fontSize:11,textAlign:'center',marginTop:'auto'}}>
+                      No direct link found — search manually
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
