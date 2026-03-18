@@ -2749,9 +2749,9 @@ function useTrendAlerts() {
     try {
       const today = new Date().toDateString();
 
-      // Query template — demands specific video proof with 2M+ views
+      // Structured query — asks for specific account + title so we can build real links
       const makeQuery = (niche) =>
-        `Find me a SPECIFIC viral video in the ${niche} space that has gotten over 2 million views on Instagram Reels or YouTube Shorts in the last 7 days. I need: (1) the creator handle or channel name, (2) a direct link to the actual video, (3) the exact view count, (4) a one-sentence description of what the video is about, (5) why it blew up psychologically, (6) the best hook angle to create a similar video. Only report videos with confirmed 2M+ views. If no single video hits 2M, report the highest-performing one you can find with its actual view count and link.`;
+        `Search Instagram Reels and YouTube Shorts right now for the single most viral video in the ${niche} space this week. I need ONLY these specific details, nothing else:\n\nACCOUNT: [exact Instagram handle or YouTube channel name, e.g. @handle or ChannelName]\nPLATFORM: [Instagram or YouTube]\nVIDEO TITLE: [exact title or first line of caption]\nVIEWS: [number like 3.2M or 890K]\nWHY IT BLEW UP: [one sentence]\nHOOK TO STEAL: [specific opening line Jason Fricka could use]\n\nOnly report content from the last 14 days. Be specific — name the real account.`;
 
       const angleQueries = [
         { angle: "Veteran / Resilience",       q: makeQuery("veteran, military resilience, or veteran transition") },
@@ -2774,58 +2774,62 @@ function useTrendAlerts() {
             const d = await res.json();
             const raw = (d.result || d.text || '').trim();
 
-            // Extract structured data from the response
-            const lines = raw.split('\n').filter(l => l.trim().length > 5);
+            // Parse structured labeled fields from the response
+            const getField = (label) => {
+              const regex = new RegExp(`${label}:\\s*(.+)`, 'i');
+              const match = raw.match(regex);
+              return match ? match[1].replace(/\*\*/g,'').trim() : null;
+            };
 
-            // Try to pull a URL from the response
-            const urlMatch = raw.match(/https?:\/\/[^\s)>'"]+/);
-            const url = urlMatch ? urlMatch[0].replace(/[.,;]+$/, '') : null;
+            const account  = getField('ACCOUNT');
+            const platform = getField('PLATFORM') || 'Instagram';
+            const title    = getField('VIDEO TITLE');
+            const views    = getField('VIEWS');
+            const why      = getField('WHY IT BLEW UP');
+            const hook     = getField('HOOK TO STEAL');
 
-            // Try to extract view count
-            const viewMatch = raw.match(/(\d+(?:\.\d+)?[MKmk]?\+?\s*(?:million|M|m)?\s*views?)/i);
-            const views = viewMatch ? viewMatch[0].trim() : null;
+            // Clean handle — strip @ for URL construction
+            const handleRaw = account || '';
+            const handle    = handleRaw.replace(/^@/, '');
 
-            // Try to extract creator handle
-            const handleMatch = raw.match(/@[\w.]+/);
-            const creator = handleMatch ? handleMatch[0] : null;
+            // Build direct profile + search links
+            const isYT   = platform.toLowerCase().includes('youtube');
+            const isIG   = platform.toLowerCase().includes('instagram');
 
-            // Get main description — first substantive line that isn't a URL
-            const text = lines.find(l => l.trim().length > 30 && !l.includes('http'))
-              ?.replace(/^[\d*#.\-]+\s*/, '').trim() || raw.slice(0, 250);
+            // Profile link — goes straight to the creator
+            const profileUrl = isYT
+              ? `https://www.youtube.com/@${handle}`
+              : `https://www.instagram.com/${handle}/reels/`;
 
-            // Get hook angle — look for line mentioning hook or angle
-            const hookLine = lines.find(l =>
-              l.toLowerCase().includes('hook') || l.toLowerCase().includes('angle') || l.toLowerCase().includes('why it')
-            );
-            const hook = hookLine?.replace(/^[\d*#.\-]+\s*/, '').trim() || null;
+            // Search link — title search on the right platform
+            const titleEnc   = encodeURIComponent(title || handle || angle);
+            const searchUrl  = isYT
+              ? `https://www.youtube.com/results?search_query=${titleEnc}&sp=EgQIARAB`
+              : `https://www.instagram.com/explore/search/keyword/?q=${titleEnc}`;
 
-            // Build fallback search links from trend data
-            // Extract trend name — first bold phrase or first short line
-            const boldMatch = raw.match(/\*\*([^*]{5,60})\*\*/);
-            const trendName = boldMatch?.[1] ||
-              lines.find(l => l.trim().length > 8 && l.trim().length < 80 && !l.includes('http'))
-                ?.replace(/^[\d*#.\-"]+\s*/, '').slice(0, 60) || angle;
+            // Perplexity deep-dive link
+            const perpLink = \`https://www.perplexity.ai/search?q=\${encodeURIComponent(
+              (handleRaw || angle) + ' ' + (title || '') + ' viral video 2026'
+            )}\`;
 
-            // Construct platform search links
-            const searchTerm = encodeURIComponent(
-              (creator ? creator.replace('@','') + ' ' : '') + trendName
-            );
-            const ytSearch  = `https://www.youtube.com/results?search_query=${searchTerm}&sp=EgQIARAB`; // filtered to this week
-            const igSearch  = `https://www.instagram.com/explore/tags/${encodeURIComponent(trendName.replace(/\s+/g,''))}`;
-            const perpLink  = `https://www.perplexity.ai/search?q=${encodeURIComponent(trendName + ' viral video 2M views 2026')}`;
+            // Main display text
+            const text = [
+              title && \`"\${title}"\`,
+              why,
+            ].filter(Boolean).join(' — ') || raw.slice(0, 200);
 
             return {
               id: Date.now() + i,
               angle,
+              account: handleRaw || null,
+              platform,
+              title,
+              views,
               text,
               hook,
-              url,           // direct URL if Perplexity included one
-              views,
-              creator,
-              trendName,
-              ytSearch,      // always present
-              igSearch,      // always present
-              perpLink,      // always present
+              profileUrl,
+              searchUrl,
+              perpLink,
               raw,
               ts: Date.now(),
               seen: false,
@@ -2938,60 +2942,66 @@ function TrendAlertBanner() {
                     )}
                   </div>
 
-                  {/* View count + creator */}
-                  {(alert.views || alert.creator) && (
-                    <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
-                      {alert.views && (
-                        <span style={{background:'rgba(233,69,96,0.15)',color:B.red,borderRadius:6,padding:'3px 8px',fontSize:11,fontWeight:700}}>
-                          🔥 {alert.views}
-                        </span>
-                      )}
-                      {alert.creator && (
-                        <span style={{color:'rgba(255,255,255,0.6)',fontSize:11}}>{alert.creator}</span>
-                      )}
+                  {/* Views + Account row */}
+                  <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                    {alert.views && (
+                      <span style={{background:'rgba(233,69,96,0.2)',color:B.red,borderRadius:6,padding:'3px 9px',fontSize:11,fontWeight:800}}>
+                        🔥 {alert.views}
+                      </span>
+                    )}
+                    {alert.account && (
+                      <span style={{background:'rgba(255,255,255,0.08)',color:'rgba(255,255,255,0.8)',borderRadius:6,padding:'3px 9px',fontSize:11,fontWeight:700}}>
+                        {alert.account}
+                      </span>
+                    )}
+                    {alert.platform && (
+                      <span style={{color:B.gray,fontSize:10,textTransform:'uppercase',letterSpacing:1}}>
+                        {alert.platform}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Video title */}
+                  {alert.title && (
+                    <div style={{color:B.white,fontWeight:700,fontSize:13,lineHeight:1.5}}>
+                      "{alert.title}"
                     </div>
                   )}
 
-                  {/* Description */}
-                  <div style={{color:alert.seen?'rgba(255,255,255,0.5)':'rgba(255,255,255,0.88)',fontSize:12,lineHeight:1.7}}>
+                  {/* Why it blew up */}
+                  <div style={{color:alert.seen?'rgba(255,255,255,0.45)':'rgba(255,255,255,0.78)',fontSize:12,lineHeight:1.7}}>
                     {alert.text}
                   </div>
 
-                  {/* Hook angle */}
+                  {/* Hook to steal */}
                   {alert.hook && (
-                    <div style={{background:'rgba(0,212,255,0.07)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:8,padding:'8px 10px'}}>
-                      <div style={{color:'rgba(0,212,255,0.7)',fontSize:10,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:3}}>Your Hook Angle</div>
-                      <div style={{color:'rgba(255,255,255,0.8)',fontSize:12,lineHeight:1.6}}>{alert.hook}</div>
+                    <div style={{background:'rgba(0,212,255,0.07)',border:'1px solid rgba(0,212,255,0.2)',borderRadius:8,padding:'9px 12px'}}>
+                      <div style={{color:'#00d4ff',fontSize:10,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:4}}>Hook to Steal</div>
+                      <div style={{color:'rgba(255,255,255,0.85)',fontSize:12,lineHeight:1.65,fontStyle:'italic'}}>"{alert.hook}"</div>
                     </div>
                   )}
 
-                  {/* Links row — always shown */}
-                  <div style={{display:'flex',gap:6,marginTop:'auto',flexWrap:'wrap'}}>
-                    {alert.url && (
-                      <a href={alert.url} target="_blank" rel="noopener noreferrer"
-                        style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:5,
-                          background:B.red,color:'#fff',borderRadius:8,padding:'8px 10px',
-                          fontSize:12,fontWeight:700,textDecoration:'none',minWidth:100}}>
-                        ▶ Direct Link
+                  {/* Action links — stop propagation so clicks work inside the banner */}
+                  <div style={{display:'flex',gap:6,marginTop:'auto',flexWrap:'wrap'}} onClick={e=>e.stopPropagation()}>
+                    {alert.account && (
+                      <a href={alert.profileUrl} target="_blank" rel="noopener noreferrer"
+                        style={{flex:2,display:'flex',alignItems:'center',justifyContent:'center',gap:5,
+                          background:B.red,color:'#fff',borderRadius:8,padding:'9px 12px',
+                          fontSize:12,fontWeight:700,textDecoration:'none'}}>
+                        👤 View {alert.account}
                       </a>
                     )}
-                    <a href={alert.ytSearch} target="_blank" rel="noopener noreferrer"
-                      style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:5,
-                        background:'rgba(255,0,0,0.15)',color:'#ff4444',border:'1px solid rgba(255,0,0,0.25)',
-                        borderRadius:8,padding:'8px 10px',fontSize:12,fontWeight:700,textDecoration:'none',minWidth:80}}>
-                      ▶ YouTube
-                    </a>
-                    <a href={alert.igSearch} target="_blank" rel="noopener noreferrer"
-                      style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:5,
-                        background:'rgba(193,53,132,0.15)',color:'#c13584',border:'1px solid rgba(193,53,132,0.25)',
-                        borderRadius:8,padding:'8px 10px',fontSize:12,fontWeight:700,textDecoration:'none',minWidth:80}}>
-                      📸 Instagram
+                    <a href={alert.searchUrl} target="_blank" rel="noopener noreferrer"
+                      style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,
+                        background:'rgba(255,255,255,0.07)',color:B.white,border:'1px solid rgba(255,255,255,0.12)',
+                        borderRadius:8,padding:'9px 10px',fontSize:12,fontWeight:600,textDecoration:'none'}}>
+                      🔎 Search
                     </a>
                     <a href={alert.perpLink} target="_blank" rel="noopener noreferrer"
                       style={{display:'flex',alignItems:'center',justifyContent:'center',
-                        background:'rgba(255,255,255,0.06)',color:B.gray,border:'1px solid rgba(255,255,255,0.1)',
-                        borderRadius:8,padding:'8px 10px',fontSize:11,textDecoration:'none',whiteSpace:'nowrap'}}>
-                      🔍 Verify
+                        background:'rgba(255,255,255,0.04)',color:B.gray,border:'1px solid rgba(255,255,255,0.08)',
+                        borderRadius:8,padding:'9px 10px',fontSize:11,textDecoration:'none',whiteSpace:'nowrap'}}>
+                      🔍 Deep Dive
                     </a>
                   </div>
                 </div>
