@@ -452,7 +452,6 @@ function DocOutput({text, title='Document', showDownload=true}) {
         + '</body></html>';
 
       const blob = new Blob([fullHtml], {type:'text/html'});
-      const blob = new Blob([fullHtml], {type:'text/html'});
       const url = URL.createObjectURL(blob);
       const printWin = window.open(url, '_blank');
       if (printWin) { printWin.onload = () => printWin.print(); }
@@ -1515,15 +1514,15 @@ function ContentMemory() {
           rows.forEach(row => {
             // ── Instagram CSV mapping ──────────────────────────────────────
             if (isIG) {
-              const caption = row.description || row.post_caption || '';
-              const postType = row.post_type || row.type || 'Post';
-              const reach = row.reach || row.impressions || '0';
-              const saves = row.saves || '0';
-              const shares = row.shares || '0';
-              const likes = row.likes || '0';
-              const comments = row.comments || '0';
-              const published = row.published || row.date_published || '';
-              const dateStr = published ? new Date(published).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : 'Unknown';
+              let caption = row.description || row.post_caption || '';
+              let postType = row.post_type || row.type || 'Post';
+              let reach = row.reach || row.impressions || '0';
+              let saves = row.saves || '0';
+              let shares = row.shares || '0';
+              let likes = row.likes || '0';
+              let comments = row.comments || '0';
+              let published = row.published || row.date_published || '';
+              let dateStr = published ? new Date(published).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : 'Unknown';
 
               save({
                 type: 'instagram',
@@ -1543,13 +1542,13 @@ function ContentMemory() {
 
             // ── Facebook CSV mapping ───────────────────────────────────────
             } else if (isFB) {
-              const caption = row.post_message || row.description || '';
-              const reach = row.lifetime_post_total_reach || row.reach || '0';
-              const shares = row.share_count || '0';
-              const reactions = row.lifetime_post_reactions_by_type_total || row.likes || '0';
-              const comments = row.comment_count || '0';
-              const published = row.post_published || row.published_date || '';
-              const dateStr = published ? new Date(published).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : 'Unknown';
+              let caption = row.post_message || row.description || '';
+              let reach = row.lifetime_post_total_reach || row.reach || '0';
+              let shares = row.share_count || '0';
+              let reactions = row.lifetime_post_reactions_by_type_total || row.likes || '0';
+              let comments = row.comment_count || '0';
+              let published = row.post_published || row.published_date || '';
+              let dateStr = published ? new Date(published).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : 'Unknown';
 
               save({
                 type: 'facebook',
@@ -1567,7 +1566,7 @@ function ContentMemory() {
 
             } else {
               // Generic CSV: best-effort mapping
-              const caption = row.description || row.caption || row.message || row.title || row.text || '';
+              let caption = row.description || row.caption || row.message || row.title || row.text || '';
               if (caption) {
                 save({
                   type: 'social',
@@ -3113,7 +3112,7 @@ function ScriptEngine() {
       logToMemory({ type:'script', title:topic, topic, platform, angle:angleLabel, preview:res.slice(0,200) });
     } else {
       if(!stitchContent) { setLoading(false); return; }
-      const angleLabel = ANGLES.find(a=>a.id===angle)?.label;
+      let angleLabel = ANGLES.find(a=>a.id===angle)?.label;
       res = await ai(STITCH_PROMPT(stitchContent, angleLabel));
       logToMemory({ type:'script', title:`Stitch: ${stitchContent.slice(0,60)}`, platform, angle:angleLabel, preview:res.slice(0,200) });
     }
@@ -4538,12 +4537,12 @@ ${summary}
     setLoading(false);
   };
 
-  const angleCount = {};
+  const angleCountDisplay = {};
   log.slice(0, 50).forEach(e => {
-    if (e.angle) angleCount[e.angle] = (angleCount[e.angle] || 0) + 1;
+    if (e.angle) angleCountDisplay[e.angle] = (angleCount[e.angle] || 0) + 1;
   });
   const allAngles = ANGLES.map(a => a.label);
-  const missingAngles = allAngles.filter(a => !angleCount[a]);
+  const missingAngles = allAngles.filter(a => !angleCountDisplay[a]);
 
   return (
     <div>
@@ -10775,7 +10774,7 @@ function ABTestTracker() {
   const types = ['Hook','Caption','Thumbnail','CTA','Format','Length','Posting Time'];
   const metrics = ['Saves','Shares','Comments','Reach','Profile Visits','Link Clicks','Follows'];
   const running = tests.filter(t=>t.status==='running');
-  const complete = tests.filter(t=>t.status==='complete');
+  const completedTests = tests.filter(t=>t.status==='complete');
 
   return (
     <div>
@@ -10788,7 +10787,7 @@ function ABTestTracker() {
           </div>
         </div>
         <div style={{display:'flex',gap:8}}>
-          {complete.length >= 3 && <button onClick={analyzeAll} disabled={loading} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>{loading?'Analyzing...':'🔍 Analyze All Results'}</button>}
+          {completedTests.length >= 3 && <button onClick={analyzeAll} disabled={loading} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>{loading?'Analyzing...':'🔍 Analyze All Results'}</button>}
           <button onClick={()=>setShowForm(p=>!p)} style={{background:B.red,color:'#000D1A',border:'none',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:800}}>+ New Test</button>
         </div>
       </div>
@@ -10863,11 +10862,11 @@ function ABTestTracker() {
         </div>
       )}
 
-      {complete.length > 0 && (
+      {completedTests.length > 0 && (
         <div style={{marginBottom:20}}>
-          <div style={{fontSize:11,color:'#27ae60',fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:10}}>Completed ({complete.length})</div>
+          <div style={{fontSize:11,color:'#27ae60',fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:10}}>Completed ({completedTests.length})</div>
           <div style={{display:'flex',flexDirection:'column',gap:6}}>
-            {complete.map(t=>{
+            {completedTests.map(t=>{
               const r=results[t.id];
               return (
                 <div key={t.id} style={{background:'rgba(39,174,96,0.05)',border:'1px solid rgba(39,174,96,0.15)',borderRadius:10,padding:'12px 14px',display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
