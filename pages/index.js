@@ -2582,7 +2582,7 @@ function ContentCalendar() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+      <DocOutput text={out} title="ContentCalendar — SIGNAL"/>
     </div>
   );
 }
@@ -2671,7 +2671,7 @@ function ProfileAudit() {
         </div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+      <DocOutput text={out} title="ProfileAudit — SIGNAL"/>
     </div>
   );
 }
@@ -2734,7 +2734,7 @@ function LeadMagnet() {
         </div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+      <DocOutput text={out} title="LeadMagnet — SIGNAL"/>
     </div>
   );
 }
@@ -2792,7 +2792,7 @@ function CommunityBuilder() {
         </div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+      <DocOutput text={out} title="CommunityBuilder — SIGNAL"/>
     </div>
   );
 }
@@ -3051,7 +3051,7 @@ function CollabFinder() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+      <DocOutput text={out} title="CollabFinder — SIGNAL"/>
     </div>
   );
 }
@@ -3090,7 +3090,7 @@ function Extract() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+      <DocOutput text={out} title="Extract — SIGNAL"/>
     </div>
   );
 }
@@ -3237,7 +3237,7 @@ function EpisodeClips() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+      <DocOutput text={out} title="EpisodeClips — SIGNAL"/>
     </div>
   );
 }
@@ -3281,7 +3281,7 @@ function RepurposeEngine() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+      <DocOutput text={out} title="RepurposeEngine — SIGNAL"/>
     </div>
   );
 }
@@ -3325,7 +3325,7 @@ function HookLibrary() {
         </RedBtn>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+      <DocOutput text={out} title={`${topic || "Hooks"}: SIGNAL`}/>
     </div>
   );
 }
@@ -3418,7 +3418,7 @@ function WeeklyReview() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+      <DocOutput text={out} title="WeeklyReview — SIGNAL"/>
     </div>
   );
 }
