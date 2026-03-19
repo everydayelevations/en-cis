@@ -9549,7 +9549,7 @@ ${VOICE}
 
 CLIENT: ${client.name} (${client.handle})
 SESSION DATE: ${sessionDate || 'TBD'}
-PRIMARY LOCATION: ${location || 'Client's choice'}
+PRIMARY LOCATION: ${location || "Client's choice"}
 TOPICS TO COVER: ${topics}
 EQUIPMENT AVAILABLE: ${equipment || 'Phone + basic setup'}
 SESSION DURATION: ${duration || '2-3 hours'}
