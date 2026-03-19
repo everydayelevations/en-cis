@@ -7348,7 +7348,16 @@ function DeliverableBuilder() {
         <RedBtn onClick={run} disabled={loading||!selectedClient||!brief}>{loading ? 'Building deliverable...' : '📦 Generate Deliverable'}</RedBtn>
       </Card>
       {loading && <Spin/>}
-      {out && <DocOutput text={out} title={`${selectedClient?.name} - ${delivTypes.find(d=>d.id===delivType)?.label}`}/>}
+      {out && (
+        <div>
+          <DocOutput text={out} title={`${selectedClient?.name} - ${delivTypes.find(d=>d.id===delivType)?.label}`}/>
+          <ApprovalLinkGenerator
+            content={out}
+            title={`${delivTypes.find(d=>d.id===delivType)?.label || delivType} — ${selectedClient?.name}`}
+            clientName={selectedClient?.name}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -11332,7 +11341,38 @@ function OnboardingFlow({ onComplete }) {
   };
 
   const finish = () => {
-    try { localStorage.setItem(ONBOARDING_DONE_KEY, '1'); } catch {}
+    try {
+      localStorage.setItem(ONBOARDING_DONE_KEY, '1');
+      // Save form data into the default client profile
+      if (form.name || form.niche || form.voice || form.goals) {
+        const updatedClient = {
+          id: 'jason',
+          name: form.name || 'Jason Fricka',
+          handle: form.handle || '@everydayelevations',
+          platforms: Array.isArray(form.platforms) ? form.platforms.join(', ') : form.platforms,
+          voice: form.voice || 'Direct, real, no corporate speak. High accountability energy.',
+          niche: form.niche || '',
+          goals: form.goals || '',
+          angles: 'Resilience, Mindset, Everyday Wins, Outdoor/Colorado, Finance/Real Estate, Podcast/Personal Growth, Family/Life Lessons, Health/Physical Wellness',
+          colors: '#0A1628, #00C2FF, #FFFFFF',
+          notes: form.niche ? 'Set up via onboarding. Niche: ' + form.niche : 'HR Manager at Highland Cabinetry. Podcast host. Real estate agent. Colorado father.',
+          isDefault: true,
+          onboardedAt: new Date().toISOString(),
+        };
+        localStorage.setItem(ACTIVE_CLIENT_KEY, JSON.stringify(updatedClient));
+        // Also save voice fingerprint seed if voice was entered
+        if (form.voice) {
+          const fps = JSON.parse(localStorage.getItem(VOICE_KEY) || '{}');
+          fps['jason'] = {
+            tone: form.voice,
+            clientName: form.name || 'Jason Fricka',
+            seedOnly: true,
+            createdAt: new Date().toISOString(),
+          };
+          try { localStorage.setItem(VOICE_KEY, JSON.stringify(fps)); } catch {}
+        }
+      }
+    } catch(e) { console.error('Onboarding save error:', e); }
     onComplete();
   };
 
@@ -11609,10 +11649,10 @@ function IntelligenceDashboard({ setNav, setSub }) {
               {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
             </div>
             <h1 style={{ color: B.white, fontSize: 26, fontWeight: 900, letterSpacing: '-0.04em', margin: 0 }}>
-              {activeClient?.isDefault ? `Good ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, Jason.` : `${activeClient?.name}`}
+              {activeClient?.isDefault ? `Good ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, ${activeClient?.name?.split(' ')[0] || 'Jason'}.` : `${activeClient?.name}`}
             </h1>
             <p style={{ color: B.gray, fontSize: 13, margin: '4px 0 0' }}>
-              {!metrics ? "No metrics logged yet. Add data in ROI Dashboard." : `Last logged: ${metrics.week || 'this week'}`}
+              {!metrics ? "No metrics logged yet — add your first week below." : `Last logged: ${metrics.week || 'this week'}`}
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -11631,30 +11671,63 @@ function IntelligenceDashboard({ setNav, setSub }) {
       {/* METRIC CARDS */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8, marginBottom: 20 }}>
         {[
-          { label: 'Followers', val: metrics?.followers ? Number(metrics.followers).toLocaleString() : '--', growth: weeklyGrowth, icon: '👥' },
-          { label: 'Weekly Reach', val: metrics?.reach ? Number(metrics.reach).toLocaleString() : '--', icon: '📡' },
-          { label: 'Saves', val: metrics?.saves || '--', icon: '🔖' },
-          { label: 'Shares', val: metrics?.shares || '--', icon: '↗️' },
-          { label: 'Leads/DMs', val: metrics?.leads || '--', icon: '💬' },
-          { label: 'Trend Alerts', val: trendCount, icon: '🔥', action: () => {} },
-          { label: 'Pending Work', val: pendingDeliverables, icon: '📦', action: () => { setNav('agency'); setSub('portal'); } },
-          { label: 'Content Logged', val: recentContent.length, icon: '📝' },
-        ].map(m => (
-          <div key={m.label} onClick={m.action}
-            style={{ background: 'rgba(12,20,32,0.8)', border: '1px solid rgba(0,194,255,0.08)', borderRadius: 10, padding: '14px 12px', cursor: m.action ? 'pointer' : 'default', transition: 'all 0.15s' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-              <div style={{ fontSize: 10, color: B.gray, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, lineHeight: 1.3 }}>{m.label}</div>
-              <span style={{ fontSize: 14 }}>{m.icon}</span>
-            </div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: B.white, letterSpacing: '-0.04em', lineHeight: 1 }}>{m.val}</div>
-            {m.growth !== undefined && m.growth !== null && (
-              <div style={{ fontSize: 10, color: m.growth >= 0 ? '#27ae60' : B.red, marginTop: 4, fontWeight: 700 }}>
-                {m.growth >= 0 ? '+' : ''}{m.growth}% this week
+          { label: 'Followers', val: metrics?.followers ? Number(metrics.followers).toLocaleString() : null, growth: weeklyGrowth, icon: '👥', nav:'optimize', sub:'roi', tip:'Log in ROI Dashboard' },
+          { label: 'Weekly Reach', val: metrics?.reach ? Number(metrics.reach).toLocaleString() : null, icon: '📡', nav:'optimize', sub:'roi', tip:'Log in ROI Dashboard' },
+          { label: 'Saves', val: metrics?.saves || null, icon: '🔖', nav:'optimize', sub:'roi', tip:'Log weekly saves' },
+          { label: 'Shares', val: metrics?.shares || null, icon: '↗️', nav:'optimize', sub:'roi', tip:'Log weekly shares' },
+          { label: 'Leads/DMs', val: metrics?.leads || null, icon: '💬', nav:'optimize', sub:'roi', tip:'Track lead volume' },
+          { label: 'Trend Alerts', val: trendCount || null, icon: '🔥', nav:'research', sub:'pipeline', tip:'Run trend research' },
+          { label: 'Pending Work', val: pendingDeliverables || null, icon: '📦', nav:'agency', sub:'portal', tip:'View client portal' },
+          { label: 'Content Logged', val: recentContent.length || null, icon: '📝', nav:'optimize', sub:'memory', tip:'Log your content' },
+        ].map(m => {
+          const isEmpty = m.val === null || m.val === undefined;
+          return (
+            <div key={m.label}
+              onClick={() => { if (m.nav) { setNav(m.nav); setSub(m.sub); } }}
+              style={{ background: isEmpty ? 'rgba(12,20,32,0.4)' : 'rgba(12,20,32,0.8)', border: isEmpty ? '1px dashed rgba(0,194,255,0.08)' : '1px solid rgba(0,194,255,0.08)', borderRadius: 10, padding: '14px 12px', cursor: 'pointer', transition: 'all 0.15s', position: 'relative' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                <div style={{ fontSize: 10, color: isEmpty ? B.gray : B.gray, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, lineHeight: 1.3 }}>{m.label}</div>
+                <span style={{ fontSize: 14, opacity: isEmpty ? 0.4 : 1 }}>{m.icon}</span>
               </div>
-            )}
-          </div>
-        ))}
+              {isEmpty ? (
+                <div>
+                  <div style={{ fontSize: 11, color: 'rgba(0,194,255,0.4)', fontWeight: 700, marginBottom: 2 }}>+ Add data</div>
+                  <div style={{ fontSize: 10, color: B.gray, lineHeight: 1.4 }}>{m.tip}</div>
+                </div>
+              ) : (
+                <div style={{ fontSize: 22, fontWeight: 900, color: B.white, letterSpacing: '-0.04em', lineHeight: 1 }}>{m.val}</div>
+              )}
+              {!isEmpty && m.growth !== undefined && m.growth !== null && (
+                <div style={{ fontSize: 10, color: m.growth >= 0 ? '#27ae60' : B.red, marginTop: 4, fontWeight: 700 }}>
+                  {m.growth >= 0 ? '+' : ''}{m.growth}% this week
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      {/* FIRST STEPS — shown when user has no content or metrics yet */}
+      {!metrics && recentContent.length === 0 && (
+        <div style={{ background: 'rgba(0,194,255,0.04)', border: '1px solid rgba(0,194,255,0.1)', borderRadius: 12, padding: '20px 24px', marginBottom: 20 }}>
+          <div style={{ fontSize: 11, color: '#00C2FF', fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Get Started — Your First 3 Moves</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
+            {[
+              { num: '1', title: 'Build your strategy', desc: '90-Day Strategy Builder generates your complete content foundation.', nav: 'strategy', sub: 'onboard', cta: 'Build Strategy →' },
+              { num: '2', title: 'Log your first metric', desc: 'Add your current follower count so SIGNAL can track your growth.', nav: 'optimize', sub: 'roi', cta: 'Log Metrics →' },
+              { num: '3', title: 'Write your first script', desc: 'Script Engine generates a camera-ready script in under 60 seconds.', nav: 'create', sub: 'script', cta: 'Write Script →' },
+            ].map(step => (
+              <div key={step.num} onClick={() => { setNav(step.nav); setSub(step.sub); }}
+                style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: '14px 16px', cursor: 'pointer', border: '1px solid rgba(0,194,255,0.06)' }}>
+                <div style={{ width: 22, height: 22, borderRadius: 4, background: 'rgba(0,194,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#00C2FF', marginBottom: 8 }}>{step.num}</div>
+                <div style={{ color: B.white, fontWeight: 700, fontSize: 12, marginBottom: 4 }}>{step.title}</div>
+                <div style={{ color: B.gray, fontSize: 11, lineHeight: 1.5, marginBottom: 8 }}>{step.desc}</div>
+                <div style={{ color: '#00C2FF', fontSize: 11, fontWeight: 700 }}>{step.cta}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* MAIN GRID */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
@@ -11947,6 +12020,218 @@ function ReportEmailButton({ reportText, clientName, clientEmail }) {
 
 
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE: CLIENT APPROVAL LINKS
+// Generates shareable URLs for client content review — no server required.
+// Content is base64-encoded in the URL hash. Client opens link, approves/rejects.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function ApprovalLinkGenerator({ content: delivContent, title, clientName }) {
+  const [copied, setCopied] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [status, setStatus] = useState(null);
+
+  if (!delivContent) return null;
+
+  const generateLink = () => {
+    try {
+      const payload = JSON.stringify({
+        title: title || "Content for Review",
+        client: clientName || "Client",
+        content: delivContent,
+        created: new Date().toISOString(),
+        agency: (() => { try { const wl = JSON.parse(localStorage.getItem("encis_whitelabel")||"null"); return (wl && wl.agencyName) ? wl.agencyName : "SIGNAL"; } catch { return "SIGNAL"; } })(),
+      });
+      const encoded = btoa(unescape(encodeURIComponent(payload)));
+      return window.location.origin + window.location.pathname + "#approval=" + encoded;
+    } catch(e) { return null; }
+  };
+
+  const link = generateLink();
+
+  const copyLink = () => {
+    if (!link) return;
+    navigator.clipboard.writeText(link).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+      // Save to localStorage so we can track it
+      try {
+        const approvals = JSON.parse(localStorage.getItem("encis_approval_links") || "[]");
+        approvals.unshift({ title, client: clientName, link, created: new Date().toISOString(), status: "pending" });
+        localStorage.setItem("encis_approval_links", JSON.stringify(approvals.slice(0, 50)));
+      } catch {}
+    }).catch(() => {
+      // Fallback for non-HTTPS
+      const ta = document.createElement("textarea");
+      ta.value = link;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
+  };
+
+  return (
+    <div style={{ marginTop: 14, background: "rgba(0,194,255,0.04)", border: "1px solid rgba(0,194,255,0.12)", borderRadius: 10, padding: "14px 16px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+        <div style={{ color: "#00C2FF", fontWeight: 700, fontSize: 13 }}>Client Approval Link</div>
+        <button onClick={() => setShowPreview(s => !s)}
+          style={{ background: "none", border: "none", color: B.gray, cursor: "pointer", fontSize: 11 }}>
+          {showPreview ? "Hide preview" : "Preview page"}
+        </button>
+      </div>
+      <div style={{ color: B.gray, fontSize: 11, marginBottom: 12, lineHeight: 1.6 }}>
+        Send this link to {clientName || "your client"}. They can review the content and approve or request changes — no login needed.
+      </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <button onClick={copyLink}
+          style={{ background: copied ? "rgba(39,174,96,0.15)" : "rgba(0,194,255,0.1)", color: copied ? "#27ae60" : "#00C2FF", border: "1px solid " + (copied ? "rgba(39,174,96,0.3)" : "rgba(0,194,255,0.2)"), borderRadius: 7, padding: "7px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer", transition: "all 0.2s" }}>
+          {copied ? "✓ Copied!" : "📋 Copy Link"}
+        </button>
+        <button onClick={() => link && window.open(link, "_blank")}
+          style={{ background: "rgba(255,255,255,0.06)", color: B.light, border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, padding: "7px 14px", fontSize: 12, cursor: "pointer" }}>
+          Preview →
+        </button>
+      </div>
+      {showPreview && (
+        <div style={{ marginTop: 14, background: "rgba(0,0,0,0.3)", borderRadius: 8, padding: 16, fontSize: 11, color: B.gray, lineHeight: 1.8 }}>
+          <div style={{ color: B.white, fontWeight: 700, marginBottom: 6 }}>What the client sees:</div>
+          <div>— Your agency name and the document title at the top</div>
+          <div>— The full content formatted cleanly</div>
+          <div>— Two buttons: <strong style={{ color: "#27ae60" }}>Approve</strong> and <strong style={{ color: B.red }}>Request Changes</strong></div>
+          <div>— A comments box for feedback</div>
+          <div>— No login required, works on any device</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Standalone approval page — renders when URL contains #approval= ───────────
+function ApprovalPage({ encodedPayload, onBack }) {
+  const [status, setStatus] = useState(null);
+  const [comment, setComment] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const payload = (() => {
+    try { return JSON.parse(decodeURIComponent(escape(atob(encodedPayload)))); }
+    catch { return null; }
+  })();
+
+  if (!payload) return (
+    <div style={{ minHeight: "100vh", background: "#080D14", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <div style={{ color: B.white, textAlign: "center" }}>
+        <div style={{ fontSize: 32, marginBottom: 12 }}>⚠️</div>
+        <div style={{ fontSize: 16, fontWeight: 700 }}>Invalid approval link</div>
+        <div style={{ color: B.gray, fontSize: 13, marginTop: 8 }}>This link may have expired or been corrupted.</div>
+      </div>
+    </div>
+  );
+
+  if (submitted) return (
+    <div style={{ minHeight: "100vh", background: "#080D14", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <div style={{ background: "#0C1420", border: "1px solid rgba(0,194,255,0.15)", borderRadius: 16, padding: 40, maxWidth: 480, textAlign: "center" }}>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>{status === "approved" ? "✅" : "✏️"}</div>
+        <h2 style={{ color: B.white, fontWeight: 900, fontSize: 22, letterSpacing: "-0.03em", marginBottom: 8 }}>
+          {status === "approved" ? "Content Approved!" : "Changes Requested"}
+        </h2>
+        <p style={{ color: B.gray, fontSize: 14, lineHeight: 1.6 }}>
+          {status === "approved"
+            ? `${payload.agency} has been notified. Your content is cleared for publishing.`
+            : `Your feedback has been sent to ${payload.agency}. They will revise and resend.`}
+        </p>
+        {comment && (
+          <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 8, padding: "10px 14px", marginTop: 16, fontSize: 12, color: B.light, textAlign: "left", lineHeight: 1.6 }}>
+            <div style={{ color: B.gray, fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>Your note</div>
+            {comment}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const handleSubmit = (s) => {
+    setStatus(s);
+    setSubmitted(true);
+    // Save response to localStorage so agency can see it
+    try {
+      const approvals = JSON.parse(localStorage.getItem("encis_approval_links") || "[]");
+      const updated = approvals.map(a => a.title === payload.title
+        ? { ...a, status: s, comment, respondedAt: new Date().toISOString() }
+        : a
+      );
+      localStorage.setItem("encis_approval_links", JSON.stringify(updated));
+    } catch {}
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#080D14", fontFamily: "DM Sans, system-ui, sans-serif" }}>
+      {/* Header */}
+      <div style={{ background: "#0C1420", borderBottom: "1px solid rgba(0,194,255,0.1)", padding: "14px 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <svg width="28" height="28" viewBox="0 0 52 52" fill="none">
+            <rect width="52" height="52" rx="10" fill="#0C1420"/>
+            <path d="M14 26C14 19.373 19.373 14 26 14" stroke="#00C2FF" strokeWidth="2.5" strokeLinecap="round" opacity="0.55"/>
+            <path d="M38 26C38 32.627 32.627 38 26 38" stroke="#00C2FF" strokeWidth="2.5" strokeLinecap="round" opacity="0.55"/>
+            <path d="M18 26C18 21.582 21.582 18 26 18" stroke="#00C2FF" strokeWidth="2.5" strokeLinecap="round" opacity="0.8"/>
+            <path d="M34 26C34 30.418 30.418 34 26 34" stroke="#00C2FF" strokeWidth="2.5" strokeLinecap="round" opacity="0.8"/>
+            <circle cx="26" cy="26" r="3.5" fill="#00C2FF"/>
+            <path d="M28.5 14L22 26H27L24.5 38L31 26H26L28.5 14Z" fill="#00C2FF"/>
+          </svg>
+          <div>
+            <div style={{ color: B.white, fontWeight: 700, fontSize: 14 }}>{payload.agency}</div>
+            <div style={{ color: B.gray, fontSize: 11 }}>Content Review Portal</div>
+          </div>
+        </div>
+        <div style={{ fontSize: 11, color: B.gray }}>
+          Prepared for {payload.client} · {new Date(payload.created).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 760, margin: "0 auto", padding: "32px 24px" }}>
+        {/* Document title */}
+        <h1 style={{ color: B.white, fontSize: 24, fontWeight: 900, letterSpacing: "-0.03em", marginBottom: 4 }}>{payload.title}</h1>
+        <div style={{ color: B.gray, fontSize: 13, marginBottom: 32 }}>Please review the content below and approve or request changes.</div>
+
+        {/* Content */}
+        <div style={{ background: "#0C1420", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "24px 28px", marginBottom: 28, lineHeight: 1.8, color: B.light, fontSize: 14, whiteSpace: "pre-wrap", fontFamily: "inherit" }}>
+          {payload.content}
+        </div>
+
+        {/* Comments */}
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ display: "block", color: B.gray, fontSize: 12, fontWeight: 600, marginBottom: 8, letterSpacing: 1, textTransform: "uppercase" }}>
+            Comments or notes (optional)
+          </label>
+          <textarea value={comment} onChange={e => setComment(e.target.value)} rows={4}
+            placeholder="Any feedback, changes needed, or questions..."
+            style={{ width: "100%", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "12px 14px", color: B.white, fontSize: 14, resize: "vertical", boxSizing: "border-box", fontFamily: "inherit", lineHeight: 1.6 }} />
+        </div>
+
+        {/* Action buttons */}
+        <div style={{ display: "flex", gap: 12 }}>
+          <button onClick={() => handleSubmit("approved")}
+            style={{ flex: 1, background: "linear-gradient(135deg, #27ae60, #1e8449)", color: "#fff", border: "none", borderRadius: 10, padding: "14px 24px", fontWeight: 800, cursor: "pointer", fontSize: 15, boxShadow: "0 4px 20px rgba(39,174,96,0.2)" }}>
+            ✓ Approve Content
+          </button>
+          <button onClick={() => handleSubmit("changes_requested")}
+            style={{ flex: 1, background: "rgba(255,255,255,0.06)", color: B.white, border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "14px 24px", fontWeight: 700, cursor: "pointer", fontSize: 15 }}>
+            ✏️ Request Changes
+          </button>
+        </div>
+
+        <div style={{ marginTop: 24, textAlign: "center", fontSize: 11, color: B.gray }}>
+          Powered by {payload.agency} · This link is for review purposes only
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 const COMPONENT_MAP = {
   home: Home,
   onboard: Onboarding,
@@ -12056,6 +12341,20 @@ export default function App() {
   const [onboardingDone, setOnboardingDone] = useState(() => {
     try { return !!localStorage.getItem(ONBOARDING_DONE_KEY); } catch { return true; }
   });
+
+  // Check if this is a client approval link
+  const approvalPayload = (() => {
+    try {
+      const hash = typeof window !== 'undefined' ? window.location.hash : '';
+      if (hash.startsWith('#approval=')) return hash.slice(10);
+    } catch {}
+    return null;
+  })();
+
+  // If approval link, render standalone approval page
+  if (approvalPayload) {
+    return <ApprovalPage encodedPayload={approvalPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
+  }
 
   // Register memory save function globally so all tools can log to it
   useEffect(() => { registerMemorySave(memorySave); }, [memorySave]);
