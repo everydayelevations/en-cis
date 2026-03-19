@@ -131,7 +131,7 @@ async function ai(message, system='You are a helpful content strategist.') {
     body: JSON.stringify({ system, message })
   });
   const d = await res.json();
-  return d.text || d.result || d.error || 'No response’;
+  return d.text || d.result || d.error || 'No response';
 }
 
 async function perp(query) {
@@ -143,7 +143,7 @@ async function perp(query) {
     });
     if (!res.ok) return `API error: ${res.status}`;
     const d = await res.json();
-    return d.text || d.result || d.content || d.answer || d.output || d.error || 'No response’;
+    return d.text || d.result || d.content || d.answer || d.output || d.error || 'No response';
   } catch(e) {
     return `Network error: ${e.message}`;
   }
@@ -584,7 +584,7 @@ ${SWARBRICK}
 ${strategyDoc ? `\n=== 90-DAY STRATEGY (source of truth) ===\n${strategyDoc}\n===END===\n` : ''}
 
 Build a ${duration}-day ${platform} content calendar.
-Content pillars: ${pillars || 'Use pillars from strategy document above’}
+Content pillars: ${pillars || 'Use pillars from strategy document above'}
 
 4-Week Content Framework:
 - Week 1: Pain Awareness (identify the problem)
@@ -674,7 +674,7 @@ ${SWARBRICK}
 Who Jason is trying to reach: ${audience}
 The core problem he solves: ${problem}
 Existing offer or service: ${offer}
-What Jason currently posts / his content style: ${currentContent || 'Not provided’}
+What Jason currently posts / his content style: ${currentContent || 'Not provided'}
 What has resonated most with his audience so far: ${whatWorks || 'Not provided'}
 
 Build a complete, finished lead magnet : not a plan for one, an actual deliverable. Every section below must be fully written out, ready to use.
@@ -739,9 +739,9 @@ ${VOICE}
 ${SWARBRICK}
 
 Community focus / theme: ${focus}
-What Jason’s current engagement looks like: ${currentEngagement || 'Not provided’}
+What Jason's current engagement looks like: ${currentEngagement || 'Not provided'}
 Where his audience currently lives (comments, DMs, Facebook, etc.): ${whereTheyAre || 'Not provided'}
-What people ask Jason most or respond to most: ${whatTheyAsk || 'Not provided’}
+What people ask Jason most or respond to most: ${whatTheyAsk || 'Not provided'}
 
 Build an the community community system built around what is actually happening in Jason's audience right now. Not a theoretical framework. One that works with the people already showing up.
 
@@ -796,7 +796,7 @@ ${CONTENT_SOP}
 
 Platform: ${platform}
 Live profile data pulled from the web: ${liveData}
-Extra context from Jason: ${extraContext || 'None’}
+Extra context from Jason: ${extraContext || 'None'}
 
 You are auditing Jason Fricka's actual live ${platform} profile based on real data above. Not assumptions. Be specific. Call out exactly what is working, what is dead weight, and what is missing. Then rewrite it.
 
@@ -839,7 +839,7 @@ const ONBOARD_PROMPT = (fields, uploadedDoc='') => {
     ? `=== UPLOADED STRATEGY DOCUMENT (treat as authoritative source) ===
 ${uploadedDoc}
 === END UPLOADED DOCUMENT ===
-Mirror this document’s voice, frameworks, and structure exactly. Use it as the foundation and expand every section with full depth below.`
+Mirror this document's voice, frameworks, and structure exactly. Use it as the foundation and expand every section with full depth below.`
     : `${VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}`;
@@ -1108,7 +1108,7 @@ ${SWARBRICK}
 Content to analyze:
 ${content}
 
-Question/Focus: ${question || 'Extract the most valuable insights’}
+Question/Focus: ${question || 'Extract the most valuable insights'}
 
 Extract:
 1. **Core Insight** (the single most powerful idea)
@@ -1214,7 +1214,7 @@ function ContentMemory() {
     const headers = parseRow(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9]/g,'_'));
     return lines.slice(1).filter(l => l.trim()).map(line => {
       const vals = parseRow(line);
-      return Object.fromEntries(headers.map((h,i) => [h, vals[i] || '’]));
+      return Object.fromEntries(headers.map((h,i) => [h, vals[i] || '']));
     });
   };
 
@@ -1252,7 +1252,7 @@ function ContentMemory() {
           const posts = Array.isArray(data) ? data : (data.media || data.posts || []);
           posts.forEach(post => {
             if (!post) return;
-            const caption = post.title || post.media_metadata?.photo_metadata?.exif_data?.[0]?.source || '’;
+            const caption = post.title || post.media_metadata?.photo_metadata?.exif_data?.[0]?.source || '';
             const ts = post.creation_timestamp || post.timestamp;
             const dateStr = ts ? new Date(ts * 1000).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : 'Unknown';
             save({
@@ -1283,13 +1283,13 @@ function ContentMemory() {
           rows.forEach(row => {
             // ── Instagram CSV mapping ──────────────────────────────────────
             if (isIG) {
-              const caption = row.description || row.post_caption || '’;
+              const caption = row.description || row.post_caption || '';
               const postType = row.post_type || row.type || 'Post';
-              const reach = row.reach || row.impressions || '0’;
+              const reach = row.reach || row.impressions || '0';
               const saves = row.saves || '0';
-              const shares = row.shares || '0’;
+              const shares = row.shares || '0';
               const likes = row.likes || '0';
-              const comments = row.comments || '0’;
+              const comments = row.comments || '0';
               const published = row.published || row.date_published || '';
               const dateStr = published ? new Date(published).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : 'Unknown';
 
@@ -1304,18 +1304,18 @@ function ContentMemory() {
                 perf: autoRate(saves, shares, reach),
                 notes: `Reach: ${reach} · Likes: ${likes} · Comments: ${comments} · Saves: ${saves} · Shares: ${shares}`,
                 stats: { reach, saves, shares, likes, comments },
-                permalink: row.permalink || '’,
+                permalink: row.permalink || '',
                 source: 'instagram-csv',
               });
               imported++;
 
             // ── Facebook CSV mapping ───────────────────────────────────────
             } else if (isFB) {
-              const caption = row.post_message || row.description || '’;
+              const caption = row.post_message || row.description || '';
               const reach = row.lifetime_post_total_reach || row.reach || '0';
-              const shares = row.share_count || '0’;
+              const shares = row.share_count || '0';
               const reactions = row.lifetime_post_reactions_by_type_total || row.likes || '0';
-              const comments = row.comment_count || '0’;
+              const comments = row.comment_count || '0';
               const published = row.post_published || row.published_date || '';
               const dateStr = published ? new Date(published).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : 'Unknown';
 
@@ -1335,7 +1335,7 @@ function ContentMemory() {
 
             } else {
               // Generic CSV: best-effort mapping
-              const caption = row.description || row.caption || row.message || row.title || row.text || '’;
+              const caption = row.description || row.caption || row.message || row.title || row.text || '';
               if (caption) {
                 save({
                   type: 'social',
@@ -1512,7 +1512,7 @@ function ContentMemory() {
               ['Good ⭐','⭐',log.filter(e=>e.perf==='⭐').length,'rgba(245,166,35,0.1)'],
               ['Flopped 💀','💀',log.filter(e=>e.perf==='💀').length,'rgba(100,100,100,0.1)'],
             ].map(([label,icon,count,bg]) => (
-              <div key={label} style={{background:bg|| 'rgba(255,255,255,0.04)’,border:'1px solid rgba(255,255,255,0.06)',borderRadius:10,padding:'12px',textAlign:'center'}}>
+              <div key={label} style={{background:bg|| 'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:10,padding:'12px',textAlign:'center'}}>
                 <div style={{fontSize:22,fontWeight:800,color:B.white}}>{count}</div>
                 <div style={{fontSize:11,color:B.gray,marginTop:2}}>{label}</div>
               </div>
@@ -1532,7 +1532,7 @@ function ContentMemory() {
                       {entry.platform && <span style={{background:'rgba(255,255,255,0.05)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>{entry.platform}</span>}
                       {entry.permalink && <a href={entry.permalink} target="_blank" rel="noopener noreferrer" style={{color:B.red,fontSize:10,textDecoration:'none'}}>↗ View</a>}
                     </div>
-                    <div style={{color:B.white,fontWeight:600,fontSize:13,marginBottom:4,wordBreak:'break-word'}}>{entry.title || entry.topic || 'Untitled’}</div>
+                    <div style={{color:B.white,fontWeight:600,fontSize:13,marginBottom:4,wordBreak:'break-word'}}>{entry.title || entry.topic || 'Untitled'}</div>
                     {entry.notes && editingId !== entry.id && <div style={{color:B.gray,fontSize:12,lineHeight:1.6,marginTop:4}}>{entry.notes}</div>}
                     {editingId === entry.id && (
                       <div style={{marginTop:8}}>
@@ -1556,7 +1556,7 @@ function ContentMemory() {
                         {p}
                       </button>
                     ))}
-                    <button onClick={() => { setEditingId(entry.id); setEditNotes(entry.notes|| '’); }}
+                    <button onClick={() => { setEditingId(entry.id); setEditNotes(entry.notes|| ''); }}
                       style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'4px 9px',fontSize:11,fontWeight:700,cursor:'pointer'}}>
                       {entry.notes ? 'Edit' : '+ Note'}
                     </button>
@@ -1720,7 +1720,7 @@ const DEFAULT_CLIENT = {
 function useClientAngles(activeClient) {
   const getAngles = () => {
     try {
-      const stored = JSON.parse(localStorage.getItem(CUSTOM_ANGLES_KEY) || '{}’);
+      const stored = JSON.parse(localStorage.getItem(CUSTOM_ANGLES_KEY) || '{}');
       const clientData = activeClient ? stored[activeClient.id] : null;
       if (clientData && clientData.mode === 'custom' && clientData.angles?.length > 0) {
         return clientData.angles;
@@ -1838,7 +1838,7 @@ function ClientMode({ setActiveClientExternal }) {
       {/* Active client indicator */}
       <div style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:12,padding:'16px',marginBottom:20}}>
         <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,textTransform:'uppercase',marginBottom:8}}>Currently Active</div>
-        <div style={{color:B.white,fontWeight:700,fontSize:16}}>{activeClient?.name || 'Jason Fricka’}</div>
+        <div style={{color:B.white,fontWeight:700,fontSize:16}}>{activeClient?.name || 'Jason Fricka'}</div>
         <div style={{color:B.gray,fontSize:13,marginTop:2}}>{activeClient?.handle} · {activeClient?.platforms}</div>
       </div>
 
@@ -1857,7 +1857,7 @@ function ClientMode({ setActiveClientExternal }) {
               {client.isDefault && <span style={{background:'rgba(233,69,96,0.15)',color:B.red,borderRadius:4,padding:'2px 7px',fontSize:10,fontWeight:700}}>YOU</span>}
             </div>
             <div style={{color:B.gray,fontSize:11,lineHeight:1.6,marginBottom:12,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>
-              {client.voice || client.notes || 'No description’}
+              {client.voice || client.notes || 'No description'}
             </div>
             <div style={{display:'flex',gap:8}}>
               <button onClick={() => activate(client)}
@@ -1867,7 +1867,7 @@ function ClientMode({ setActiveClientExternal }) {
               </button>
               <button onClick={() => setManagingAngles(client)}
                 style={{background:'rgba(0,212,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,212,255,0.2)',borderRadius:7,padding:'7px 10px',fontSize:11,cursor:'pointer',fontWeight:700}}>
-                {(() => { try { const s = JSON.parse(localStorage.getItem(CUSTOM_ANGLES_KEY)|| '{}’); return s[client.id]?.mode && s[client.id].mode !== 'swarbrick' ? '🎯 Angles*' : '🎯 Angles'; } catch { return '🎯 Angles'; } })()}
+                {(() => { try { const s = JSON.parse(localStorage.getItem(CUSTOM_ANGLES_KEY)|| '{}'); return s[client.id]?.mode && s[client.id].mode !== 'swarbrick' ? '🎯 Angles*' : '🎯 Angles'; } catch { return '🎯 Angles'; } })()}
               </button>
               {!client.isDefault && (
                 <>
@@ -2005,7 +2005,7 @@ function _OldHome({setNav,setSub}) {
           <img src="/E-E-Logo.jpg" alt="SIGNAL" style={{width:72,height:72,borderRadius:'50%',position:'relative',filter:'brightness(0) invert(1)',objectFit:'cover'}}/>
         </div>
         <h1 style={{color:B.white,fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:900,margin:'0 0 6px',letterSpacing:'-0.03em'}}>
-          {(() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null’); return wl?.agencyName ? <span style={{color:wl.primaryColor||B.red}}>{wl.agencyName}</span> : <><span>SIGNAL</span> <span style={{color:B.red}}>by Everyday Elevations</span></>; } catch { return <><span>EN-CIS</span> <span style={{color:B.red}}>Command Center</span></>; } })()}
+          {(() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null'); return wl?.agencyName ? <span style={{color:wl.primaryColor||B.red}}>{wl.agencyName}</span> : <><span>SIGNAL</span> <span style={{color:B.red}}>by Everyday Elevations</span></>; } catch { return <><span>EN-CIS</span> <span style={{color:B.red}}>Command Center</span></>; } })()}
         </h1>
         <p style={{color:B.gray,fontSize:14,margin:0}}>Social Media OS</p>
       </div>
@@ -2122,7 +2122,7 @@ function Onboarding() {
         })
       });
       const d = await res.json();
-      const html = d.text || d.result || '’;
+      const html = d.text || d.result || '';
       const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Everyday Elevations — 90-Day Strategy</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#111;line-height:1.7}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#0A1628;margin-top:32px}h3{color:#E94560}strong{color:#0A1628}li{margin-bottom:6px}@media print{body{margin:24px}}</style></head><body><h1>Everyday Elevations — 90-Day Content Strategy</h1>${html}</body></html>`;
       const blob = new Blob([fullHtml], {type:'text/html'});
       const url = URL.createObjectURL(blob);
@@ -2593,7 +2593,7 @@ function Pipeline() {
 
   // Map angle label back to angle id for auto-selecting the grid
   const angleIdFromLabel = (label) => {
-    return ANGLES.find(a => a.label === label)?.id || 'emotional’;
+    return ANGLES.find(a => a.label === label)?.id || 'emotional';
   };
 
   const runResearch = async () => {
@@ -3379,7 +3379,7 @@ function useTrendAlerts() {
               body: JSON.stringify({ query: q })
             });
             const d = await res.json();
-            const raw = (d.result || d.text || '’).trim();
+            const raw = (d.result || d.text || '').trim();
 
             // Skip if Perplexity couldn't find a verified 1M+ video
             if (!raw || raw.includes('NO_RESULT') || raw.toLowerCase().includes('cannot find') ||
@@ -3396,7 +3396,7 @@ function useTrendAlerts() {
             };
 
             const account  = getField('ACCOUNT');
-            const platform = getField('PLATFORM') || 'Instagram’;
+            const platform = getField('PLATFORM') || 'Instagram';
             const title    = getField('VIDEO TITLE');
             const views    = getField('VIEWS');
             const posted   = getField('POSTED');
@@ -3415,7 +3415,7 @@ function useTrendAlerts() {
 
 
             // Clean handle: strip @ for URL construction
-            const handleRaw = account || '’;
+            const handleRaw = account || '';
             const handle    = handleRaw.replace(/^@/, '');
 
             // Build direct profile + search links
@@ -3435,7 +3435,7 @@ function useTrendAlerts() {
 
             // Perplexity deep-dive link
             const perpLink = 'https://www.perplexity.ai/search?q=' + encodeURIComponent(
-              (handleRaw || angle) + ' ' + (title || '’) + ' viral video 2026'
+              (handleRaw || angle) + ' ' + (title || '') + ' viral video 2026'
             );
 
             // Main display text
@@ -3472,7 +3472,7 @@ function useTrendAlerts() {
       // Fire web push notification if permission granted
       try {
         if ('Notification' in window && Notification.permission === 'granted' && parsed.length > 0) {
-          const topAngle = parsed[0]?.angle || 'Multiple angles’;
+          const topAngle = parsed[0]?.angle || 'Multiple angles';
           new Notification(`🔥 ${parsed.length} trend alert${parsed.length !== 1 ? 's' : ''} — SIGNAL`, {
             body: `${topAngle} trending right now. Check before it peaks.`,
             icon: '/E-E-Logo.jpg',
@@ -3488,7 +3488,7 @@ function useTrendAlerts() {
   // Auto-check twice per day: trends move fast, 12-hour refresh window
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(TREND_ALERTS_DATE) || '0’;
+      const stored = localStorage.getItem(TREND_ALERTS_DATE) || '0';
       const lastTs = /^\d+$/.test(stored) ? parseInt(stored) : 0; // guard against old date-string format
       const hoursSinceLast = (Date.now() - lastTs) / (1000 * 60 * 60);
       if (hoursSinceLast > 12 && !loading) checkTrends();
@@ -3524,7 +3524,7 @@ function TrendAlertBanner() {
   };
 
   // Truncate alert text cleanly
-  const preview = alerts.find(a => a.text?.length > 10)?.text?.slice(0, 90) || 'Checking your 8 content angles...’;
+  const preview = alerts.find(a => a.text?.length > 10)?.text?.slice(0, 90) || 'Checking your 8 content angles...';
 
   return (
     <div style={{background:'rgba(0,194,255,0.04)',borderBottom:'1px solid rgba(0,194,255,0.1)',
@@ -3581,7 +3581,7 @@ function TrendAlertBanner() {
                 }}>
                   {/* Angle label + badge */}
                   <div style={{display:'flex',alignItems:'center',gap:6}}>
-                    <span style={{fontSize:15}}>{angleEmoji[alert.angle] || '📌’}</span>
+                    <span style={{fontSize:15}}>{angleEmoji[alert.angle] || '📌'}</span>
                     <span style={{color:B.red,fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:1,flex:1}}>
                       {alert.angle}
                     </span>
@@ -3794,7 +3794,7 @@ function ROIDashboard() {
               return (
                 <div key={f.k} style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:12,padding:'14px 16px'}}>
                   <div style={{fontSize:11,color:B.gray,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:6}}>{f.label}</div>
-                  <div style={{fontSize:26,fontWeight:800,color:B.white,marginBottom:4}}>{latest?.[f.k] || '—’}</div>
+                  <div style={{fontSize:26,fontWeight:800,color:B.white,marginBottom:4}}>{latest?.[f.k] || '—'}</div>
                   {g !== null && (
                     <div style={{fontSize:12,fontWeight:700,color:Number(g)>=0?'#27ae60':'#e74c3c',marginBottom:8}}>
                       {Number(g)>=0?'▲':'▼'} {Math.abs(Number(g))}% vs last week
@@ -3837,9 +3837,9 @@ function ROIDashboard() {
                     <tr key={w.id} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
                       <td style={{padding:'10px 12px',color:B.white,fontWeight:600,whiteSpace:'nowrap'}}>{w.week}</td>
                       {['followers','reach','saves','shares','leads'].map(f => (
-                        <td key={f} style={{padding:'10px 12px',color:'rgba(255,255,255,0.75)'}}>{w[f]|| '—’}</td>
+                        <td key={f} style={{padding:'10px 12px',color:'rgba(255,255,255,0.75)'}}>{w[f]|| '—'}</td>
                       ))}
-                      <td style={{padding:'10px 12px',color:B.gray,maxWidth:200,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{w.notes|| '—’}</td>
+                      <td style={{padding:'10px 12px',color:B.gray,maxWidth:200,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{w.notes|| '—'}</td>
                       <td style={{padding:'10px 12px'}}>
                         <div style={{display:'flex',gap:6}}>
                           <button onClick={()=>{ setForm({...w}); setEditIdx(weeks.length-1-i); setShowForm(true); }}
@@ -3983,7 +3983,7 @@ ${CONTENT_SOP}
 Topic: ${topic}
 Platform: ${platform}
 Angle: ${angle}
-Hook to open with: ${hook || 'Write your own strong hook’}
+Hook to open with: ${hook || 'Write your own strong hook'}
 CTA style: ${cta}
 
 Write 3 caption variations for this ${platform} post. Each must feel completely different : different energy, different structure, different length.
@@ -4136,10 +4136,10 @@ function ScheduleOptimizer() {
   const run = async () => {
     setLoading(true); setOut('');
     const roiSummary = weeks.length
-      ? weeks.slice(-8).map(w => `Week of ${w.week}: Followers ${w.followers}, Reach ${w.reach}, Saves ${w.saves}, Shares ${w.shares}, Top content: ${w.topContent || 'none’}, Notes: ${w.notes || 'none'}`).join('\n')
+      ? weeks.slice(-8).map(w => `Week of ${w.week}: Followers ${w.followers}, Reach ${w.reach}, Saves ${w.saves}, Shares ${w.shares}, Top content: ${w.topContent || 'none'}, Notes: ${w.notes || 'none'}`).join('\n')
       : 'No ROI data logged yet.';
     const memorySummary = log.length
-      ? log.slice(0, 30).map(e => `${e.date} : ${e.type} : ${e.title} : Rating: ${e.perf || 'unrated’}`).join('\n')
+      ? log.slice(0, 30).map(e => `${e.date} : ${e.type} : ${e.title} : Rating: ${e.perf || 'unrated'}`).join('\n')
       : 'No content memory logged yet.';
 
     const prompt = `${VOICE}
@@ -4263,11 +4263,11 @@ function ContentGapAnalyzer() {
 
     const summary = `
 Content logged: ${log.length} total pieces
-Most used angles: ${Object.entries(angleCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} (${v}x)`).join(', ') || 'none’}
-Content types used: ${Object.entries(typeCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} (${v}x)`).join(', ') || 'none’}
-Viral content: ${rated.viral.slice(0,5).join(' | ') || 'none rated yet’}
-Good performers: ${rated.good.slice(0,5).join(' | ') || 'none rated yet’}
-Flopped content: ${rated.flopped.slice(0,5).join(' | ') || 'none rated yet’}
+Most used angles: ${Object.entries(angleCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} (${v}x)`).join(', ') || 'none'}
+Content types used: ${Object.entries(typeCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} (${v}x)`).join(', ') || 'none'}
+Viral content: ${rated.viral.slice(0,5).join(' | ') || 'none rated yet'}
+Good performers: ${rated.good.slice(0,5).join(' | ') || 'none rated yet'}
+Flopped content: ${rated.flopped.slice(0,5).join(' | ') || 'none rated yet'}
 Available angles: ${ANGLES.map(a=>a.label).join(', ')}
 `;
 
@@ -4524,7 +4524,7 @@ function CollabTracker() {
         <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
           {filtered.map(contact => (
             <div key={contact.id} style={{background:'rgba(255,255,255,0.03)',
-              border:`1px solid ${statusColors[contact.status] || 'rgba(255,255,255,0.07)’}`,
+              border:`1px solid ${statusColors[contact.status] || 'rgba(255,255,255,0.07)'}`,
               borderRadius:12,padding:'16px'}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:10}}>
                 <div style={{flex:1}}>
@@ -4602,9 +4602,9 @@ function CollabTracker() {
               <div key={f.k} style={{gridColumn:f.full?'1/-1':'auto'}}>
                 <SecLabel>{f.l}</SecLabel>
                 {f.full
-                  ? <textarea value={form[f.k]|| '’} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} rows={2} placeholder={f.ph}
+                  ? <textarea value={form[f.k]|| ''} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} rows={2} placeholder={f.ph}
                       style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
-                  : <input value={form[f.k]|| '’} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} placeholder={f.ph}
+                  : <input value={form[f.k]|| ''} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} placeholder={f.ph}
                       style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
                 }
               </div>
@@ -4960,7 +4960,7 @@ function EmailSequenceBuilder() {
         })
       });
       const d = await res.json();
-      const html = d.text || d.result || '’;
+      const html = d.text || d.result || '';
       const full = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Email Sequence</title><style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 24px;color:#111;line-height:1.8}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#E94560;margin-top:48px;border-top:1px solid #eee;padding-top:24px}strong{color:#0A1628}.subject{font-size:18px;font-weight:bold;margin-bottom:4px}.preview{color:#666;font-style:italic;font-size:13px;margin-bottom:20px}@media print{body{margin:24px}}</style></head><body><h1>${magnet} — Email Sequence</h1>${html}</body></html>`;
       const blob = new Blob([full], {type:'text/html'});
       const url = URL.createObjectURL(blob);
@@ -5056,7 +5056,7 @@ Show: Everyday Elevations Podcast (Host: Jason Fricka: veteran, HR manager, mind
 Guest: ${guestName}
 Guest Background: ${guestBio}
 Episode Angle / Theme: ${episode_angle}
-Additional Context: ${showContext || 'None’}
+Additional Context: ${showContext || 'None'}
 
 Build the complete pre-production package for this episode.
 
@@ -5501,7 +5501,7 @@ ${channelData}
 ${auditExtra ? `Additional Context from Jason (treat this as ground truth : he knows his channel better than any search):
 ${auditExtra}` : ''}
 
-You are auditing Jason Fricka’s YouTube channel @everydayelevations using the VIDIQ outlier framework. Be direct. No softening. Use the additional context above to make every recommendation specific.
+You are auditing Jason Fricka's YouTube channel @everydayelevations using the VIDIQ outlier framework. Be direct. No softening. Use the additional context above to make every recommendation specific.
 
 # YouTube Channel Audit : @everydayelevations
 
@@ -5599,7 +5599,7 @@ function YouTubeToolkit() {
     else if (tool === 'endscreen') res = await ai(YT_ENDSCREEN_PROMPT(topic, channelGoal));
 
     setOut(res);
-    logToMemory({ type:'youtube', title:`YT ${tool}: ${topic || 'audit’}`, preview:res.slice(0,200) });
+    logToMemory({ type:'youtube', title:`YT ${tool}: ${topic || 'audit'}`, preview:res.slice(0,200) });
     setLoading(false);
   };
 
@@ -5765,7 +5765,7 @@ function YouTubeToolkit() {
             <span style={{color:B.white,fontWeight:700,fontSize:14}}>{tools.find(t=>t.id===tool)?.label} Results</span>
             <CopyBtn text={out}/>
           </div>
-          <DocOutput text={out} title={tool === 'script' ? `YouTube Script : ${topic}` : tool === 'audit' ? 'Channel Audit : @everydayelevations' : `YouTube ${tool} : ${topic || 'Content’}`}/>
+          <DocOutput text={out} title={tool === 'script' ? `YouTube Script : ${topic}` : tool === 'audit' ? 'Channel Audit : @everydayelevations' : `YouTube ${tool} : ${topic || 'Content'}`}/>
         </div>
       )}
     </div>
@@ -5786,7 +5786,7 @@ ${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
 Someone just triggered a DM conversation. Write the scripts for handling this.
 
 Trigger: ${trigger}
-Context: ${context || 'Standard inbound DM’}
+Context: ${context || 'Standard inbound DM'}
 Goal: ${goal}
 
 Write a complete DM conversation flow: not just one message. The full sequence from first reply to close.
@@ -6150,13 +6150,13 @@ function ChallengeBuilder() {
         })
       });
       const d = await res.json();
-      const html = d.text || d.result || '’;
+      const html = d.text || d.result || '';
       const full = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name}</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#111;line-height:1.7}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#E94560;margin-top:36px}h3{color:#0A1628}strong{color:#0A1628}table{width:100%;border-collapse:collapse;margin:16px 0}td,th{border:1px solid #ddd;padding:8px 12px;text-align:left}th{background:#0A1628;color:#fff}@media print{body{margin:24px}}</style></head><body>${html}</body></html>`;
       const blob = new Blob([full], {type:'text/html'});
       const url = URL.createObjectURL(blob);
       const printWin = window.open(url, '_blank');
       if (printWin) { printWin.onload = () => printWin.print(); }
-      else { const a = document.createElement('a'); a.href=url; a.download=(name|| 'document’).replace(/\s+/g,'-')+'.html'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+      else { const a = document.createElement('a'); a.href=url; a.download=(name|| 'document').replace(/\s+/g,'-')+'.html'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
       URL.revokeObjectURL(url);
     } catch(e) { console.error(e); }
     setDownloading(false);
@@ -6250,12 +6250,12 @@ function ChallengeBuilder() {
 const SPY_PROMPT = (handle, platform, rawData, angle) => `
 ${VOICE}
 
-You are analyzing a competitor’s content strategy to find gaps Jason Fricka can own.
+You are analyzing a competitor's content strategy to find gaps Jason Fricka can own.
 
 Creator: ${handle}
 Platform: ${platform}
 Live data pulled: ${rawData}
-Jason's angle to compete from: ${angle || 'mindset/real estate/Colorado/occupational purpose/financial independence’}
+Jason's angle to compete from: ${angle || 'mindset/real estate/Colorado/occupational purpose/financial independence'}
 
 This is intelligence work: not copying. Find what they are missing so Jason can own it.
 
@@ -6369,7 +6369,7 @@ function CompetitorSpy() {
             border:'1px solid rgba(0,212,255,0.3)',borderRadius:8,padding:'10px 20px',
             fontWeight:700,cursor:(!handle||fetching)?'not-allowed':'pointer',
             fontSize:13,marginBottom:16,display:'block'}}>
-          {fetching ? 'Pulling profile data...' : `🔍 Pull ${platform} Data for ${handle|| 'this creator’}`}
+          {fetching ? 'Pulling profile data...' : `🔍 Pull ${platform} Data for ${handle|| 'this creator'}`}
         </button>
 
         {rawData && (
@@ -6531,7 +6531,7 @@ function BrandVoiceFingerprint() {
             <div key={i} style={{marginBottom:12}}>
               <SecLabel>Sample {i+1} {i < 2 ? '(required)' : '(optional)'}</SecLabel>
               <textarea value={s} onChange={e => setSamples(prev => { const n=[...prev]; n[i]=e.target.value; return n; })}
-                rows={4} placeholder={`Paste real content from ${selectedClient?.name || 'this client’}...`}
+                rows={4} placeholder={`Paste real content from ${selectedClient?.name || 'this client'}...`}
                 style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
             </div>
           ))}
@@ -6708,7 +6708,7 @@ function ClientPortal() {
         {/* Voice fingerprint status */}
         {(() => {
           try {
-            const fps = JSON.parse(localStorage.getItem(VOICE_KEY)|| '{}’);
+            const fps = JSON.parse(localStorage.getItem(VOICE_KEY)|| '{}');
             const fp = fps[focusClient.id];
             return fp ? (
               <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:16,display:'flex',alignItems:'center',gap:10}}>
@@ -6756,7 +6756,7 @@ function ClientPortal() {
           <div style={{display:'flex',flexDirection:'column',gap:8}}>
             {clientDeliverables.length === 0 && <div style={{color:B.gray,fontSize:13,padding:'20px 0',textAlign:'center'}}>No deliverables yet. Add the first one.</div>}
             {clientDeliverables.map(d => (
-              <div key={d.id} style={{background:'rgba(255,255,255,0.03)',border:`1px solid ${statusColors[d.status]|| 'rgba(255,255,255,0.07)’}`,borderRadius:8,padding:'12px 14px',display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+              <div key={d.id} style={{background:'rgba(255,255,255,0.03)',border:`1px solid ${statusColors[d.status]|| 'rgba(255,255,255,0.07)'}`,borderRadius:8,padding:'12px 14px',display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
                 <div style={{flex:1}}>
                   <div style={{color:B.white,fontWeight:600,fontSize:13}}>{d.title}</div>
                   <div style={{color:B.gray,fontSize:11,marginTop:2,textTransform:'capitalize'}}>{d.type.replace('-',' ')} {d.dueDate ? `· Due ${d.dueDate}` : ''}</div>
@@ -6810,7 +6810,7 @@ function ClientPortal() {
         {clients.map(c => {
           const cDels = deliverables.filter(d=>d.clientId===c.id);
           const pending = cDels.filter(d=>d.status==='pending'||d.status==='in-progress').length;
-          const fps = (() => { try { return JSON.parse(localStorage.getItem(VOICE_KEY)|| '{}’); } catch { return {}; } })();
+          const fps = (() => { try { return JSON.parse(localStorage.getItem(VOICE_KEY)|| '{}'); } catch { return {}; } })();
           const hasFp = !!fps[c.id];
           return (
             <div key={c.id} onClick={() => { setFocusClient(c); setView('dashboard'); }}
@@ -6914,7 +6914,7 @@ function MonthlyReportSuite() {
       const stored = localStorage.getItem('encis_roi_data');
       if (!stored) return 'No ROI data logged yet.';
       const weeks = JSON.parse(stored).slice(-4);
-      return weeks.map(w => `Week of ${w.week}: Followers ${w.followers|| 'N/A’}, Reach ${w.reach||'N/A'}, Saves ${w.saves|| 'N/A’}, Shares ${w.shares||'N/A'}, Leads ${w.leads|| 'N/A’}. Top content: ${w.topContent||'none'}. Notes: ${w.notes|| 'none’}`).join('\n');
+      return weeks.map(w => `Week of ${w.week}: Followers ${w.followers|| 'N/A'}, Reach ${w.reach||'N/A'}, Saves ${w.saves|| 'N/A'}, Shares ${w.shares||'N/A'}, Leads ${w.leads|| 'N/A'}. Top content: ${w.topContent||'none'}. Notes: ${w.notes|| 'none'}`).join('\n');
     } catch { return 'No data available.'; }
   })();
 
@@ -6923,7 +6923,7 @@ function MonthlyReportSuite() {
       const stored = localStorage.getItem('encis_content_log');
       if (!stored) return 'No content logged yet.';
       return JSON.parse(stored).filter(e => e.perf === '🔥' || e.perf === '⭐').slice(0,8)
-        .map(e => `${e.perf} ${e.title||e.topic|| 'Untitled’} (${e.type}, ${e.date})`).join('\n') || 'No rated content yet.’;
+        .map(e => `${e.perf} ${e.title||e.topic|| 'Untitled'} (${e.type}, ${e.date})`).join('\n') || 'No rated content yet.';
     } catch { return 'No data available.'; }
   })();
 
@@ -6998,7 +6998,7 @@ function MonthlyReportSuite() {
           <ReportEmailButton
             reportText={out}
             clientName={selectedClient?.name}
-            clientEmail={selectedClient?.email || '’}
+            clientEmail={selectedClient?.email || ''}
           />
         </div>
       )}
@@ -7044,7 +7044,7 @@ function DeliverableBuilder() {
   useEffect(() => { setSelectedClient(activeClient); }, []);
 
   const getFingerprint = (clientId) => {
-    try { const fps = JSON.parse(localStorage.getItem(VOICE_KEY)|| '{}’); return fps[clientId] || null; } catch { return null; }
+    try { const fps = JSON.parse(localStorage.getItem(VOICE_KEY)|| '{}'); return fps[clientId] || null; } catch { return null; }
   };
 
   const delivTypes = [
@@ -7298,7 +7298,7 @@ ${VOICE}
 Topic: "${topic}"
 Content Angle: ${angle}
 Video Duration: ${duration}
-Primary Location: ${location || 'flexible’}
+Primary Location: ${location || 'flexible'}
 Available Equipment: ${equipment || 'phone, basic lighting'}
 Video Style: ${style}
 Shot Style: ${shotStyle}
@@ -7341,7 +7341,7 @@ Exact description of the frame that will become the thumbnail. Expression, frami
 Pacing direction, transition style, color grade mood, any specific effects or cuts.
 
 ## Equipment Checklist
-Based on ${equipment || 'phone + basic setup’}: exactly what to bring and how to set it up for this specific shoot.
+Based on ${equipment || 'phone + basic setup'}: exactly what to bring and how to set it up for this specific shoot.
 
 ## Common Mistakes to Avoid for This Video
 3 specific things that would kill this video's performance.`;
@@ -7450,7 +7450,7 @@ Campaign Goal: ${goal}
 Target Audience: ${audience}
 Duration: ${duration} weeks
 Platforms: ${platforms}
-Launch Date: ${launchDate || 'To be determined’}
+Launch Date: ${launchDate || 'To be determined'}
 Offer or CTA: ${offer}
 
 Build a complete, sequenced multi-week campaign. Every piece of content must serve the campaign arc. Nothing is one-off. Everything connects.
@@ -7735,8 +7735,8 @@ function ContentPredictor() {
 
   const historicalData = (() => {
     try {
-      const roi = JSON.parse(localStorage.getItem('encis_roi_data') || '[]’).slice(-4);
-      const top = JSON.parse(localStorage.getItem('encis_content_log') || '[]’).filter(e => e.perf === '🔥').slice(0,5);
+      const roi = JSON.parse(localStorage.getItem('encis_roi_data') || '[]').slice(-4);
+      const top = JSON.parse(localStorage.getItem('encis_content_log') || '[]').filter(e => e.perf === '🔥').slice(0,5);
       if (!roi.length && !top.length) return '';
       return [
         roi.length ? `Recent avg reach: ${roi.map(w=>w.reach||0).filter(Boolean).join(', ')}` : '',
@@ -7965,7 +7965,7 @@ You are building a custom AI persona for a social media content system.
 
 CLIENT: ${client.name} (${client.handle})
 PLATFORMS: ${client.platforms}
-CLIENT BACKGROUND: ${client.notes || client.voice || 'Not provided’}
+CLIENT BACKGROUND: ${client.notes || client.voice || 'Not provided'}
 
 ${voiceFingerprint ? `VOICE FINGERPRINT (from analyzed samples):
 Tone: ${voiceFingerprint.tone}
@@ -7978,9 +7978,9 @@ ${contentHistory ? `CONTENT HISTORY (what has actually been created):
 ${contentHistory}` : ''}
 
 ${ratings ? `PERFORMANCE RATINGS (what worked vs what did not):
-Viral content: ${ratings.viral.join(' | ') || 'none yet’}
-Good performers: ${ratings.good.join(' | ') || 'none yet’}
-Flopped: ${ratings.flopped.join(' | ') || 'none yet’}` : ''}
+Viral content: ${ratings.viral.join(' | ') || 'none yet'}
+Good performers: ${ratings.good.join(' | ') || 'none yet'}
+Flopped: ${ratings.flopped.join(' | ') || 'none yet'}` : ''}
 
 Build a complete AI persona for ${client.name}. This persona will be injected into every content generation tool to produce output that sounds exactly like them. Make it specific enough that two different pieces of content generated with this persona would be unmistakably from the same person.
 
@@ -8042,14 +8042,14 @@ function CustomPersona() {
   };
 
   const getContextData = (client) => {
-    const fp = (() => { try { return JSON.parse(localStorage.getItem(VOICE_KEY)|| '{}’)[client.id] || null; } catch { return null; } })();
-    const log = (() => { try { return JSON.parse(localStorage.getItem('encis_content_log')|| '[]’); } catch { return []; } })();
+    const fp = (() => { try { return JSON.parse(localStorage.getItem(VOICE_KEY)|| '{}')[client.id] || null; } catch { return null; } })();
+    const log = (() => { try { return JSON.parse(localStorage.getItem('encis_content_log')|| '[]'); } catch { return []; } })();
     const clientLog = log.filter(e => !e.client || e.client === client.name).slice(0, 20);
     const history = clientLog.length ? clientLog.map(e => `${e.type}: ${e.title||e.topic||''}`).join('\n') : null;
     const ratings = {
-      viral: clientLog.filter(e=>e.perf==='🔥').map(e=>e.title||e.topic|| '’).filter(Boolean).slice(0,5),
-      good: clientLog.filter(e=>e.perf==='⭐').map(e=>e.title||e.topic|| '’).filter(Boolean).slice(0,5),
-      flopped: clientLog.filter(e=>e.perf==='💀').map(e=>e.title||e.topic|| '’).filter(Boolean).slice(0,5),
+      viral: clientLog.filter(e=>e.perf==='🔥').map(e=>e.title||e.topic|| '').filter(Boolean).slice(0,5),
+      good: clientLog.filter(e=>e.perf==='⭐').map(e=>e.title||e.topic|| '').filter(Boolean).slice(0,5),
+      flopped: clientLog.filter(e=>e.perf==='💀').map(e=>e.title||e.topic|| '').filter(Boolean).slice(0,5),
     };
     return { fp, history, ratings };
   };
@@ -8246,7 +8246,7 @@ function CustomAnglesManager({ client, onClose }) {
 
   useEffect(() => {
     try {
-      const stored = JSON.parse(localStorage.getItem(CUSTOM_ANGLES_KEY) || '{}’);
+      const stored = JSON.parse(localStorage.getItem(CUSTOM_ANGLES_KEY) || '{}');
       if (stored[client.id]) setData(stored[client.id]);
     } catch {}
   }, [client.id]);
@@ -8264,7 +8264,7 @@ function CustomAnglesManager({ client, onClose }) {
 
   const addAngle = () => {
     if (!newAngle.label.trim()) return;
-    const angle = { id: 'custom_' + Date.now(), label: newAngle.label.trim(), emoji: newAngle.emoji || '📌’, desc: newAngle.desc.trim(), custom: true };
+    const angle = { id: 'custom_' + Date.now(), label: newAngle.label.trim(), emoji: newAngle.emoji || '📌', desc: newAngle.desc.trim(), custom: true };
     save({ ...data, angles: [...data.angles, angle] });
     setNewAngle({ label: '', emoji: '📌', desc: '' });
   };
@@ -8650,7 +8650,7 @@ function AnalyticsHub() {
     const headers = parseRow(lines[0]);
     const rows = lines.slice(1).filter(l => l.trim()).map(l => {
       const vals = parseRow(l);
-      return Object.fromEntries(headers.map((h, i) => [h, vals[i] || '’]));
+      return Object.fromEntries(headers.map((h, i) => [h, vals[i] || '']));
     });
     // Summarize key metrics
     const summary = [`Platform export: ${platform}`, `Rows: ${rows.length}`, `Columns: ${headers.join(', ')}`, '', '--- Data Sample (first 5 rows) ---'];
@@ -8829,7 +8829,7 @@ function VisualCalendar() {
 
   const save = (data) => { setCalendarData(data); try { localStorage.setItem(VISUAL_CAL_KEY, JSON.stringify(data)); } catch {} };
 
-  const clientKey = selectedClient?.id || 'default’;
+  const clientKey = selectedClient?.id || 'default';
   const clientCal = calendarData[clientKey] || {};
 
   const addPost = () => {
@@ -8867,11 +8867,11 @@ function VisualCalendar() {
   const exportForMeta = () => {
     const allPosts = Object.entries(clientCal).flatMap(([date, posts]) => posts.map(p => ({...p, date})));
     const csv = ['Date,Platform,Format,Title,Hook,CTA,Status',
-      ...allPosts.map(p => `${p.date},${p.platform},${p.format},"${p.title}","${p.hook|| '’}","${p.cta||''}",${p.status}`)
+      ...allPosts.map(p => `${p.date},${p.platform},${p.format},"${p.title}","${p.hook|| ''}","${p.cta||''}",${p.status}`)
     ].join('\n');
     const blob = new Blob([csv], {type:'text/csv'});
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href=url; a.download=`${selectedClient?.name|| 'Content’}-Calendar.csv`;
+    const a = document.createElement('a'); a.href=url; a.download=`${selectedClient?.name|| 'Content'}-Calendar.csv`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
   };
 
@@ -8943,7 +8943,7 @@ function VisualCalendar() {
               <div style={{fontSize:11,fontWeight:isToday?800:500,color:isToday?'#00C2FF':B.gray,marginBottom:3}}>{d}</div>
               {posts.slice(0,3).map(p => (
                 <div key={p.id} onClick={e=>{e.stopPropagation();}}
-                  style={{background:statusColors[p.status]|| 'rgba(255,255,255,0.1)’,borderRadius:3,padding:'2px 4px',marginBottom:2,display:'flex',alignItems:'center',gap:3}}>
+                  style={{background:statusColors[p.status]|| 'rgba(255,255,255,0.1)',borderRadius:3,padding:'2px 4px',marginBottom:2,display:'flex',alignItems:'center',gap:3}}>
                   <div style={{width:4,height:4,borderRadius:'50%',background:platformColors[p.platform]||B.red,flexShrink:0}}/>
                   <span style={{fontSize:9,color:B.white,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>{p.title}</span>
                   <button onClick={e=>{e.stopPropagation();removePost(dateStr,p.id);}} style={{background:'none',border:'none',color:'rgba(255,255,255,0.3)',cursor:'pointer',fontSize:9,padding:0,lineHeight:1}}>×</button>
@@ -9074,12 +9074,12 @@ function AIStrategyReview() {
   const saveReviews = (list) => { setReviews(list); try { localStorage.setItem(STRATEGY_REVIEW_KEY, JSON.stringify(list)); } catch {} };
 
   const buildContext = () => {
-    const roi = (() => { try { return JSON.parse(localStorage.getItem('encis_roi_data')|| '[]’).slice(-8); } catch { return []; } })();
-    const log = (() => { try { return JSON.parse(localStorage.getItem('encis_content_log')|| '[]’).slice(0,40); } catch { return []; } })();
-    const calData = (() => { try { const c = JSON.parse(localStorage.getItem(VISUAL_CAL_KEY)||'{}'); const k = selectedClient?.id|| 'default’; return Object.values(c[k]||{}).flat().slice(0,20); } catch { return []; } })();
+    const roi = (() => { try { return JSON.parse(localStorage.getItem('encis_roi_data')|| '[]').slice(-8); } catch { return []; } })();
+    const log = (() => { try { return JSON.parse(localStorage.getItem('encis_content_log')|| '[]').slice(0,40); } catch { return []; } })();
+    const calData = (() => { try { const c = JSON.parse(localStorage.getItem(VISUAL_CAL_KEY)||'{}'); const k = selectedClient?.id|| 'default'; return Object.values(c[k]||{}).flat().slice(0,20); } catch { return []; } })();
 
-    const roiStr = roi.length ? roi.map(w=>`Week ${w.week}: Followers ${w.followers||'?'}, Reach ${w.reach|| '?’}, Saves ${w.saves||'?'}, Shares ${w.shares|| '?’}, Leads ${w.leads||'?'}. Top: ${w.topContent|| 'none’}`).join('\n') : 'No ROI data yet.';
-    const contentStr = log.length ? log.filter(e=>e.perf).slice(0,15).map(e=>`${e.perf} ${e.type}: "${e.title||e.topic|| 'untitled’}" (${e.date})`).join('\n') : 'No rated content yet.';
+    const roiStr = roi.length ? roi.map(w=>`Week ${w.week}: Followers ${w.followers||'?'}, Reach ${w.reach|| '?'}, Saves ${w.saves||'?'}, Shares ${w.shares|| '?'}, Leads ${w.leads||'?'}. Top: ${w.topContent|| 'none'}`).join('\n') : 'No ROI data yet.';
+    const contentStr = log.length ? log.filter(e=>e.perf).slice(0,15).map(e=>`${e.perf} ${e.type}: "${e.title||e.topic|| 'untitled'}" (${e.date})`).join('\n') : 'No rated content yet.';
     const calStr = calData.length ? calData.map(p=>`${p.date}: ${p.platform} ${p.format} "${p.title}" [${p.status}]`).join('\n') : 'No calendar data.';
 
     return { roiStr, contentStr, calStr };
@@ -9181,9 +9181,9 @@ CLIENT PROFILE:
 Name: ${client.name}
 Handle: ${client.handle}
 Platforms: ${client.platforms}
-Voice: ${client.voice || 'Not provided’}
+Voice: ${client.voice || 'Not provided'}
 Content angles: ${client.angles || 'Not specified'}
-Brand colors: ${client.colors || 'Not provided’}
+Brand colors: ${client.colors || 'Not provided'}
 Additional context: ${client.notes || 'None'}
 
 Generate a complete client onboarding package. This replaces the discovery call and gives the agency everything needed to start executing on day one.
@@ -9376,7 +9376,7 @@ function BioLinkBuilder() {
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
           <div>
             <SecLabel>Page Headline</SecLabel>
-            <input value={headline} onChange={e=>setHeadline(e.target.value)} placeholder={`${selectedClient?.name || 'Name’} — ${selectedClient?.handle || '@handle'}`}
+            <input value={headline} onChange={e=>setHeadline(e.target.value)} placeholder={`${selectedClient?.name || 'Name'} — ${selectedClient?.handle || '@handle'}`}
               style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
           </div>
           <div>
@@ -9447,7 +9447,7 @@ function BioLinkBuilder() {
 const COMM_TEMPLATES_PROMPT = (client, templateType, context, agencyName) => `
 ${VOICE}
 
-AGENCY: ${agencyName || 'Everyday Elevations / SIGNAL’}
+AGENCY: ${agencyName || 'Everyday Elevations / SIGNAL'}
 CLIENT: ${client.name} (${client.handle})
 TEMPLATE TYPE: ${templateType}
 ADDITIONAL CONTEXT: ${context || 'None'}
@@ -9470,7 +9470,7 @@ function ClientCommsTemplates() {
 
   useEffect(() => {
     setSelectedClient(activeClient);
-    try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null’); if(wl?.agencyName) setAgencyName(wl.agencyName); } catch {}
+    try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null'); if(wl?.agencyName) setAgencyName(wl.agencyName); } catch {}
   }, []);
 
   const templates = [
@@ -9548,17 +9548,17 @@ const CONTENT_BRIEF_PROMPT = (client, sessionDate, location, topics, equipment, 
 ${VOICE}
 
 CLIENT: ${client.name} (${client.handle})
-SESSION DATE: ${sessionDate || 'TBD’}
-PRIMARY LOCATION: ${location || 'Client’s choice'}
+SESSION DATE: ${sessionDate || 'TBD'}
+PRIMARY LOCATION: ${location || 'Client's choice'}
 TOPICS TO COVER: ${topics}
-EQUIPMENT AVAILABLE: ${equipment || 'Phone + basic setup’}
+EQUIPMENT AVAILABLE: ${equipment || 'Phone + basic setup'}
 SESSION DURATION: ${duration || '2-3 hours'}
 PLATFORMS: ${client.platforms}
 
 Generate a complete pre-filming production brief the client can read the night before and walk in ready to execute.
 
 # Pre-Filming Brief: ${client.name}
-## Session: ${sessionDate || 'Upcoming’}
+## Session: ${sessionDate || 'Upcoming'}
 
 ## What We Are Filming Today
 Specific pieces to capture in this session. Numbered, with time estimates.
@@ -9651,7 +9651,7 @@ function ContentBriefGenerator() {
         </RedBtn>
       </Card>
       {loading&&<Spin/>}
-      {out&&<DocOutput text={out} title={`Filming Brief: ${selectedClient?.name} — ${sessionDate|| 'Upcoming Session’}`}/>}
+      {out&&<DocOutput text={out} title={`Filming Brief: ${selectedClient?.name} — ${sessionDate|| 'Upcoming Session'}`}/>}
     </div>
   );
 }
@@ -9669,7 +9669,7 @@ Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:
 NICHE: ${niche}
 PLATFORM: ${platform}
 CONTENT ANGLE: ${angle}
-ACCOUNT SIZE: ${currentFollowers || 'Under 10K’} followers
+ACCOUNT SIZE: ${currentFollowers || 'Under 10K'} followers
 
 Generate a complete, tiered hashtag strategy for this niche on ${platform} right now. Every hashtag must be real and currently active.
 
@@ -9907,9 +9907,9 @@ ${VOICE}
 
 CLIENT: ${client.name} (${client.handle})
 PLATFORM: ${platform}
-CURRENT BIO: ${currentBio || 'Not provided — write from scratch based on client profile’}
+CURRENT BIO: ${currentBio || 'Not provided — write from scratch based on client profile'}
 GOALS: ${goals || 'Grow followers, drive leads, build authority'}
-VOICE: ${client.voice || 'Direct, no fluff’}
+VOICE: ${client.voice || 'Direct, no fluff'}
 OFFERS: ${client.notes || 'Not specified'}
 
 Write 3 bio variations optimized for ${platform}. Each must be different enough to actually test.
@@ -10016,7 +10016,7 @@ PLATFORMS: ${platforms}
 FOLLOWERS: ${followers}
 ENGAGEMENT RATE: ${engagementRate}%
 SERVICES TO PRICE: ${services}
-MARKET: ${market || 'US’}
+MARKET: ${market || 'US'}
 
 Generate a complete pricing guide. Be specific — use real market rates for 2026. No vague ranges.
 
@@ -10246,12 +10246,12 @@ function StoryArcPlanner() {
 const GUEST_PREP_PROMPT = (client, guestName, guestBio, guestHandle, episodeTopic, recordDate) => `
 ${client ? `HOST: ${client.name} (${client.handle})` : VOICE}
 
-PODCAST: ${client?.name || 'Everyday Elevations’} Podcast
+PODCAST: ${client?.name || 'Everyday Elevations'} Podcast
 GUEST: ${guestName}
 GUEST BIO: ${guestBio}
 GUEST HANDLE: ${guestHandle || 'Not provided'}
 EPISODE TOPIC: ${episodeTopic}
-RECORD DATE: ${recordDate || 'TBD’}
+RECORD DATE: ${recordDate || 'TBD'}
 
 Build a complete guest prep kit. Two documents in one:
 1. What the host gets (prep intel, questions, topics to avoid)
@@ -10534,7 +10534,7 @@ function ABTestTracker() {
     setLoading(true); setAnalysisOut('');
     const summary = complete.map(t=>{
       const r = results[t.id];
-      return `Test: "${t.name}" (${t.platform}, ${t.type})\nVariant A: ${t.variantA}\nVariant B: ${t.variantB}\nWinner: Variant ${r?.winner|| 'TBD’} | A score: ${r?.aScore||'?'} | B score: ${r?.bScore|| '?’}`;
+      return `Test: "${t.name}" (${t.platform}, ${t.type})\nVariant A: ${t.variantA}\nVariant B: ${t.variantB}\nWinner: Variant ${r?.winner|| 'TBD'} | A score: ${r?.aScore||'?'} | B score: ${r?.bScore|| '?'}`;
     }).join('\n\n');
     const res = await ai(`${VOICE}\n\nAnalyze these completed A/B tests and extract the winning patterns:\n\n${summary}\n\nProvide:\n1. Overall patterns: what is consistently winning\n2. Platform-specific insights\n3. 5 specific recommendations for future content based on the data\n4. What to test next`);
     setAnalysisOut(res); setLoading(false);
@@ -10821,7 +10821,7 @@ function RevenueAttribution() {
   const analyze = async () => {
     if (entries.length < 3) return;
     setLoading(true); setAnalysisOut('');
-    const summary = entries.slice(0,30).map(e=>`${e.platform} ${e.format}: "${e.contentTitle}" → ${e.outcomeType}: ${e.outcome}${e.revenue?` ($${e.revenue})`:''}. Date: ${e.date}. Notes: ${e.notes|| 'none’}`).join('\n');
+    const summary = entries.slice(0,30).map(e=>`${e.platform} ${e.format}: "${e.contentTitle}" → ${e.outcomeType}: ${e.outcome}${e.revenue?` ($${e.revenue})`:''}. Date: ${e.date}. Notes: ${e.notes|| 'none'}`).join('\n');
     const res = await ai(`${VOICE}\n\nAnalyze this content-to-revenue attribution data:\n\n${summary}\n\nProvide:\n1. Which platforms and formats are generating the most revenue opportunities\n2. Which content topics correlate with high-value outcomes\n3. The typical path from content to conversion for this account\n4. What to create more of based on ROI\n5. Estimated content ROI if tracked fully`);
     setAnalysisOut(res); setLoading(false);
   };
@@ -10948,12 +10948,12 @@ You are refining a brand voice fingerprint based on content that actually went v
 CLIENT: ${clientName}
 
 CURRENT FINGERPRINT SUMMARY:
-Tone: ${currentFingerprint?.tone || 'Unknown’}
+Tone: ${currentFingerprint?.tone || 'Unknown'}
 Vocabulary: ${(currentFingerprint?.vocabulary || []).join(', ')}
-Personality: ${currentFingerprint?.personality || 'Unknown’}
+Personality: ${currentFingerprint?.personality || 'Unknown'}
 
 CONTENT THAT PERFORMED AT VIRAL LEVEL (🔥 rated):
-${viralSamples.map((s, i) => `${i + 1}. [${s.type}] "${s.title || s.topic || 'Untitled'}"\nPreview: ${s.preview || s.title || '’}`).join('\n\n')}
+${viralSamples.map((s, i) => `${i + 1}. [${s.type}] "${s.title || s.topic || 'Untitled'}"\nPreview: ${s.preview || s.title || ''}`).join('\n\n')}
 
 Analyze what these viral pieces have in common. What specific language patterns, structural choices, and voice elements made them work? Update the fingerprint to reflect what is actually proven to perform.
 
@@ -10987,7 +10987,7 @@ function useAutoVoiceUpdate(activeClient) {
     if (!activeClient) return;
     const interval = setInterval(() => {
       try {
-        const log = JSON.parse(localStorage.getItem(MEMORY_KEY) || '[]’);
+        const log = JSON.parse(localStorage.getItem(MEMORY_KEY) || '[]');
         const fps = JSON.parse(localStorage.getItem(VOICE_KEY) || '{}');
         const fp = fps[activeClient.id];
         const lastUpdate = fp?.autoUpdatedAt ? new Date(fp.autoUpdatedAt).getTime() : 0;
@@ -11012,7 +11012,7 @@ function useAutoVoiceUpdate(activeClient) {
     if (!activeClient || updating) return;
     setUpdating(true);
     try {
-      const fps = JSON.parse(localStorage.getItem(VOICE_KEY) || '{}’);
+      const fps = JSON.parse(localStorage.getItem(VOICE_KEY) || '{}');
       const currentFp = fps[activeClient.id];
       const res = await ai(
         AUTO_VOICE_UPDATE_PROMPT(activeClient.name, currentFp, samples),
@@ -11312,7 +11312,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
   useEffect(() => {
     // Load ROI metrics
     try {
-      const roi = JSON.parse(localStorage.getItem('encis_roi_data') || '[]’);
+      const roi = JSON.parse(localStorage.getItem('encis_roi_data') || '[]');
       if (roi.length >= 2) {
         const latest = roi[0];
         const prev = roi[1];
@@ -11343,7 +11343,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
 
     // Trend alert count
     try {
-      const alerts = JSON.parse(localStorage.getItem('encis_trend_alerts') || '[]’);
+      const alerts = JSON.parse(localStorage.getItem('encis_trend_alerts') || '[]');
       setTrendCount(alerts.length);
     } catch {}
 
@@ -11354,9 +11354,9 @@ function IntelligenceDashboard({ setNav, setSub }) {
     } catch {}
   }, [activeClient]);
 
-  const wl = (() => { try { return JSON.parse(localStorage.getItem('encis_whitelabel') || 'null’); } catch { return null; } })();
+  const wl = (() => { try { return JSON.parse(localStorage.getItem('encis_whitelabel') || 'null'); } catch { return null; } })();
   const appName = wl?.agencyName || 'SIGNAL';
-  const accentColor = wl?.primaryColor || '#00C2FF’;
+  const accentColor = wl?.primaryColor || '#00C2FF';
 
   const quickTools = [
     { nav: 'create', sub: 'script', emoji: '✍️', label: 'Script Engine' },
@@ -11380,7 +11380,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
               {activeClient?.isDefault ? `Good ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, Jason.` : `${activeClient?.name}`}
             </h1>
             <p style={{ color: B.gray, fontSize: 13, margin: '4px 0 0' }}>
-              {!metrics ? "No metrics logged yet. Add data in ROI Dashboard." : `Last logged: ${metrics.week || 'this week’}`}
+              {!metrics ? "No metrics logged yet. Add data in ROI Dashboard." : `Last logged: ${metrics.week || 'this week'}`}
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -11401,9 +11401,9 @@ function IntelligenceDashboard({ setNav, setSub }) {
         {[
           { label: 'Followers', val: metrics?.followers ? Number(metrics.followers).toLocaleString() : '--', growth: weeklyGrowth, icon: '👥' },
           { label: 'Weekly Reach', val: metrics?.reach ? Number(metrics.reach).toLocaleString() : '--', icon: '📡' },
-          { label: 'Saves', val: metrics?.saves || '--’, icon: '🔖' },
-          { label: 'Shares', val: metrics?.shares || '--’, icon: '↗️' },
-          { label: 'Leads/DMs', val: metrics?.leads || '--’, icon: '💬' },
+          { label: 'Saves', val: metrics?.saves || '--', icon: '🔖' },
+          { label: 'Shares', val: metrics?.shares || '--', icon: '↗️' },
+          { label: 'Leads/DMs', val: metrics?.leads || '--', icon: '💬' },
           { label: 'Trend Alerts', val: trendCount, icon: '🔥', action: () => {} },
           { label: 'Pending Work', val: pendingDeliverables, icon: '📦', action: () => { setNav('agency'); setSub('portal'); } },
           { label: 'Content Logged', val: recentContent.length, icon: '📝' },
@@ -11484,9 +11484,9 @@ function IntelligenceDashboard({ setNav, setSub }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {recentContent.slice(0, 5).map(e => (
                 <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <span style={{ fontSize: 14 }}>{e.perf || '·’}</span>
+                  <span style={{ fontSize: 14 }}>{e.perf || '·'}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ color: B.white, fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.title || e.topic || 'Untitled’}</div>
+                    <div style={{ color: B.white, fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.title || e.topic || 'Untitled'}</div>
                     <div style={{ color: B.gray, fontSize: 10, marginTop: 1 }}>{e.type} · {e.date}</div>
                   </div>
                 </div>
@@ -11505,7 +11505,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
             <div>
               <div style={{ fontSize: 28, marginBottom: 8 }}>🔥</div>
               <div style={{ color: B.white, fontWeight: 700, fontSize: 13, marginBottom: 4, lineHeight: 1.4 }}>
-                {topPerformer.title || topPerformer.topic || 'Viral Post’}
+                {topPerformer.title || topPerformer.topic || 'Viral Post'}
               </div>
               <div style={{ color: B.gray, fontSize: 11, marginBottom: 12 }}>{topPerformer.type} · {topPerformer.date}</div>
               <button onClick={() => { setNav('create'); setSub('repurpose'); }}
@@ -11527,7 +11527,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
           <div style={{ fontSize: 11, color: accentColor, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 10 }}>Active Client</div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {clients.map(c => {
-              const pending = (() => { try { return JSON.parse(localStorage.getItem(CLIENT_DELIVERABLES_KEY) || '[]’).filter(d => d.clientId === c.id && (d.status === 'pending' || d.status === 'in-progress')).length; } catch { return 0; } })();
+              const pending = (() => { try { return JSON.parse(localStorage.getItem(CLIENT_DELIVERABLES_KEY) || '[]').filter(d => d.clientId === c.id && (d.status === 'pending' || d.status === 'in-progress')).length; } catch { return 0; } })();
               return (
                 <button key={c.id} onClick={() => { setNav('agency'); setSub('portal'); }}
                   style={{ background: activeClient?.id === c.id ? 'rgba(0,194,255,0.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${activeClient?.id === c.id ? 'rgba(0,194,255,0.3)' : 'rgba(255,255,255,0.07)'}`, borderRadius: 8, padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -11615,7 +11615,7 @@ function useTrendNotifications() {
   const notifyTrendAlerts = (alertCount, topAngle) => {
     sendNotification(
       `🔥 ${alertCount} new trend alert${alertCount !== 1 ? 's' : ''} — SIGNAL`,
-      `${topAngle || 'Multiple angles’} trending right now. Check before it peaks.`
+      `${topAngle || 'Multiple angles'} trending right now. Check before it peaks.`
     );
   };
 
@@ -11669,8 +11669,8 @@ function useMonthlyReportEmail() {
       .replace(/\n{3,}/g, '\n\n')
       .trim();
 
-    const subject = encodeURIComponent(`${agencyName || 'SIGNAL’} — Monthly Report for ${clientName} — ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`);
-    const body = encodeURIComponent(`Hi ${clientName},\n\nYour monthly performance report is below.\n\n---\n\n${plain.slice(0, 2000)}\n\n[Full report attached as PDF]\n\n---\n\nBest,\n${agencyName || 'SIGNAL’}`);
+    const subject = encodeURIComponent(`${agencyName || 'SIGNAL'} — Monthly Report for ${clientName} — ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`);
+    const body = encodeURIComponent(`Hi ${clientName},\n\nYour monthly performance report is below.\n\n---\n\n${plain.slice(0, 2000)}\n\n[Full report attached as PDF]\n\n---\n\nBest,\n${agencyName || 'SIGNAL'}`);
 
     // Copy full report to clipboard
     try { navigator.clipboard.writeText(reportMarkdown); } catch {}
@@ -11685,9 +11685,9 @@ function useMonthlyReportEmail() {
 // Email send button — added to Monthly Reporting Suite output
 function ReportEmailButton({ reportText, clientName, clientEmail }) {
   const { sendReportEmail } = useMonthlyReportEmail();
-  const [email, setEmail] = useState(clientEmail || '’);
+  const [email, setEmail] = useState(clientEmail || '');
   const [showInput, setShowInput] = useState(false);
-  const wl = (() => { try { return JSON.parse(localStorage.getItem('encis_whitelabel') || 'null’); } catch { return null; } })();
+  const wl = (() => { try { return JSON.parse(localStorage.getItem('encis_whitelabel') || 'null'); } catch { return null; } })();
 
   if (!reportText) return null;
 
@@ -11789,7 +11789,7 @@ export default function App() {
 
   // Register memory save function globally so all tools can log to it
   useEffect(() => { registerMemorySave(memorySave); }, [memorySave]);
-  useEffect(() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null’); document.title = wl?.agencyName ? wl.agencyName + ' | Social Media OS' : 'SIGNAL by Everyday Elevations'; } catch { document.title = 'SIGNAL by Everyday Elevations'; } }, []);
+  useEffect(() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null'); document.title = wl?.agencyName ? wl.agencyName + ' | Social Media OS' : 'SIGNAL by Everyday Elevations'; } catch { document.title = 'SIGNAL by Everyday Elevations'; } }, []);
 
   const handleNav = (id) => {
     setNav(id);
