@@ -4873,6 +4873,137 @@ function PodcastPreProd() {
 // YOUTUBE TOOLKIT
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// ─── VIDIQ SOP ───────────────────────────────────────────────────────────────
+const VIDIQ_SOP = `
+VIDIQ OUTLIER SCORE FRAMEWORK (follow this to the letter):
+- Outlier Score > 1.0 = video outperforms channel average → study and replicate these elements
+- Outlier Score ≈ 1.0 = performing average → analyze for engagement improvements
+- Outlier Score < 1.0 = underperforming → diagnose: was it topic, title, thumbnail, or timing?
+- Score 2.0+ = 2x-10x+ above norm → break down thumbnail, topic, title, length, and style and repeat exactly
+- High outlier videos ARE the content blueprint — never guess when you have outlier data
+
+UPLOAD TIMING SOP (non-negotiable):
+- Best days: Tuesday through Friday — avoid Saturday
+- Best times: 1 PM, 2 PM, 5 PM, or 9 PM Eastern Time
+- Upload 1-2 hours BEFORE peak activity — gives YouTube time to index before audience goes active
+- Strong early engagement in first 24-48 hours = algorithm signals = more recommendations
+- Consistency > perfection — uploading regularly gives more outlier data to learn from
+
+CONTENT STRATEGY FROM OUTLIER DATA:
+- After every upload, check outlier score vs channel average
+- Top outliers → extract: topic angle, title format, thumbnail style, video length, opening hook
+- Replicate those exact elements in next 3 uploads
+- Low outliers → do NOT delete — compare to high outliers and identify the specific difference
+- More variety early = more data = faster discovery of channel superpowers
+
+PERFORMANCE SIGNALS THAT MATTER MOST (in order):
+1. Click-through rate (CTR) — title + thumbnail combo
+2. Average view duration — hook and content quality
+3. Subscriber conversion rate — are viewers becoming fans
+4. Early engagement velocity — first 24-48 hours determines algorithm push
+`;
+
+const YT_SCRIPT_PROMPT = (topic, angle, duration, style) => `
+${VOICE}
+${CONTENT_SOP}
+${SWARBRICK}
+
+${VIDIQ_SOP}
+
+Video Topic: "${topic}"
+Content Angle: ${angle}
+Target Duration: ${duration}
+Script Style: ${style}
+
+Using the VIDIQ SOP framework above, write a complete YouTube video script optimized for outlier performance. This must maximize early engagement velocity, CTR, and average view duration.
+
+# YouTube Script: "${topic}"
+
+## PRE-PRODUCTION CHECKLIST (VIDIQ-aligned)
+- **Upload Window:** Tuesday-Friday, target 1-2 hours before your audience's peak (aim for 12PM-3PM ET upload so it's indexed for 1-5PM peak)
+- **Outlier Target:** Aim for 2.0+ outlier score — this script is built to beat your channel average
+- **Primary Signal to Optimize:** [CTR hook in title + first 30 seconds for AVD]
+
+## TITLE OPTIONS (3 variations — test for CTR)
+Title 1: [Curiosity gap format]
+Title 2: [Personal story format]
+Title 3: [Outcome/transformation format]
+**Recommended A/B Test:** Title 1 vs Title 2
+
+## THUMBNAIL DIRECTION
+Text overlay (5 words max): [exact words]
+Visual concept: [what Jason is doing/showing]
+Emotion to convey: [specific feeling that drives clicks]
+
+## FULL SCRIPT
+
+### HOOK (First 30 seconds — CRITICAL for AVD)
+[No intro. No "Hey guys." Drop into value or conflict immediately. This is where outlier videos are won or lost.]
+
+[Word-for-word hook script — designed to stop scroll and lock in viewers for the next section]
+
+### SECTION 1: [Title] (~${duration === '10 min' ? '2-3' : '1-2'} minutes)
+[Content with natural retention pattern: statement → evidence → implication]
+
+[Timestamp marker: ~${duration === '10 min' ? '0:45' : '0:30'}]
+
+### SECTION 2: [Title] (~${duration === '10 min' ? '2-3' : '1-2'} minutes)
+[Content]
+
+[Timestamp marker]
+
+### SECTION 3: [Title] (~${duration === '10 min' ? '2-3' : '1-2'} minutes)
+[Content]
+
+[Timestamp marker]
+
+${duration === '10 min' ? `### SECTION 4: [Title] (~2 minutes)
+[Content]
+
+[Timestamp marker]
+
+### SECTION 5: [Title] (~2 minutes)
+[Content]
+
+[Timestamp marker]` : ''}
+
+### PATTERN INTERRUPT (Mid-video retention hook)
+[A line that re-engages viewers who are drifting — creates a reason to keep watching]
+
+### END SCREEN SETUP (~Last 30 seconds)
+[Lead into end screen naturally — tease next video, prompt subscribe, mention email list]
+
+## CHAPTER MARKERS (for description)
+0:00 [Hook]
+[Timestamp]: [Section 1 title]
+[Timestamp]: [Section 2 title]
+[Timestamp]: [Section 3 title]
+${duration === '10 min' ? '[Timestamp]: [Section 4 title]
+[Timestamp]: [Section 5 title]' : ''}
+
+## SEO PACKAGE
+**Primary keyword:** [exact phrase viewers search]
+**Secondary keywords:** [3-4 supporting terms]
+**Description (first 2 lines before "Show More"):**
+[Hook line with primary keyword — what shows before click]
+[Supporting line with channel identity]
+
+**Full Description:**
+[150-200 word description with natural keyword integration]
+
+**Tags (20 tags):**
+[comma-separated list]
+
+**Pinned Comment (post within 5 minutes of going live):**
+[Drives early engagement — question, CTA, or value add]
+
+## VIDIQ PERFORMANCE PREDICTION
+**Expected outlier score range:** [estimate based on topic and approach]
+**Biggest CTR risk:** [what might hurt click-through]
+**Biggest AVD risk:** [where viewers are most likely to drop off and how to fix it]
+**What to measure at 48 hours:** [specific metrics to check]
+`;
+
 const YT_TITLE_PROMPT = (topic, angle) => `
 ${VOICE}
 
@@ -4914,13 +5045,16 @@ Something that drives engagement and adds value
 SCRIPT:
 ${script}`;
 
-const YT_AUDIT_PROMPT = (channelData) => `
+const YT_AUDIT_PROMPT = (channelData, auditExtra='') => `
 ${VOICE}
 
-YouTube Channel Data:
+YouTube Channel Data (from Perplexity):
 ${channelData}
 
-You are auditing Jason Fricka's YouTube channel @everydayelevations. Be direct. No softening.
+${auditExtra ? `Additional Context from Jason (treat this as ground truth — he knows his channel better than any search):
+${auditExtra}` : ''}
+
+You are auditing Jason Fricka's YouTube channel @everydayelevations using the VIDIQ outlier framework. Be direct. No softening. Use the additional context above to make every recommendation specific.
 
 # YouTube Channel Audit — @everydayelevations
 
@@ -4945,7 +5079,15 @@ You are auditing Jason Fricka's YouTube channel @everydayelevations. Be direct. 
 [Specific week-by-week plan to grow the channel]
 
 ## The One Change That Moves the Needle Most
-[Single highest-leverage action]`;
+[Single highest-leverage action]
+
+## VIDIQ Outlier Action Plan
+Based on the data above:
+- **Your likely outlier score range:** [estimate current average performance]
+- **What would push a video to 2.0+ outlier:** [specific topic + format + timing combination]
+- **Upload timing recommendation:** [specific day + time in ET based on your audience]
+- **Next 3 videos to test:** [specific topics with outlier potential, in priority order]
+- **What to measure at 48 hours post-upload:** [specific metrics and what to do if they're low]`;
 
 const YT_ENDSCREEN_PROMPT = (videoTopic, channelGoal) => `
 ${VOICE}
@@ -4970,21 +5112,25 @@ Visual direction: [how to point to link in description]
 Make them feel like Jason is talking to a friend, not reading a script.`;
 
 function YouTubeToolkit() {
-  const [tool, setTool] = useState('titles');
+  const [tool, setTool] = useState('script');
   const [topic, setTopic] = useState('');
   const [angle, setAngle] = useState('mindset');
   const [script, setScript] = useState('');
   const [channelData, setChannelData] = useState('');
   const [channelGoal, setChannelGoal] = useState('grow subscribers and build email list');
+  const [auditExtra, setAuditExtra] = useState('');
+  const [ytDuration, setYtDuration] = useState('8-10 min');
+  const [ytStyle, setYtStyle] = useState('Educational Story');
   const [out, setOut] = useState('');
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
 
   const tools = [
+    { id:'script',   emoji:'🎬', label:'Script Writer',      desc:'Full VIDIQ-optimized script + SEO package' },
     { id:'titles',   emoji:'📝', label:'Title Optimizer',    desc:'7 title variations + CTR analysis' },
     { id:'seo',      emoji:'🔍', label:'SEO + Chapters',     desc:'Description, tags, chapters, pinned comment' },
     { id:'audit',    emoji:'📊', label:'Channel Audit',      desc:'Perplexity pulls your channel, Claude audits it' },
-    { id:'endscreen',emoji:'🎬', label:'End Screen Scripts', desc:'3 CTA variations for last 20 seconds' },
+    { id:'endscreen',emoji:'📺', label:'End Screen Scripts', desc:'3 CTA variations for last 20 seconds' },
   ];
 
   const fetchChannel = async () => {
@@ -4999,9 +5145,10 @@ function YouTubeToolkit() {
     let res;
     const angleLabel = ANGLES.find(a=>a.id===angle)?.label || angle;
 
-    if (tool === 'titles') res = await ai(YT_TITLE_PROMPT(topic, angleLabel));
+    if (tool === 'script') res = await ai(YT_SCRIPT_PROMPT(topic, angleLabel, ytDuration, ytStyle));
+    else if (tool === 'titles') res = await ai(YT_TITLE_PROMPT(topic, angleLabel));
     else if (tool === 'seo') res = await ai(YT_CHAPTERS_PROMPT(script));
-    else if (tool === 'audit') res = await ai(YT_AUDIT_PROMPT(channelData));
+    else if (tool === 'audit') res = await ai(YT_AUDIT_PROMPT(channelData, auditExtra));
     else if (tool === 'endscreen') res = await ai(YT_ENDSCREEN_PROMPT(topic, channelGoal));
 
     setOut(res);
@@ -5010,6 +5157,7 @@ function YouTubeToolkit() {
   };
 
   const canRun = () => {
+    if (tool === 'script') return !!topic;
     if (tool === 'titles') return !!topic;
     if (tool === 'seo') return !!script;
     if (tool === 'audit') return !!channelData;
@@ -5028,7 +5176,7 @@ function YouTubeToolkit() {
       </div>
 
       {/* Tool selector */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:8,marginBottom:20}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:20}}>
         {tools.map(t => (
           <button key={t.id} onClick={() => { setTool(t.id); setOut(''); }}
             style={{background:tool===t.id?B.red:'rgba(255,255,255,0.04)',color:B.white,
@@ -5042,6 +5190,48 @@ function YouTubeToolkit() {
       </div>
 
       <Card>
+        {tool === 'script' && (
+          <>
+            <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.2)',borderRadius:8,padding:'10px 14px',marginBottom:16,fontSize:12,color:'rgba(0,212,255,0.85)',lineHeight:1.7}}>
+              📊 <strong>VIDIQ-Optimized:</strong> Every script is built to maximize outlier score — upload timing, hook structure, chapter markers, SEO package, and CTR analysis included.
+            </div>
+            <SecLabel>Video Topic</SecLabel>
+            <input value={topic} onChange={e=>setTopic(e.target.value)}
+              placeholder="e.g. Why I stopped chasing motivation and what I do instead..."
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                marginBottom:12,boxSizing:'border-box'}}/>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+              <div>
+                <SecLabel>Target Duration</SecLabel>
+                <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                  {['3-5 min','8-10 min','15-20 min'].map(d => (
+                    <button key={d} onClick={() => setYtDuration(d)}
+                      style={{background:ytDuration===d?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                        borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:ytDuration===d?700:400}}>
+                      {d}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <SecLabel>Script Style</SecLabel>
+                <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                  {['Educational Story','Personal Experience','Tutorial','Interview Prep'].map(s => (
+                    <button key={s} onClick={() => setYtStyle(s)}
+                      style={{background:ytStyle===s?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                        borderRadius:6,padding:'6px 10px',cursor:'pointer',fontSize:11,fontWeight:ytStyle===s?700:400}}>
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <SecLabel>Content Angle</SecLabel>
+            <AngleGrid selected={angle} onSelect={setAngle}/>
+          </>
+        )}
+
         {tool === 'titles' && (
           <>
             <SecLabel>Video Topic</SecLabel>
@@ -5069,7 +5259,7 @@ function YouTubeToolkit() {
         {tool === 'audit' && (
           <>
             <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:8,padding:'12px 16px',marginBottom:16,fontSize:12,color:'rgba(255,255,255,0.7)'}}>
-              <strong style={{color:B.red}}>Step 1</strong> — Pull your live channel data from Perplexity, then run the audit.
+              <strong style={{color:B.red}}>Step 1</strong> — Pull your live channel data from Perplexity, then add any additional context the audit should know, then run.
             </div>
             <button onClick={fetchChannel} disabled={fetching}
               style={{background:'rgba(255,255,255,0.08)',color:B.white,border:'1px solid rgba(255,255,255,0.2)',
@@ -5083,6 +5273,13 @@ function YouTubeToolkit() {
                 {channelData}
               </div>
             )}
+            <SecLabel>Additional Channel Context</SecLabel>
+            <textarea value={auditExtra} onChange={e=>setAuditExtra(e.target.value)} rows={4}
+              placeholder="Add anything Perplexity can't see: your VIDIQ outlier scores, which videos performed best, current upload frequency, subscriber growth rate, what you've already tried, content goals, target audience details, monetization status, recent changes..."
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(255,255,255,0.15)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                resize:'vertical',marginBottom:4,boxSizing:'border-box'}}/>
+            <div style={{color:B.gray,fontSize:11,marginBottom:12}}>This context gets sent directly to the audit — the more specific, the better the recommendations.</div>
           </>
         )}
 
