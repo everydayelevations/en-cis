@@ -4957,15 +4957,7 @@ Emotion to convey: [specific feeling that drives clicks]
 
 [Timestamp marker]
 
-${duration === '10 min' ? `### SECTION 4: [Title] (~2 minutes)
-[Content]
-
-[Timestamp marker]
-
-### SECTION 5: [Title] (~2 minutes)
-[Content]
-
-[Timestamp marker]` : ''}
+${duration === '10 min' ? '### SECTION 4: [Title] (~2 minutes)\n[Content]\n\n[Timestamp marker]\n\n### SECTION 5: [Title] (~2 minutes)\n[Content]\n\n[Timestamp marker]' : ''}
 
 ### PATTERN INTERRUPT (Mid-video retention hook)
 [A line that re-engages viewers who are drifting — creates a reason to keep watching]
@@ -4978,8 +4970,7 @@ ${duration === '10 min' ? `### SECTION 4: [Title] (~2 minutes)
 [Timestamp]: [Section 1 title]
 [Timestamp]: [Section 2 title]
 [Timestamp]: [Section 3 title]
-${duration === '10 min' ? '[Timestamp]: [Section 4 title]
-[Timestamp]: [Section 5 title]' : ''}
+${duration === '10 min' ? '[Timestamp]: [Section 4 title]\n[Timestamp]: [Section 5 title]' : ''}
 
 ## SEO PACKAGE
 **Primary keyword:** [exact phrase viewers search]
