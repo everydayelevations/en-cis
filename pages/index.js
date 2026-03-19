@@ -463,6 +463,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
 
   if (!text) return null;
 
+  let sectionCounter = 0;
   const renderLine = (line, idx) => {
     if (line.startsWith('# ')) return <div key={idx} style={{fontSize:22,fontWeight:900,color:B.white,marginBottom:8,marginTop:28,paddingBottom:10,borderBottom:`2px solid ${B.red}`}}>{line.slice(2)}</div>;
     if (line.startsWith('## ')) {
@@ -1356,6 +1357,8 @@ Extract:
 const MEMORY_KEY = 'encis_content_log';
 const CLIENTS_KEY = 'encis_clients';
 const ACTIVE_CLIENT_KEY = 'encis_active_client';
+const CUSTOM_ANGLES_KEY = 'encis_custom_angles';
+const ONBOARDING_DONE_KEY = 'encis_onboarding_done';
 
 function useContentMemory() {
   const [log, setLog] = useState([]);
@@ -3697,8 +3700,8 @@ function useTrendAlerts() {
       );
 
       const parsed = results.filter(Boolean);
-      localStorage.setItem(TREND_ALERTS_KEY, JSON.stringify(parsed));
-      localStorage.setItem(TREND_ALERTS_DATE, Date.now().toString());
+      try { localStorage.setItem(TREND_ALERTS_KEY, JSON.stringify(parsed)); } catch {}
+      try { localStorage.setItem(TREND_ALERTS_DATE, Date.now().toString()); } catch {}
       setAlerts(parsed);
       // Fire web push notification if permission granted
       try {
@@ -6654,7 +6657,6 @@ function CompetitorSpy() {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const VOICE_KEY = 'encis_voice_fingerprints';
-const CUSTOM_ANGLES_KEY = 'encis_custom_angles';
 
 const VOICE_FINGERPRINT_PROMPT = (samples, clientName) => `
 You are a voice analyst. Analyze these ${samples.length} content samples from ${clientName} and extract a precise voice fingerprint.
@@ -11252,7 +11254,7 @@ function useAutoVoiceUpdate(activeClient) {
       const clean = res.replace(/```json|```/g, '').trim();
       const updated = JSON.parse(clean);
       fps[activeClient.id] = { ...currentFp, ...updated, refinementCount: (currentFp?.refinementCount || 0) + 1 };
-      localStorage.setItem(VOICE_KEY, JSON.stringify(fps));
+      try { localStorage.setItem(VOICE_KEY, JSON.stringify(fps)); } catch {}
       setLastChecked(Date.now());
       setPendingUpdate(null);
     } catch (e) { console.error('Auto voice update failed:', e); }
@@ -11311,7 +11313,6 @@ function AutoVoiceUpdateBanner({ activeClient }) {
 // 4 steps: Welcome → Brand Setup → Voice → First Strategy
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const ONBOARDING_DONE_KEY = 'encis_onboarding_done';
 
 function OnboardingFlow({ onComplete }) {
   const [step, setStep] = useState(0);
@@ -12009,6 +12010,44 @@ const COMPONENT_MAP = {
   revenue: RevenueAttribution,
 };
 
+
+// ── Global Error Boundary — prevents white screen crashes ───────────────────
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error('SIGNAL Error:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{minHeight:'100vh',background:'#080D14',display:'flex',alignItems:'center',justifyContent:'center',padding:32}}>
+          <div style={{background:'rgba(12,20,32,0.9)',border:'1px solid rgba(0,194,255,0.2)',borderRadius:16,padding:40,maxWidth:520,textAlign:'center'}}>
+            <div style={{fontSize:48,marginBottom:16}}>⚡</div>
+            <h2 style={{color:'#F1F5F9',fontWeight:900,fontSize:20,marginBottom:12,letterSpacing:'-0.03em'}}>Something went wrong</h2>
+            <p style={{color:'#5A6A82',fontSize:14,marginBottom:24,lineHeight:1.6}}>
+              SIGNAL hit an unexpected error. Your data is safe in localStorage.
+            </p>
+            <div style={{background:'rgba(0,0,0,0.4)',borderRadius:8,padding:'10px 14px',marginBottom:24,textAlign:'left',fontSize:11,color:'rgba(255,255,255,0.4)',fontFamily:'monospace',maxHeight:80,overflow:'hidden'}}>
+              {this.state.error?.message || 'Unknown error'}
+            </div>
+            <button onClick={() => { this.setState({hasError:false,error:null}); window.location.reload(); }}
+              style={{background:'linear-gradient(135deg,#00C2FF,#0096CC)',color:'#000D1A',border:'none',borderRadius:8,padding:'10px 24px',fontWeight:800,cursor:'pointer',fontSize:14}}>
+              Reload SIGNAL
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
   const [nav, setNav] = useState('home');
   const [sub, setSub] = useState(null);
@@ -12037,7 +12076,7 @@ export default function App() {
   const subItems = SUB_NAV[nav];
 
   return (
-    <>
+    <ErrorBoundary>
       {!onboardingDone && <OnboardingFlow onComplete={() => setOnboardingDone(true)}/>}
       <Head>
         <title>SIGNAL by Everyday Elevations</title>
@@ -12160,6 +12199,6 @@ export default function App() {
           }
         </main>
       </div>
-    </>
+    </ErrorBoundary>
   );
 }
