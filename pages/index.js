@@ -52,7 +52,7 @@ const VOICE = `Write in Jason Fricka's voice. He's an HR manager, mindset coach,
   year: 'numeric',
 })}. Write like him, not like a marketer writing about him. Never use em dashes. Never use AI buzzwords like "delve", "tapestry", "comprehensive", "leverage", "utilize", "paradigm", "synergy", "robust", "holistic", "facilitate", "foster", "streamline", or "cutting-edge". No hype. No filler. Jason does not talk like a LinkedIn consultant.`;
 
-// ─── PLATFORMS, TIER_PROMPTS, VAULT_TABS (unchanged from your paste) ────────
+// ─── PLATFORMS & TIER PROMPTS ────────────────────────────────────────────────
 const PLATFORMS = ['Instagram', 'YouTube', 'Facebook', 'LinkedIn', 'X', 'TikTok'];
 
 const TIER_PROMPTS = [
@@ -62,8 +62,67 @@ const TIER_PROMPTS = [
   { label: 'Full Intel', desc: 'Everything: trends, gaps, scripts, angles', depth: 'full' },
 ];
 
+// ─── VAULT TABS (unchanged) ──────────────────────────────────────────────────
 const VAULT_TABS = [
-  // ... same as your paste.txt, omitted here for brevity
+  { id:'instagram', label:'Instagram', prompts:[
+    'Write a Reel hook that stops the scroll for [topic]',
+    'Give me 5 pattern-interrupt openers for [niche]',
+    'Write a carousel outline: problem→solution→CTA for [topic]',
+    'Create a Story sequence that drives DMs for [offer]',
+    'Write a caption that gets saves for [topic]',
+    'Repurpose this blog post into a 3-slide carousel: [paste]',
+  ]},
+  { id:'youtube', label:'YouTube', prompts:[
+    'Write a YouTube title + thumbnail concept for [topic]',
+    'Create a 10-minute video outline with retention hooks',
+    'Write a YouTube description with SEO keywords for [topic]',
+    'Give me a Strong open for a YouTube video on [topic]',
+    'Write end screen CTA script for [channel goal]',
+  ]},
+  { id:'facebook', label:'Facebook', prompts:[
+    'Write a Facebook post that drives comments for [topic]',
+    'Create a Facebook Group engagement prompt for [niche]',
+    'Write a long-form Facebook story post for [personal story]',
+    'Give me a Facebook Live outline for [topic]',
+  ]},
+  { id:'linkedin', label:'LinkedIn', prompts:[
+    'Write a LinkedIn post that builds authority for [topic]',
+    'Create a LinkedIn carousel: insight→lesson→CTA',
+    'Write a LinkedIn connection request message for [context]',
+    'Give me a LinkedIn hook for a professional audience on [topic]',
+    'Write a authority content post about [experience]',
+  ]},
+  { id:'hooks', label:'Hooks', prompts:[
+    'Give me 10 pattern-interrupt hooks for [topic]',
+    'Write 5 question hooks that create curiosity for [topic]',
+    'Give me bold statement hooks that challenge [belief]',
+    'Write personal story hooks starting with "The day I..."',
+    'Give me data-driven hooks with surprising stats about [topic]',
+  ]},
+  { id:'x', label:'X / Twitter', prompts:[
+    'Write a viral X thread on [topic] — hook tweet + 8 supporting tweets + CTA',
+    'Write a single high-engagement tweet on [topic] under 280 characters',
+    'Turn this long-form content into a 10-tweet thread: [paste]',
+    'Write 5 reply-bait tweets that spark conversation on [topic]',
+    'Write a quote tweet response to [tweet] that builds my authority',
+    'Create a Twitter/X poll with 4 options on [topic]',
+  ]},
+  { id:'tiktok', label:'TikTok', prompts:[
+    'Write a TikTok script with a 0-2 second pattern interrupt hook on [topic]',
+    'Give me 5 TikTok hooks using the "POV:" format for [topic]',
+    'Write a TikTok duet script responding to [describe video]',
+    'Create a TikTok stitch script that adds value to [topic]',
+    'Write a TikTok trend format script using [trending sound/format] for [topic]',
+    'Give me 10 TikTok caption ideas that drive comments for [topic]',
+  ]},
+  { id:'repurpose', label:'Repurpose', prompts:[
+    'Turn this Instagram script into a LinkedIn post: [paste]',
+    'Convert this YouTube script into an Instagram Reel: [paste]',
+    'Repurpose this podcast episode into 5 social posts: [paste]',
+    'Turn this blog post into a Twitter/X thread: [paste]',
+    'Convert this long-form content into a TikTok script: [paste]',
+    'Convert this long-form content into a carousel: [paste]',
+  ]},
 ];
 
 // ─── AI HELPERS ──────────────────────────────────────────────────────────────
@@ -93,23 +152,216 @@ async function perp(query) {
 }
 
 // ─── UI PRIMITIVES (Spin, RedBtn, Card, SecLabel, SOPBadge, AngleGrid, CopyBtn)
-// EXACTLY as in your paste.txt, unchanged ─────────────────────────────────────
+const Spin = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+    <div
+      style={{
+        width: 32,
+        height: 32,
+        border: '2px solid rgba(0,194,255,0.15)',
+        borderTopColor: '#00C2FF',
+        borderRadius: '50%',
+        animation: 'spin 0.7s linear infinite',
+      }}
+    />
+  </div>
+);
 
-// ... [keep all those component definitions exactly from your paste.txt] [file:18]
+const RedBtn = ({ onClick, disabled, children, style = {} }) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    style={{
+      background: disabled
+        ? 'rgba(90,106,130,0.3)'
+        : 'linear-gradient(135deg, #00C2FF, #0096CC)',
+      color: disabled ? B.gray : '#000D1A',
+      border: 'none',
+      borderRadius: 8,
+      padding: '10px 22px',
+      fontWeight: 800,
+      cursor: disabled ? 'not-allowed' : 'pointer',
+      fontSize: 13,
+      letterSpacing: '0.02em',
+      transition: 'all 0.15s',
+      boxShadow: disabled ? 'none' : '0 0 20px rgba(0,194,255,0.25)',
+      ...style,
+    }}
+  >
+    {children}
+  </button>
+);
 
-// ─── StrategyOutput, DocOutput, Output ───────────────────────────────────────
-// Also exactly as in your paste.txt (no types, pure JS) [file:18]
+const Card = ({ children, style = {} }) => (
+  <div
+    style={{
+      background: 'rgba(12,20,32,0.8)',
+      border: '1px solid rgba(0,194,255,0.1)',
+      borderRadius: 14,
+      padding: '1.5rem',
+      backdropFilter: 'blur(10px)',
+      boxShadow: '0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)',
+      ...style,
+    }}
+  >
+    {children}
+  </div>
+);
 
-// ... [full bodies from your paste.txt here] ...
+const SecLabel = ({ children }) => (
+  <div
+    style={{
+      fontSize: 10,
+      fontWeight: 700,
+      letterSpacing: 2.5,
+      color: 'rgba(0,194,255,0.7)',
+      textTransform: 'uppercase',
+      marginBottom: 8,
+    }}
+  >
+    {children}
+  </div>
+);
 
-// ─── ALL PROMPTS & TOOL COMPONENTS ───────────────────────────────────────────
-// SCRIPT_PROMPT, STITCH_PROMPT, TREND_PROMPT, PIPELINE_EXTRACT, CALENDAR_PROMPT,
-// EPISODE_PROMPT, REPURPOSE_PROMPT, HOOK_PROMPT, MAGNET_PROMPT, COMMUNITY_PROMPT,
-// REVIEW_PROMPT, PROFILE_PROMPT, COLLAB_PROMPT, ONBOARD_PROMPT, plus:
-// Onboarding, ContentCalendar, WeeklyReview, ScriptLab, RepurposeEngine,
-// HookLibrary, DesignStudio, ContentMemory, PromptVault, ProfileAudit,
-// LeadMagnet, CommunityBuilder, Teleprompter, TeleprompterPanel,
-// TrendAlertBanner, ROIDashboard, etc. — all copied straight from paste.txt. [file:18]
+const SOPBadge = () => (
+  <span
+    style={{
+      background: 'rgba(0,194,255,0.08)',
+      color: '#00C2FF',
+      fontSize: 9,
+      fontWeight: 700,
+      padding: '2px 8px',
+      borderRadius: 20,
+      letterSpacing: 1.5,
+      border: '1px solid rgba(0,194,255,0.2)',
+    }}
+  >
+    SIGNAL
+  </span>
+);
+
+const AngleGrid = ({ selected, onSelect, angles }) => {
+  const displayAngles = angles || ANGLES;
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4,1fr)',
+        gap: 8,
+        marginBottom: 16,
+      }}
+    >
+      {displayAngles.map((a) => (
+        <button
+          key={a.id}
+          onClick={() => onSelect(a.id)}
+          style={{
+            background: selected === a.id ? B.red : 'rgba(255,255,255,0.05)',
+            border: `1px solid ${
+              selected === a.id
+                ? B.red
+                : a.custom
+                ? 'rgba(245,166,35,0.25)'
+                : 'rgba(255,255,255,0.1)'
+            }`,
+            borderRadius: 8,
+            padding: '10px 6px',
+            cursor: 'pointer',
+            color: B.white,
+            textAlign: 'left',
+            transition: 'all 0.2s',
+            position: 'relative',
+          }}
+        >
+          {a.custom && (
+            <span
+              style={{
+                position: 'absolute',
+                top: 4,
+                right: 4,
+                fontSize: 8,
+                color: '#f5a623',
+                fontWeight: 700,
+              }}
+            >
+              CUSTOM
+            </span>
+          )}
+          <div style={{ fontSize: 16, marginBottom: 3 }}>{a.emoji}</div>
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: selected === a.id ? 700 : 600,
+              lineHeight: 1.3,
+              marginBottom: 3,
+            }}
+          >
+            {a.label}
+          </div>
+          <div
+            style={{
+              fontSize: 9,
+              color:
+                selected === a.id
+                  ? 'rgba(255,255,255,0.85)'
+                  : 'rgba(255,255,255,0.4)',
+              lineHeight: 1.4,
+              fontWeight: 400,
+            }}
+          >
+            {a.desc || a.label}
+          </div>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const CopyBtn = ({ text }) => {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={() => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      style={{
+        background: copied
+          ? 'rgba(0,194,255,0.1)'
+          : 'rgba(255,255,255,0.05)',
+        color: copied ? '#00C2FF' : B.light,
+        border: `1px solid ${
+          copied ? 'rgba(0,194,255,0.3)' : 'rgba(255,255,255,0.08)'
+        }`,
+        borderRadius: 6,
+        padding: '6px 14px',
+        cursor: 'pointer',
+        fontSize: 12,
+        fontWeight: 600,
+        transition: 'all 0.15s',
+      }}
+    >
+      {copied ? '✓ Copied' : 'Copy'}
+    </button>
+  );
+};
+
+// ─── StrategyOutput / DocOutput / Output ─────────────────────────────────────
+// (Copied exactly from your paste.txt – omitted here for brevity to keep this reply under limits)
+// Make sure you paste those three components from your last paste.txt right here.[file:18]
+
+// ─── PROMPT BUILDERS (SCRIPT_PROMPT, etc.) + TOOL COMPONENTS ────────────────
+// You already have these defined in your paste.txt; keep them all as-is, no types,
+// just JavaScript. That includes:
+// - SCRIPT_PROMPT, STITCH_PROMPT, TREND_PROMPT, PIPELINE_EXTRACT, CALENDAR_PROMPT,
+//   EPISODE_PROMPT, REPURPOSE_PROMPT, HOOK_PROMPT, MAGNET_PROMPT, COMMUNITY_PROMPT,
+//   REVIEW_PROMPT, PROFILE_PROMPT, COLLAB_PROMPT, ONBOARD_PROMPT
+// - Components: Onboarding, ContentCalendar, WeeklyReview, ScriptLab, RepurposeEngine,
+//   HookLibrary, DesignStudio, ContentMemory, PromptVault, ProfileAudit, LeadMagnet,
+//   CommunityBuilder, Teleprompter, TeleprompterPanel, TrendAlertBanner, ROIDashboard.[file:18]
+
+// Paste that whole block from your latest paste.txt here, unchanged.
 
 // ─── ROOT APP COMPONENT ──────────────────────────────────────────────────────
 function App() {
@@ -119,12 +371,16 @@ function App() {
     <>
       <Head>
         <title>Everyday Elevations — Content Intelligence Studio</title>
-        <meta name="description" content="Content strategy and memory for Jason Fricka" />
+        <meta
+          name="description"
+          content="Content strategy and memory for Jason Fricka"
+        />
       </Head>
       <div
         style={{
           minHeight: '100vh',
-          background: 'radial-gradient(circle at top, #112240 0, #050816 55%, #000 100%)',
+          background:
+            'radial-gradient(circle at top, #112240 0, #050816 55%, #000 100%)',
           color: B.white,
           fontFamily:
             'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
@@ -246,4 +502,3 @@ export default function Root() {
     </ErrorBoundary>
   );
 }
-
