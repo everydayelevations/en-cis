@@ -243,6 +243,7 @@ const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
   if (!text) return null;
 
   // Parse markdown into structured sections
+  let sectionCounter = 0;
   const renderLine = (line, idx) => {
     if (line.startsWith('# ')) return (
       <div key={idx} style={{fontSize:22,fontWeight:900,color:B.white,marginBottom:8,marginTop:24,paddingBottom:10,borderBottom:`2px solid ${B.red}`}}>
@@ -357,24 +358,104 @@ function DocOutput({text, title='Document', showDownload=true}) {
         })
         .join('\n');
 
-      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8">
-<title>${title}</title>
+      // Build agency-grade PDF document
+      const agencyName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return wl?.agencyName || 'SIGNAL by Everyday Elevations'; } catch { return 'SIGNAL by Everyday Elevations'; } })();
+      const accentColor = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return wl?.primaryColor || '#00C2FF'; } catch { return '#00C2FF'; } })();
+      const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+      // Parse sections for numbered headers
+      let sectionNum = 0;
+      const styledBody = text
+        .split('\n')
+        .map(line => {
+          if (line.startsWith('# ')) return \`<div class="doc-title">\${line.slice(2)}</div>\`;
+          if (line.startsWith('## ')) { sectionNum++; return \`<div class="section-header"><span class="section-num">\${sectionNum}</span><span class="section-title">\${line.slice(3)}</span></div>\`; }
+          if (line.startsWith('### ')) return \`<div class="subsection">\${line.slice(4)}</div>\`;
+          if (line.startsWith('#### ')) return \`<div class="subsubsection">\${line.slice(5)}</div>\`;
+          if (line.startsWith('**') && line.endsWith('**') && line.length > 4 && !line.slice(2,-2).includes('**')) return \`<div class="label">\${line.slice(2,-2)}</div>\`;
+          if (line.startsWith('- ') || line.startsWith('* ')) return \`<div class="list-item"><span class="bullet">•</span><span>\${line.slice(2).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</span></div>\`;
+          if (/^\d+\.\s/.test(line)) return \`<div class="list-item"><span class="bullet">\${line.match(/^\d+/)[0]}.</span><span>\${line.replace(/^\d+\.\s/,'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</span></div>\`;
+          if (line === '---') return '<div class="divider"></div>';
+          if (!line.trim()) return '<div class="spacer"></div>';
+          return \`<div class="body-text">\${line.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>\`;
+        })
+        .join('');
+
+      const fullHtml = \`<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>\${title}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  @page { margin: 1in; }
-  body { font-family: Georgia, 'Times New Roman', serif; max-width: 800px; margin: 0 auto; padding: 40px 24px; color: #111; line-height: 1.8; font-size: 14px; }
-  h1 { font-size: 26px; color: #0A1628; border-bottom: 3px solid #E94560; padding-bottom: 10px; margin-bottom: 24px; margin-top: 40px; }
-  h2 { font-size: 19px; color: #E94560; margin-top: 36px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
-  h3 { font-size: 16px; color: #0A1628; margin-top: 24px; margin-bottom: 8px; border-left: 4px solid #E94560; padding-left: 10px; }
-  h4 { font-size: 14px; color: #333; margin-top: 16px; font-weight: bold; }
-  p { margin: 0 0 10px 0; color: #222; }
-  li { margin-bottom: 6px; color: #222; }
-  strong { color: #0A1628; }
-  br { display: block; margin: 8px 0; }
-  @media print { body { padding: 0; } }
+  @page { margin: 0.75in; size: letter; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', -apple-system, sans-serif; color: #111; line-height: 1.7; font-size: 13px; background: #fff; }
+
+  /* Cover */
+  .cover { background: #080D14; color: #fff; padding: 48px 40px 40px; margin: -0.75in -0.75in 0; page-break-after: always; }
+  .cover-agency { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: \${accentColor}; margin-bottom: 32px; }
+  .cover-title { font-size: 36px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; color: #fff; margin-bottom: 8px; }
+  .cover-subtitle { font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 40px; }
+  .cover-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; }
+  .cover-meta-item { padding: 0 20px 0 0; }
+  .cover-meta-item:first-child { padding-left: 0; }
+  .cover-meta-label { font-size: 9px; color: \${accentColor}; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+  .cover-meta-value { font-size: 12px; color: rgba(255,255,255,0.8); font-weight: 500; line-height: 1.4; }
+
+  /* Content */
+  .content { padding: 32px 0; }
+  .doc-title { font-size: 22px; font-weight: 900; color: #080D14; letter-spacing: -0.03em; margin: 32px 0 8px; padding-bottom: 12px; border-bottom: 2px solid \${accentColor}; }
+  .section-header { display: flex; align-items: center; gap: 12px; background: #080D14; color: #fff; padding: 10px 16px; margin: 28px 0 14px; border-radius: 4px; page-break-inside: avoid; }
+  .section-num { background: \${accentColor}; color: #000; font-size: 11px; font-weight: 900; width: 22px; height: 22px; border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .section-title { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+  .subsection { font-size: 13px; font-weight: 700; color: \${accentColor}; margin: 20px 0 6px; letter-spacing: 0.02em; }
+  .subsubsection { font-size: 12px; font-weight: 700; color: #333; margin: 14px 0 4px; }
+  .label { font-size: 11px; font-weight: 700; color: #080D14; background: #f5f5f5; padding: 4px 10px; border-left: 3px solid \${accentColor}; margin: 10px 0 4px; }
+  .body-text { font-size: 13px; color: #333; line-height: 1.75; margin-bottom: 5px; }
+  .list-item { display: flex; gap: 10px; margin-bottom: 5px; align-items: flex-start; padding-left: 8px; }
+  .list-item .bullet { color: \${accentColor}; font-weight: 700; flex-shrink: 0; margin-top: 1px; min-width: 16px; }
+  .list-item span:last-child { color: #333; font-size: 13px; line-height: 1.65; }
+  .divider { border-top: 1px solid #e5e5e5; margin: 16px 0; }
+  .spacer { height: 6px; }
+  strong { color: #080D14; font-weight: 700; }
+
+  /* Footer */
+  .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e5e5e5; display: flex; justify-content: space-between; font-size: 10px; color: #999; }
+
+  @media print {
+    .section-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .section-num { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
 </style></head><body>
-<h1>${title}</h1>
-${htmlBody}
-</body></html>`;
+
+<div class="cover">
+  <div class="cover-agency">\${agencyName}</div>
+  <div class="cover-title">\${title.split(' — ')[0] || title}</div>
+  <div class="cover-subtitle">Social Media Strategy Document</div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Prepared By</div>
+      <div class="cover-meta-value">\${agencyName}</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Document Date</div>
+      <div class="cover-meta-value">\${today}</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Document Type</div>
+      <div class="cover-meta-value">90-Day Content Strategy</div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+\${styledBody}
+<div class="footer">
+  <div>\${agencyName} — Confidential | Internal Use Only</div>
+  <div>Generated \${today}</div>
+</div>
+</div>
+
+</body></html>\`;
 
       const blob = new Blob([fullHtml], {type:'text/html'});
       const url = URL.createObjectURL(blob);
@@ -390,7 +471,15 @@ ${htmlBody}
 
   const renderLine = (line, idx) => {
     if (line.startsWith('# ')) return <div key={idx} style={{fontSize:22,fontWeight:900,color:B.white,marginBottom:8,marginTop:28,paddingBottom:10,borderBottom:`2px solid ${B.red}`}}>{line.slice(2)}</div>;
-    if (line.startsWith('## ')) return <div key={idx} style={{fontSize:14,fontWeight:800,color:B.red,letterSpacing:1.5,textTransform:'uppercase',marginTop:28,marginBottom:10}}>{line.slice(3)}</div>;
+    if (line.startsWith('## ')) {
+      sectionCounter++;
+      return (
+        <div key={idx} style={{display:'flex',alignItems:'center',gap:10,background:'rgba(8,13,20,0.9)',borderRadius:6,padding:'9px 14px',marginTop:24,marginBottom:12}}>
+          <div style={{background:B.red,color:'#000D1A',fontSize:9,fontWeight:900,width:20,height:20,borderRadius:3,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{sectionCounter}</div>
+          <div style={{fontSize:11,fontWeight:800,color:B.white,letterSpacing:2,textTransform:'uppercase'}}>{line.slice(3)}</div>
+        </div>
+      );
+    }
     if (line.startsWith('### ')) return <div key={idx} style={{fontSize:13,fontWeight:700,color:'#00C2FF',marginTop:18,marginBottom:8,paddingLeft:12,borderLeft:'3px solid #00C2FF'}}>{line.slice(4)}</div>;
     if (line.startsWith('#### ')) return <div key={idx} style={{fontSize:12,fontWeight:700,color:'rgba(255,255,255,0.7)',marginTop:12,marginBottom:6,textTransform:'uppercase',letterSpacing:1}}>{line.slice(5)}</div>;
     if (/^\d+\.\s/.test(line)) return <div key={idx} style={{display:'flex',gap:10,marginBottom:7,paddingLeft:4}}><span style={{color:B.red,fontWeight:800,fontSize:13,minWidth:20,flexShrink:0}}>{line.match(/^\d+/)[0]}.</span><span style={{color:'rgba(255,255,255,0.88)',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^\d+\.\s/,''))}</span></div>;
@@ -836,10 +925,10 @@ Find and structure collaboration opportunities:
 
 const ONBOARD_PROMPT = (fields, uploadedDoc='') => {
   const sopSection = uploadedDoc
-    ? `=== UPLOADED STRATEGY DOCUMENT (treat as authoritative source) ===
+    ? `=== UPLOADED STRATEGY DOCUMENT (use as the style and depth benchmark) ===
 ${uploadedDoc}
 === END UPLOADED DOCUMENT ===
-Mirror this document's voice, frameworks, and structure exactly. Use it as the foundation and expand every section with full depth below.`
+This document shows the standard you must match or exceed. Mirror its depth, specificity, and professional tone throughout.`
     : `${VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}`;
@@ -847,229 +936,377 @@ ${SWARBRICK}`;
   return `${sopSection}
 
 === CLIENT BRIEF ===
+Business Name: ${fields.businessName}
 Goals: ${fields.goals}
 Current State: ${fields.current}
 Weekly Time Available: ${fields.hours} hours/week
 Brand Personality: ${fields.brandPersonality}
-Business Name: ${fields.businessName}
 Affiliate / Brand Deals: ${fields.affiliateDeals}
-Filming Schedule & Batch Capacity: ${fields.filmingSchedule}
-Inspiration Accounts (study structure, NOT style): ${fields.inspirationAccounts}
+Filming Schedule: ${fields.filmingSchedule}
+Inspiration Accounts (structure only, not style): ${fields.inspirationAccounts}
 Off-Limit Topics: ${fields.offLimitTopics}
 Content to Repurpose: ${fields.repurposeLinks}
 Ideal Audience: ${fields.idealAudience}
 Desired Transformation: ${fields.desiredTransformation}
-Emotional Journey (Before/After): ${fields.emotionalJourney}
+Emotional Journey: ${fields.emotionalJourney}
 Additional Context: ${fields.additionalContext}
 
 === YOUR TASK ===
-Write a complete, specific, client-ready 90-day content strategy document. Every section must be fully built out : no placeholders, no vague instructions. Write what you would actually hand to a client tomorrow. Use the client's real voice, real goals, and real constraints throughout.
+You are a senior social media strategist at a premium agency. Write a complete, finished 90-day content strategy document for this client. This goes directly to the client tomorrow. Every section must be fully written — not described, not outlined, not templated. Actual content. Real specifics. Named pillars, written hooks, actual hashtags, specific day-by-day plans with real tasks and time estimates.
 
-Mandatory frameworks to weave throughout (never name them explicitly):
-- Swarbrick 8 Dimensions: content must serve Mental/Emotional, Physical, Social, Environmental, Financial, Intellectual, Occupational, and Spiritual dimensions naturally
-- 4-Layer Viewer Journey on every content recommendation: See It (pattern interrupt) → Click It (avatar callout + credibility) → Watch It (value delivery, no filler) → Go Deeper (CTA that drives action)
-- CTA Distribution rule: 60% comment-based, 20% DM-trigger, 20% link-in-bio : apply this across all content recommendations
-- Saves and shares are the primary success signal, not likes : prioritize content that earns saves
+Do not write instructions. Do not write placeholders. Do not write [brackets]. Do not describe what you will write. Write it.
 
-=== REQUIRED SECTIONS (build ALL of these fully) ===
+Mandatory frameworks woven throughout (never name them explicitly):
+- Swarbrick 8 Dimensions: each content pillar serves specific life dimensions
+- 4-Layer Viewer Journey: See It (pattern interrupt, first 3 seconds) → Click It (avatar callout + credibility marker) → Watch It (value, no filler) → Go Deeper (action-driving CTA)
+- CTA split: 60% comment-based, 20% DM-trigger, 20% link-in-bio
+- Primary success signal: saves and shares, not likes
 
-# [Client/Brand Name] : 90-Day Content Strategy
+Format rules:
+- # for document title only
+- ## for major sections (rendered as numbered dark header blocks)
+- ### for subsections (rendered in accent color)
+- **Label:** for field labels
+- - for list items
+- Write everything in the client's voice, not agency voice
+
+=== DOCUMENT TO WRITE ===
+
+# ${fields.businessName}: 90-Day Content Strategy
 
 ## Executive Summary
-3-4 sentences. Who this is for. What the 90 days accomplish. The single strategic bet. Why this approach over others.
+
+Write 4 sharp sentences: (1) Who this client is and what they stand for. (2) What these 90 days will accomplish with specific numbers. (3) The single strategic bet — the one thing that makes this plan work. (4) Why this approach over every other approach.
 
 ## Brand Positioning
 
 ### Social Identity
-One sharp paragraph: who this person is online, what category they own, what makes them impossible to confuse with anyone else.
 
-### Voice & Tone Guardrails
-DO (minimum 6 specific rules with examples):
-NEVER (minimum 6 specific rules with examples):
+Write one sharp paragraph that defines exactly who this person is in the online space. Name the specific category they own. Describe what makes them impossible to confuse with anyone else in their niche. This should read like the opening of their brand manifesto, not a bio.
+
+### Voice and Tone Guardrails
+
+**DO:**
+Write 8 specific, actionable voice rules with real examples drawn from this client's life and work. Not generic rules — rules specific to this person, their industry, their audience, their story.
+
+**NEVER:**
+Write 8 specific things this person must never say, post, or imply. Again, specific to this client — not generic creator advice.
 
 ### Ideal Client Profile
-Attract : list 5 specific types with why they belong
-Repel : list 5 specific types with why they don't
+
+**Attract:**
+Write 5 specific audience types with a full sentence on why each belongs in this community and what they get from it.
+
+**Repel:**
+Write 5 specific audience types with a full sentence on why each is wrong for this brand and what signal they send.
 
 ### Competitive Edge
-What nobody else in this space is doing. Be specific : name the gap.
+
+Write a specific paragraph naming the actual gap in this market — who the competitors are (by type if not name), what they all do wrong, and exactly how this client fills that gap in a way nobody else currently does.
 
 ### The Transformation Promise
-Before state (exactly how the audience feels before finding this creator) → After state (how they feel after engaging consistently). One sentence version.
+
+**Before:** Write exactly how the audience feels, thinks, and operates before they find this creator. Be specific — name the frustrations, the stuck points, the daily reality.
+**After:** Write exactly how they feel, think, and operate after engaging with this content consistently for 90 days.
+**One sentence:** Compress the entire transformation into one powerful sentence.
+
+## Unique Positioning Statement
+
+Write the category-defining statement for this brand. The version of "Most physicians treat disease. Most biohackers chase trends. Dr. O'Neil restores physiology." — specific to this client. Then write two sentences explaining why this is a category, not just a niche.
+
+## Ideal Client Breakdown
+
+Build a 3-tier client breakdown:
+
+### Tier 1 — Primary (Build authority here. Monetize here.)
+Write the full profile: age range, income/professional level, geography, mindset, what they value, what they fear, how they find this creator.
+
+### Tier 2 — Growth Audience (Ecosystem builders. Referral drivers.)
+Write the full profile: age range, what they want, how they engage, why they matter to the funnel.
+
+### Tier 3 — Top of Funnel (Capture. Nurture. Convert.)
+Write the full profile: what brings them in, how to capture them, what moves them toward Tier 1.
+
+## Industry and Competitive Landscape
+
+Write an honest analysis of this market right now. Name the categories of competitors that exist (not individual people), what each category does wrong, and the specific gap this client exploits. End with a statement about what combination of attributes no one in this space is currently doing.
 
 ## Content Pillars
 
-For EACH pillar (build 4 pillars minimum):
+Build 4 complete content pillars. For each one, write everything — not describe it, write it.
 
-### Pillar [N]: [Name]
-**Core Idea:** One sentence : the specific angle this pillar owns
-**Why It Works:** The psychological reason this resonates with the audience
-**Swarbrick Dimension:** Which life dimension(s) this serves
-**5 Specific Filmable Ideas:** (specific enough to film tomorrow : not topics, actual titles/hooks)
-**Best Format:** Reel / Carousel / Long-form : with exact reason why
-**Ideal Length:** Specific seconds or minutes
-**CTA Type:** Which CTA from the 60/20/20 split and exact wording
-**Hashtag Strategy:** 5 niche + 5 mid + 5 broad tags specific to this pillar
+### Pillar 1: [Write the actual pillar name]
+
+**Core Idea:** Write the one-sentence angle this pillar owns — specific enough to reject content that doesn't belong.
+
+**Why It Works:** Write the psychological reason this resonates. Name the specific emotion, fear, desire, or belief it activates in the target audience.
+
+**Swarbrick Dimensions:** Name which of the 8 wellness dimensions this serves and how.
+
+**5 Specific Filmable Ideas:**
+Write 5 actual content titles/hooks specific enough to film tomorrow. Not topic areas — actual hooks with specific details from this client's life.
+1.
+2.
+3.
+4.
+5.
+
+**Best Format:** Name the exact format and write the specific reason why this pillar works best in that format for this audience.
+
+**Ideal Length:** State the exact duration and why.
+
+**CTA:** Write the exact CTA language to use — actual words, not a description of the CTA type.
+
+**Hashtag Strategy:**
+Niche (under 100K): List 5 specific hashtags
+Mid (100K-1M): List 5 specific hashtags
+Broad (1M+): List 5 specific hashtags
+
+### Pillar 2: [Write the actual pillar name]
+[Same complete structure as Pillar 1]
+
+### Pillar 3: [Write the actual pillar name]
+[Same complete structure as Pillar 1]
+
+### Pillar 4: [Write the actual pillar name]
+[Same complete structure as Pillar 1]
 
 ## Platform Strategy
 
-For EACH active platform:
+### Instagram
 
-### [Platform Name]
-**Role in Ecosystem:** One sentence : what this platform does that no other platform does
-**Posting Frequency:** X posts/week : specific days
-**Content Types:** List with % breakdown (e.g. 70% Reels, 20% Carousels, 10% Static)
-**4-Layer Journey Application:** How See It → Click It → Watch It → Go Deeper applies specifically on this platform
-**Algorithm Priority:** What this platform's algorithm rewards right now and how to exploit it
-**Week 1 Priority Actions:** 3 specific numbered actions with time estimates
-**What to Never Post Here:** 3 things that kill reach on this platform
+**Role in Ecosystem:** One sentence — what Instagram does for this business that no other platform does.
+
+**Posting Frequency:** State exact days and times (timezone included).
+
+**Content Mix:** State exact percentages by format with the strategic reason for each ratio.
+
+**4-Layer Journey on Instagram:**
+- See It: Write the specific pattern interrupt strategy for this client on Instagram
+- Click It: Write the specific avatar callout and credibility marker approach
+- Watch It: Write the specific value-delivery rules for this client's content
+- Go Deeper: Write the specific CTA strategy and what action it drives
+
+**Algorithm Priority:** Write what Instagram's algorithm rewards right now and the 3 specific things this client does to exploit it.
+
+**Week 1 Actions:**
+1. [Specific action with time estimate]
+2. [Specific action with time estimate]
+3. [Specific action with time estimate]
+
+**Never Post Here:** Write 3 specific content types that will kill this account's reach and why.
+
+### [Second active platform — repeat full structure]
+
+### [Third active platform if applicable — repeat full structure]
+
+## Previous Content Analysis
+
+**Current State:** List what exists right now — what is working, what is missing, what is inconsistent.
+
+**What Is Working:** Name the specific elements that have traction and why.
+
+**Opportunities:** List 6-8 specific untapped opportunities in order of impact.
+
+## 90-Day Goals
+
+Write specific, measurable targets for each active platform:
+
+**Instagram:** Follower growth target, engagement rate target, non-follower reach %, short-form retention target
+
+**Email:** Lead magnet launch dates, subscriber targets by week 4, week 8, week 12, comment conversion rate target
+
+**YouTube (if applicable):** Episode count, CTR target, average view duration target
 
 ## 90-Day Execution Plan
 
-### Phase 1 : Foundation (Days 1-30)
-**Goal:** [Specific, measurable]
-**Theme:** [The one thing this phase is about]
+### Phase 1: Foundation (Days 1-30)
 
-Week 1 : Day by Day:
-(List Day 1 through Day 7 with specific tasks and time estimates)
+**Goal:** Write the specific, measurable goal for this phase.
+**Theme:** Write the one idea that every piece of content in this phase ladders up to.
 
-Week 2:
-(3-4 key focus areas with specific actions)
+**Week 1 — Day by Day:**
+Day 1 (write the day): [Specific task] — [time required] — [platform] — [expected output or result]
+Day 2: [Same structure]
+Day 3: [Same structure]
+Day 4: [Same structure]
+Day 5: [Same structure]
+Day 6: [Same structure]
+Day 7: [Same structure]
 
-Week 3:
-(3-4 key focus areas with specific actions)
+**Week 2:**
+Write 4 specific focus areas with the exact actions required for each.
 
-Week 4:
-(3-4 key focus areas with specific actions)
+**Week 3:**
+Write 4 specific focus areas with the exact actions required for each.
 
-Content to Batch This Phase:
-(List 15-20 specific content pieces with titles, format, and platform)
+**Week 4:**
+Write 4 specific focus areas with the exact actions required for each.
 
-Success Gate : Phase 1 Complete When:
-(3 specific measurable conditions)
+**Content to Batch — Phase 1:**
+List 15 specific content pieces with: title/hook, format, platform, and the pillar it belongs to.
 
-### Phase 2 : Momentum (Days 31-60)
-**Goal:** [Specific, measurable]
-**Theme:** [The one thing this phase is about]
+**Phase 1 Complete When:**
+Write 3 specific, measurable conditions that confirm Phase 1 succeeded.
 
-Lead Magnet:
-- Title:
-- Format:
-- Delivery mechanism:
-- The exact DM or comment trigger word:
-- Welcome email first line:
+### Phase 2: Momentum (Days 31-60)
 
-Community Building Moves:
-(5 specific actions with timelines)
+**Goal:** Write the specific, measurable goal.
+**Theme:** Write the one idea this phase is built on.
 
-Collaboration Targets:
-(3 specific creator types + why + how to pitch)
+**Lead Magnet Launch:**
+- Title: Write the actual title
+- Core Promise: Write exactly what the audience gets
+- Format: Specify exactly what it is
+- Trigger Word: Write the exact comment keyword that triggers delivery
+- Welcome Email Subject: Write the actual subject line
+- Welcome Email First Line: Write the actual opening sentence
 
-Content Evolution from Phase 1:
-(What changes, what stays, what gets added)
+**Community Building Moves:**
+Write 5 specific actions with exact timelines and expected outcomes.
 
-Success Gate : Phase 2 Complete When:
-(3 specific measurable conditions)
+**Collaboration Targets:**
+Write 3 specific creator types with why each matters, how to pitch them, and what the collaboration looks like.
 
-### Phase 3 : Scale (Days 61-90)
-**Goal:** [Specific, measurable]
-**Theme:** [The one thing this phase is about]
+**Content Evolution:**
+Write specifically what changes from Phase 1, what stays the same, and what gets added.
 
-Repurposing Workflow (step-by-step):
-Step 1: [Source content]
-Step 2: [First derivative]
+**Phase 2 Complete When:**
+Write 3 specific, measurable conditions.
+
+### Phase 3: Scale (Days 61-90)
+
+**Goal:** Write the specific, measurable goal.
+**Theme:** Write the one idea this phase drives toward.
+
+**Repurposing Workflow:**
+Step 1: [Source — what gets created and where]
+Step 2: [First derivative — what it becomes]
 Step 3: [Second derivative]
 Step 4: [Third derivative]
-Step 5: [Distribution]
+Step 5: [Distribution — where everything lands]
 
-Revenue Pathway:
-(Exactly how content converts to money : specific funnel with steps)
+**Revenue Pathway:**
+Write the exact funnel: content → action → conversion → revenue. Name each step, the mechanism, and the expected conversion at each stage.
 
-Analytics Review Process:
-(What to check, when, what decisions to make based on what data)
+**Analytics Review Process:**
+Write exactly what to check, when to check it, and what decision each data point drives.
 
-Success Gate : Phase 3 Complete When:
-(3 specific measurable conditions)
+**Phase 3 Complete When:**
+Write 3 specific, measurable conditions.
+
+## Themed Campaigns
+
+### Campaign 1 (Days 1-30)
+Write the campaign name, goal with specific numbers, daily and weekly content cadence, and the hook series that runs through it.
+
+### Campaign 2 (Days 31-90)
+Write the campaign name, goal with specific numbers, the lead magnet launch sequence, and the conversion content strategy.
 
 ## Content Production Standards
 
-### Pre-Production
-(What to prepare before filming : specific checklist)
-
 ### Opening Rules
-(Specific rules for the first 3 seconds of every piece of content : with examples)
+Write 5 specific rules for the first 3 seconds of every piece of content — with examples drawn from this client's actual life and topics.
 
 ### Editing Standards
-(Jump cuts, captions, pacing, overlays : specific rules)
+Write the specific editing rules: cut timing, caption style, pacing, overlays, visual variation frequency.
 
 ### Retention Rules
-(The 4-layer journey applied to editing : how to keep people watching)
+Write how the 4-layer journey applies to editing — specific instructions for keeping people watching through to the CTA.
 
-### What Kills Content (Never Do List)
-(8-10 specific things that will tank performance)
+### Content Production Pipeline
 
-## Engagement SOP
+**Filming Sessions:**
+Write how often, what to capture per session, how to batch, what a full session produces.
 
-### Pre-Post Window (15-30 min before publishing)
-(Exact actions to prime the algorithm)
+**Topic Ideation:**
+Write the specific process for generating monthly topics aligned to pillars and trends.
 
-### Post-Post Window (first 60 min after publishing)
-(Exact actions to boost early engagement signal)
+**Short-Form Extraction:**
+Write how many clips to extract from each long-form piece, what to look for, how to re-edit for each platform.
 
-### Daily Engagement Targets
-- Comments on aligned accounts: [specific number] meaningful comments (not emoji)
-- DM outreach: [specific number] targeted conversations
-- Story engagement: [specific actions]
-- Response time SLA: Comments within [X hours], DMs within [X hours]
+### What Kills This Content
+Write 8 specific things that will tank performance on this account — specific to this client, not generic creator advice.
 
-### Comment Response Framework
-(How to respond to: positive comments / questions / negative comments / spam)
+## Posting and Engagement SOP
+
+**Pre-Post Window (5-10 minutes before):**
+Write the exact actions to prime the algorithm for this specific account.
+
+**Post-Post Window (first 60 minutes after):**
+Write the exact actions to maximize early engagement signal.
+
+**Daily Engagement Targets:**
+- Meaningful comments on aligned accounts: [specific number] — write exactly what "meaningful" means for this niche
+- DM conversations: [specific number] with specific targeting criteria
+- Story engagement: [specific daily actions]
+- Comment response time: [specific hours]
+- DM response time: [specific hours]
+
+**Comment Response Framework:**
+Write how to respond to: enthusiastic comments, questions about services, negative or skeptical comments, competitor comments, spam.
 
 ## Weekly Schedule Template
 
-Based on ${fields.hours} hours/week. Build a realistic day-by-day schedule.
+Based on ${fields.hours} hours/week. Write a realistic, specific weekly schedule.
 
-For each active day: Start time, task, duration, platform, specific output
+For each active day, write: the specific time block, the task, the duration, the platform, and the specific output expected.
 
-## Lead Magnet System
+## Email Collection Strategy
 
-### Lead Magnet 1
-- Title:
-- Core promise:
-- Format:
-- 5-7 key deliverables inside:
-- Delivery Reel script (hook + preview + CTA):
-- Welcome email subject line + first paragraph:
+**Lead Magnets:**
+Write the full titles, core promises, and format for each lead magnet.
 
-### Lead Magnet 2 (Phase 2)
-- Title:
-- Core promise:
-- Format:
-- Trigger content that promotes it:
+**CTA Distribution:**
+Write the exact percentages and the specific language used for each CTA type.
+
+**Keyword Triggers:**
+Write the exact trigger words used in comments to trigger lead magnet delivery.
+
+**Target Conversion Rate:**
+Write the specific comment-to-DM conversion target.
+
+## Communication Rhythm
+
+Write the specific check-in and reporting cadence: weekly touchpoints, monthly calls, quarterly reviews, what each covers, who owns each.
+
+## Monthly Reporting Structure
+
+Write what gets measured, how it gets reported, and what decisions each metric drives. The question is never how much was posted — it is what did it produce.
 
 ## Success Metrics
 
-### Primary KPIs (the numbers that matter most)
-For each: metric name, current baseline, 30-day target, 60-day target, 90-day target
+### Primary KPIs
+For each primary metric, write: current baseline, 30-day target, 60-day target, 90-day target.
 
 ### Secondary KPIs
-List 5-6 with specific targets
+Write 6 secondary metrics with specific targets.
 
 ### What to Ignore
-(Vanity metrics that don't drive the business : with explanation)
+Write the vanity metrics this client must stop tracking and the specific reason each is misleading.
 
-## Quick Wins : First 7 Days
-List 7 specific actions (one per day):
-- Day 1: [action] : [time required] : [expected result]
-- Day 2: [action] : [time required] : [expected result]
-(continue through Day 7)
+## Implementation Timeline
+
+**Week 1 — Foundation:**
+Write 5-6 specific setup actions with owners and time estimates.
+
+**Week 2 — Launch:**
+Write 4-5 specific launch actions.
+
+**Month 2 — Scale:**
+Write 4-5 specific growth actions.
+
+**Month 3 — Convert:**
+Write 4-5 specific conversion actions.
 
 ## The Non-Negotiables
-3-5 rules that cannot be broken regardless of what's happening. These are the foundation everything else is built on.
 
-${uploadedDoc ? 'This is a client-facing deliverable. Every section must be complete. No placeholders. Match the voice and energy of the uploaded document exactly.' : 'Write in the client voice throughout. Direct, specific, no corporate speak. Every recommendation should feel like it came from someone who knows this person and their business.'}
+Write 5 rules that cannot be broken regardless of what is happening — these are the foundation. Make them specific to this client, not generic creator advice. Frame them as commitments, not suggestions.
+
+${uploadedDoc ? 'Match the depth, specificity, and professional tone of the uploaded document. Every section fully written. No placeholders.' : 'Write everything in this client voice. Direct. Specific. No corporate speak. Every recommendation feels like it came from someone who knows this person and their business deeply.'}
 `;
 };
+
 
 
 const DESIGN_PROMPT = (topic, format, angle) => `
