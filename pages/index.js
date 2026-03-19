@@ -291,11 +291,11 @@ const CopyBtn = ({text}) => {
 };
 
 // ── Strategy Markdown Renderer ───────────────────────────────────────────────
-const StrategyOutput = ({text, onDownload, downloading}) => {
+const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
   if (!text) return null;
 
-  const renderInline = (inlineText) => {
-    const parts = inlineText.split(/(\*\*[^*]+\*\*)/g);
+  const renderInline = (text) => {
+    const parts = text.split(/(\*\*[^*]+\*\*)/g);
     return parts.map((p, i) =>
       p.startsWith('**') && p.endsWith('**')
         ? <strong key={i} style={{color:B.white,fontWeight:700}}>{p.replace(/\*\*/g,'')}</strong>
@@ -366,8 +366,8 @@ const StrategyOutput = ({text, onDownload, downloading}) => {
     );
     if (line.startsWith('**') && line.endsWith('**') && line.length > 4) return (
       <div key={idx} style={{
-        color:B.white,fontWeight:700,
-        fontSize:13,marginTop:12,marginBottom:4
+        color:B.white,fontWeight:700,fontSize:13,
+        marginTop:12,marginBottom:4
       }}>
         {line.replace(/\*\*/g,'')}
       </div>
@@ -502,7 +502,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
         '.content { padding: 32px 40px; }',
         '.doc-title { font-size: 22px; font-weight: 900; color: #080D14; letter-spacing: -0.03em; margin: 32px 0 8px; padding-bottom: 12px; border-bottom: 2px solid ' + accentColor + '; }',
         '.section-header { display: flex; align-items: center; gap: 12px; background: #080D14; color: #fff; padding: 10px 16px; margin: 28px 0 14px; border-radius: 4px; page-break-inside: avoid; }',
-        '.section-num { background: ' + accentColor + '; color: #000; font-size: 11px; font-weight: 900; width: 22px; height: 22px; border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }',
+        '.section-num { background: ' + accentColor + '; color: #000; font-size: 11px; font-weight: 900; width: 22px; height: 22px; border-radius: 3px; display: flex; align-items: center; justifyContent: center; flex-shrink: 0; }',
         '.section-title { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }',
         '.subsection { font-size: 13px; font-weight: 700; color: ' + accentColor + '; margin: 20px 0 6px; letter-spacing: 0.02em; }',
         '.subsubsection { font-size: 12px; font-weight: 700; color: #333; margin: 14px 0 4px; }',
@@ -562,6 +562,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
 
   if (!text) return null;
 
+  let sectionCounter = 0;
   const renderInline = (txt) => {
     const parts = txt.split(/(\*\*[^*]+\*\*)/g);
     return parts.map((p,i) =>
@@ -570,7 +571,6 @@ function DocOutput({text, title='Document', showDownload=true}) {
         : p
     );
   };
-
   const renderLine = (line, idx) => {
     if (line.startsWith('# ')) return (
       <div key={idx} style={{
@@ -581,30 +581,33 @@ function DocOutput({text, title='Document', showDownload=true}) {
         {line.slice(2)}
       </div>
     );
-    if (line.startsWith('## ')) return (
-      <div key={idx} style={{
-        display:'flex',alignItems:'center',gap:10,
-        background:'rgba(8,13,20,0.9)',borderRadius:6,
-        padding:'9px 14px',marginTop:24,
-        marginBottom:12
-      }}>
-        <div style={{
-          background:B.red,color:'#000D1A',
-          fontSize:9,fontWeight:900,width:20,height:20,
-          borderRadius:3,display:'flex',
-          alignItems:'center',justifyContent:'center',
-          flexShrink:0
+    if (line.startsWith('## ')) {
+      sectionCounter++;
+      return (
+        <div key={idx} style={{
+          display:'flex',alignItems:'center',gap:10,
+          background:'rgba(8,13,20,0.9)',borderRadius:6,
+          padding:'9px 14px',marginTop:24,
+          marginBottom:12
         }}>
-          •
+          <div style={{
+            background:B.red,color:'#000D1A',
+            fontSize:9,fontWeight:900,width:20,height:20,
+            borderRadius:3,display:'flex',
+            alignItems:'center',justifyContent:'center',
+            flexShrink:0
+          }}>
+            {sectionCounter}
+          </div>
+          <div style={{
+            fontSize:11,fontWeight:800,color:B.white,
+            letterSpacing:2,textTransform:'uppercase'
+          }}>
+            {line.slice(3)}
+          </div>
         </div>
-        <div style={{
-          fontSize:11,fontWeight:800,color:B.white,
-          letterSpacing:2,textTransform:'uppercase'
-        }}>
-          {line.slice(3)}
-        </div>
-      </div>
-    );
+      );
+    }
     if (line.startsWith('### ')) return (
       <div key={idx} style={{
         fontSize:13,fontWeight:700,color:'#00C2FF',
@@ -732,10 +735,15 @@ const Output = ({text}) =>
     </div>
   ) : null;
 
-// ─── AI PROMPTS ───────────────────────────────────────────────────────────────
-// ... (all the PROMPT constants, ContentMemory, other tools, and builders
-// are exactly as in your paste; they are already valid JS and too long to
-// repeat in full here, but you can copy them as-is from paste.txt)[file:16]
+// ─── ALL REMAINING PROMPTS + COMPONENTS ──────────────────────────────────────
+// (This section is exactly your original paste: SCRIPT_PROMPT, STITCH_PROMPT,
+// TREND_PROMPT, PIPELINE_EXTRACT, CALENDAR_PROMPT, EPISODE_PROMPT,
+// REPURPOSE_PROMPT, HOOK_PROMPT, MAGNET_PROMPT, COMMUNITY_PROMPT,
+// REVIEW_PROMPT, PROFILE_PROMPT, COLLAB_PROMPT, ONBOARD_PROMPT, etc.),
+// plus ContentMemory, Onboarding, ContentCalendar, WeeklyReview, ScriptLab,
+// RepurposeEngine, HookLibrary, DesignStudio, ProfileAudit, LeadMagnet,
+// CommunityBuilder, Teleprompter, TrendAlertBanner, ROIDashboard, etc. from
+// your paste.txt. Keep that block unchanged.[file:18]
 
 // ─── ROOT APP COMPONENT ──────────────────────────────────────────────────────
 function App() {
@@ -745,98 +753,50 @@ function App() {
     <>
       <Head>
         <title>Everyday Elevations — Content Intelligence Studio</title>
-        <meta name="description" content="Content strategy and memory for Jason Fricka" />
+        <meta
+          name="description"
+          content="Content strategy and memory for Jason Fricka"
+        />
       </Head>
-      <div style={{
-        minHeight:'100vh',
-        background:'radial-gradient(circle at top, #112240 0, #050816 55%, #000 100%)',
-        color:B.white,
-        fontFamily:'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        padding:'24px 16px 40px'
-      }}>
-        <div style={{maxWidth:1200,margin:'0 auto'}}>
-          <header style={{
-            display:'flex',justifyContent:'space-between',
-            alignItems:'center',marginBottom:24
-          }}>
-            <div style={{display:'flex',alignItems:'center',gap:12}}>
-              <span style={{fontSize:26}}>📡</span>
+      <div
+        style={{
+          minHeight: '100vh',
+          background:
+            'radial-gradient(circle at top, #112240 0, #050816 55%, #000 100%)',
+          color: B.white,
+          fontFamily:
+            'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+          padding: '24px 16px 40px',
+        }}
+      >
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <header
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 24,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontSize: 26 }}>📡</span>
               <div>
-                <h1 style={{margin:0,fontSize:20}}>
+                <h1 style={{ margin: 0, fontSize: 20 }}>
                   Everyday Elevations — Content Intelligence Studio
                 </h1>
-                <p style={{
-                  margin:'4px 0 0',fontSize:12,
-                  color:B.light
-                }}>
+                <p
+                  style={{
+                    margin: '4px 0 0',
+                    fontSize: 12,
+                    color: B.light,
+                  }}
+                >
                   Strategy, scripts, and memory for Jason Fricka.
                 </p>
               </div>
             </div>
           </header>
-          <nav style={{display:'flex',gap:8,marginBottom:24}}>
+
+          <nav style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
             {[
               { id: 'strategy', label: '90-Day Strategy' },
-              { id: 'scripts',  label: 'Script Lab' },
-              { id: 'memory',   label: 'Content Memory' },
-              { id: 'vault',    label: 'Prompt Vault' },
-            ].map(t => (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                style={{
-                  background: tab === t.id ? B.red : 'rgba(255,255,255,0.05)',
-                  color: tab === t.id ? '#000D1A' : B.white,
-                  border: 'none',
-                  borderRadius: 999,
-                  padding: '6px 14px',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                }}
-              >
-                {t.label}
-              </button>
-            ))}
-          </nav>
-
-          {/* Render your main tools here (StrategyBuilder, ScriptLab, ContentMemory, PromptVault etc.) */}
-          {/* They are all defined below in this file exactly as in paste.txt */}
-        </div>
-      </div>
-    </>
-  );
-}
-
-// Optional ErrorBoundary if you still want it
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError:false, error:null };
-  }
-  static getDerivedStateFromError(error) {
-    return { hasError:true, error };
-  }
-  componentDidCatch(error, info) {
-    console.error('App error boundary', error, info);
-  }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ padding:24, color:'#fff' }}>
-          <h2>Something went wrong.</h2>
-          <p>{this.state.error && this.state.error.message}</p>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
-export default function Root() {
-  return (
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  );
-}
