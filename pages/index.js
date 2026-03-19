@@ -358,105 +358,100 @@ function DocOutput({text, title='Document', showDownload=true}) {
         })
         .join('\n');
 
-      // Build agency-grade PDF document
-      const agencyName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return wl?.agencyName || 'SIGNAL by Everyday Elevations'; } catch { return 'SIGNAL by Everyday Elevations'; } })();
-      const accentColor = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return wl?.primaryColor || '#00C2FF'; } catch { return '#00C2FF'; } })();
+      // Build agency-grade PDF document using string concat (no nested template literals)
+      const agencyName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.agencyName) ? wl.agencyName : 'SIGNAL by Everyday Elevations'; } catch(e) { return 'SIGNAL by Everyday Elevations'; } })();
+      const accentColor = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.primaryColor) ? wl.primaryColor : '#00C2FF'; } catch(e) { return '#00C2FF'; } })();
       const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
 
-      // Parse sections for numbered headers
+      // Convert markdown lines to styled HTML
       let sectionNum = 0;
-      const styledBody = text
-        .split('\n')
-        .map(line => {
-          if (line.startsWith('# ')) return \`<div class="doc-title">\${line.slice(2)}</div>\`;
-          if (line.startsWith('## ')) { sectionNum++; return \`<div class="section-header"><span class="section-num">\${sectionNum}</span><span class="section-title">\${line.slice(3)}</span></div>\`; }
-          if (line.startsWith('### ')) return \`<div class="subsection">\${line.slice(4)}</div>\`;
-          if (line.startsWith('#### ')) return \`<div class="subsubsection">\${line.slice(5)}</div>\`;
-          if (line.startsWith('**') && line.endsWith('**') && line.length > 4 && !line.slice(2,-2).includes('**')) return \`<div class="label">\${line.slice(2,-2)}</div>\`;
-          if (line.startsWith('- ') || line.startsWith('* ')) return \`<div class="list-item"><span class="bullet">•</span><span>\${line.slice(2).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</span></div>\`;
-          if (/^\d+\.\s/.test(line)) return \`<div class="list-item"><span class="bullet">\${line.match(/^\d+/)[0]}.</span><span>\${line.replace(/^\d+\.\s/,'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</span></div>\`;
-          if (line === '---') return '<div class="divider"></div>';
-          if (!line.trim()) return '<div class="spacer"></div>';
-          return \`<div class="body-text">\${line.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>\`;
-        })
-        .join('');
+      const escHtml = (s) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const boldify = (s) => s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
-      const fullHtml = \`<!DOCTYPE html><html><head><meta charset="utf-8">
-<title>\${title}</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-  @page { margin: 0.75in; size: letter; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', -apple-system, sans-serif; color: #111; line-height: 1.7; font-size: 13px; background: #fff; }
+      const styledLines = text.split('\n').map(function(line) {
+        if (line.startsWith('# ')) {
+          return '<div class="doc-title">' + boldify(escHtml(line.slice(2))) + '</div>';
+        }
+        if (line.startsWith('## ')) {
+          sectionNum++;
+          return '<div class="section-header"><span class="section-num">' + sectionNum + '</span><span class="section-title">' + escHtml(line.slice(3)) + '</span></div>';
+        }
+        if (line.startsWith('### ')) {
+          return '<div class="subsection">' + boldify(escHtml(line.slice(4))) + '</div>';
+        }
+        if (line.startsWith('#### ')) {
+          return '<div class="subsubsection">' + boldify(escHtml(line.slice(5))) + '</div>';
+        }
+        if (line.startsWith('**') && line.endsWith('**') && line.length > 4 && line.slice(2,-2).indexOf('**') === -1) {
+          return '<div class="label">' + escHtml(line.slice(2,-2)) + '</div>';
+        }
+        if (line.startsWith('- ') || line.startsWith('* ')) {
+          return '<div class="list-item"><span class="bullet">&#8226;</span><span>' + boldify(escHtml(line.slice(2))) + '</span></div>';
+        }
+        if (/^\d+\.\s/.test(line)) {
+          var num = line.match(/^(\d+)/)[1];
+          return '<div class="list-item"><span class="bullet">' + num + '.</span><span>' + boldify(escHtml(line.replace(/^\d+\.\s/,''))) + '</span></div>';
+        }
+        if (line === '---') return '<div class="divider"></div>';
+        if (!line.trim()) return '<div class="spacer"></div>';
+        return '<div class="body-text">' + boldify(escHtml(line)) + '</div>';
+      });
+      const styledBody = styledLines.join('\n');
 
-  /* Cover */
-  .cover { background: #080D14; color: #fff; padding: 48px 40px 40px; margin: -0.75in -0.75in 0; page-break-after: always; }
-  .cover-agency { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: \${accentColor}; margin-bottom: 32px; }
-  .cover-title { font-size: 36px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; color: #fff; margin-bottom: 8px; }
-  .cover-subtitle { font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 40px; }
-  .cover-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; }
-  .cover-meta-item { padding: 0 20px 0 0; }
-  .cover-meta-item:first-child { padding-left: 0; }
-  .cover-meta-label { font-size: 9px; color: \${accentColor}; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
-  .cover-meta-value { font-size: 12px; color: rgba(255,255,255,0.8); font-weight: 500; line-height: 1.4; }
+      // CSS (no template expressions — accent color injected via style attribute workaround)
+      const css = [
+        '@page { margin: 0.75in; size: letter; }',
+        '* { box-sizing: border-box; margin: 0; padding: 0; }',
+        "body { font-family: 'DM Sans', -apple-system, sans-serif; color: #111; line-height: 1.7; font-size: 13px; }",
+        '.cover { background: #080D14; color: #fff; padding: 48px 40px 40px; }',
+        '.cover-agency { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: ' + accentColor + '; margin-bottom: 32px; }',
+        '.cover-title { font-size: 36px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; color: #fff; margin-bottom: 8px; }',
+        '.cover-subtitle { font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 40px; }',
+        '.cover-meta { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; }',
+        '.cover-meta-item { padding: 0 20px 0 0; }',
+        '.cover-meta-label { font-size: 9px; color: ' + accentColor + '; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }',
+        '.cover-meta-value { font-size: 12px; color: rgba(255,255,255,0.8); font-weight: 500; line-height: 1.4; }',
+        '.content { padding: 32px 40px; }',
+        '.doc-title { font-size: 22px; font-weight: 900; color: #080D14; letter-spacing: -0.03em; margin: 32px 0 8px; padding-bottom: 12px; border-bottom: 2px solid ' + accentColor + '; }',
+        '.section-header { display: flex; align-items: center; gap: 12px; background: #080D14; color: #fff; padding: 10px 16px; margin: 28px 0 14px; border-radius: 4px; page-break-inside: avoid; }',
+        '.section-num { background: ' + accentColor + '; color: #000; font-size: 11px; font-weight: 900; width: 22px; height: 22px; border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }',
+        '.section-title { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }',
+        '.subsection { font-size: 13px; font-weight: 700; color: ' + accentColor + '; margin: 20px 0 6px; letter-spacing: 0.02em; }',
+        '.subsubsection { font-size: 12px; font-weight: 700; color: #333; margin: 14px 0 4px; }',
+        '.label { font-size: 11px; font-weight: 700; color: #080D14; background: #f5f5f5; padding: 4px 10px; border-left: 3px solid ' + accentColor + '; margin: 10px 0 4px; }',
+        '.body-text { font-size: 13px; color: #333; line-height: 1.75; margin-bottom: 5px; }',
+        '.list-item { display: flex; gap: 10px; margin-bottom: 5px; align-items: flex-start; padding-left: 8px; }',
+        '.list-item .bullet { color: ' + accentColor + '; font-weight: 700; flex-shrink: 0; margin-top: 1px; min-width: 16px; }',
+        '.list-item span:last-child { color: #333; font-size: 13px; line-height: 1.65; }',
+        '.divider { border-top: 1px solid #e5e5e5; margin: 16px 0; }',
+        '.spacer { height: 6px; }',
+        'strong { color: #080D14; font-weight: 700; }',
+        '.footer { margin: 40px 0 0; padding: 16px 0 0; border-top: 1px solid #e5e5e5; display: flex; justify-content: space-between; font-size: 10px; color: #999; }',
+        '@media print { .section-header, .cover, .section-num { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }',
+      ].join('\n');
 
-  /* Content */
-  .content { padding: 32px 0; }
-  .doc-title { font-size: 22px; font-weight: 900; color: #080D14; letter-spacing: -0.03em; margin: 32px 0 8px; padding-bottom: 12px; border-bottom: 2px solid \${accentColor}; }
-  .section-header { display: flex; align-items: center; gap: 12px; background: #080D14; color: #fff; padding: 10px 16px; margin: 28px 0 14px; border-radius: 4px; page-break-inside: avoid; }
-  .section-num { background: \${accentColor}; color: #000; font-size: 11px; font-weight: 900; width: 22px; height: 22px; border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .section-title { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
-  .subsection { font-size: 13px; font-weight: 700; color: \${accentColor}; margin: 20px 0 6px; letter-spacing: 0.02em; }
-  .subsubsection { font-size: 12px; font-weight: 700; color: #333; margin: 14px 0 4px; }
-  .label { font-size: 11px; font-weight: 700; color: #080D14; background: #f5f5f5; padding: 4px 10px; border-left: 3px solid \${accentColor}; margin: 10px 0 4px; }
-  .body-text { font-size: 13px; color: #333; line-height: 1.75; margin-bottom: 5px; }
-  .list-item { display: flex; gap: 10px; margin-bottom: 5px; align-items: flex-start; padding-left: 8px; }
-  .list-item .bullet { color: \${accentColor}; font-weight: 700; flex-shrink: 0; margin-top: 1px; min-width: 16px; }
-  .list-item span:last-child { color: #333; font-size: 13px; line-height: 1.65; }
-  .divider { border-top: 1px solid #e5e5e5; margin: 16px 0; }
-  .spacer { height: 6px; }
-  strong { color: #080D14; font-weight: 700; }
+      const coverHtml = '<div class="cover">'
+        + '<div class="cover-agency">' + agencyName + '</div>'
+        + '<div class="cover-title">' + escHtml(title.split(' \u2014 ')[0] || title) + '</div>'
+        + '<div class="cover-subtitle">Social Media Strategy Document</div>'
+        + '<div class="cover-meta">'
+        + '<div class="cover-meta-item"><div class="cover-meta-label">Prepared By</div><div class="cover-meta-value">' + agencyName + '</div></div>'
+        + '<div class="cover-meta-item"><div class="cover-meta-label">Document Date</div><div class="cover-meta-value">' + today + '</div></div>'
+        + '<div class="cover-meta-item"><div class="cover-meta-label">Document Type</div><div class="cover-meta-value">90-Day Content Strategy</div></div>'
+        + '</div></div>';
 
-  /* Footer */
-  .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e5e5e5; display: flex; justify-content: space-between; font-size: 10px; color: #999; }
+      const footerHtml = '<div class="footer"><div>' + agencyName + ' &#8212; Confidential | Internal Use Only</div><div>Generated ' + today + '</div></div>';
 
-  @media print {
-    .section-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .section-num { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  }
-</style></head><body>
+      const fullHtml = '<!DOCTYPE html><html><head><meta charset="utf-8">'
+        + '<title>' + escHtml(title) + '</title>'
+        + '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">'
+        + '<style>' + css + '</style>'
+        + '</head><body>'
+        + coverHtml
+        + '<div class="content">' + styledBody + footerHtml + '</div>'
+        + '</body></html>';
 
-<div class="cover">
-  <div class="cover-agency">\${agencyName}</div>
-  <div class="cover-title">\${title.split(' — ')[0] || title}</div>
-  <div class="cover-subtitle">Social Media Strategy Document</div>
-  <div class="cover-meta">
-    <div class="cover-meta-item">
-      <div class="cover-meta-label">Prepared By</div>
-      <div class="cover-meta-value">\${agencyName}</div>
-    </div>
-    <div class="cover-meta-item">
-      <div class="cover-meta-label">Document Date</div>
-      <div class="cover-meta-value">\${today}</div>
-    </div>
-    <div class="cover-meta-item">
-      <div class="cover-meta-label">Document Type</div>
-      <div class="cover-meta-value">90-Day Content Strategy</div>
-    </div>
-  </div>
-</div>
-
-<div class="content">
-\${styledBody}
-<div class="footer">
-  <div>\${agencyName} — Confidential | Internal Use Only</div>
-  <div>Generated \${today}</div>
-</div>
-</div>
-
-</body></html>\`;
-
+      const blob = new Blob([fullHtml], {type:'text/html'});
       const blob = new Blob([fullHtml], {type:'text/html'});
       const url = URL.createObjectURL(blob);
       const printWin = window.open(url, '_blank');
