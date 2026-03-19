@@ -513,7 +513,7 @@ Write as a thread, not a script. Each variation should be:
 - Tweets 2-7 (Body): Each tweet one idea. Short paragraphs. Numbered 2/ 3/ 4/ etc.
 - Tweet 8 (CTA): Follow for more, reply with your take, or link.
 Total thread: 8-10 tweets. Every tweet must be worth reading alone.` : ''}
-\`;
+`;
 
 const STITCH_PROMPT = (originalContent, angle) => `
 ${VOICE}
@@ -574,7 +574,7 @@ What in his background (HR, real estate, Colorado, endurance athlete, mindset co
 
 ## Source Check
 Flag any sources that appear to be pre-2026
-\`;
+`;
 
 const CALENDAR_PROMPT = (pillars, platform, duration, strategyDoc='') => `
 ${VOICE}
