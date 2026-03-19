@@ -3,29 +3,30 @@ import Head from 'next/head';
 
 // ─── BRAND ───────────────────────────────────────────────────────────────────
 const B = {
-  navy: '#080D14',
-  navy2: '#0C1420',
-  navy3: '#111B2B',
-  red: '#00C2FF',
-  white: '#F1F5F9',
-  gray: '#5A6A82',
-  light: '#8B9AB4',
-  gold: '#C9A84C',
+  navy:   '#080D14',   // obsidian — deepest background
+  navy2:  '#0C1420',   // surface — cards and panels
+  navy3:  '#111B2B',   // elevated — inputs, hover
+  red:    '#00C2FF',   // signal cyan — primary accent (replaces red throughout)
+  white:  '#F1F5F9',   // off-white — cooler, more premium than pure white
+  gray:   '#5A6A82',   // muted — secondary text
+  light:  '#8B9AB4',   // light gray — tertiary text
+  gold:   '#C9A84C',   // gold — premium badges only, use sparingly
 };
 
 // ─── CONTENT ANGLES ──────────────────────────────────────────────────────────
+// Content angles mapped to Dr. Peggy Swarbrick's 8 Dimensions of Wellness
 const ANGLES = [
-  { id: 'emotional', emoji: '🧠', label: 'Emotional', dimension: 'Emotional', desc: 'Self-awareness, stress, identity, how you talk to yourself' },
-  { id: 'physical', emoji: '🏋️', label: 'Physical', dimension: 'Physical', desc: 'Training, sleep, recovery, nutrition, daily movement' },
-  { id: 'social', emoji: '🤝', label: 'Social', dimension: 'Social', desc: 'Relationships, community, parenting, connection, belonging' },
-  { id: 'intellectual', emoji: '📚', label: 'Intellectual', dimension: 'Intellectual', desc: 'Learning, problem-solving, curiosity, skills, sharp thinking' },
-  { id: 'occupational', emoji: '💼', label: 'Occupational', dimension: 'Occupational', desc: 'Work ethic, career, HR, real estate, purpose in what you do' },
-  { id: 'financial', emoji: '💰', label: 'Financial', dimension: 'Financial', desc: 'Real estate, money habits, building wealth, smart decisions' },
-  { id: 'environmental', emoji: '🏔️', label: 'Environmental', dimension: 'Environmental', desc: 'Colorado, outdoor life, your physical space, the world around you' },
-  { id: 'spiritual', emoji: '🔥', label: 'Spiritual', dimension: 'Spiritual', desc: 'Purpose, values, what drives you, the reason behind the work' },
+  { id:'emotional',      emoji:'🧠', label:'Emotional',      dimension:'Emotional',      desc:'Self-awareness, stress, identity, how you talk to yourself' },
+  { id:'physical',       emoji:'🏋️', label:'Physical',       dimension:'Physical',       desc:'Training, sleep, recovery, nutrition, daily movement' },
+  { id:'social',         emoji:'🤝', label:'Social',         dimension:'Social',         desc:'Relationships, community, parenting, connection, belonging' },
+  { id:'intellectual',   emoji:'📚', label:'Intellectual',   dimension:'Intellectual',   desc:'Learning, problem-solving, curiosity, skills, sharp thinking' },
+  { id:'occupational',   emoji:'💼', label:'Occupational',   dimension:'Occupational',   desc:'Work ethic, career, HR, real estate, purpose in what you do' },
+  { id:'financial',      emoji:'💰', label:'Financial',      dimension:'Financial',      desc:'Real estate, money habits, building wealth, smart decisions' },
+  { id:'environmental',  emoji:'🏔️', label:'Environmental',  dimension:'Environmental',  desc:'Colorado, outdoor life, your physical space, the world around you' },
+  { id:'spiritual',      emoji:'🔥', label:'Spiritual',      dimension:'Spiritual',      desc:'Purpose, values, what drives you, the reason behind the work' },
 ];
 
-// ─── FRAMEWORKS ──────────────────────────────────────────────────────────────
+// ─── FRAMEWORKS (invisible infrastructure) ───────────────────────────────────
 const SWARBRICK = `Dr. Peggy Swarbrick's 8 Dimensions of Wellness framework. Every piece of content should serve at least one dimension. Use this as a lens, not a label. Never name the dimensions explicitly in the content itself.
 
 Emotional: How someone relates to their inner world. Stress, self-talk, identity, boundaries, processing difficulty. This is not about toxic positivity. It's about being honest with yourself.
@@ -46,23 +47,20 @@ Spiritual: Not religion unless relevant. Purpose. Values. The deeper reason behi
 
 const CONTENT_SOP = `Content standards I've built my system on: No intros, no fluff : drop them into value on the first frame. Four-layer journey: See It→Click It→Watch It→Go Deeper. CTA split: 60% comment-based, 20% DM, 20% link. I measure wins by shares and saves first : not likes.`;
 
-const VOICE = `Write in Jason Fricka's voice. He's an HR manager, mindset coach, endurance athlete, dad, and real estate agent in Colorado. He talks like he's sitting across the table from you : direct, no fluff, no corporate speak. Short sentences. Real stories. He doesn't hype things up. He doesn't use words like "transform" or "journey" or "find your potential." He says what he means. He talks about hard days, early mornings, the work nobody sees, and why showing up matters even when it doesn't feel like it. His community is the community : everyday people who refuse to stay where they are. He roots for them out loud. Today is ${new Date().toLocaleDateString('en-US', {
-  month: 'long',
-  day: 'numeric',
-  year: 'numeric',
-})}. Write like him, not like a marketer writing about him. Never use em dashes. Never use AI buzzwords like "delve", "tapestry", "comprehensive", "leverage", "utilize", "paradigm", "synergy", "robust", "holistic", "facilitate", "foster", "streamline", or "cutting-edge". No hype. No filler. Jason does not talk like a LinkedIn consultant.`;
+const VOICE = `Write in Jason Fricka's voice. He's an HR manager, mindset coach, endurance athlete, dad, and real estate agent in Colorado. He talks like he's sitting across the table from you : direct, no fluff, no corporate speak. Short sentences. Real stories. He doesn't hype things up. He doesn't use words like "transform" or "journey" or "find your potential." He says what he means. He talks about hard days, early mornings, the work nobody sees, and why showing up matters even when it doesn't feel like it. His community is the community : everyday people who refuse to stay where they are. He roots for them out loud. Today is ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}. Write like him, not like a marketer writing about him. Never use em dashes. Never use AI buzzwords like "delve", "tapestry", "comprehensive", "leverage", "utilize", "paradigm", "synergy", "robust", "holistic", "facilitate", "foster", "streamline", or "cutting-edge". No hype. No filler. Jason does not talk like a LinkedIn consultant.`;
 
-// ─── PLATFORMS & TIER PROMPTS ────────────────────────────────────────────────
-const PLATFORMS = ['Instagram', 'YouTube', 'Facebook', 'LinkedIn', 'X', 'TikTok'];
+// ─── PLATFORMS ───────────────────────────────────────────────────────────────
+const PLATFORMS = ['Instagram','YouTube','Facebook','LinkedIn','X','TikTok'];
 
+// ─── RESEARCH TIERS ──────────────────────────────────────────────────────────
 const TIER_PROMPTS = [
-  { label: 'Quick Pulse', desc: 'Top 3 viral angles right now', depth: 'surface' },
-  { label: 'Deep Dive', desc: 'Trend analysis + audience psychology', depth: 'medium' },
-  { label: 'Competitor Intel', desc: 'What competitors are missing', depth: 'deep' },
-  { label: 'Full Intel', desc: 'Everything: trends, gaps, scripts, angles', depth: 'full' },
+  { label:'Quick Pulse', desc:'Top 3 viral angles right now', depth:'surface' },
+  { label:'Deep Dive', desc:'Trend analysis + audience psychology', depth:'medium' },
+  { label:'Competitor Intel', desc:'What competitors are missing', depth:'deep' },
+  { label:'Full Intel', desc:'Everything: trends, gaps, scripts, angles', depth:'full' },
 ];
 
-// ─── VAULT TABS (unchanged) ──────────────────────────────────────────────────
+// ─── PROMPT VAULT TABS ───────────────────────────────────────────────────────
 const VAULT_TABS = [
   { id:'instagram', label:'Instagram', prompts:[
     'Write a Reel hook that stops the scroll for [topic]',
@@ -126,11 +124,11 @@ const VAULT_TABS = [
 ];
 
 // ─── AI HELPERS ──────────────────────────────────────────────────────────────
-async function ai(message, system = 'You are a helpful content strategist.') {
+async function ai(message, system='You are a helpful content strategist.') {
   const res = await fetch('/api/claude', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ system, message }),
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ system, message })
   });
   const d = await res.json();
   return d.text || d.result || d.error || 'No response';
@@ -139,42 +137,30 @@ async function ai(message, system = 'You are a helpful content strategist.') {
 async function perp(query) {
   try {
     const res = await fetch('/api/perplexity', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query }),
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ query })
     });
     if (!res.ok) return `API error: ${res.status}`;
     const d = await res.json();
     return d.text || d.result || d.content || d.answer || d.output || d.error || 'No response';
-  } catch (e) {
+  } catch(e) {
     return `Network error: ${e.message}`;
   }
 }
 
-// ─── UI PRIMITIVES (Spin, RedBtn, Card, SecLabel, SOPBadge, AngleGrid, CopyBtn)
+// ─── UI PRIMITIVES ────────────────────────────────────────────────────────────
 const Spin = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
-    <div
-      style={{
-        width: 32,
-        height: 32,
-        border: '2px solid rgba(0,194,255,0.15)',
-        borderTopColor: '#00C2FF',
-        borderRadius: '50%',
-        animation: 'spin 0.7s linear infinite',
-      }}
-    />
+  <div style={{display:'flex',justifyContent:'center',padding:'2rem'}}>
+    <div style={{width:32,height:32,border:'2px solid rgba(0,194,255,0.15)',borderTopColor:'#00C2FF',
+      borderRadius:'50%',animation:'spin 0.7s linear infinite'}}/>
   </div>
 );
 
-const RedBtn = ({ onClick, disabled, children, style = {} }) => (
-  <button
-    onClick={onClick}
-    disabled={disabled}
+const RedBtn = ({onClick,disabled,children,style={}}) => (
+  <button onClick={onClick} disabled={disabled}
     style={{
-      background: disabled
-        ? 'rgba(90,106,130,0.3)'
-        : 'linear-gradient(135deg, #00C2FF, #0096CC)',
+      background: disabled ? 'rgba(90,106,130,0.3)' : 'linear-gradient(135deg, #00C2FF, #0096CC)',
       color: disabled ? B.gray : '#000D1A',
       border: 'none',
       borderRadius: 8,
@@ -185,130 +171,54 @@ const RedBtn = ({ onClick, disabled, children, style = {} }) => (
       letterSpacing: '0.02em',
       transition: 'all 0.15s',
       boxShadow: disabled ? 'none' : '0 0 20px rgba(0,194,255,0.25)',
-      ...style,
-    }}
-  >
+      ...style
+    }}>
     {children}
   </button>
 );
 
-const Card = ({ children, style = {} }) => (
-  <div
-    style={{
-      background: 'rgba(12,20,32,0.8)',
-      border: '1px solid rgba(0,194,255,0.1)',
-      borderRadius: 14,
-      padding: '1.5rem',
-      backdropFilter: 'blur(10px)',
-      boxShadow: '0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)',
-      ...style,
-    }}
-  >
+const Card = ({children,style={}}) => (
+  <div style={{
+    background: 'rgba(12,20,32,0.8)',
+    border: '1px solid rgba(0,194,255,0.1)',
+    borderRadius: 14,
+    padding: '1.5rem',
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)',
+    ...style
+  }}>
     {children}
   </div>
 );
 
-const SecLabel = ({ children }) => (
-  <div
-    style={{
-      fontSize: 10,
-      fontWeight: 700,
-      letterSpacing: 2.5,
-      color: 'rgba(0,194,255,0.7)',
-      textTransform: 'uppercase',
-      marginBottom: 8,
-    }}
-  >
+const SecLabel = ({children}) => (
+  <div style={{fontSize:10,fontWeight:700,letterSpacing:2.5,color:'rgba(0,194,255,0.7)',
+    textTransform:'uppercase',marginBottom:8}}>
     {children}
   </div>
 );
 
 const SOPBadge = () => (
-  <span
-    style={{
-      background: 'rgba(0,194,255,0.08)',
-      color: '#00C2FF',
-      fontSize: 9,
-      fontWeight: 700,
-      padding: '2px 8px',
-      borderRadius: 20,
-      letterSpacing: 1.5,
-      border: '1px solid rgba(0,194,255,0.2)',
-    }}
-  >
+  <span style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',fontSize:9,
+    fontWeight:700,padding:'2px 8px',borderRadius:20,letterSpacing:1.5,border:'1px solid rgba(0,194,255,0.2)'}}>
     SIGNAL
   </span>
 );
 
-const AngleGrid = ({ selected, onSelect, angles }) => {
+const AngleGrid = ({selected, onSelect, angles}) => {
   const displayAngles = angles || ANGLES;
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4,1fr)',
-        gap: 8,
-        marginBottom: 16,
-      }}
-    >
-      {displayAngles.map((a) => (
-        <button
-          key={a.id}
-          onClick={() => onSelect(a.id)}
-          style={{
-            background: selected === a.id ? B.red : 'rgba(255,255,255,0.05)',
-            border: `1px solid ${
-              selected === a.id
-                ? B.red
-                : a.custom
-                ? 'rgba(245,166,35,0.25)'
-                : 'rgba(255,255,255,0.1)'
-            }`,
-            borderRadius: 8,
-            padding: '10px 6px',
-            cursor: 'pointer',
-            color: B.white,
-            textAlign: 'left',
-            transition: 'all 0.2s',
-            position: 'relative',
-          }}
-        >
-          {a.custom && (
-            <span
-              style={{
-                position: 'absolute',
-                top: 4,
-                right: 4,
-                fontSize: 8,
-                color: '#f5a623',
-                fontWeight: 700,
-              }}
-            >
-              CUSTOM
-            </span>
-          )}
-          <div style={{ fontSize: 16, marginBottom: 3 }}>{a.emoji}</div>
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: selected === a.id ? 700 : 600,
-              lineHeight: 1.3,
-              marginBottom: 3,
-            }}
-          >
-            {a.label}
-          </div>
-          <div
-            style={{
-              fontSize: 9,
-              color:
-                selected === a.id
-                  ? 'rgba(255,255,255,0.85)'
-                  : 'rgba(255,255,255,0.4)',
-              lineHeight: 1.4,
-              fontWeight: 400,
-            }}
-          >
+    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:16}}>
+      {displayAngles.map(a => (
+        <button key={a.id} onClick={() => onSelect(a.id)}
+          style={{background:selected===a.id?B.red:'rgba(255,255,255,0.05)',
+            border:`1px solid ${selected===a.id?B.red:(a.custom?'rgba(245,166,35,0.25)':'rgba(255,255,255,0.1)')}`,
+            borderRadius:8,padding:'10px 6px',cursor:'pointer',color:B.white,
+            textAlign:'left',transition:'all 0.2s',position:'relative'}}>
+          {a.custom && <span style={{position:'absolute',top:4,right:4,fontSize:8,color:'#f5a623',fontWeight:700}}>CUSTOM</span>}
+          <div style={{fontSize:16,marginBottom:3}}>{a.emoji}</div>
+          <div style={{fontSize:11,fontWeight:selected===a.id?700:600,lineHeight:1.3,marginBottom:3}}>{a.label}</div>
+          <div style={{fontSize:9,color:selected===a.id?'rgba(255,255,255,0.85)':'rgba(255,255,255,0.4)',lineHeight:1.4,fontWeight:400}}>
             {a.desc || a.label}
           </div>
         </button>
@@ -317,160 +227,11791 @@ const AngleGrid = ({ selected, onSelect, angles }) => {
   );
 };
 
-const CopyBtn = ({ text }) => {
-  const [copied, setCopied] = useState(false);
+const CopyBtn = ({text}) => {
+  const [copied,setCopied] = useState(false);
   return (
-    <button
-      onClick={() => {
-        navigator.clipboard.writeText(text);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      }}
-      style={{
-        background: copied
-          ? 'rgba(0,194,255,0.1)'
-          : 'rgba(255,255,255,0.05)',
-        color: copied ? '#00C2FF' : B.light,
-        border: `1px solid ${
-          copied ? 'rgba(0,194,255,0.3)' : 'rgba(255,255,255,0.08)'
-        }`,
-        borderRadius: 6,
-        padding: '6px 14px',
-        cursor: 'pointer',
-        fontSize: 12,
-        fontWeight: 600,
-        transition: 'all 0.15s',
-      }}
-    >
-      {copied ? '✓ Copied' : 'Copy'}
+    <button onClick={()=>{navigator.clipboard.writeText(text);setCopied(true);setTimeout(()=>setCopied(false),2000);}}
+      style={{background:copied?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.05)',color:copied?'#00C2FF':B.light,border:`1px solid ${copied?'rgba(0,194,255,0.3)':'rgba(255,255,255,0.08)'}`,
+        borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:600,transition:'all 0.15s'}}>
+      {copied?'✓ Copied':'Copy'}
     </button>
   );
 };
 
-// ─── StrategyOutput / DocOutput / Output ─────────────────────────────────────
-// (Copied exactly from your paste.txt – omitted here for brevity to keep this reply under limits)
-// Make sure you paste those three components from your last paste.txt right here.[file:18]
+// ── Strategy Markdown Renderer ───────────────────────────────────────────────
+const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
+  if (!text) return null;
 
-// ─── PROMPT BUILDERS (SCRIPT_PROMPT, etc.) + TOOL COMPONENTS ────────────────
-// You already have these defined in your paste.txt; keep them all as-is, no types,
-// just JavaScript. That includes:
-// - SCRIPT_PROMPT, STITCH_PROMPT, TREND_PROMPT, PIPELINE_EXTRACT, CALENDAR_PROMPT,
-//   EPISODE_PROMPT, REPURPOSE_PROMPT, HOOK_PROMPT, MAGNET_PROMPT, COMMUNITY_PROMPT,
-//   REVIEW_PROMPT, PROFILE_PROMPT, COLLAB_PROMPT, ONBOARD_PROMPT
-// - Components: Onboarding, ContentCalendar, WeeklyReview, ScriptLab, RepurposeEngine,
-//   HookLibrary, DesignStudio, ContentMemory, PromptVault, ProfileAudit, LeadMagnet,
-//   CommunityBuilder, Teleprompter, TeleprompterPanel, TrendAlertBanner, ROIDashboard.[file:18]
+  // Parse markdown into structured sections
+  let sectionCounter = 0;
+  const renderLine = (line, idx) => {
+    if (line.startsWith('# ')) return (
+      <div key={idx} style={{fontSize:22,fontWeight:900,color:B.white,marginBottom:8,marginTop:24,paddingBottom:10,borderBottom:`2px solid ${B.red}`}}>
+        {line.replace('# ','')}
+      </div>
+    );
+    if (line.startsWith('## ')) return (
+      <div key={idx} style={{fontSize:15,fontWeight:800,color:B.red,letterSpacing:1.5,textTransform:'uppercase',marginTop:28,marginBottom:10}}>
+        {line.replace('## ','')}
+      </div>
+    );
+    if (line.startsWith('### ')) return (
+      <div key={idx} style={{fontSize:13,fontWeight:700,color:'#00C2FF',marginTop:18,marginBottom:8,paddingLeft:12,borderLeft:'3px solid #00C2FF'}}>
+        {line.replace('### ','')}
+      </div>
+    );
+    if (line.startsWith('#### ')) return (
+      <div key={idx} style={{fontSize:12,fontWeight:700,color:'rgba(255,255,255,0.7)',marginTop:12,marginBottom:6,textTransform:'uppercase',letterSpacing:1}}>
+        {line.replace('#### ','')}
+      </div>
+    );
+    // Numbered items
+    if (/^\d+\.\s/.test(line)) return (
+      <div key={idx} style={{display:'flex',gap:10,marginBottom:7,paddingLeft:4}}>
+        <span style={{color:B.red,fontWeight:800,fontSize:13,minWidth:20,flexShrink:0}}>{line.match(/^\d+/)[0]}.</span>
+        <span style={{color:'rgba(255,255,255,0.88)',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^\d+\.\s/,''))}</span>
+      </div>
+    );
+    // Bullet items
+    if (line.startsWith('- ') || line.startsWith('* ')) return (
+      <div key={idx} style={{display:'flex',gap:10,marginBottom:6,paddingLeft:4}}>
+        <span style={{color:B.red,fontSize:12,marginTop:3,flexShrink:0}}>▸</span>
+        <span style={{color:'rgba(255,255,255,0.85)',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^[-*]\s/,''))}</span>
+      </div>
+    );
+    // Bold-only lines (labels)
+    if (line.startsWith('**') && line.endsWith('**') && line.length > 4) return (
+      <div key={idx} style={{color:B.white,fontWeight:700,fontSize:13,marginTop:12,marginBottom:4}}>
+        {line.replace(/\*\*/g,'')}
+      </div>
+    );
+    // Horizontal rule
+    if (line === '---' || line === '***') return (
+      <div key={idx} style={{borderTop:'1px solid rgba(255,255,255,0.08)',margin:'16px 0'}}/>
+    );
+    // Empty line -> spacing
+    if (!line.trim()) return <div key={idx} style={{height:6}}/>;
+    // Regular paragraph
+    return (
+      <div key={idx} style={{color:'rgba(255,255,255,0.82)',fontSize:13,lineHeight:1.75,marginBottom:6}}>
+        {renderInline(line)}
+      </div>
+    );
+  };
 
-// Paste that whole block from your latest paste.txt here, unchanged.
+  const renderInline = (text) => {
+    // Handle **bold** inline
+    const parts = text.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((p, i) =>
+      p.startsWith('**') && p.endsWith('**')
+        ? <strong key={i} style={{color:B.white,fontWeight:700}}>{p.replace(/\*\*/g,'')}</strong>
+        : p
+    );
+  };
 
-// ─── ROOT APP COMPONENT ──────────────────────────────────────────────────────
-function App() {
-  const [tab, setTab] = useState('strategy');
+  const lines = text.split('\n');
 
   return (
-    <>
-      <Head>
-        <title>Everyday Elevations — Content Intelligence Studio</title>
-        <meta
-          name="description"
-          content="Content strategy and memory for Jason Fricka"
-        />
-      </Head>
-      <div
-        style={{
-          minHeight: '100vh',
-          background:
-            'radial-gradient(circle at top, #112240 0, #050816 55%, #000 100%)',
-          color: B.white,
-          fontFamily:
-            'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-          padding: '24px 16px 40px',
-        }}
-      >
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <header
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: 24,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontSize: 26 }}>📡</span>
-              <div>
-                <h1 style={{ margin: 0, fontSize: 20 }}>
-                  Everyday Elevations — Content Intelligence Studio
-                </h1>
-                <p
-                  style={{
-                    margin: '4px 0 0',
-                    fontSize: 12,
-                    color: B.light,
-                  }}
-                >
-                  Strategy, scripts, and memory for Jason Fricka.
-                </p>
-              </div>
-            </div>
-          </header>
-
-          <nav style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
-            {[
-              { id: 'strategy', label: '90-Day Strategy' },
-              { id: 'scripts', label: 'Script Lab' },
-              { id: 'memory', label: 'Content Memory' },
-              { id: 'vault', label: 'Prompt Vault' },
-            ].map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                style={{
-                  background: tab === t.id ? B.red : 'rgba(255,255,255,0.05)',
-                  color: tab === t.id ? '#000D1A' : B.white,
-                  border: 'none',
-                  borderRadius: 999,
-                  padding: '6px 14px',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                }}
-              >
-                {t.label}
-              </button>
-            ))}
-          </nav>
-
-          {tab === 'strategy' && (
-            <>
-              <Onboarding />
-              <ContentCalendar />
-              <WeeklyReview />
-              <TrendAlertBanner />
-              <ROIDashboard />
-            </>
-          )}
-
-          {tab === 'scripts' && (
-            <>
-              <ScriptLab />
-              <RepurposeEngine />
-              <HookLibrary />
-              <DesignStudio />
-              <TeleprompterPanel />
-            </>
-          )}
-
-          {tab === 'memory' && <ContentMemory />}
-
-          {tab === 'vault' && <PromptVault />}
+    <div style={{marginTop:20}}>
+      {/* Header bar */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16,flexWrap:'wrap',gap:10}}>
+        <div style={{color:B.white,fontWeight:700,fontSize:15}}>Your 90-Day Strategy</div>
+        <div style={{display:'flex',gap:8}}>
+          <CopyBtn text={text}/>
+          <button onClick={onDownload} disabled={downloading}
+            style={{background:downloading?B.gray:B.red,color:'#fff',border:'none',
+              borderRadius:8,padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',
+              fontSize:13,display:'flex',alignItems:'center',gap:6}}>
+            {downloading ? 'Preparing...' : '⬇ Download Doc'}
+          </button>
         </div>
       </div>
-    </>
+
+      {/* Rendered strategy */}
+      <div style={{background:'rgba(12,20,32,0.9)',border:'1px solid rgba(0,194,255,0.1)',borderRadius:14,padding:'28px 32px',boxShadow:'0 4px 40px rgba(0,0,0,0.5)'}}>
+        {lines.map((line, idx) => renderLine(line, idx))}
+      </div>
+    </div>
+  );
+};
+
+// ── Universal Doc Output: renders markdown + print/PDF download ─────────────
+function DocOutput({text, title='Document', showDownload=true}) {
+  const [downloading, setDownloading] = useState(false);
+
+  const download = async () => {
+    setDownloading(true);
+    try {
+      // Convert markdown to clean printable HTML
+      const htmlBody = text
+        .split('\n')
+        .map(line => {
+          if (line.startsWith('# '))  return `<h1>${line.slice(2)}</h1>`;
+          if (line.startsWith('## ')) return `<h2>${line.slice(3)}</h2>`;
+          if (line.startsWith('### ')) return `<h3>${line.slice(4)}</h3>`;
+          if (line.startsWith('#### ')) return `<h4>${line.slice(5)}</h4>`;
+          if (line.startsWith('- ') || line.startsWith('* ')) return `<li>${line.slice(2).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</li>`;
+          if (/^\d+\.\s/.test(line)) return `<li>${line.replace(/^\d+\.\s/,'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</li>`;
+          if (line.startsWith('**') && line.endsWith('**')) return `<strong>${line.replace(/\*\*/g,'')}</strong>`;
+          if (!line.trim()) return '<br>';
+          return `<p>${line.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</p>`;
+        })
+        .join('\n');
+
+      // Build agency-grade PDF document using string concat (no nested template literals)
+      const agencyName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.agencyName) ? wl.agencyName : 'SIGNAL by Everyday Elevations'; } catch(e) { return 'SIGNAL by Everyday Elevations'; } })();
+      const accentColor = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.primaryColor) ? wl.primaryColor : '#00C2FF'; } catch(e) { return '#00C2FF'; } })();
+      const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+      // Convert markdown lines to styled HTML
+      let sectionNum = 0;
+      const escHtml = (s) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const boldify = (s) => s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+      const styledLines = text.split('\n').map(function(line) {
+        if (line.startsWith('# ')) {
+          return '<div class="doc-title">' + boldify(escHtml(line.slice(2))) + '</div>';
+        }
+        if (line.startsWith('## ')) {
+          sectionNum++;
+          return '<div class="section-header"><span class="section-num">' + sectionNum + '</span><span class="section-title">' + escHtml(line.slice(3)) + '</span></div>';
+        }
+        if (line.startsWith('### ')) {
+          return '<div class="subsection">' + boldify(escHtml(line.slice(4))) + '</div>';
+        }
+        if (line.startsWith('#### ')) {
+          return '<div class="subsubsection">' + boldify(escHtml(line.slice(5))) + '</div>';
+        }
+        if (line.startsWith('**') && line.endsWith('**') && line.length > 4 && line.slice(2,-2).indexOf('**') === -1) {
+          return '<div class="label">' + escHtml(line.slice(2,-2)) + '</div>';
+        }
+        if (line.startsWith('- ') || line.startsWith('* ')) {
+          return '<div class="list-item"><span class="bullet">&#8226;</span><span>' + boldify(escHtml(line.slice(2))) + '</span></div>';
+        }
+        if (/^\d+\.\s/.test(line)) {
+          var num = line.match(/^(\d+)/)[1];
+          return '<div class="list-item"><span class="bullet">' + num + '.</span><span>' + boldify(escHtml(line.replace(/^\d+\.\s/,''))) + '</span></div>';
+        }
+        if (line === '---') return '<div class="divider"></div>';
+        if (!line.trim()) return '<div class="spacer"></div>';
+        return '<div class="body-text">' + boldify(escHtml(line)) + '</div>';
+      });
+      const styledBody = styledLines.join('\n');
+
+      // CSS (no template expressions — accent color injected via style attribute workaround)
+      const css = [
+        '@page { margin: 0.75in; size: letter; }',
+        '* { box-sizing: border-box; margin: 0; padding: 0; }',
+        "body { font-family: 'DM Sans', -apple-system, sans-serif; color: #111; line-height: 1.7; font-size: 13px; }",
+        '.cover { background: #080D14; color: #fff; padding: 48px 40px 40px; }',
+        '.cover-agency { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: ' + accentColor + '; margin-bottom: 32px; }',
+        '.cover-title { font-size: 36px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; color: #fff; margin-bottom: 8px; }',
+        '.cover-subtitle { font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 40px; }',
+        '.cover-meta { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; }',
+        '.cover-meta-item { padding: 0 20px 0 0; }',
+        '.cover-meta-label { font-size: 9px; color: ' + accentColor + '; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }',
+        '.cover-meta-value { font-size: 12px; color: rgba(255,255,255,0.8); font-weight: 500; line-height: 1.4; }',
+        '.content { padding: 32px 40px; }',
+        '.doc-title { font-size: 22px; font-weight: 900; color: #080D14; letter-spacing: -0.03em; margin: 32px 0 8px; padding-bottom: 12px; border-bottom: 2px solid ' + accentColor + '; }',
+        '.section-header { display: flex; align-items: center; gap: 12px; background: #080D14; color: #fff; padding: 10px 16px; margin: 28px 0 14px; border-radius: 4px; page-break-inside: avoid; }',
+        '.section-num { background: ' + accentColor + '; color: #000; font-size: 11px; font-weight: 900; width: 22px; height: 22px; border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }',
+        '.section-title { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }',
+        '.subsection { font-size: 13px; font-weight: 700; color: ' + accentColor + '; margin: 20px 0 6px; letter-spacing: 0.02em; }',
+        '.subsubsection { font-size: 12px; font-weight: 700; color: #333; margin: 14px 0 4px; }',
+        '.label { font-size: 11px; font-weight: 700; color: #080D14; background: #f5f5f5; padding: 4px 10px; border-left: 3px solid ' + accentColor + '; margin: 10px 0 4px; }',
+        '.body-text { font-size: 13px; color: #333; line-height: 1.75; margin-bottom: 5px; }',
+        '.list-item { display: flex; gap: 10px; margin-bottom: 5px; align-items: flex-start; padding-left: 8px; }',
+        '.list-item .bullet { color: ' + accentColor + '; font-weight: 700; flex-shrink: 0; margin-top: 1px; min-width: 16px; }',
+        '.list-item span:last-child { color: #333; font-size: 13px; line-height: 1.65; }',
+        '.divider { border-top: 1px solid #e5e5e5; margin: 16px 0; }',
+        '.spacer { height: 6px; }',
+        'strong { color: #080D14; font-weight: 700; }',
+        '.footer { margin: 40px 0 0; padding: 16px 0 0; border-top: 1px solid #e5e5e5; display: flex; justify-content: space-between; font-size: 10px; color: #999; }',
+        '@media print { .section-header, .cover, .section-num { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }',
+      ].join('\n');
+
+      const coverHtml = '<div class="cover">'
+        + '<div class="cover-agency">' + agencyName + '</div>'
+        + '<div class="cover-title">' + escHtml(title.split(' \u2014 ')[0] || title) + '</div>'
+        + '<div class="cover-subtitle">Social Media Strategy Document</div>'
+        + '<div class="cover-meta">'
+        + '<div class="cover-meta-item"><div class="cover-meta-label">Prepared By</div><div class="cover-meta-value">' + agencyName + '</div></div>'
+        + '<div class="cover-meta-item"><div class="cover-meta-label">Document Date</div><div class="cover-meta-value">' + today + '</div></div>'
+        + '<div class="cover-meta-item"><div class="cover-meta-label">Document Type</div><div class="cover-meta-value">90-Day Content Strategy</div></div>'
+        + '</div></div>';
+
+      const footerHtml = '<div class="footer"><div>' + agencyName + ' &#8212; Confidential | Internal Use Only</div><div>Generated ' + today + '</div></div>';
+
+      const fullHtml = '<!DOCTYPE html><html><head><meta charset="utf-8">'
+        + '<title>' + escHtml(title) + '</title>'
+        + '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">'
+        + '<style>' + css + '</style>'
+        + '</head><body>'
+        + coverHtml
+        + '<div class="content">' + styledBody + footerHtml + '</div>'
+        + '</body></html>';
+
+      const blob = new Blob([fullHtml], {type:'text/html'});
+      const url = URL.createObjectURL(blob);
+      const printWin = window.open(url, '_blank');
+      if (printWin) { printWin.onload = () => printWin.print(); }
+      else { const a = document.createElement('a'); a.href=url; a.download=title.replace(/\s+/g,'-')+'.html'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+      URL.revokeObjectURL(url);
+    } catch(e) { console.error(e); }
+    setDownloading(false);
+  };
+
+  if (!text) return null;
+
+  let sectionCounter = 0;
+  const renderLine = (line, idx) => {
+    if (line.startsWith('# ')) return <div key={idx} style={{fontSize:22,fontWeight:900,color:B.white,marginBottom:8,marginTop:28,paddingBottom:10,borderBottom:`2px solid ${B.red}`}}>{line.slice(2)}</div>;
+    if (line.startsWith('## ')) {
+      sectionCounter++;
+      return (
+        <div key={idx} style={{display:'flex',alignItems:'center',gap:10,background:'rgba(8,13,20,0.9)',borderRadius:6,padding:'9px 14px',marginTop:24,marginBottom:12}}>
+          <div style={{background:B.red,color:'#000D1A',fontSize:9,fontWeight:900,width:20,height:20,borderRadius:3,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{sectionCounter}</div>
+          <div style={{fontSize:11,fontWeight:800,color:B.white,letterSpacing:2,textTransform:'uppercase'}}>{line.slice(3)}</div>
+        </div>
+      );
+    }
+    if (line.startsWith('### ')) return <div key={idx} style={{fontSize:13,fontWeight:700,color:'#00C2FF',marginTop:18,marginBottom:8,paddingLeft:12,borderLeft:'3px solid #00C2FF'}}>{line.slice(4)}</div>;
+    if (line.startsWith('#### ')) return <div key={idx} style={{fontSize:12,fontWeight:700,color:'rgba(255,255,255,0.7)',marginTop:12,marginBottom:6,textTransform:'uppercase',letterSpacing:1}}>{line.slice(5)}</div>;
+    if (/^\d+\.\s/.test(line)) return <div key={idx} style={{display:'flex',gap:10,marginBottom:7,paddingLeft:4}}><span style={{color:B.red,fontWeight:800,fontSize:13,minWidth:20,flexShrink:0}}>{line.match(/^\d+/)[0]}.</span><span style={{color:'rgba(255,255,255,0.88)',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^\d+\.\s/,''))}</span></div>;
+    if (line.startsWith('- ') || line.startsWith('* ')) return <div key={idx} style={{display:'flex',gap:10,marginBottom:6,paddingLeft:4}}><span style={{color:B.red,fontSize:12,marginTop:3,flexShrink:0}}>▸</span><span style={{color:'rgba(255,255,255,0.85)',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^[-*]\s/,''))}</span></div>;
+    if (line.startsWith('**') && line.endsWith('**') && line.length > 4) return <div key={idx} style={{color:B.white,fontWeight:700,fontSize:13,marginTop:12,marginBottom:4}}>{line.replace(/\*\*/g,'')}</div>;
+    if (line === '---') return <div key={idx} style={{borderTop:'1px solid rgba(255,255,255,0.1)',margin:'20px 0'}}/>;
+    if (!line.trim()) return <div key={idx} style={{height:8}}/>;
+    return <div key={idx} style={{color:'rgba(255,255,255,0.82)',fontSize:13,lineHeight:1.75,marginBottom:6}}>{renderInline(line)}</div>;
+  };
+
+  const renderInline = (txt) => {
+    const parts = txt.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((p,i) => p.startsWith('**') && p.endsWith('**') ? <strong key={i} style={{color:B.white,fontWeight:700}}>{p.replace(/\*\*/g,'')}</strong> : p);
+  };
+
+  return (
+    <div style={{marginTop:20}}>
+      {showDownload && (
+        <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginBottom:12}}>
+          <CopyBtn text={text}/>
+          <button onClick={download} disabled={downloading}
+            style={{background:downloading?B.gray:B.red,color:'#fff',border:'none',
+              borderRadius:8,padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',
+              fontSize:13,display:'flex',alignItems:'center',gap:6}}>
+            {downloading ? 'Preparing...' : '⬇ Download PDF / Print'}
+          </button>
+        </div>
+      )}
+      <div style={{background:'rgba(12,20,32,0.9)',border:'1px solid rgba(0,194,255,0.1)',borderRadius:14,padding:'28px 32px',boxShadow:'0 4px 40px rgba(0,0,0,0.5)'}}>
+        {text.split('\n').map((line, idx) => renderLine(line, idx))}
+      </div>
+    </div>
   );
 }
 
-// ─── ERROR BOUNDARY + EXPORT ─────────────────────────────────────────────────
+const Output = ({text}) => text ? (
+  <div style={{marginTop:16,background:'rgba(8,13,20,0.8)',borderRadius:10,padding:'1rem',
+    position:'relative',border:'1px solid rgba(0,194,255,0.08)',boxShadow:'0 2px 16px rgba(0,0,0,0.3)'}}>
+    <div style={{position:'absolute',top:8,right:8}}><CopyBtn text={text}/></div>
+    <pre style={{color:B.white,fontSize:13,whiteSpace:'pre-wrap',margin:0,lineHeight:1.7,
+      fontFamily:'inherit',paddingRight:80}}>{text}</pre>
+  </div>
+) : null;
+
+// ─── AI PROMPTS ───────────────────────────────────────────────────────────────
+
+const SCRIPT_PROMPT = (topic, angle, platform) => `
+${VOICE}
+${CONTENT_SOP}
+${SWARBRICK}
+
+Topic: "${topic}"
+Angle: ${angle}
+Platform: ${platform}
+Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+
+HOOK SOP (apply to every variation):
+Every hook must use one of these 5 types. First 2-3 words must stop the scroll.
+No "Hey guys." No "In this video." No intros. Value or conflict from frame 1.
+🔥 PATTERN INTERRUPT : challenges an assumption the audience holds right now
+❓ CURIOSITY QUESTION : creates a gap they must fill by watching
+💣 BOLD STATEMENT : counterintuitive or surprising claim
+📖 STORY MOMENT : specific scene: "The day I..." or "I was sitting in my truck when..."
+📊 DATA POINT : a number that stops them cold
+
+Write 3 complete camera-ready ${platform} script variations. Each must feel different in hook type, energy, and structure.
+
+---
+**VARIATION 1: Educational (optimizes for saves)**
+Hook Type: [pick one of the 5 : write the actual hook]
+Hook: [word-for-word : first 2-3 words must land hard]
+
+Body:
+Point 1: [specific insight, no filler]
+Point 2: [builds on point 1]
+Point 3: [the payoff : something they did not expect]
+
+CTA: [exact words : 60% comment / 20% DM / 20% link]
+Caption: [3-4 sentences, saves-first, includes the hook]
+Hashtags: [5 niche / 5 mid / 5 broad]
+
+---
+**VARIATION 2: Personal Story (optimizes for follows)**
+Hook Type: [Story or Pattern Interrupt]
+Hook: [specific scene, not generic : a real moment]
+
+Setup: [the before : where you were, what you were doing]
+Conflict: [the turn : what happened or what you realized]
+Resolution: [the result : specific, not vague]
+
+CTA: [exact words]
+Caption:
+Hashtags:
+
+---
+**VARIATION 3: Bold Take (optimizes for shares)**
+Hook Type: [Bold Statement or Data Point]
+Hook: [the take that makes people stop and argue or agree hard]
+
+Body: [3 punchy lines that back up the claim : no hedging]
+
+CTA: [drives comments : end with a question that splits the room]
+Caption:
+Hashtags:
+
+Runtime target: 45-75 seconds spoken. No intros. No "like and subscribe." Hook first.
+
+${platform === 'TikTok' ? `
+TIKTOK-SPECIFIC RULES:
+- First 2 words carry everything. The scroll decision is made before the third word.
+- "POV:", "The thing about", "Nobody talks about", "Day X of" — these formats work.
+- Shorter is almost always better on TikTok. 15-30 seconds outperforms 60+ unless the hook is elite.
+- Sound matters. Note whether this works better with trending audio or talking head.
+- End with a reason to follow, not just a like CTA.` : ''}
+
+${platform === 'X' ? `
+X / TWITTER THREAD FORMAT:
+Write as a thread, not a script. Each variation should be:
+- Tweet 1 (Hook): Under 280 characters. Bold claim or counterintuitive statement. Must work standalone.
+- Tweets 2-7 (Body): Each tweet one idea. Short paragraphs. Numbered 2/ 3/ 4/ etc.
+- Tweet 8 (CTA): Follow for more, reply with your take, or link.
+Total thread: 8-10 tweets. Every tweet must be worth reading alone.` : ''}
+`;
+
+const STITCH_PROMPT = (originalContent, angle) => `
+${VOICE}
+${CONTENT_SOP}
+
+Write a viral stitch response script for: "${originalContent}"
+Angle: ${angle}
+
+Structure:
+[3-second hook that sets up the contrast]
+[2-3 points that add, challenge, or elevate the original]
+[Strong CTA that drives conversation]
+
+Rules: Respectful but confident. Add genuine value. End with a question that drives comments.`;
+
+const TREND_PROMPT = (niche) => `
+You are a viral content strategist for @everydayelevations.
+Find 6-8 trending topics right now in: ${niche}
+
+Return as JSON array:
+[{
+  "trend": "trend name",
+  "why_viral": "psychology behind it",
+  "jason_angle": "how Jason specifically should approach this",
+  "hook": "specific hook line",
+  "format": "Reel/Carousel/Story/Live"
+}]
+
+Focus on: mindset/discipline/real estate/personal growth/outdoor lifestyle spaces.`;
+
+const PIPELINE_EXTRACT = (rawResearch, angle) => `
+${VOICE}
+Today is ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}. Only reference 2026 trends and data.
+
+Extract intelligence from this research for a ${angle} content angle. Be specific and fast : no padding.
+
+RESEARCH:
+${rawResearch}
+
+# Intelligence Brief
+
+## Top 3 Viral Angles Right Now
+For each: angle name, psychological trigger, why it works today
+
+## Audience Pain Points
+What they are actively searching for and not finding
+
+## Content Gaps
+What nobody credible is saying that Jason can own
+
+## 5 Specific Hooks
+One per type: Pattern Interrupt / Question / Bold Statement / Story / Data Point
+
+## Best Format + Why
+
+## Jason's Unique Authority
+What in his background (HR, real estate, Colorado, endurance athlete, mindset coach) gives specific credibility here
+
+## Source Check
+Flag any sources that appear to be pre-2026
+`;
+
+const CALENDAR_PROMPT = (pillars, platform, duration, strategyDoc='') => `
+${VOICE}
+${CONTENT_SOP}
+${SWARBRICK}
+
+${strategyDoc ? `\n=== 90-DAY STRATEGY (source of truth) ===\n${strategyDoc}\n===END===\n` : ''}
+
+Build a ${duration}-day ${platform} content calendar.
+Content pillars: ${pillars || 'Use pillars from strategy document above'}
+
+4-Week Content Framework:
+- Week 1: Pain Awareness (identify the problem)
+- Week 2: Transformation (show the shift)
+- Week 3: Authority (prove the method)
+- Week 4: Conversion (invite action)
+${duration === '90' ? '- Repeat cycle with escalating depth for weeks 5-12' : ''}
+
+For each day provide:
+- Day number + day of week
+- Content format (Reel/Carousel/Story/Post)
+- Specific topic/title (not generic : real hook)
+- Content angle (from: Veteran/Mindset/Wins/Outdoor/Finance/Podcast/Family/Health)
+- CTA type (comment/DM/link)
+
+Output as a clean table. Make every topic specific enough to film tomorrow.`;
+
+const EPISODE_PROMPT = (episodeTitle, episodeNotes) => `
+${VOICE}
+${CONTENT_SOP}
+${SWARBRICK}
+
+Podcast episode: "${episodeTitle}"
+Notes: ${episodeNotes}
+
+Extract and create:
+
+1. **5-7 Platform-Native Clips**
+   For each clip:
+   - Timestamp/moment to pull
+   - Platform (Instagram/YouTube/Facebook/LinkedIn)
+   - Hook to add at the front
+   - Caption
+
+2. **Carousel Concept**
+   - Title slide
+   - 5-7 insight slides
+   - CTA slide
+
+3. **LinkedIn Long-Form Angle**
+   Full post concept with hook + body structure
+
+4. **Quote Graphics** (5 pullable quotes with visual direction)
+
+5. **Email Newsletter Teaser**`;
+
+const REPURPOSE_PROMPT = (script, originalPlatform) => `
+${VOICE}
+${CONTENT_SOP}
+
+Original ${originalPlatform} script:
+${script}
+
+Repurpose into 4 platform-native versions:
+
+**INSTAGRAM REEL** (60-90 sec, hook-heavy, visual)
+**YOUTUBE SHORT** (under 60 sec, strong title, SEO)  
+**FACEBOOK** (conversational, story-driven, community)
+**LINKEDIN** (professional, authority content, no hashtag spam)
+
+Each version should feel native : not copy-pasted. Adjust tone, length, and CTA for each platform's culture.`;
+
+const HOOK_PROMPT = (topic, quantity) => `
+${VOICE}
+
+Write ${quantity} hooks for the topic: "${topic}"
+
+Deliver in 5 categories (${Math.ceil(quantity/5)} each):
+
+🔥 PATTERN INTERRUPT (challenges assumptions, surprises)
+❓ QUESTION (creates irresistible curiosity)
+💣 BOLD STATEMENT (controversial or counterintuitive)
+📖 PERSONAL STORY (specific moment, "The day I...")
+📊 DATA & STATS (surprising number or fact)
+
+Rules:
+- First 2-3 words must grab : think thumb-stop
+- No "Hey guys" or "In this video"
+- Every hook must make viewer think "wait, what?"
+- Specific beats vague every time`;
+
+const MAGNET_PROMPT = (audience, problem, offer, currentContent, whatWorks) => `
+${VOICE}
+${CONTENT_SOP}
+${SWARBRICK}
+
+Who Jason is trying to reach: ${audience}
+The core problem he solves: ${problem}
+Existing offer or service: ${offer}
+What Jason currently posts / his content style: ${currentContent || 'Not provided'}
+What has resonated most with his audience so far: ${whatWorks || 'Not provided'}
+
+Build a complete, finished lead magnet : not a plan for one, an actual deliverable. Every section below must be fully written out, ready to use.
+
+# LEAD MAGNET: [Title : make it specific, sounds like Jason said it]
+
+## The Promise
+One sentence: what the reader will have or be able to do after using this that they couldn't before.
+
+## THE FULL CONTENT (write every word of the actual magnet)
+
+### Section 1: [Name]
+[Write the actual content : not a description of it. If it's a checklist, write the checklist. If it's a guide, write the guide. Real sentences, real advice, Jason's voice throughout.]
+
+### Section 2: [Name]
+[Full content]
+
+### Section 3: [Name]
+[Full content]
+
+### Section 4: [Name]
+[Full content]
+
+### Section 5: [Name]
+[Full content : minimum 5 sections, each substantive enough to be useful]
+
+---
+
+## DELIVERY INFRASTRUCTURE
+
+### Instagram Reel Script (to promote it)
+Hook: [word-for-word, one of the 5 hook types]
+[Full 45-60 second script : drives people to comment the keyword]
+CTA: "Comment [KEYWORD] and I'll send this to you right now"
+
+### 3-Email Welcome Sequence
+
+**Email 1 : Delivery + Quick Win**
+Subject: [specific, curiosity-driven]
+Body: [Full email : deliver the magnet, give one quick win they can use today, set up email 2]
+
+**Email 2 : Personal Story + Deeper Value**
+Subject: [specific]
+Body: [Full email : Jason's personal story connected to the problem, deeper insight, warm into email 3]
+
+**Email 3 : Soft CTA**
+Subject: [specific]
+Body: [Full email : soft pitch to next step: coaching inquiry, real estate consult, community join]
+
+### 5-Slide Instagram Story Sequence
+Slide 1: [exact text + visual direction]
+Slide 2: [exact text + visual direction]
+Slide 3: [exact text + visual direction]
+Slide 4: [exact text + visual direction]
+Slide 5: [exact text + CTA : keyword comment trigger]
+
+### Keyword Trigger: [the word they comment to get the magnet]
+### Where to send it: [DM automation or email link]`;
+
+const COMMUNITY_PROMPT = (focus, currentEngagement, whereTheyAre, whatTheyAsk) => `
+${VOICE}
+${SWARBRICK}
+
+Community focus / theme: ${focus}
+What Jason's current engagement looks like: ${currentEngagement || 'Not provided'}
+Where his audience currently lives (comments, DMs, Facebook, etc.): ${whereTheyAre || 'Not provided'}
+What people ask Jason most or respond to most: ${whatTheyAsk || 'Not provided'}
+
+Build an the community community system built around what is actually happening in Jason's audience right now. Not a theoretical framework. One that works with the people already showing up.
+
+1. **Community Identity Statement**
+   (why people belong here : specific to the community, in Jason's voice)
+
+2. **The Core Ritual**
+   (one recurring weekly or monthly thing members do together : simple enough to actually happen)
+
+3. **Engagement Architecture**
+   - Daily: [specific prompt or question in Jason's voice]
+   - Weekly: [challenge or event tied to his content angles]
+   - Monthly: [milestone or celebration that recognizes members]
+
+4. **New Member Onboarding**
+   (exactly what they see and receive when they join : what to say, what to send)
+
+5. **5 Recurring Content Series**
+   (series name + what it is + why people keep coming back for it)
+
+6. **Growth Loop**
+   (how members naturally bring other people in without being asked to)`;
+
+const REVIEW_PROMPT = (metrics, wins, struggles) => `
+${VOICE}
+${SWARBRICK}
+${CONTENT_SOP}
+
+Weekly Performance Review:
+
+METRICS: ${metrics}
+WINS: ${wins}
+STRUGGLES: ${struggles}
+
+Analyze:
+
+1. **Performance Score** (0-10 across: Reach, Engagement, Saves, Shares, Leads)
+
+2. **What's Working** (double down on these)
+
+3. **What's Not** (kill or pivot)
+
+4. **Swarbrick Gap Analysis** (which life dimensions are underrepresented in content)
+
+5. **Next Week's Focus** (top 3 priorities with specific action)
+
+6. **Content to Create This Week** (3 specific post ideas based on what performed)`;
+
+const PROFILE_PROMPT = (platform, liveData, extraContext) => `
+${VOICE}
+${CONTENT_SOP}
+
+Platform: ${platform}
+Live profile data pulled from the web: ${liveData}
+Extra context from Jason: ${extraContext || 'None'}
+
+You are auditing Jason Fricka's actual live ${platform} profile based on real data above. Not assumptions. Be specific. Call out exactly what is working, what is dead weight, and what is missing. Then rewrite it.
+
+1. **What's Actually on the Profile Right Now** (summarize what the live data shows)
+2. **What's Working** (keep this, say why)
+3. **What's Killing Conversions** (specific problems, no softening)
+4. **Rewritten Bio** (ready to copy-paste)
+5. **Name Field** (SEO + searchability)
+6. **Link Strategy** (what belongs in link-in-bio and why)
+${platform === 'Instagram' ? '7. **Highlight Cover Strategy** (names + what goes in each)\n8. **Pinned Post Recommendation** (what and why)' : ''}
+${platform === 'LinkedIn' ? '7. **Dual-Lane Strategy** (HR Manager at Highland Cabinetry + Everyday Elevations podcast)\n8. **Featured Section** (what to pin, in order)\n9. **Rewritten About Section** (full copy, ready to paste)' : ''}
+${platform === 'YouTube' ? '7. **Channel Description Rewrite** (searchable, keyword-rich)\n8. **About Section** (full copy)\n9. **Thumbnail and Banner Direction**' : ''}
+${platform === 'Facebook' ? '7. **Page vs Profile Strategy** (which to prioritize and why)\n8. **About Section Rewrite**\n9. **Cover Photo Direction**' : ''}
+
+Be direct. Write like Jason would actually use this today.`;
+
+const COLLAB_PROMPT = (niche, goal) => `
+${VOICE}
+
+Niche: ${niche}
+Collaboration Goal: ${goal}
+
+Find and structure collaboration opportunities:
+
+1. **Podcast Guest Targets** (5 specific profiles with why they fit Jason's audience)
+
+2. **Stitch/Collab Targets** (5 creators to stitch with : explain the angle)
+
+3. **Community Partnerships** (3 organizations/communities to partner with)
+
+4. **Pitch Template**
+   [Subject line]
+   [Opening that shows you know their work]
+   [The ask : specific and easy to say yes to]
+   [The mutual value]
+   [CTA]`;
+
+const ONBOARD_PROMPT = (fields, uploadedDoc='') => {
+  const sopSection = uploadedDoc
+    ? `=== UPLOADED STRATEGY DOCUMENT (use as the style and depth benchmark) ===
+${uploadedDoc}
+=== END UPLOADED DOCUMENT ===
+This document shows the standard you must match or exceed. Mirror its depth, specificity, and professional tone throughout.`
+    : `${VOICE}
+${CONTENT_SOP}
+${SWARBRICK}`;
+
+  return `${sopSection}
+
+=== CLIENT BRIEF ===
+Business Name: ${fields.businessName}
+Goals: ${fields.goals}
+Current State: ${fields.current}
+Weekly Time Available: ${fields.hours} hours/week
+Brand Personality: ${fields.brandPersonality}
+Affiliate / Brand Deals: ${fields.affiliateDeals}
+Filming Schedule: ${fields.filmingSchedule}
+Inspiration Accounts (structure only, not style): ${fields.inspirationAccounts}
+Off-Limit Topics: ${fields.offLimitTopics}
+Content to Repurpose: ${fields.repurposeLinks}
+Ideal Audience: ${fields.idealAudience}
+Desired Transformation: ${fields.desiredTransformation}
+Emotional Journey: ${fields.emotionalJourney}
+Additional Context: ${fields.additionalContext}
+
+=== YOUR TASK ===
+You are a senior social media strategist at a premium agency. Write a complete, finished 90-day content strategy document for this client. This goes directly to the client tomorrow. Every section must be fully written — not described, not outlined, not templated. Actual content. Real specifics. Named pillars, written hooks, actual hashtags, specific day-by-day plans with real tasks and time estimates.
+
+Do not write instructions. Do not write placeholders. Do not write [brackets]. Do not describe what you will write. Write it.
+
+Mandatory frameworks woven throughout (never name them explicitly):
+- Swarbrick 8 Dimensions: each content pillar serves specific life dimensions
+- 4-Layer Viewer Journey: See It (pattern interrupt, first 3 seconds) → Click It (avatar callout + credibility marker) → Watch It (value, no filler) → Go Deeper (action-driving CTA)
+- CTA split: 60% comment-based, 20% DM-trigger, 20% link-in-bio
+- Primary success signal: saves and shares, not likes
+
+Format rules:
+- # for document title only
+- ## for major sections (rendered as numbered dark header blocks)
+- ### for subsections (rendered in accent color)
+- **Label:** for field labels
+- - for list items
+- Write everything in the client's voice, not agency voice
+
+=== DOCUMENT TO WRITE ===
+
+# ${fields.businessName}: 90-Day Content Strategy
+
+## Executive Summary
+
+Write 4 sharp sentences: (1) Who this client is and what they stand for. (2) What these 90 days will accomplish with specific numbers. (3) The single strategic bet — the one thing that makes this plan work. (4) Why this approach over every other approach.
+
+## Brand Positioning
+
+### Social Identity
+
+Write one sharp paragraph that defines exactly who this person is in the online space. Name the specific category they own. Describe what makes them impossible to confuse with anyone else in their niche. This should read like the opening of their brand manifesto, not a bio.
+
+### Voice and Tone Guardrails
+
+**DO:**
+Write 8 specific, actionable voice rules with real examples drawn from this client's life and work. Not generic rules — rules specific to this person, their industry, their audience, their story.
+
+**NEVER:**
+Write 8 specific things this person must never say, post, or imply. Again, specific to this client — not generic creator advice.
+
+### Ideal Client Profile
+
+**Attract:**
+Write 5 specific audience types with a full sentence on why each belongs in this community and what they get from it.
+
+**Repel:**
+Write 5 specific audience types with a full sentence on why each is wrong for this brand and what signal they send.
+
+### Competitive Edge
+
+Write a specific paragraph naming the actual gap in this market — who the competitors are (by type if not name), what they all do wrong, and exactly how this client fills that gap in a way nobody else currently does.
+
+### The Transformation Promise
+
+**Before:** Write exactly how the audience feels, thinks, and operates before they find this creator. Be specific — name the frustrations, the stuck points, the daily reality.
+**After:** Write exactly how they feel, think, and operate after engaging with this content consistently for 90 days.
+**One sentence:** Compress the entire transformation into one powerful sentence.
+
+## Unique Positioning Statement
+
+Write the category-defining statement for this brand. The version of "Most physicians treat disease. Most biohackers chase trends. Dr. O'Neil restores physiology." — specific to this client. Then write two sentences explaining why this is a category, not just a niche.
+
+## Ideal Client Breakdown
+
+Build a 3-tier client breakdown:
+
+### Tier 1 — Primary (Build authority here. Monetize here.)
+Write the full profile: age range, income/professional level, geography, mindset, what they value, what they fear, how they find this creator.
+
+### Tier 2 — Growth Audience (Ecosystem builders. Referral drivers.)
+Write the full profile: age range, what they want, how they engage, why they matter to the funnel.
+
+### Tier 3 — Top of Funnel (Capture. Nurture. Convert.)
+Write the full profile: what brings them in, how to capture them, what moves them toward Tier 1.
+
+## Industry and Competitive Landscape
+
+Write an honest analysis of this market right now. Name the categories of competitors that exist (not individual people), what each category does wrong, and the specific gap this client exploits. End with a statement about what combination of attributes no one in this space is currently doing.
+
+## Content Pillars
+
+Build 4 complete content pillars. For each one, write everything — not describe it, write it.
+
+### Pillar 1: [Write the actual pillar name]
+
+**Core Idea:** Write the one-sentence angle this pillar owns — specific enough to reject content that doesn't belong.
+
+**Why It Works:** Write the psychological reason this resonates. Name the specific emotion, fear, desire, or belief it activates in the target audience.
+
+**Swarbrick Dimensions:** Name which of the 8 wellness dimensions this serves and how.
+
+**5 Specific Filmable Ideas:**
+Write 5 actual content titles/hooks specific enough to film tomorrow. Not topic areas — actual hooks with specific details from this client's life.
+1.
+2.
+3.
+4.
+5.
+
+**Best Format:** Name the exact format and write the specific reason why this pillar works best in that format for this audience.
+
+**Ideal Length:** State the exact duration and why.
+
+**CTA:** Write the exact CTA language to use — actual words, not a description of the CTA type.
+
+**Hashtag Strategy:**
+Niche (under 100K): List 5 specific hashtags
+Mid (100K-1M): List 5 specific hashtags
+Broad (1M+): List 5 specific hashtags
+
+### Pillar 2: [Write the actual pillar name]
+[Same complete structure as Pillar 1]
+
+### Pillar 3: [Write the actual pillar name]
+[Same complete structure as Pillar 1]
+
+### Pillar 4: [Write the actual pillar name]
+[Same complete structure as Pillar 1]
+
+## Platform Strategy
+
+### Instagram
+
+**Role in Ecosystem:** One sentence — what Instagram does for this business that no other platform does.
+
+**Posting Frequency:** State exact days and times (timezone included).
+
+**Content Mix:** State exact percentages by format with the strategic reason for each ratio.
+
+**4-Layer Journey on Instagram:**
+- See It: Write the specific pattern interrupt strategy for this client on Instagram
+- Click It: Write the specific avatar callout and credibility marker approach
+- Watch It: Write the specific value-delivery rules for this client's content
+- Go Deeper: Write the specific CTA strategy and what action it drives
+
+**Algorithm Priority:** Write what Instagram's algorithm rewards right now and the 3 specific things this client does to exploit it.
+
+**Week 1 Actions:**
+1. [Specific action with time estimate]
+2. [Specific action with time estimate]
+3. [Specific action with time estimate]
+
+**Never Post Here:** Write 3 specific content types that will kill this account's reach and why.
+
+### [Second active platform — repeat full structure]
+
+### [Third active platform if applicable — repeat full structure]
+
+## Previous Content Analysis
+
+**Current State:** List what exists right now — what is working, what is missing, what is inconsistent.
+
+**What Is Working:** Name the specific elements that have traction and why.
+
+**Opportunities:** List 6-8 specific untapped opportunities in order of impact.
+
+## 90-Day Goals
+
+Write specific, measurable targets for each active platform:
+
+**Instagram:** Follower growth target, engagement rate target, non-follower reach %, short-form retention target
+
+**Email:** Lead magnet launch dates, subscriber targets by week 4, week 8, week 12, comment conversion rate target
+
+**YouTube (if applicable):** Episode count, CTR target, average view duration target
+
+## 90-Day Execution Plan
+
+### Phase 1: Foundation (Days 1-30)
+
+**Goal:** Write the specific, measurable goal for this phase.
+**Theme:** Write the one idea that every piece of content in this phase ladders up to.
+
+**Week 1 — Day by Day:**
+Day 1 (write the day): [Specific task] — [time required] — [platform] — [expected output or result]
+Day 2: [Same structure]
+Day 3: [Same structure]
+Day 4: [Same structure]
+Day 5: [Same structure]
+Day 6: [Same structure]
+Day 7: [Same structure]
+
+**Week 2:**
+Write 4 specific focus areas with the exact actions required for each.
+
+**Week 3:**
+Write 4 specific focus areas with the exact actions required for each.
+
+**Week 4:**
+Write 4 specific focus areas with the exact actions required for each.
+
+**Content to Batch — Phase 1:**
+List 15 specific content pieces with: title/hook, format, platform, and the pillar it belongs to.
+
+**Phase 1 Complete When:**
+Write 3 specific, measurable conditions that confirm Phase 1 succeeded.
+
+### Phase 2: Momentum (Days 31-60)
+
+**Goal:** Write the specific, measurable goal.
+**Theme:** Write the one idea this phase is built on.
+
+**Lead Magnet Launch:**
+- Title: Write the actual title
+- Core Promise: Write exactly what the audience gets
+- Format: Specify exactly what it is
+- Trigger Word: Write the exact comment keyword that triggers delivery
+- Welcome Email Subject: Write the actual subject line
+- Welcome Email First Line: Write the actual opening sentence
+
+**Community Building Moves:**
+Write 5 specific actions with exact timelines and expected outcomes.
+
+**Collaboration Targets:**
+Write 3 specific creator types with why each matters, how to pitch them, and what the collaboration looks like.
+
+**Content Evolution:**
+Write specifically what changes from Phase 1, what stays the same, and what gets added.
+
+**Phase 2 Complete When:**
+Write 3 specific, measurable conditions.
+
+### Phase 3: Scale (Days 61-90)
+
+**Goal:** Write the specific, measurable goal.
+**Theme:** Write the one idea this phase drives toward.
+
+**Repurposing Workflow:**
+Step 1: [Source — what gets created and where]
+Step 2: [First derivative — what it becomes]
+Step 3: [Second derivative]
+Step 4: [Third derivative]
+Step 5: [Distribution — where everything lands]
+
+**Revenue Pathway:**
+Write the exact funnel: content → action → conversion → revenue. Name each step, the mechanism, and the expected conversion at each stage.
+
+**Analytics Review Process:**
+Write exactly what to check, when to check it, and what decision each data point drives.
+
+**Phase 3 Complete When:**
+Write 3 specific, measurable conditions.
+
+## Themed Campaigns
+
+### Campaign 1 (Days 1-30)
+Write the campaign name, goal with specific numbers, daily and weekly content cadence, and the hook series that runs through it.
+
+### Campaign 2 (Days 31-90)
+Write the campaign name, goal with specific numbers, the lead magnet launch sequence, and the conversion content strategy.
+
+## Content Production Standards
+
+### Opening Rules
+Write 5 specific rules for the first 3 seconds of every piece of content — with examples drawn from this client's actual life and topics.
+
+### Editing Standards
+Write the specific editing rules: cut timing, caption style, pacing, overlays, visual variation frequency.
+
+### Retention Rules
+Write how the 4-layer journey applies to editing — specific instructions for keeping people watching through to the CTA.
+
+### Content Production Pipeline
+
+**Filming Sessions:**
+Write how often, what to capture per session, how to batch, what a full session produces.
+
+**Topic Ideation:**
+Write the specific process for generating monthly topics aligned to pillars and trends.
+
+**Short-Form Extraction:**
+Write how many clips to extract from each long-form piece, what to look for, how to re-edit for each platform.
+
+### What Kills This Content
+Write 8 specific things that will tank performance on this account — specific to this client, not generic creator advice.
+
+## Posting and Engagement SOP
+
+**Pre-Post Window (5-10 minutes before):**
+Write the exact actions to prime the algorithm for this specific account.
+
+**Post-Post Window (first 60 minutes after):**
+Write the exact actions to maximize early engagement signal.
+
+**Daily Engagement Targets:**
+- Meaningful comments on aligned accounts: [specific number] — write exactly what "meaningful" means for this niche
+- DM conversations: [specific number] with specific targeting criteria
+- Story engagement: [specific daily actions]
+- Comment response time: [specific hours]
+- DM response time: [specific hours]
+
+**Comment Response Framework:**
+Write how to respond to: enthusiastic comments, questions about services, negative or skeptical comments, competitor comments, spam.
+
+## Weekly Schedule Template
+
+Based on ${fields.hours} hours/week. Write a realistic, specific weekly schedule.
+
+For each active day, write: the specific time block, the task, the duration, the platform, and the specific output expected.
+
+## Email Collection Strategy
+
+**Lead Magnets:**
+Write the full titles, core promises, and format for each lead magnet.
+
+**CTA Distribution:**
+Write the exact percentages and the specific language used for each CTA type.
+
+**Keyword Triggers:**
+Write the exact trigger words used in comments to trigger lead magnet delivery.
+
+**Target Conversion Rate:**
+Write the specific comment-to-DM conversion target.
+
+## Communication Rhythm
+
+Write the specific check-in and reporting cadence: weekly touchpoints, monthly calls, quarterly reviews, what each covers, who owns each.
+
+## Monthly Reporting Structure
+
+Write what gets measured, how it gets reported, and what decisions each metric drives. The question is never how much was posted — it is what did it produce.
+
+## Success Metrics
+
+### Primary KPIs
+For each primary metric, write: current baseline, 30-day target, 60-day target, 90-day target.
+
+### Secondary KPIs
+Write 6 secondary metrics with specific targets.
+
+### What to Ignore
+Write the vanity metrics this client must stop tracking and the specific reason each is misleading.
+
+## Implementation Timeline
+
+**Week 1 — Foundation:**
+Write 5-6 specific setup actions with owners and time estimates.
+
+**Week 2 — Launch:**
+Write 4-5 specific launch actions.
+
+**Month 2 — Scale:**
+Write 4-5 specific growth actions.
+
+**Month 3 — Convert:**
+Write 4-5 specific conversion actions.
+
+## The Non-Negotiables
+
+Write 5 rules that cannot be broken regardless of what is happening — these are the foundation. Make them specific to this client, not generic creator advice. Frame them as commitments, not suggestions.
+
+${uploadedDoc ? 'Match the depth, specificity, and professional tone of the uploaded document. Every section fully written. No placeholders.' : 'Write everything in this client voice. Direct. Specific. No corporate speak. Every recommendation feels like it came from someone who knows this person and their business deeply.'}
+`;
+};
+
+
+
+const DESIGN_PROMPT = (topic, format, angle) => `
+${VOICE}
+
+Topic: ${topic}
+Format: ${format} (Carousel/Static/Story)
+Angle: ${angle}
+
+Create visual content concepts:
+
+1. **Cover/Hook Slide**
+   - Headline text (8 words max)
+   - Visual direction (photo/graphic/color)
+   - Typography mood
+
+2. **Content Slides** (for carousels: 5-7 slides)
+   Each slide:
+   - Slide purpose
+   - Headline
+   - Supporting text (1-2 lines max)
+   - Visual element
+
+3. **CTA Slide**
+   - Text
+   - Visual
+   - Next action
+
+4. **Caption** (Instagram-native, saves-first)
+5. **Hashtag Strategy** (15-20 tags, tiered: niche/medium/broad)`;
+
+const EP_PROMPT = (content, question) => `
+${VOICE}
+${SWARBRICK}
+
+Content to analyze:
+${content}
+
+Question/Focus: ${question || 'Extract the most valuable insights'}
+
+Extract:
+1. **Core Insight** (the single most powerful idea)
+2. **Supporting Evidence** (data, stories, examples)
+3. **Contrarian Take** (what this challenges in mainstream thinking)
+4. **Actionable Takeaway** (what someone can do TODAY)
+5. **Content Angles** (5 ways to create content from this)
+6. **Audience Psychology** (why this resonates deeply)`;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TIER 1 : CONTENT MEMORY
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const MEMORY_KEY = 'encis_content_log';
+const CLIENTS_KEY = 'encis_clients';
+const ACTIVE_CLIENT_KEY = 'encis_active_client';
+const CUSTOM_ANGLES_KEY = 'encis_custom_angles';
+const ONBOARDING_DONE_KEY = 'encis_onboarding_done';
+
+function useContentMemory() {
+  const [log, setLog] = useState([]);
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(MEMORY_KEY);
+      if (stored) setLog(JSON.parse(stored));
+    } catch {}
+  }, []);
+
+  const save = useCallback((entry) => {
+    const newEntry = {
+      id: Date.now(),
+      date: new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}),
+      timestamp: Date.now(),
+      perf: '',
+      notes: '',
+      ...entry,
+    };
+    setLog(prev => {
+      const updated = [newEntry, ...prev].slice(0, 200);
+      try { localStorage.setItem(MEMORY_KEY, JSON.stringify(updated)); } catch {}
+      return updated;
+    });
+    return newEntry.id;
+  }, []);
+
+  const update = useCallback((id, changes) => {
+    setLog(prev => {
+      const updated = prev.map(e => e.id === id ? {...e,...changes} : e);
+      try { localStorage.setItem(MEMORY_KEY, JSON.stringify(updated)); } catch {}
+      return updated;
+    });
+  }, []);
+
+  const remove = useCallback((id) => {
+    setLog(prev => {
+      const updated = prev.filter(e => e.id !== id);
+      try { localStorage.setItem(MEMORY_KEY, JSON.stringify(updated)); } catch {}
+      return updated;
+    });
+  }, []);
+
+  const clear = useCallback(() => {
+    setLog([]);
+    try { localStorage.removeItem(MEMORY_KEY); } catch {}
+  }, []);
+
+  return { log, save, update, remove, clear };
+}
+
+// Global memory instance: shared across all tools
+let _memorySave = null;
+function registerMemorySave(fn) { _memorySave = fn; }
+function logToMemory(entry) { if (_memorySave) _memorySave(entry); }
+
+function ContentMemory() {
+  const { log, save, update, remove, clear } = useContentMemory();
+  const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editNotes, setEditNotes] = useState('');
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState(null);
+  const [showImport, setShowImport] = useState(false);
+
+  const perfColors = { '':'rgba(255,255,255,0.06)', '⭐':'rgba(245,166,35,0.15)', '🔥':'rgba(233,69,96,0.15)', '💀':'rgba(100,100,100,0.15)' };
+  const perfLabels = { '':'No rating', '⭐':'Good', '🔥':'Viral', '💀':'Flopped' };
+  const typeColors = { script:'#1B4F72', calendar:'#145A32', onboard:'#6E2F8E', batch:'#7E5109', profile:'#0A66C2', magnet:'#C0392B', community:'#1A5276', instagram:'#C13584', facebook:'#1877F2', tiktok:'#010101', x:'#1DA1F2', youtube:'#FF0000', linkedin:'#0A66C2', default:'#2C3E50' };
+
+  // ── CSV Parser ────────────────────────────────────────────────────────────
+  const parseCSV = (text) => {
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) return [];
+    // Handle quoted fields
+    const parseRow = (line) => {
+      const cols = []; let cur = ''; let inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"') { inQ = !inQ; }
+        else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+        else { cur += c; }
+      }
+      cols.push(cur.trim());
+      return cols;
+    };
+    const headers = parseRow(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9]/g,'_'));
+    return lines.slice(1).filter(l => l.trim()).map(line => {
+      const vals = parseRow(line);
+      return Object.fromEntries(headers.map((h,i) => [h, vals[i] || '']));
+    });
+  };
+
+  // ── Auto-rate by engagement ───────────────────────────────────────────────
+  const autoRate = (saves, shares, reach) => {
+    const s = parseInt(saves)||0, sh = parseInt(shares)||0, r = parseInt(reach)||1;
+    const engRate = (s + sh*2) / r;
+    if (engRate > 0.05 || s > 50 || sh > 20) return '🔥';
+    if (engRate > 0.01 || s > 10) return '⭐';
+    if (r > 100 && s === 0 && sh === 0) return '💀';
+    return '';
+  };
+
+  // ── Import Handler ────────────────────────────────────────────────────────
+  const handleImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImporting(true); setImportResult(null);
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const text = ev.target.result;
+        let imported = 0; let skipped = 0;
+
+        // ── Detect format ──────────────────────────────────────────────────
+        const isJSON = text.trim().startsWith('{') || text.trim().startsWith('[');
+
+        if (isJSON) {
+          // Instagram "Download Your Information" JSON format
+          let data;
+          try { data = JSON.parse(text); } catch { throw new Error('Invalid JSON'); }
+
+          // Handle both array and {media:[...]} shapes
+          const posts = Array.isArray(data) ? data : (data.media || data.posts || []);
+          posts.forEach(post => {
+            if (!post) return;
+            const caption = post.title || post.media_metadata?.photo_metadata?.exif_data?.[0]?.source || '';
+            const ts = post.creation_timestamp || post.timestamp;
+            const dateStr = ts ? new Date(ts * 1000).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : 'Unknown';
+            save({
+              type: 'instagram',
+              platform: 'Instagram',
+              title: caption ? caption.slice(0, 80) : 'Instagram Post',
+              preview: caption.slice(0, 200),
+              date: dateStr,
+              timestamp: ts ? ts * 1000 : Date.now(),
+              notes: '',
+              perf: '',
+              source: 'instagram-export',
+            });
+            imported++;
+          });
+
+        } else {
+          // CSV format: Meta Business Suite / Creator Studio export
+          const rows = parseCSV(text);
+          if (!rows.length) throw new Error('No rows found in CSV');
+
+          // Detect platform by sniffing headers
+          const firstRow = rows[0];
+          const keys = Object.keys(firstRow).join(' ');
+          const isIG = keys.includes('description') || keys.includes('permalink') || keys.includes('saves');
+          const isFB = keys.includes('post_message') || keys.includes('lifetime_post_total_reach');
+
+          rows.forEach(row => {
+            // ── Instagram CSV mapping ──────────────────────────────────────
+            if (isIG) {
+              let caption = row.description || row.post_caption || '';
+              let postType = row.post_type || row.type || 'Post';
+              let reach = row.reach || row.impressions || '0';
+              let saves = row.saves || '0';
+              let shares = row.shares || '0';
+              let likes = row.likes || '0';
+              let comments = row.comments || '0';
+              let published = row.published || row.date_published || '';
+              let dateStr = published ? new Date(published).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : 'Unknown';
+
+              save({
+                type: 'instagram',
+                platform: 'Instagram',
+                title: caption ? caption.slice(0,80) : `Instagram ${postType}`,
+                preview: caption.slice(0,200),
+                format: postType,
+                date: dateStr,
+                timestamp: published ? new Date(published).getTime() : Date.now(),
+                perf: autoRate(saves, shares, reach),
+                notes: `Reach: ${reach} · Likes: ${likes} · Comments: ${comments} · Saves: ${saves} · Shares: ${shares}`,
+                stats: { reach, saves, shares, likes, comments },
+                permalink: row.permalink || '',
+                source: 'instagram-csv',
+              });
+              imported++;
+
+            // ── Facebook CSV mapping ───────────────────────────────────────
+            } else if (isFB) {
+              let caption = row.post_message || row.description || '';
+              let reach = row.lifetime_post_total_reach || row.reach || '0';
+              let shares = row.share_count || '0';
+              let reactions = row.lifetime_post_reactions_by_type_total || row.likes || '0';
+              let comments = row.comment_count || '0';
+              let published = row.post_published || row.published_date || '';
+              let dateStr = published ? new Date(published).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : 'Unknown';
+
+              save({
+                type: 'facebook',
+                platform: 'Facebook',
+                title: caption ? caption.slice(0,80) : 'Facebook Post',
+                preview: caption.slice(0,200),
+                date: dateStr,
+                timestamp: published ? new Date(published).getTime() : Date.now(),
+                perf: autoRate('0', shares, reach),
+                notes: `Reach: ${reach} · Reactions: ${reactions} · Comments: ${comments} · Shares: ${shares}`,
+                stats: { reach, shares, reactions, comments },
+                source: 'facebook-csv',
+              });
+              imported++;
+
+            } else {
+              // Generic CSV: best-effort mapping
+              let caption = row.description || row.caption || row.message || row.title || row.text || '';
+              if (caption) {
+                save({
+                  type: 'social',
+                  platform: 'Social',
+                  title: caption.slice(0,80),
+                  preview: caption.slice(0,200),
+                  date: new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}),
+                  timestamp: Date.now(),
+                  perf: '',
+                  notes: Object.entries(row).filter(([k,v])=>v&&v!=='0').map(([k,v])=>`${k}: ${v}`).slice(0,6).join(' · '),
+                  source: 'csv-import',
+                });
+                imported++;
+              } else { skipped++; }
+            }
+          });
+        }
+
+        setImportResult({ imported, skipped, success: true });
+      } catch(err) {
+        setImportResult({ error: err.message, success: false });
+      }
+      setImporting(false);
+    };
+    reader.readAsText(file);
+    // Reset input
+    e.target.value = '';
+  };
+
+  const types = ['all', ...new Set(log.map(e => e.type).filter(Boolean))];
+  const filtered = log.filter(e => {
+    if (filter !== 'all' && e.type !== filter) return false;
+    if (search && !JSON.stringify(e).toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
+  const igSteps = [
+    '1. Open Instagram app → Profile → ☰ Menu',
+    '2. Settings → Account → Download Your Information',
+    '3. Select "Posts" and format: JSON',
+    '4. Download and upload the posts_1.json file here',
+    '── OR for stats (requires Business/Creator account) ──',
+    '5. Go to Meta Business Suite → Insights → Export',
+    '6. Choose date range → Export as CSV',
+    '7. Upload that CSV here instead',
+  ];
+
+  return (
+    <div>
+      {/* Header */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:20,flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <span style={{fontSize:32}}>🧠</span>
+          <div><h2 style={{color:B.white,margin:0}}>Content Memory</h2>
+            <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>
+              {log.length > 0 ? `${log.length} pieces saved: rate, note, and track what works` : 'Auto-saves every generated piece. Import your social posts below.'}
+            </p>
+          </div>
+        </div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <button onClick={() => setShowImport(p=>!p)}
+            style={{background:showImport?B.red:'rgba(255,255,255,0.08)',color:B.white,border:`1px solid ${showImport?B.red:'rgba(255,255,255,0.15)'}`,borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+            📥 Import Social Posts
+          </button>
+          {log.length > 0 && (
+            <button onClick={() => { if(window.confirm('Clear all content history?')) clear(); }}
+              style={{background:'rgba(233,69,96,0.1)',color:B.red,border:'1px solid rgba(233,69,96,0.2)',borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+              Clear All
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Import Panel */}
+      {showImport && (
+        <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:14,padding:'20px',marginBottom:20}}>
+          <div style={{fontWeight:700,color:B.white,fontSize:15,marginBottom:4}}>📥 Import Instagram / Facebook Posts</div>
+          <div style={{color:B.gray,fontSize:12,lineHeight:1.8,marginBottom:16}}>
+            Upload your Instagram export (JSON) or Meta Business Suite insights export (CSV).<br/>
+            Posts auto-import with engagement stats. Performance is rated automatically based on saves and shares.
+          </div>
+
+          {/* How to export steps */}
+          <div style={{background:'rgba(0,0,0,0.25)',borderRadius:10,padding:'14px 16px',marginBottom:16}}>
+            <div style={{fontSize:11,fontWeight:700,color:B.red,letterSpacing:1.5,textTransform:'uppercase',marginBottom:10}}>How to Export</div>
+            {igSteps.map((step, i) => (
+              <div key={i} style={{fontSize:12,color:step.startsWith('──')?B.red:'rgba(255,255,255,0.7)',lineHeight:1.9,fontStyle:step.startsWith('──')?'italic':'normal'}}>
+                {step}
+              </div>
+            ))}
+          </div>
+
+          {/* Upload zone */}
+          <label style={{cursor:'pointer',display:'block'}}>
+            <div style={{border:'2px dashed rgba(233,69,96,0.35)',borderRadius:10,padding:'24px',textAlign:'center',
+              background:'rgba(255,255,255,0.02)',transition:'all 0.2s'}}>
+              {importing ? (
+                <><div style={{fontSize:28,marginBottom:8}}>⏳</div>
+                  <div style={{color:B.white,fontWeight:600,fontSize:14}}>Importing...</div></>
+              ) : (
+                <><div style={{fontSize:32,marginBottom:8}}>📂</div>
+                  <div style={{color:B.white,fontWeight:600,fontSize:14}}>Click to upload Instagram JSON or Meta CSV</div>
+                  <div style={{color:B.gray,fontSize:12,marginTop:4}}>.json or .csv files accepted</div></>
+              )}
+            </div>
+            <input type="file" accept=".json,.csv,text/csv,application/json" onChange={handleImport}
+              style={{display:'none'}} disabled={importing}/>
+          </label>
+
+          {/* Import result */}
+          {importResult && (
+            <div style={{marginTop:12,padding:'12px 16px',borderRadius:8,
+              background:importResult.success?'rgba(39,174,96,0.1)':'rgba(233,69,96,0.1)',
+              border:`1px solid ${importResult.success?'rgba(39,174,96,0.3)':'rgba(233,69,96,0.3)'}`}}>
+              {importResult.success ? (
+                <div style={{color:'rgba(39,174,96,0.9)',fontWeight:700,fontSize:13}}>
+                  ✅ Imported {importResult.imported} post{importResult.imported!==1?'s':''} successfully
+                  {importResult.skipped > 0 && <span style={{color:B.gray,fontWeight:400}}> · {importResult.skipped} skipped (no caption)</span>}
+                  <div style={{color:B.gray,fontWeight:400,fontSize:12,marginTop:4}}>
+                    Posts with high saves/shares were auto-rated 🔥. Scroll down to review and adjust.
+                  </div>
+                </div>
+              ) : (
+                <div style={{color:B.red,fontWeight:700,fontSize:13}}>
+                  ❌ Import failed: {importResult.error}
+                  <div style={{color:B.gray,fontWeight:400,fontSize:12,marginTop:4}}>
+                    Make sure you uploaded the correct file format (Instagram JSON or Meta Business Suite CSV).
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Empty state */}
+      {log.length === 0 && !showImport && (
+        <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.03)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
+          <div style={{fontSize:48,marginBottom:16}}>📭</div>
+          <div style={{color:B.white,fontWeight:700,fontSize:18,marginBottom:8}}>Nothing here yet</div>
+          <div style={{color:B.gray,fontSize:14,lineHeight:1.7,marginBottom:20}}>
+            Content you generate auto-saves here. Or import your existing posts above.
+          </div>
+          <button onClick={() => setShowImport(true)}
+            style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+            📥 Import Instagram / Facebook Posts
+          </button>
+        </div>
+      )}
+
+      {/* Main content when log has entries */}
+      {log.length > 0 && (
+        <>
+          {/* Search + Filter */}
+          <div style={{display:'flex',gap:10,marginBottom:16,flexWrap:'wrap'}}>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search content..."
+              style={{flex:1,minWidth:200,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'8px 12px',color:B.white,fontSize:13}}/>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {types.map(t => (
+                <button key={t} onClick={() => setFilter(t)}
+                  style={{background:filter===t?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                    borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:filter===t?700:400,textTransform:'capitalize'}}>
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Performance Summary */}
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:20}}>
+            {[
+              ['Total','📝',log.length,''],
+              ['Viral 🔥','🔥',log.filter(e=>e.perf==='🔥').length,'rgba(233,69,96,0.15)'],
+              ['Good ⭐','⭐',log.filter(e=>e.perf==='⭐').length,'rgba(245,166,35,0.1)'],
+              ['Flopped 💀','💀',log.filter(e=>e.perf==='💀').length,'rgba(100,100,100,0.1)'],
+            ].map(([label,icon,count,bg]) => (
+              <div key={label} style={{background:bg|| 'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:10,padding:'12px',textAlign:'center'}}>
+                <div style={{fontSize:22,fontWeight:800,color:B.white}}>{count}</div>
+                <div style={{fontSize:11,color:B.gray,marginTop:2}}>{label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Content Log */}
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            {filtered.map(entry => (
+              <div key={entry.id} style={{background:perfColors[entry.perf]||perfColors[''],border:'1px solid rgba(255,255,255,0.07)',borderLeft:`3px solid ${typeColors[entry.type]||typeColors.default}`,borderRadius:10,padding:'14px 16px'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12,flexWrap:'wrap'}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
+                      <span style={{background:typeColors[entry.type]||typeColors.default,color:'#fff',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:1}}>{entry.type}</span>
+                      <span style={{color:B.gray,fontSize:11}}>{entry.date}</span>
+                      {entry.client && <span style={{background:'rgba(255,255,255,0.08)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>👤 {entry.client}</span>}
+                      {entry.platform && <span style={{background:'rgba(255,255,255,0.05)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>{entry.platform}</span>}
+                      {entry.permalink && <a href={entry.permalink} target="_blank" rel="noopener noreferrer" style={{color:B.red,fontSize:10,textDecoration:'none'}}>↗ View</a>}
+                    </div>
+                    <div style={{color:B.white,fontWeight:600,fontSize:13,marginBottom:4,wordBreak:'break-word'}}>{entry.title || entry.topic || 'Untitled'}</div>
+                    {entry.notes && editingId !== entry.id && <div style={{color:B.gray,fontSize:12,lineHeight:1.6,marginTop:4}}>{entry.notes}</div>}
+                    {editingId === entry.id && (
+                      <div style={{marginTop:8}}>
+                        <textarea value={editNotes} onChange={e=>setEditNotes(e.target.value)} rows={2}
+                          placeholder="Add performance notes, what you learned, what to replicate..."
+                          style={{width:'100%',background:'rgba(0,0,0,0.4)',border:'1px solid rgba(255,255,255,0.2)',borderRadius:6,padding:'8px',color:B.white,fontSize:12,resize:'vertical',boxSizing:'border-box'}}/>
+                        <div style={{display:'flex',gap:8,marginTop:6}}>
+                          <button onClick={() => { update(entry.id, {notes:editNotes}); setEditingId(null); }}
+                            style={{background:B.red,color:'#fff',border:'none',borderRadius:6,padding:'5px 12px',fontSize:11,fontWeight:700,cursor:'pointer'}}>Save</button>
+                          <button onClick={() => setEditingId(null)}
+                            style={{background:'rgba(255,255,255,0.08)',color:B.gray,border:'none',borderRadius:6,padding:'5px 12px',fontSize:11,cursor:'pointer'}}>Cancel</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{display:'flex',alignItems:'center',gap:6,flexShrink:0}}>
+                    {['⭐','🔥','💀'].map(p => (
+                      <button key={p} onClick={() => update(entry.id, {perf: entry.perf===p?'':p})}
+                        title={perfLabels[p]}
+                        style={{background:entry.perf===p?'rgba(255,255,255,0.15)':'transparent',border:`1px solid ${entry.perf===p?'rgba(255,255,255,0.3)':'rgba(255,255,255,0.08)'}`,borderRadius:6,padding:'4px 7px',fontSize:14,cursor:'pointer',opacity:entry.perf&&entry.perf!==p?0.4:1}}>
+                        {p}
+                      </button>
+                    ))}
+                    <button onClick={() => { setEditingId(entry.id); setEditNotes(entry.notes|| ''); }}
+                      style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'4px 9px',fontSize:11,fontWeight:700,cursor:'pointer'}}>
+                      {entry.notes ? 'Edit' : '+ Note'}
+                    </button>
+                    <button onClick={() => remove(entry.id)}
+                      style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',borderRadius:6,padding:'4px 7px',fontSize:14,cursor:'pointer'}}>✕</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {filtered.length === 0 && log.length > 0 && (
+              <div style={{textAlign:'center',padding:'3rem',color:B.gray,fontSize:13}}>No results match your filter.</div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+// ═══════════════════════════════════════════════════════════════════════════════
+// TIER 1: BULK CONTENT BATCHING
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const BULK_PROMPT = (angle, platform, topic, client) => `
+${client ? `CLIENT: ${client.name}. Voice and brand: ${client.voice}` : VOICE}
+${CONTENT_SOP}
+${SWARBRICK}
+
+Platform: ${platform}
+Content Angle: ${angle}
+Topic/Theme: ${topic}
+
+Generate a complete content batch for this angle and topic. This is bulk production : make every piece distinct, not variations of the same thing.
+
+**POST 1 : Educational (optimizes for saves)**
+Hook:
+Body (3 points, punchy):
+CTA:
+Caption (3-4 sentences):
+Hashtags (15):
+
+**POST 2 : Personal Story (optimizes for follows)**
+Hook:
+Body (story arc : real moment, shift, result):
+CTA:
+Caption:
+Hashtags (15):
+
+**POST 3 : Pattern Interrupt / Controversial (optimizes for shares)**
+Hook:
+Body:
+CTA:
+Caption:
+Hashtags (15):
+
+**POST 4 : Quick Win / Tactical (optimizes for saves + DMs)**
+Hook:
+Body (actionable, specific steps):
+CTA:
+Caption:
+Hashtags (15):
+
+**POST 5 : Community / Engagement (optimizes for comments)**
+Hook:
+Body:
+CTA (question that drives comments):
+Caption:
+Hashtags (15):
+
+**CAROUSEL CONCEPT**
+Title:
+Slide 1 (cover):
+Slides 2-6 (content):
+Slide 7 (CTA):
+Caption:
+
+**STORY SEQUENCE (5 slides)**
+Slide 1-5:
+
+Keep every hook under 10 words. No "Hey guys." No intros. Value first, always.`;
+
+function BulkBatch() {
+  const [angle, setAngle] = useState('occupational');
+  const [platform, setPlatform] = useState('Instagram');
+  const [topic, setTopic] = useState('');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [activeClient] = useActiveClient();
+
+  const run = async () => {
+    if (!topic) return;
+    setLoading(true); setOut('');
+    const angleLabel = ANGLES.find(a=>a.id===angle)?.label || angle;
+    const res = await ai(BULK_PROMPT(angleLabel, platform, topic, activeClient));
+    setOut(res);
+    logToMemory({ type:'batch', title:`Batch: ${topic}`, topic, platform, angle:angleLabel, client:activeClient?.name, preview:res.slice(0,200) });
+    setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>⚡</span>
+        <div><h2 style={{color:B.white,margin:0}}>Bulk Content Batch</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>One topic → 5 posts + carousel + story sequence. Full week of content in one shot.</p></div>
+      </div>
+      {activeClient && <ClientBanner client={activeClient}/>}
+      <div style={{background:'rgba(233,69,96,0.06)',border:'1px solid rgba(233,69,96,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
+        Pick an angle, pick a platform, give it one topic or theme : get back 5 platform-native posts, a carousel outline, and a story sequence. One generation. Ready to schedule.
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16}}>
+        <div>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,textTransform:'uppercase',marginBottom:8}}>Platform</div>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+            {PLATFORMS.map(p => (
+              <button key={p} onClick={()=>setPlatform(p)}
+                style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                  borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,textTransform:'uppercase',marginBottom:8}}>Content Angle</div>
+          <AngleGrid selected={angle} onSelect={setAngle}/>
+        </div>
+      </div>
+      <div style={{marginBottom:16}}>
+        <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,textTransform:'uppercase',marginBottom:8}}>Topic or Theme for This Batch</div>
+        <input value={topic} onChange={e=>setTopic(e.target.value)}
+          placeholder="e.g. 'Morning discipline', 'What the Army taught me about rest', 'Why most people quit week 3'..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+      </div>
+      <RedBtn onClick={run} disabled={loading||!topic}>
+        {loading ? 'Generating full batch...' : '⚡ Generate Full Content Batch'}
+      </RedBtn>
+      {loading && <Spin/>}
+      <DocOutput text={out} title={`${topic || angle || "Content"} : SIGNAL`}/>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TIER 1 : CLIENT MODE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const DEFAULT_CLIENT = {
+  id: 'jason',
+  name: 'Jason Fricka',
+  handle: '@everydayelevations',
+  platforms: 'Instagram, YouTube, Facebook, LinkedIn, X, TikTok',
+  voice: `Direct, real, no corporate speak. High accountability energy. Short sentences. the community community: everyday people who refuse to stay where they are.`,
+  angles: 'Resilience, Mindset, Everyday Wins, Outdoor/Colorado, Finance/Real Estate, Podcast/Growth, Family, Health/Fitness',
+  colors: '#0A1628, #E94560, #FFFFFF',
+  notes: 'HR Manager at Highland Cabinetry. Podcast host. Real estate agent. Colorado father. Endurance athlete.',
+  isDefault: true,
+};
+
+// Returns the angle set for the active client: custom angles if defined, Swarbrick if not
+function useClientAngles(activeClient) {
+  const getAngles = () => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(CUSTOM_ANGLES_KEY) || '{}');
+      const clientData = activeClient ? stored[activeClient.id] : null;
+      if (clientData && clientData.mode === 'custom' && clientData.angles?.length > 0) {
+        return clientData.angles;
+      }
+      if (clientData && clientData.mode === 'both' && clientData.angles?.length > 0) {
+        return [...ANGLES, ...clientData.angles];
+      }
+    } catch {}
+    return ANGLES;
+  };
+  return getAngles();
+}
+
+function useActiveClient() {
+  const [activeClient, setActiveClientState] = useState(DEFAULT_CLIENT);
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(ACTIVE_CLIENT_KEY);
+      if (stored) setActiveClientState(JSON.parse(stored));
+    } catch {}
+  }, []);
+  const setActiveClient = (client) => {
+    setActiveClientState(client);
+    try { localStorage.setItem(ACTIVE_CLIENT_KEY, JSON.stringify(client)); } catch {}
+  };
+  return [activeClient, setActiveClient];
+}
+
+function useClients() {
+  const [clients, setClientsState] = useState([DEFAULT_CLIENT]);
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(CLIENTS_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setClientsState([DEFAULT_CLIENT, ...parsed.filter(c => !c.isDefault)]);
+      }
+    } catch {}
+  }, []);
+  const saveClients = (list) => {
+    const nonDefault = list.filter(c => !c.isDefault);
+    try { localStorage.setItem(CLIENTS_KEY, JSON.stringify(nonDefault)); } catch {}
+    setClientsState([DEFAULT_CLIENT, ...nonDefault]);
+  };
+  return [clients, saveClients];
+}
+
+function ClientBanner({ client }) {
+  if (!client || client.isDefault) return null;
+  return (
+    <div style={{background:'rgba(201,168,76,0.08)',border:'1px solid rgba(201,168,76,0.2)',borderRadius:8,padding:'8px 14px',marginBottom:16,display:'flex',alignItems:'center',gap:10}}>
+      <span style={{fontSize:16}}>👤</span>
+      <span style={{color:'#C9A84C',fontSize:12,fontWeight:700}}>CLIENT MODE — {client.name}</span>
+      <span style={{color:B.gray,fontSize:12}}>{client.handle} · {client.platforms}</span>
+    </div>
+  );
+}
+
+function ClientMode({ setActiveClientExternal }) {
+  const [clients, saveClients] = useClients();
+  const [activeClient, setActiveClient] = useActiveClient();
+  const [editing, setEditing] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [managingAngles, setManagingAngles] = useState(null);
+  const blank = { id:'', name:'', handle:'', platforms:'Instagram, YouTube', voice:'', angles:'', colors:'', notes:'' };
+  const [form, setForm] = useState(blank);
+
+  const activate = (client) => {
+    setActiveClient(client);
+    if (setActiveClientExternal) setActiveClientExternal(client);
+  };
+
+  const saveClient = () => {
+    if (!form.name) return;
+    const client = { ...form, id: form.id || Date.now().toString() };
+    if (editing) {
+      saveClients(clients.map(c => c.id === editing ? client : c));
+    } else {
+      saveClients([...clients, client]);
+    }
+    setForm(blank); setShowForm(false); setEditing(null);
+  };
+
+  const deleteClient = (id) => {
+    if (id === 'jason') return;
+    saveClients(clients.filter(c => c.id !== id));
+    if (activeClient?.id === id) activate(DEFAULT_CLIENT);
+  };
+
+  const fields = [
+    {k:'name',l:'Client / Brand Name',ph:'e.g. Jane Smith Fitness'},
+    {k:'handle',l:'Primary Handle',ph:'e.g. @janesmith'},
+    {k:'platforms',l:'Platforms',ph:'e.g. Instagram, LinkedIn'},
+    {k:'voice',l:'Voice & Tone',ph:'e.g. Warm, motivational, no jargon. Speaks to busy moms...'},
+    {k:'angles',l:'Content Angles',ph:'e.g. Weight loss, Meal prep, Mindset for moms...'},
+    {k:'colors',l:'Brand Colors',ph:'e.g. #FF6B6B, #4ECDC4, #FFFFFF'},
+    {k:'notes',l:'Additional Context',ph:'e.g. Life coach, 2 kids, based in Austin, sells a $997 program...'},
+  ];
+
+  return (
+    <div>
+      {managingAngles && <CustomAnglesManager client={managingAngles} onClose={() => setManagingAngles(null)}/>}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <span style={{fontSize:32}}>👥</span>
+          <div><h2 style={{color:B.white,margin:0}}>Client Mode</h2>
+            <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Switch clients and every tool rewires to their voice, angles, and brand.</p></div>
+        </div>
+        <button onClick={() => { setForm(blank); setEditing(null); setShowForm(true); }}
+          style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'8px 16px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+          + Add Client
+        </button>
+      </div>
+
+      {/* Active client indicator */}
+      <div style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:12,padding:'16px',marginBottom:20}}>
+        <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,textTransform:'uppercase',marginBottom:8}}>Currently Active</div>
+        <div style={{color:B.white,fontWeight:700,fontSize:16}}>{activeClient?.name || 'Jason Fricka'}</div>
+        <div style={{color:B.gray,fontSize:13,marginTop:2}}>{activeClient?.handle} · {activeClient?.platforms}</div>
+      </div>
+
+      {/* Client grid */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:12,marginBottom:24}}>
+        {clients.map(client => (
+          <div key={client.id}
+            style={{background:activeClient?.id===client.id?'rgba(233,69,96,0.1)':'rgba(255,255,255,0.03)',
+              border:`1px solid ${activeClient?.id===client.id?'rgba(233,69,96,0.4)':'rgba(255,255,255,0.07)'}`,
+              borderRadius:12,padding:'16px',transition:'all 0.15s'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}>
+              <div>
+                <div style={{color:B.white,fontWeight:700,fontSize:14}}>{client.name}</div>
+                <div style={{color:B.gray,fontSize:12,marginTop:2}}>{client.handle}</div>
+              </div>
+              {client.isDefault && <span style={{background:'rgba(233,69,96,0.15)',color:B.red,borderRadius:4,padding:'2px 7px',fontSize:10,fontWeight:700}}>YOU</span>}
+            </div>
+            <div style={{color:B.gray,fontSize:11,lineHeight:1.6,marginBottom:12,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>
+              {client.voice || client.notes || 'No description'}
+            </div>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={() => activate(client)}
+                style={{flex:1,background:activeClient?.id===client.id?B.red:'rgba(255,255,255,0.08)',color:'#fff',border:'none',
+                  borderRadius:7,padding:'7px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+                {activeClient?.id===client.id ? '✓ Active' : 'Activate'}
+              </button>
+              <button onClick={() => setManagingAngles(client)}
+                style={{background:'rgba(0,212,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,212,255,0.2)',borderRadius:7,padding:'7px 10px',fontSize:11,cursor:'pointer',fontWeight:700}}>
+                {(() => { try { const s = JSON.parse(localStorage.getItem(CUSTOM_ANGLES_KEY)|| '{}'); return s[client.id]?.mode && s[client.id].mode !== 'swarbrick' ? '🎯 Angles*' : '🎯 Angles'; } catch { return '🎯 Angles'; } })()}
+              </button>
+              {!client.isDefault && (
+                <>
+                  <button onClick={() => { setForm({...client}); setEditing(client.id); setShowForm(true); }}
+                    style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:7,padding:'7px 10px',fontSize:12,cursor:'pointer'}}>Edit</button>
+                  <button onClick={() => deleteClient(client.id)}
+                    style={{background:'rgba(233,69,96,0.08)',color:B.red,border:'none',borderRadius:7,padding:'7px 10px',fontSize:12,cursor:'pointer'}}>✕</button>
+                </>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Add/Edit form */}
+      {showForm && (
+        <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:14,padding:'24px',marginBottom:20}}>
+          <div style={{color:B.white,fontWeight:700,fontSize:16,marginBottom:20}}>{editing ? 'Edit Client' : 'New Client'}</div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+            {fields.map(f => (
+              <div key={f.k} style={{gridColumn:['voice','angles','notes'].includes(f.k)?'1/-1':'auto'}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:B.red,textTransform:'uppercase',marginBottom:6}}>{f.l}</div>
+                {['voice','angles','notes'].includes(f.k) ? (
+                  <textarea value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} rows={2} placeholder={f.ph}
+                    style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+                ) : (
+                  <input value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} placeholder={f.ph}
+                    style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                )}
+              </div>
+            ))}
+          </div>
+          <div style={{display:'flex',gap:10,marginTop:18}}>
+            <RedBtn onClick={saveClient} disabled={!form.name}>{editing ? 'Save Changes' : 'Add Client'}</RedBtn>
+            <button onClick={() => { setShowForm(false); setEditing(null); setForm(blank); }}
+              style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,cursor:'pointer'}}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      <div style={{background:'rgba(255,255,255,0.02)',borderRadius:10,padding:'16px',border:'1px solid rgba(255,255,255,0.05)'}}>
+        <div style={{color:B.gray,fontSize:12,lineHeight:1.8}}>
+          <strong style={{color:B.white}}>How Client Mode works:</strong> When a client is active, every tool — scripts, calendars, profiles, lead magnets — automatically uses their voice, angles, and brand context. Switch back to Jason anytime. Client data stays on your device.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPONENTS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function Home({setNav,setSub}) {
+  // Check if onboarding done
+  const [onboardingDone] = useState(() => {
+    try { return !!localStorage.getItem(ONBOARDING_DONE_KEY); } catch { return true; }
+  });
+  if (!onboardingDone) return null; // Handled by App
+  return <IntelligenceDashboard setNav={setNav} setSub={setSub}/>;
+}
+
+function _OldHome({setNav,setSub}) {
+  const tools = [
+    // STRATEGY
+    {nav:'strategy',sub:'onboard',   emoji:'🚀', label:'STRATEGY', title:'90-Day Strategy Builder',     desc:'Generates a complete 90-day content strategy document. Brand positioning, content pillars, platform plan, phase-by-phase execution, engagement SOP, and success metrics. Download as PDF.'},
+    {nav:'strategy',sub:'calendar',  emoji:'📅', label:'STRATEGY', title:'Content Calendar',            desc:'Builds a 30, 60, 90, or 180-day posting calendar with specific filmable topics, formats, and CTAs for each day. Structured around your content pillars.'},
+    {nav:'strategy',sub:'profile',   emoji:'👤', label:'STRATEGY', title:'Profile Audit',               desc:'Pulls your live profile from Perplexity, then audits bio, name field, link strategy, highlights, and pinned posts. Rewrites everything ready to copy-paste.'},
+    {nav:'strategy',sub:'magnet',    emoji:'🧲', label:'STRATEGY', title:'Lead Magnet Builder',         desc:'Writes the actual finished lead magnet. Every section, the delivery reel script, all 3 nurture emails, and a 5-slide story sequence. Not a plan. The real thing.'},
+    {nav:'strategy',sub:'community', emoji:'🏔️', label:'STRATEGY', title:'Community Builder',           desc:'Builds a community system around your actual audience. Identity statement, core ritual, engagement architecture, onboarding flow, and 5 recurring content series.'},
+    {nav:'strategy',sub:'email',     emoji:'📧', label:'STRATEGY', title:'Email Sequence Builder',      desc:'Writes complete 5-email nurture sequences. Welcome, value, story, soft pitch, and conversion. Written in your voice, matched to your specific lead magnet.'},
+    {nav:'strategy',sub:'challenge', emoji:'🔥', label:'STRATEGY', title:'30-Day Challenge Builder',    desc:'Plans a full 30-day challenge with daily prompts, accountability hooks, and the content series that runs alongside it. High-retention format that builds email lists fast.'},
+    // RESEARCH
+    {nav:'research',sub:'pipeline',  emoji:'🔬', label:'RESEARCH',  title:'Research Pipeline',           desc:'3-step system: Perplexity pulls live 2026 data, Claude extracts intelligence and content gaps, then writes a camera-ready script. Includes source links.'},
+    {nav:'strategy',sub:'campaign',  emoji:'🎯', label:'STRATEGY', title:'Campaign Builder',          desc:'Multi-week coordinated campaigns with pre-launch, launch, sustain, and convert phases. Every post connected to the arc. Includes email sequence and story plan.'},
+    {nav:'research',sub:'spy',       emoji:'🕵️', label:'RESEARCH',  title:'Competitor Intelligence',     desc:'Add up to 10 competitors. Pulls live data on what they post, what performs, what they miss, and gives you 5 specific moves to take their audience.'},
+    {nav:'research',sub:'vault',     emoji:'🗄️', label:'RESEARCH',  title:'Prompt Vault',                desc:'30+ battle-tested prompts organized by platform. Covers Instagram, YouTube, Facebook, LinkedIn, X/Twitter threads, and TikTok. Copy and run in any AI tool.'},
+    {nav:'research',sub:'collab',    emoji:'🤝', label:'RESEARCH',  title:'Collab Finder',               desc:'Researches guest and collaboration targets in your niche. Returns 5 podcast targets, 5 stitch targets, 3 community partners, and a ready-to-send pitch template.'},
+    {nav:'research',sub:'extract',   emoji:'💡', label:'RESEARCH',  title:'Insight Extractor',           desc:'Paste any content: article, interview, book excerpt. Returns core insight, supporting evidence, contrarian take, actionable takeaway, and 5 content angles.'},
+    // CREATE
+    {nav:'create',sub:'script',      emoji:'✍️',  label:'CREATE',   title:'Script Engine',               desc:'Writes 3 camera-ready script variations using the Hook SOP: Educational (saves), Personal Story (follows), and Bold Take (shares). Includes captions and hashtags.'},
+    {nav:'create',sub:'caption',     emoji:'💬', label:'CREATE',   title:'Caption Writer',               desc:'3 caption variations for any post: short and punchy, story-driven, and educational. Platform-native formatting, tiered hashtags, and CTA matched to the platform.'},
+    {nav:'create',sub:'videodirector',emoji:'🎬',label:'CREATE',   title:'Video Script Director',       desc:'Full production brief: numbered shot list, word-for-word script, 10 b-roll shots, on-screen text, music direction, thumbnail shot, editing notes, and equipment checklist.'},
+    {nav:'create',sub:'batch',       emoji:'⚡',  label:'CREATE',   title:'Bulk Content Batch',          desc:'One topic generates a full week: 5 platform-native posts, a carousel outline, and a 5-slide story sequence. Each post optimized for a different engagement goal.'},
+    {nav:'create',sub:'episode',     emoji:'🎙️', label:'CREATE',   title:'Episode to Clips',            desc:'Break a podcast episode into 5-7 platform clips, a carousel, a LinkedIn post, 5 quote graphics, and an email newsletter teaser. All from one episode.'},
+    {nav:'create',sub:'repurpose',   emoji:'♻️',  label:'CREATE',   title:'Repurpose Engine',            desc:'Paste one script. Get 6 platform-native versions: Instagram Reel, TikTok, X/Twitter Thread, YouTube Short, Facebook, and LinkedIn. Each one feels native to the platform.'},
+    {nav:'create',sub:'hooks',       emoji:'🪝',  label:'CREATE',   title:'Hook Library',                desc:'Generates 10-40 hooks across 5 types: Pattern Interrupt, Question, Bold Statement, Personal Story, and Data Point. First 2-3 words engineered to stop the scroll.'},
+    {nav:'create',sub:'design',      emoji:'🎨',  label:'CREATE',   title:'Design Studio',               desc:'Carousel and static post concepts with slide-by-slide copy, visual direction, typography notes, captions, and a 15-tag hashtag strategy by tier.'},
+    {nav:'create',sub:'comment',     emoji:'💬', label:'CREATE',   title:'Comment Responder',           desc:'Paste one comment or up to 10 at once. Get 3 reply options per comment: warm, direct, and community-building. Keeps your voice, never sounds like a bot.'},
+    {nav:'create',sub:'podcast',     emoji:'🎙️', label:'CREATE',   title:'Podcast Pre-Production',      desc:'Full episode prep kit: guest research brief, episode outline, intro and outro scripts, 10 questions, show notes, and all repurposed clips planned before you record.'},
+    {nav:'create',sub:'dmscripts',   emoji:'📩', label:'CREATE',   title:'DM Script Library',           desc:'Builds a library of DM templates by trigger: lead magnet delivery, podcast pitch response, real estate inquiry, coaching interest. Copy, paste, and close.'},
+    // OPTIMIZE
+    {nav:'optimize',sub:'review',    emoji:'📊', label:'OPTIMIZE', title:'Weekly Review',               desc:'Scores your week across reach, engagement, saves, shares, and leads. Runs a Swarbrick gap analysis on which life dimensions are missing from your content.'},
+    {nav:'optimize',sub:'roi',       emoji:'📈', label:'OPTIMIZE', title:'ROI Dashboard',               desc:'Weekly metrics tracker with sparkline charts, week-over-week growth percentages, top content log, and a data table. Feeds the Schedule Optimizer and Monthly Report.'},
+    {nav:'optimize',sub:'memory',    emoji:'🧠', label:'OPTIMIZE', title:'Content Memory',              desc:'Auto-saves every generated piece. Import Instagram or Facebook exports. Rate content with star, fire, or skull. Search, filter, and find patterns in what works.'},
+    {nav:'optimize',sub:'schedule',  emoji:'🗓️', label:'OPTIMIZE', title:'Schedule Optimizer',         desc:'Reads your ROI data and content history. Tells you specifically when to post, what content mix to use, and what to stop doing. Gets smarter as you log more data.'},
+    {nav:'optimize',sub:'predictor', emoji:'🔮', label:'OPTIMIZE', title:'Performance Predictor',      desc:'Paste any hook, caption, or script before posting. Scores hook strength, save potential, share potential, and retention. Rewrites the weakest version. Uses your historical data.'},
+    {nav:'optimize',sub:'gaps',      emoji:'🔍', label:'OPTIMIZE', title:'Content Gap Analyzer',        desc:'Visual bar chart of all 8 Swarbrick dimensions showing what you over-post and ignore. Flags dead angles and outputs 10 specific filmable pieces to create this week.'},
+    {nav:'optimize',sub:'hooktester',emoji:'🧪', label:'OPTIMIZE', title:'Hook Tester',                 desc:'Write 3 to 5 hook variations. Each gets scored on scroll-stop probability, curiosity gap strength, and specificity. The weakest ones get rewritten.'},
+    // AGENCY
+    {nav:'agency',sub:'portal',      emoji:'🏢', label:'AGENCY',   title:'Client Portal',               desc:'Full dashboard per client. Deliverable pipeline with status tracking, timestamped notes, voice fingerprint status, and performance at a glance. Manage 10 clients from one screen.'},
+    {nav:'agency',sub:'deliverable', emoji:'📦', label:'AGENCY',   title:'Deliverable Builder',         desc:'Choose a client and deliverable type. Generates polished, client-ready output using their voice fingerprint automatically. Downloads as a formatted PDF.'},
+    {nav:'optimize',sub:'stratreview', emoji:'🧠', label:'OPTIMIZE', title:'AI Strategy Review',          desc:'Monthly strategic review generated automatically from ROI data, content ratings, and calendar execution. Replaces the monthly strategy call. Stored per client.'},
+    {nav:'agency',sub:'analytics',    emoji:'📊', label:'AGENCY',   title:'Analytics Import Hub',        desc:'Export CSV from Instagram, YouTube, Facebook, or LinkedIn for free. Import here. SIGNAL parses the data and generates platform-specific insights. No API subscription needed.'},
+    {nav:'agency',sub:'onboardauto',  emoji:'⚡', label:'AGENCY',   title:'Onboarding Automation',       desc:'Add a new client and run this. Generates a full onboarding package before the first call: platform assessment, content angles, 30-day plan, first 10 posts, and key discovery questions.'},
+    {nav:'strategy',sub:'visualcal',  emoji:'🗓️', label:'STRATEGY', title:'Visual Content Calendar',      desc:'Click-to-assign content calendar. Plan posts by date, platform, and format. Track approval status. Export as CSV for Meta Business Suite or any free scheduler.'},
+    {nav:'agency',sub:'report',       emoji:'📊', label:'AGENCY',   title:'Monthly Reporting Suite',     desc:'One-click monthly client reports. Pulls ROI data and top content automatically. Add wins and challenges. Outputs a professional PDF report ready to send.'},
+    {nav:'agency',sub:'voice',       emoji:'🧬', label:'AGENCY',   title:'Voice Fingerprinting',        desc:'Paste 2 to 5 real content samples. Extracts tone, vocabulary, sentence patterns, writing rules, and themes. Stored per client and injected into every deliverable automatically.'},
+    {nav:'agency',sub:'clients',     emoji:'👥', label:'AGENCY',   title:'Client Profiles',             desc:'Create and manage client accounts. Each client has their own voice, angles, platforms, and brand colors. Activating a client rewires every tool to their context.'},
+    {nav:'agency',sub:'whitelabel',  emoji:'🏷️', label:'AGENCY',   title:'White Label Mode',           desc:'Rebrand the app with your agency name, logo, and colors. Every document, report, and header shows your brand. Clients see your agency, not SIGNAL.'},
+    {nav:'agency',sub:'transcript',  emoji:'📞', label:'AGENCY',   title:'Call Transcript Intel',      desc:'Upload or paste any call transcript. Extracts 10 content ideas, key quotes, action items, client language patterns, and voice intel. No Fireflies or Otter subscription needed.'},
+    {nav:'agency',sub:'persona',     emoji:'🤖', label:'AGENCY',   title:'Custom AI Persona',          desc:'Builds a trained AI persona per client from voice fingerprint, content history, and performance ratings. Gets smarter as you rate more content. Injected into all tools.'},
+    {nav:'strategy',sub:'biolink',      emoji:'🔗', label:'STRATEGY', title:'Bio Link Page Builder',    desc:'Generates a complete link-in-bio landing page with profile section, platform buttons, email capture, and lead magnet CTA. Download HTML and host free on GitHub Pages, Netlify, or Carrd.'},
+    {nav:'strategy',sub:'biooptimizer', emoji:'✏️', label:'STRATEGY', title:'Bio Optimizer',            desc:'3 bio variations per platform: authority-first, outcome-first, and personality-first. Covers all 6 platforms. Name field SEO, link strategy, and A/B test recommendation included.'},
+    {nav:'strategy',sub:'series',       emoji:'📺', label:'STRATEGY', title:'Content Series Planner',    desc:'Plan a named recurring series like a show. Every episode mapped with title, hook, key point, and CTA. Includes series branding, growth arc, and repurposing plan.'},
+    {nav:'strategy',sub:'storyarc',     emoji:'📖', label:'STRATEGY', title:'Story Arc Planner',         desc:'Day-by-day story plan for campaigns. Each slide mapped with purpose, CTA, and emotional target. Runs alongside any campaign to move the funnel through Stories.'},
+    {nav:'research',sub:'hashtags',     emoji:'##', label:'RESEARCH',  title:'Hashtag Research',          desc:'Live Perplexity pull of active hashtags. Tiered strategy: niche, mid-range, and broad. Copy-paste ready stack, rotation plan, and list of hashtags to avoid.'},
+    {nav:'research',sub:'viral',        emoji:'🔥', label:'RESEARCH',  title:'Viral Format Library',      desc:'18 proven content formats with the psychology behind why they work. Pick a format, enter your topic, get a complete camera-ready script with caption and variations.'},
+    {nav:'create',sub:'contentbrief',   emoji:'📋', label:'CREATE',   title:'Content Brief Generator',   desc:'Pre-filming brief for the client. What to wear, where to film, talking points, stories to tell, hooks to open with, and a post-session checklist. Read the night before and execute.'},
+    {nav:'create',sub:'guestprep',      emoji:'🎤', label:'CREATE',   title:'Guest Prep Kit',             desc:'Complete host and guest prep. 10 ordered interview questions, guest intel, topics to avoid, welcome email, tech requirements, and a 3-part post-episode follow-up sequence.'},
+    {nav:'create',sub:'objections',     emoji:'💬', label:'CREATE',   title:'Objection Handler',          desc:'Scripts for every objection in real estate, coaching, podcast pitching, brand deals, and agency sales. DM, email, and in-person versions for each. Includes what not to say.'},
+    {nav:'optimize',sub:'abtests',      emoji:'🧪', label:'OPTIMIZE', title:'A/B Test Tracker',           desc:'Log content variations, mark winners, and let SIGNAL find the patterns. After 3+ tests it analyzes what is consistently winning across platforms and formats.'},
+    {nav:'optimize',sub:'revenue',      emoji:'💵', label:'OPTIMIZE', title:'Revenue Attribution',        desc:'Tag content to real outcomes: inquiries, booked calls, closed deals, email signups. Tracks attributed revenue by platform and format. Proves content ROI with real numbers.'},
+    {nav:'optimize',sub:'pricing',      emoji:'💰', label:'OPTIMIZE', title:'Pricing Calculator',         desc:'Real 2026 market rates for brand deals, UGC, coaching, consulting, and agency retainers. Based on your follower count, engagement rate, and niche. Includes negotiation guide.'},
+    {nav:'agency',sub:'clientcomms',    emoji:'📨', label:'AGENCY',   title:'Client Communication Templates', desc:'12 agency email templates: onboarding welcome, weekly check-in, report delivery, scope expansion, missed deadline, rate increase, renewal, and offboarding. Written in your voice.'},
+    {nav:'agency',sub:'tracker',        emoji:'📋', label:'AGENCY',   title:'Collab Tracker',              desc:'CRM for outreach. Track every podcast guest, brand partner, and collab target through Not Contacted, Pitched, In Conversation, Confirmed, and Passed.'},
+    // YOUTUBE
+    {nav:'youtube',sub:'yttoolkit',  emoji:'▶️', label:'YOUTUBE',  title:'YouTube Script Writer',       desc:'VIDIQ-optimized scripts with upload timing, outlier score targets, 3 title options for A/B testing, full word-for-word script, chapter markers, SEO package, and performance forecast.'},
+  ];
+  return (
+    <div>
+      <div style={{textAlign:'center',padding:'3rem 0 3rem'}}>
+        <div style={{position:'relative',display:'inline-block',marginBottom:20}}>
+          <div style={{position:'absolute',inset:-8,borderRadius:'50%',background:'radial-gradient(circle, rgba(0,194,255,0.15) 0%, transparent 70%)',animation:'pulse 3s ease-in-out infinite'}}/>
+          <img src="/E-E-Logo.jpg" alt="SIGNAL" style={{width:72,height:72,borderRadius:'50%',position:'relative',filter:'brightness(0) invert(1)',objectFit:'cover'}}/>
+        </div>
+        <h1 style={{color:B.white,fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:900,margin:'0 0 6px',letterSpacing:'-0.03em'}}>
+          {(() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null'); return wl?.agencyName ? <span style={{color:wl.primaryColor||B.red}}>{wl.agencyName}</span> : <><span>SIGNAL</span> <span style={{color:B.red}}>by Everyday Elevations</span></>; } catch { return <><span>EN-CIS</span> <span style={{color:B.red}}>Command Center</span></>; } })()}
+        </h1>
+        <p style={{color:B.gray,fontSize:14,margin:0}}>Social Media OS</p>
+      </div>
+      {/* Group tools by label */}
+      {['STRATEGY','RESEARCH','CREATE','OPTIMIZE','AGENCY','YOUTUBE'].map(group => {
+        const groupTools = tools.filter(t => t.label === group);
+        const groupColors = { STRATEGY:'#00C2FF', RESEARCH:'#00C2FF', CREATE:'#f5a623', OPTIMIZE:'#27ae60', AGENCY:'#9b59b6', YOUTUBE:'#ff4444' };
+        const groupDescs = {
+          STRATEGY: 'Plan, position, and build your content foundation',
+          RESEARCH: 'Find what works before you create it',
+          CREATE: 'Generate content ready to film, post, or send',
+          OPTIMIZE: 'Measure, improve, and learn from what you publish',
+          AGENCY: 'Manage clients, deliverables, and reports',
+          YOUTUBE: 'Scripts, SEO, and channel growth built around the VIDIQ framework',
+        };
+        return (
+          <div key={group} style={{marginBottom:32}}>
+            <div style={{display:'flex',alignItems:'baseline',gap:12,marginBottom:16,paddingBottom:10,borderBottom:'1px solid rgba(0,194,255,0.08)'}}>
+              <div style={{fontSize:13,fontWeight:800,color:groupColors[group],letterSpacing:2,textTransform:'uppercase'}}>{group}</div>
+              <div style={{fontSize:12,color:B.gray}}>{groupDescs[group]}</div>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:10}}>
+              {groupTools.map(t => (
+                <button key={t.sub} onClick={()=>{setNav(t.nav);setSub(t.sub);}}
+                  style={{
+                    background: 'rgba(12,20,32,0.6)',
+                    border: '1px solid rgba(0,194,255,0.08)',
+                    borderRadius: 12,
+                    padding: '16px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.2s',
+                    color: B.white,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 6,
+                    backdropFilter: 'blur(8px)',
+                  }}>
+                  <div style={{display:'flex',alignItems:'center',gap:10}}>
+                    <span style={{fontSize:22,flexShrink:0}}>{t.emoji}</span>
+                    <div style={{fontWeight:700,fontSize:14,color:B.white,lineHeight:1.3}}>{t.title}</div>
+                  </div>
+                  <div style={{color:'rgba(255,255,255,0.5)',fontSize:12,lineHeight:1.6,paddingLeft:32}}>{t.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function Onboarding() {
+  const [mode,        setMode]       = useState('form');
+  const [goals,       setGoals]      = useState(
+    `Grow @everydayelevations from ~2,400 Instagram followers to 10,000 by end of 2026. Post consistently 5x/week on Instagram. Launch the community as a recognizable community identity. Start building an email list from zero: target 500 subscribers in 90 days. Book 3 meaningful podcast guests. Generate at least 1 real estate lead per month through content. Keep it real: no fake hype, no gimmicks.`
+  );
+  const [current,     setCurrent]    = useState(
+    `Instagram: ~2,400 followers, posting 2-3x/week inconsistently, no clear content schedule. YouTube: @everydayelevations exists but underused. Facebook: facebook.com/jason.fricka active but no strategy. LinkedIn: linkedin.com/in/jason-fricka: HR Manager at Highland Cabinetry + podcast host, dual-lane not used. No email list. No lead magnet. Everyday Elevations podcast running. Colorado-based. Full-time HR job + real estate license + family.`
+  );
+  const [hours,            setHours]            = useState('10');
+  const [brandPersonality, setBrandPersonality] = useState('Direct, Authentic, Gritty, Grounded, Motivating');
+  const [businessName,     setBusinessName]     = useState('Everyday Elevations / Fricka Sells Colorado');
+  const [affiliateDeals,   setAffiliateDeals]   = useState('');
+  const [filmingSchedule,  setFilmingSchedule]  = useState('Weekends + occasional weekday evenings. Can batch 2-3 hours on Saturdays.');
+  const [inspirationAccounts, setInspirationAccounts] = useState('@hubermanlab, @jayshetty, @richroll, @mindpumpmedia');
+  const [offLimitTopics,   setOffLimitTopics]   = useState('No divisive politics. No fake hype or get-rich-quick angles.');
+  const [repurposeLinks,   setRepurposeLinks]   = useState('');
+  const [idealAudience,    setIdealAudience]    = useState(
+    `Everyday people who refuse to stay where they are: working parents, professionals who feel stuck, athletes, people grinding toward something better, anyone building a life they're proud of. Ages 28-50, Colorado-based but broader online. They believe in doing the work nobody sees.`
+  );
+  const [desiredTransformation, setDesiredTransformation] = useState(
+    `From stuck, inconsistent, and invisible: to showing up daily, building a real community, and turning content into real estate leads, coaching clients, and podcast listeners.`
+  );
+  const [emotionalJourney, setEmotionalJourney] = useState(
+    `Before: Overwhelmed, scattered, feeling like they are behind. After: Clear, consistent, part of a community that pushes them forward. One sentence: They came in stuck and left with a plan they actually believe in.`
+  );
+  const [additionalContext, setAdditionalContext] = useState('');
+  const [uploadedDoc,      setUploadedDoc]      = useState('');
+  const [uploadFileName,   setUploadFileName]   = useState('');
+  const [out,              setOut]              = useState('');
+  const [loading,          setLoading]          = useState(false);
+  const [downloading,      setDownloading]      = useState(false);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (ev) => setUploadedDoc(ev.target.result);
+    reader.readAsText(file);
+  };
+
+  const run = async () => {
+    setLoading(true); setOut('');
+    const fields = { goals, current, hours, brandPersonality, businessName, affiliateDeals,
+      filmingSchedule, inspirationAccounts, offLimitTopics, repurposeLinks,
+      idealAudience, desiredTransformation, emotionalJourney, additionalContext };
+    const res = await ai(ONBOARD_PROMPT(fields, uploadedDoc));
+    setOut(res); setLoading(false);
+  };
+
+  const downloadDoc = async () => {
+    if(!out) return;
+    setDownloading(true);
+    try {
+      const res = await fetch('/api/claude', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          message: `Convert this strategy document into clean HTML that could be printed or saved as a document. Use proper headings (h1, h2, h3), bullet points, and bold text. Make it professional and readable. Return ONLY the HTML body content, no <html> or <body> tags:\n\n${out}`,
+          system: 'You convert markdown/text strategy documents into clean, well-formatted HTML. Return only the inner HTML content.'
+        })
+      });
+      const d = await res.json();
+      const html = d.text || d.result || '';
+      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Everyday Elevations — 90-Day Strategy</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#111;line-height:1.7}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#0A1628;margin-top:32px}h3{color:#E94560}strong{color:#0A1628}li{margin-bottom:6px}@media print{body{margin:24px}}</style></head><body><h1>Everyday Elevations — 90-Day Content Strategy</h1>${html}</body></html>`;
+      const blob = new Blob([fullHtml], {type:'text/html'});
+      const url = URL.createObjectURL(blob);
+      const printWin = window.open(url, '_blank');
+      if (printWin) {
+        printWin.onload = () => { printWin.print(); };
+      } else {
+        const a = document.createElement('a');
+        a.href = url; a.download = 'EverydayElevations-90DayStrategy.html';
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a);
+      }
+      URL.revokeObjectURL(url);
+    } catch(e) { console.error(e); }
+    setDownloading(false);
+  };
+
+  const fldStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'};
+  const taStyle = {...fldStyle,resize:'vertical',lineHeight:1.6};
+  const sectionHead = (emoji, label) => (
+    <div style={{fontSize:10,fontWeight:700,letterSpacing:2,color:B.red,textTransform:'uppercase',
+      marginBottom:12,marginTop:20,paddingBottom:6,borderBottom:'1px solid rgba(233,69,96,0.25)'}}>
+      {emoji} {label}
+    </div>
+  );
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🚀</span>
+        <div><h2 style={{color:B.white,margin:0}}>90-Day Strategy Builder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pre-filled with your numbers. Edit anything, then generate a complete strategy document.</p></div>
+      </div>
+      <Card>
+        {sectionHead('📍','Goals & Current State')}
+        <SecLabel>Your Goals</SecLabel>
+        <textarea value={goals} onChange={e=>setGoals(e.target.value)} rows={4} style={taStyle}/>
+        <SecLabel style={{marginTop:14}}>Current State</SecLabel>
+        <textarea value={current} onChange={e=>setCurrent(e.target.value)} rows={4} style={taStyle}/>
+
+        {sectionHead('🎯','Brand Identity')}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+          <div>
+            <SecLabel>Brand Personality (3-5 adjectives)</SecLabel>
+            <input value={brandPersonality} onChange={e=>setBrandPersonality(e.target.value)} style={fldStyle}/>
+          </div>
+          <div>
+            <SecLabel>Business Name</SecLabel>
+            <input value={businessName} onChange={e=>setBusinessName(e.target.value)} style={fldStyle}/>
+          </div>
+        </div>
+        <SecLabel>Affiliate / Brand Deals</SecLabel>
+        <textarea value={affiliateDeals} onChange={e=>setAffiliateDeals(e.target.value)} rows={2}
+          placeholder="List any active affiliate partnerships or brand deals..."
+          style={taStyle}/>
+
+        {sectionHead('🎬','Content Details')}
+        <SecLabel>Filming Schedule & Batch Capacity</SecLabel>
+        <textarea value={filmingSchedule} onChange={e=>setFilmingSchedule(e.target.value)} rows={2} style={taStyle}/>
+        <SecLabel style={{marginTop:14}}>Inspiration Accounts</SecLabel>
+        <textarea value={inspirationAccounts} onChange={e=>setInspirationAccounts(e.target.value)} rows={2} style={taStyle}/>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginTop:12}}>
+          <div>
+            <SecLabel>Off-Limit Topics</SecLabel>
+            <textarea value={offLimitTopics} onChange={e=>setOffLimitTopics(e.target.value)} rows={3}
+              placeholder="Topics or angles to avoid..." style={taStyle}/>
+          </div>
+          <div>
+            <SecLabel>Content to Repurpose (links/notes)</SecLabel>
+            <textarea value={repurposeLinks} onChange={e=>setRepurposeLinks(e.target.value)} rows={3}
+              placeholder="YouTube links, podcast episodes, Google Drive links..." style={taStyle}/>
+          </div>
+        </div>
+
+        {sectionHead('👥','Ideal Audience & Transformation')}
+        <SecLabel>Ideal Audience Profile</SecLabel>
+        <textarea value={idealAudience} onChange={e=>setIdealAudience(e.target.value)} rows={3}
+          placeholder="Age, demographics, pain points, beliefs, lifestyle..." style={taStyle}/>
+        <SecLabel style={{marginTop:14}}>Desired Transformation</SecLabel>
+        <textarea value={desiredTransformation} onChange={e=>setDesiredTransformation(e.target.value)} rows={2} style={taStyle}/>
+        <SecLabel style={{marginTop:14}}>Emotional Journey (Before → After)</SecLabel>
+        <textarea value={emotionalJourney} onChange={e=>setEmotionalJourney(e.target.value)} rows={2}
+          placeholder="How they feel before finding you, how they feel after, one-sentence summary..." style={taStyle}/>
+
+        {sectionHead('📎','Optional Upload & Additional Context')}
+        <label style={{cursor:'pointer',display:'block',marginBottom:12}}>
+          <div style={{border:`2px dashed ${uploadedDoc?'rgba(39,174,96,0.5)':'rgba(233,69,96,0.3)'}`,borderRadius:8,
+            padding:'12px 16px',display:'flex',alignItems:'center',gap:12,
+            background:uploadedDoc?'rgba(39,174,96,0.07)':'rgba(255,255,255,0.02)'}}>
+            <span style={{fontSize:20}}>{uploadedDoc?'✅':'📎'}</span>
+            <div>
+              {uploadedDoc
+                ? <><div style={{color:B.white,fontWeight:700,fontSize:13}}>{uploadFileName}</div>
+                    <div style={{color:'rgba(39,174,96,0.9)',fontSize:11,marginTop:2}}>Doc loaded — will be included in strategy</div></>
+                : <><div style={{color:B.white,fontWeight:600,fontSize:13}}>Upload existing doc or notes (optional)</div>
+                    <div style={{color:B.gray,fontSize:11,marginTop:2}}>.txt or .md</div></>}
+            </div>
+          </div>
+          <input type="file" accept=".txt,.md,text/plain" onChange={handleFileUpload} style={{display:'none'}}/>
+        </label>
+        <textarea value={additionalContext} onChange={e=>setAdditionalContext(e.target.value)} rows={2}
+          placeholder="Anything else: recent wins, struggles, offers launching, audience DM insights..."
+          style={taStyle}/>
+
+        <div style={{display:'flex',alignItems:'center',gap:12,marginTop:16,flexWrap:'wrap'}}>
+          <SecLabel style={{margin:0}}>Hours/Week:</SecLabel>
+          {['3','5','10','15','20+'].map(h => (
+            <button key={h} onClick={()=>setHours(h)}
+              style={{background:hours===h?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:hours===h?700:400}}>
+              {h}
+            </button>
+          ))}
+        </div>
+        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading}>
+          {loading?'Building Strategy...':'🚀 Build 90-Day Strategy'}
+        </RedBtn></div>
+      </Card>
+      {loading && <Spin/>}
+      {out && (
+        <StrategyOutput text={out} onDownload={downloadDoc} downloading={downloading}/>
+      )}
+    </div>
+  );
+}
+
+function ContentCalendar() {
+  const [pillars,        setPillars]        = useState('');
+  const [platform,       setPlatform]       = useState('Instagram');
+  const [duration,       setDuration]       = useState('30');
+  const [strategyDoc,    setStrategyDoc]    = useState('');
+  const [strategyFileName,setStrategyFileName] = useState('');
+  const [out,            setOut]            = useState('');
+  const [loading,        setLoading]        = useState(false);
+
+  const handleStrategyUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setStrategyFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (ev) => setStrategyDoc(ev.target.result);
+    reader.readAsText(file);
+  };
+
+  const run = async () => {
+    if(!pillars && !strategyDoc) return;
+    setLoading(true); setOut('');
+    const res = await ai(CALENDAR_PROMPT(pillars, platform, duration, strategyDoc));
+    setOut(res); setLoading(false);
+  };
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>📅</span>
+        <div><h2 style={{color:B.white,margin:0}}>Content Calendar Engine</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>4-week content framework — every topic filmable tomorrow <SOPBadge/></p></div>
+      </div>
+      <Card>
+        {/* Strategy Doc Upload */}
+        <div style={{marginBottom:16}}>
+          <SecLabel>
+            📄 Upload Strategy Doc{' '}
+            <span style={{fontWeight:400,textTransform:'none',letterSpacing:0,fontSize:11,color:B.gray}}>
+              (optional: upload your 90-Day Strategy for calendar continuity)
+            </span>
+          </SecLabel>
+          <label style={{cursor:'pointer',display:'block'}}>
+            <div style={{border:`2px dashed ${strategyDoc?'rgba(39,174,96,0.5)':'rgba(233,69,96,0.3)'}`,borderRadius:8,
+              padding:'12px 16px',display:'flex',alignItems:'center',gap:12,
+              background:strategyDoc?'rgba(39,174,96,0.07)':'rgba(255,255,255,0.02)'}}>
+              <span style={{fontSize:20}}>{strategyDoc?'✅':'📎'}</span>
+              <div style={{flex:1}}>
+                {strategyDoc
+                  ? <><div style={{color:B.white,fontWeight:700,fontSize:13}}>{strategyFileName}</div>
+                      <div style={{color:'rgba(39,174,96,0.9)',fontSize:11,marginTop:2}}>Strategy loaded — calendar will align with your goals and brand voice</div></>
+                  : <><div style={{color:B.white,fontWeight:600,fontSize:13}}>Upload your 90-Day Strategy Doc</div>
+                      <div style={{color:B.gray,fontSize:11,marginTop:2}}>Download from Strategy Builder then upload here — gives the calendar full context</div></>}
+              </div>
+              {strategyDoc && (
+                <button onClick={e=>{e.preventDefault();setStrategyDoc('');setStrategyFileName('');}}
+                  style={{background:'rgba(255,255,255,0.08)',border:'none',color:B.gray,borderRadius:6,padding:'4px 10px',cursor:'pointer',fontSize:12}}>
+                  ✕ Remove
+                </button>
+              )}
+            </div>
+            <input type="file" accept=".txt,.md,text/plain" onChange={handleStrategyUpload} style={{display:'none'}}/>
+          </label>
+        </div>
+
+        <SecLabel>Content Pillars</SecLabel>
+        <input value={pillars} onChange={e=>setPillars(e.target.value)}
+          placeholder={strategyDoc ? 'Override pillars here, or leave blank to use pillars from strategy doc...' : 'e.g. Veteran mindset, Real estate tips, Family lessons, Fitness...'}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+        <div style={{display:'flex',gap:24,marginTop:16,flexWrap:'wrap'}}>
+          <div>
+            <SecLabel>Platform</SecLabel>
+            <div style={{display:'flex',gap:8}}>
+              {PLATFORMS.map(p => (
+                <button key={p} onClick={()=>setPlatform(p)}
+                  style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                    borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:platform===p?700:400}}>
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <SecLabel>Duration</SecLabel>
+            <div style={{display:'flex',gap:8}}>
+              {['30','60','90','180'].map(d => (
+                <button key={d} onClick={()=>setDuration(d)}
+                  style={{background:duration===d?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                    borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:duration===d?700:400}}>
+                  {d} days
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||(!pillars&&!strategyDoc)}>
+          {loading ? 'Building Calendar...' : '📅 Build Calendar'}
+        </RedBtn></div>
+      </Card>
+      {loading && <Spin/>}
+      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+    </div>
+  );
+}
+
+function ProfileAudit() {
+  const [platform, setPlatform] = useState('Instagram');
+  const [extraContext, setExtraContext] = useState('');
+  const [liveData, setLiveData] = useState('');
+  const [out, setOut] = useState('');
+  const [fetching, setFetching] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handles = {
+    Instagram: '@everydayelevations on Instagram: instagram.com/everydayelevations',
+    YouTube: 'youtube.com/@everydayelevations',
+    Facebook: 'facebook.com/jason.fricka',
+    LinkedIn: 'linkedin.com/in/jason-fricka: HR Manager + podcast host Jason Fricka',
+    X: '@everydayelevations on X (Twitter): x.com/everydayelevations',
+    TikTok: '@everydayelevations on TikTok: tiktok.com/@everydayelevations',
+  };
+
+  const fetchLive = async () => {
+    setFetching(true); setLiveData(''); setOut('');
+    const res = await perp(`Audit this social media profile right now and report exactly what is on it: ${handles[platform]}. Report the exact bio text, follower count if visible, recent post types, highlights or featured sections, and overall profile structure. Be specific and factual.`);
+    setLiveData(res); setFetching(false);
+  };
+
+  const run = async () => {
+    if (!liveData) return;
+    setLoading(true); setOut('');
+    const res = await ai(PROFILE_PROMPT(platform, liveData, extraContext));
+    setOut(res); setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>👤</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Profile Audit</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Perplexity pulls your live profile first. Then Claude audits what's actually there.</p>
+        </div>
+      </div>
+
+      <Card style={{marginBottom:16}}>
+        <SecLabel>Platform</SecLabel>
+        <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
+          {PLATFORMS.map(p => (
+            <button key={p} onClick={() => { setPlatform(p); setLiveData(''); setOut(''); }}
+              style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:platform===p?700:400}}>
+              {p}{p==='LinkedIn'?' (Dual-Lane)':''}
+            </button>
+          ))}
+        </div>
+
+        <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:8,padding:'10px 14px',marginBottom:16,fontSize:12,color:'rgba(255,255,255,0.7)'}}>
+          <strong style={{color:B.red}}>Step 1</strong> — Perplexity looks up your live {platform} profile right now. Hit the button below.
+        </div>
+        <button onClick={fetchLive} disabled={fetching}
+          style={{background:fetching?B.gray:'rgba(255,255,255,0.08)',color:B.white,border:'1px solid rgba(255,255,255,0.2)',
+            borderRadius:8,padding:'9px 20px',fontWeight:700,cursor:fetching?'not-allowed':'pointer',fontSize:13,marginBottom:16}}>
+          {fetching ? 'Pulling live profile...' : `🔍 Pull Live ${platform} Profile`}
+        </button>
+
+        {liveData && (
+          <div style={{marginBottom:16}}>
+            <SecLabel>What Perplexity Found</SecLabel>
+            <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'12px',fontSize:12,color:'rgba(255,255,255,0.75)',lineHeight:1.7,maxHeight:180,overflowY:'auto'}}>
+              {liveData}
+            </div>
+          </div>
+        )}
+
+        <SecLabel>Anything Perplexity Can't See (optional)</SecLabel>
+        <textarea value={extraContext} onChange={e=>setExtraContext(e.target.value)} rows={3}
+          placeholder={`e.g. My current DM volume, what posts get the most saves, my email list size, what my audience asks most...`}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+
+        <div style={{marginTop:16}}>
+          <RedBtn onClick={run} disabled={loading || !liveData}>
+            {loading ? 'Auditing...' : 'Run Full Audit'}
+          </RedBtn>
+          {!liveData && <span style={{color:B.gray,fontSize:12,marginLeft:12}}>Pull live profile first</span>}
+        </div>
+      </Card>
+      {loading && <Spin/>}
+      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+    </div>
+  );
+}
+
+function LeadMagnet() {
+  const [audience, setAudience] = useState('Everyday people who want to build discipline, feel stuck in their career or mindset, working parents grinding toward something better, professionals who want to level up');
+  const [problem, setProblem] = useState("They know they need to change but don't know where to start. They feel like everyone else has it figured out. They're showing up but not seeing results.");
+  const [offer, setOffer] = useState('Mindset coaching, Everyday Elevations podcast, the community community, real estate (Fricka Sells Colorado)');
+  const [currentContent, setCurrentContent] = useState('Reels on mindset, everyday wins, discipline, Colorado lifestyle, family lessons, real estate tips. Voice is direct, real, no hype.');
+  const [whatWorks, setWhatWorks] = useState('');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const run = async () => {
+    setLoading(true); setOut('');
+    const res = await ai(MAGNET_PROMPT(audience, problem, offer, currentContent, whatWorks));
+    setOut(res); setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🧲</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Lead Magnet Builder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pre-filled with your context. Add what's actually working, then generate.</p>
+        </div>
+      </div>
+      <Card>
+        <SecLabel>Who You're Trying to Reach</SecLabel>
+        <textarea value={audience} onChange={e=>setAudience(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+
+        <SecLabel>The Core Problem You Solve</SecLabel>
+        <textarea value={problem} onChange={e=>setProblem(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+
+        <SecLabel>Your Offers / Services</SecLabel>
+        <textarea value={offer} onChange={e=>setOffer(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+
+        <SecLabel>What You Currently Post / Your Content Style</SecLabel>
+        <textarea value={currentContent} onChange={e=>setCurrentContent(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+
+        <SecLabel>What's Resonated Most With Your Audience (comments, DMs, saves, shares)</SecLabel>
+        <textarea value={whatWorks} onChange={e=>setWhatWorks(e.target.value)} rows={3}
+          placeholder="e.g. My veteran transition story got 200 saves. Posts about early mornings get the most DMs. People always ask me about my morning routine..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+
+        <div style={{marginTop:16}}>
+          <RedBtn onClick={run} disabled={loading}>
+            {loading ? 'Building...' : 'Build Lead Magnet System'}
+          </RedBtn>
+        </div>
+      </Card>
+      {loading && <Spin/>}
+      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+    </div>
+  );
+}
+
+function CommunityBuilder() {
+  const [focus, setFocus] = useState("Everyday people who refuse to stay where they are. Mindset, discipline, showing up when it's hard. Working parents, professionals, athletes, people grinding toward something better.");
+  const [currentEngagement, setCurrentEngagement] = useState('');
+  const [whereTheyAre, setWhereTheyAre] = useState('Instagram comments and DMs primarily. Some Facebook. Podcast listeners.');
+  const [whatTheyAsk, setWhatTheyAsk] = useState('');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const run = async () => {
+    setLoading(true); setOut('');
+    const res = await ai(COMMUNITY_PROMPT(focus, currentEngagement, whereTheyAre, whatTheyAsk));
+    setOut(res); setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🏔️</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Community Builder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Built from what's actually happening in your audience — not a template.</p>
+        </div>
+      </div>
+      <Card>
+        <SecLabel>Who the community Is For</SecLabel>
+        <textarea value={focus} onChange={e=>setFocus(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+
+        <SecLabel>What Your Current Engagement Actually Looks Like</SecLabel>
+        <textarea value={currentEngagement} onChange={e=>setCurrentEngagement(e.target.value)} rows={2}
+          placeholder="e.g. I get 10-15 DMs a week. Most comments are people saying they needed this today. My veteran posts get the most replies..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+
+        <SecLabel>Where Your Audience Lives Right Now</SecLabel>
+        <textarea value={whereTheyAre} onChange={e=>setWhereTheyAre(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+
+        <SecLabel>What People Ask You or Tell You Most (comments, DMs, real life)</SecLabel>
+        <textarea value={whatTheyAsk} onChange={e=>setWhatTheyAsk(e.target.value)} rows={3}
+          placeholder="e.g. How do you stay consistent? How did you get through your transition? Can you do more content on morning routines?..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+
+        <div style={{marginTop:16}}>
+          <RedBtn onClick={run} disabled={loading}>
+            {loading ? 'Building...' : 'Build the community System'}
+          </RedBtn>
+        </div>
+      </Card>
+      {loading && <Spin/>}
+      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+    </div>
+  );
+}
+
+function Pipeline() {
+  const [query,setQuery] = useState('');
+  const [angle,setAngle] = useState('occupational');
+  const [platform,setPlatform] = useState('Instagram');
+  const [tier,setTier] = useState(0);
+  const [step,setStep] = useState('idle');
+  const [research,setResearch] = useState('');
+  const [intel,setIntel] = useState('');
+  const [script,setScript] = useState('');
+
+  // Pull trending topics from the shared Trend Alerts cache
+  const trendingChips = (() => {
+    try {
+      const stored = localStorage.getItem('encis_trend_alerts');
+      if (!stored) return [];
+      const alerts = JSON.parse(stored);
+      return alerts
+        .filter(a => a.title || a.text)
+        .map(a => ({
+          label: a.title || a.text?.slice(0, 50),
+          angle: a.angle,
+          views: a.views,
+          account: a.account,
+        }))
+        .slice(0, 8);
+    } catch { return []; }
+  })();
+
+  // Map angle label back to angle id for auto-selecting the grid
+  const angleIdFromLabel = (label) => {
+    return ANGLES.find(a => a.label === label)?.id || 'emotional';
+  };
+
+  const runResearch = async () => {
+    if(!query) return;
+    setStep('researching'); setResearch(''); setIntel(''); setScript('');
+    const t = TIER_PROMPTS[tier];
+    const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+    const res = await perp(`Today is ${today}. ${t.desc}: ${query} — focus on ${ANGLES.find(a=>a.id===angle)?.label} angle. Only use sources from 2026. Include source URLs where possible.`);
+    setResearch(res); setStep('idle');
+  };
+  const runExtract = async () => {
+    if(!research) return;
+    setStep('extracting'); setIntel(''); setScript('');
+    const res = await ai(PIPELINE_EXTRACT(research, ANGLES.find(a=>a.id===angle)?.label));
+    setIntel(res); setStep('idle');
+  };
+  const runScript = async () => {
+    if(!intel) return;
+    setStep('scripting'); setScript('');
+    const res = await ai(PIPELINE_SCRIPT(intel, platform));
+    setScript(res); setStep('idle');
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🔬</span>
+        <div><h2 style={{color:B.white,margin:0}}>Research Pipeline</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Perplexity research → Intelligence extraction → Camera-ready script</p></div>
+      </div>
+      <Card style={{marginBottom:16}}>
+        <SecLabel>Research Topic</SecLabel>
+
+        {/* Trending topic chips: tap to auto-fill */}
+        {trendingChips.length > 0 && (
+          <div style={{marginBottom:12}}>
+            <div style={{fontSize:10,fontWeight:700,letterSpacing:1.5,color:'rgba(0,212,255,0.7)',
+              textTransform:'uppercase',marginBottom:8,display:'flex',alignItems:'center',gap:6}}>
+              <span>🔥</span> Trending Right Now: tap to research
+            </div>
+            <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+              {trendingChips.map((chip, i) => (
+                <button key={i}
+                  onClick={() => {
+                    setQuery(chip.label);
+                    if (chip.angle) setAngle(angleIdFromLabel(chip.angle));
+                  }}
+                  style={{
+                    background: query === chip.label ? B.red : 'rgba(0,212,255,0.08)',
+                    border: `1px solid ${query === chip.label ? B.red : 'rgba(0,212,255,0.2)'}`,
+                    borderRadius:20,padding:'5px 12px',cursor:'pointer',
+                    color: query === chip.label ? '#fff' : 'rgba(255,255,255,0.8)',
+                    fontSize:12,fontWeight:500,textAlign:'left',
+                    display:'flex',alignItems:'center',gap:6,
+                    maxWidth:280,
+                  }}>
+                  <span style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>
+                    {chip.label}
+                  </span>
+                  {chip.views && (
+                    <span style={{color:B.red,fontSize:10,fontWeight:700,flexShrink:0}}>
+                      {chip.views}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <input value={query} onChange={e=>setQuery(e.target.value)}
+          placeholder="e.g. Colorado real estate market, mindset for high performers, daily discipline..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+        <SecLabel>Content Angle</SecLabel>
+        <AngleGrid selected={angle} onSelect={setAngle}/>
+        <SecLabel>Research Depth</SecLabel>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:16}}>
+          {TIER_PROMPTS.map((t,i) => (
+            <button key={i} onClick={()=>setTier(i)}
+              style={{background:tier===i?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                borderRadius:8,padding:'10px 8px',cursor:'pointer',textAlign:'left'}}>
+              <div style={{fontWeight:700,fontSize:13}}>{t.label}</div>
+              <div style={{color:tier===i?'rgba(255,255,255,0.8)':B.gray,fontSize:11,marginTop:2}}>{t.desc}</div>
+            </button>
+          ))}
+        </div>
+        <RedBtn onClick={runResearch} disabled={step==='researching'||!query}>
+          {step==='researching'?'Researching...':'Step 1: Research'}
+        </RedBtn>
+      </Card>
+      {research && (
+        <Card style={{marginBottom:16}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+            <SecLabel style={{margin:0}}>Raw Research</SecLabel>
+            <div style={{display:'flex',gap:8}}>
+              <CopyBtn text={research}/>
+              <RedBtn onClick={runExtract} disabled={step==='extracting'} style={{padding:'6px 14px',fontSize:13}}>
+                {step==='extracting'?'Extracting...':'Step 2: Extract Intel'}
+              </RedBtn>
+            </div>
+          </div>
+          <pre style={{color:B.white,fontSize:12,whiteSpace:'pre-wrap',margin:0,lineHeight:1.6,
+            maxHeight:200,overflowY:'auto'}}>{research}</pre>
+        </Card>
+      )}
+      {intel && (
+        <Card style={{marginBottom:16}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+            <SecLabel style={{margin:0}}>Extracted Intelligence</SecLabel>
+            <div style={{display:'flex',gap:8}}>
+              <CopyBtn text={intel}/>
+              <div>
+                <SecLabel style={{margin:'0 0 4px',fontSize:10}}>Platform</SecLabel>
+                <div style={{display:'flex',gap:6}}>
+                  {PLATFORMS.map(p => (
+                    <button key={p} onClick={()=>setPlatform(p)}
+                      style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                        borderRadius:5,padding:'4px 10px',cursor:'pointer',fontSize:12}}>
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <RedBtn onClick={runScript} disabled={step==='scripting'} style={{padding:'6px 14px',fontSize:13}}>
+                {step==='scripting'?'Scripting...':'Step 3: Write Script'}
+              </RedBtn>
+            </div>
+          </div>
+          <pre style={{color:B.white,fontSize:12,whiteSpace:'pre-wrap',margin:0,lineHeight:1.6,
+            maxHeight:250,overflowY:'auto'}}>{intel}</pre>
+        </Card>
+      )}
+      {script && <Output text={script}/>}
+      {(step==='researching'||step==='extracting'||step==='scripting') && <Spin/>}
+    </div>
+  );
+}
+
+function Vault() {
+  const [activeTab,setActiveTab] = useState('instagram');
+  const [copied,setCopied] = useState(null);
+  const current = VAULT_TABS.find(t=>t.id===activeTab);
+  const copyPrompt = (p,i) => {
+    navigator.clipboard.writeText(p);
+    setCopied(i);
+    setTimeout(()=>setCopied(null),2000);
+  };
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🗄️</span>
+        <div><h2 style={{color:B.white,margin:0}}>Prompt Vault</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>25+ battle-tested prompts — copy and run anywhere</p></div>
+      </div>
+      <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
+        {VAULT_TABS.map(t => (
+          <button key={t.id} onClick={()=>setActiveTab(t.id)}
+            style={{background:activeTab===t.id?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+              borderRadius:8,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:activeTab===t.id?700:400}}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+      <div style={{display:'grid',gap:10}}>
+        {current.prompts.map((p,i) => (
+          <Card key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'14px 16px'}}>
+            <span style={{color:B.white,fontSize:13,flex:1}}>{p}</span>
+            <button onClick={()=>copyPrompt(p,i)}
+              style={{background:copied===i?'rgba(46,204,113,0.2)':B.red,color:B.white,border:'none',
+                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:700,
+                marginLeft:12,whiteSpace:'nowrap'}}>
+              {copied===i?'✓ Copied':'Copy'}
+            </button>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CollabFinder() {
+  const [niche,setNiche] = useState('');
+  const [goal,setGoal] = useState('podcast guest');
+  const [out,setOut] = useState('');
+  const [loading,setLoading] = useState(false);
+  const run = async () => {
+    if(!niche) return;
+    setLoading(true); setOut('');
+    const researchQ = `Find collaboration opportunities in ${niche} for ${goal}`;
+    const perpRes = await perp(researchQ);
+    const finalRes = await ai(COLLAB_PROMPT(niche, goal) + '\n\nResearch data:\n' + perpRes);
+    setOut(finalRes); setLoading(false);
+  };
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🤝</span>
+        <div><h2 style={{color:B.white,margin:0}}>Collab Finder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Perplexity-powered guest targets + pitch templates</p></div>
+      </div>
+      <Card>
+        <SecLabel>Niche / Space</SecLabel>
+        <input value={niche} onChange={e=>setNiche(e.target.value)}
+          placeholder="e.g. Veteran wellness, Colorado real estate, Personal development podcasts..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+        <SecLabel>Collaboration Type</SecLabel>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          {['podcast guest','stitch/collab','community partner','brand deal'].map(g => (
+            <button key={g} onClick={()=>setGoal(g)}
+              style={{background:goal===g?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,textTransform:'capitalize',
+                fontWeight:goal===g?700:400}}>
+              {g}
+            </button>
+          ))}
+        </div>
+        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!niche}>
+          {loading?'Finding Collabs...':'Find Collaborations'}
+        </RedBtn></div>
+      </Card>
+      {loading && <Spin/>}
+      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+    </div>
+  );
+}
+
+function Extract() {
+  const [content,setContent] = useState('');
+  const [question,setQuestion] = useState('');
+  const [out,setOut] = useState('');
+  const [loading,setLoading] = useState(false);
+  const run = async () => {
+    if(!content) return;
+    setLoading(true); setOut('');
+    const res = await ai(EP_PROMPT(content, question));
+    setOut(res); setLoading(false);
+  };
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>💡</span>
+        <div><h2 style={{color:B.white,margin:0}}>Insight Extractor</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pull gold from any content — articles, interviews, books, transcripts</p></div>
+      </div>
+      <Card>
+        <SecLabel>Content to Analyze</SecLabel>
+        <textarea value={content} onChange={e=>setContent(e.target.value)} rows={6}
+          placeholder="Paste any content: article, interview transcript, book excerpt, speech..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+        <SecLabel>Specific Question / Focus (optional)</SecLabel>
+        <input value={question} onChange={e=>setQuestion(e.target.value)}
+          placeholder="e.g. How does this apply to veterans? What's the content angle for real estate?"
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!content}>
+          {loading?'Extracting Insights...':'Extract Insights'}
+        </RedBtn></div>
+      </Card>
+      {loading && <Spin/>}
+      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+    </div>
+  );
+}
+
+function ScriptEngine() {
+  const [mode,setMode] = useState('write'); // write | stitch
+  const [topic,setTopic] = useState('');
+  const [angle,setAngle] = useState('emotional');
+  const [platform,setPlatform] = useState('Instagram');
+  const [stitchContent,setStitchContent] = useState('');
+  const [out,setOut] = useState('');
+  const [loading,setLoading] = useState(false);
+  const [teleprompter,setTeleprompter] = useState(false);
+
+  const run = async () => {
+    setLoading(true); setOut('');
+    let res;
+    if(mode==='write') {
+      if(!topic) { setLoading(false); return; }
+      const angleLabel = ANGLES.find(a=>a.id===angle)?.label;
+      res = await ai(SCRIPT_PROMPT(topic, angleLabel, platform));
+      logToMemory({ type:'script', title:topic, topic, platform, angle:angleLabel, preview:res.slice(0,200) });
+    } else {
+      if(!stitchContent) { setLoading(false); return; }
+      let angleLabel = ANGLES.find(a=>a.id===angle)?.label;
+      res = await ai(STITCH_PROMPT(stitchContent, angleLabel));
+      logToMemory({ type:'script', title:`Stitch: ${stitchContent.slice(0,60)}`, platform, angle:angleLabel, preview:res.slice(0,200) });
+    }
+    setOut(res); setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>✍️</span>
+        <div><h2 style={{color:B.white,margin:0}}>Script Engine</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>3 script variations — Write original or Stitch response <SOPBadge/></p></div>
+      </div>
+      <div style={{display:'flex',gap:8,marginBottom:20}}>
+        {[{id:'write',label:'✍️ Write Script'},{id:'stitch',label:'🔗 Stitch Response'}].map(m => (
+          <button key={m.id} onClick={()=>setMode(m.id)}
+            style={{background:mode===m.id?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+              borderRadius:8,padding:'10px 20px',cursor:'pointer',fontSize:14,fontWeight:mode===m.id?700:400}}>
+            {m.label}
+          </button>
+        ))}
+      </div>
+      <Card>
+        {mode==='write' ? (
+          <>
+            <SecLabel>Topic / Idea</SecLabel>
+            <input value={topic} onChange={e=>setTopic(e.target.value)}
+              placeholder="e.g. Why most people quit before they see results..."
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+            <SecLabel>Content Angle</SecLabel>
+            <AngleGrid selected={angle} onSelect={setAngle}/>
+            <SecLabel>Platform</SecLabel>
+            <div style={{display:'flex',gap:8,marginBottom:16}}>
+              {PLATFORMS.map(p => (
+                <button key={p} onClick={()=>setPlatform(p)}
+                  style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                    borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:platform===p?700:400}}>
+                  {p}
+                </button>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <SecLabel>Original Content to Stitch</SecLabel>
+            <textarea value={stitchContent} onChange={e=>setStitchContent(e.target.value)} rows={4}
+              placeholder="Paste the original post, video description, or quote you want to stitch/respond to..."
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+            <SecLabel>Your Response Angle</SecLabel>
+            <AngleGrid selected={angle} onSelect={setAngle}/>
+          </>
+        )}
+        <RedBtn onClick={run} disabled={loading||(mode==='write'?!topic:!stitchContent)}>
+          {loading?'Writing Script...':mode==='write'?'Write 3 Script Variations':'Write Stitch Response'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+
+      {/* Output + Teleprompter launch */}
+      {out && (
+        <div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:8}}>
+            <span style={{color:B.white,fontWeight:700,fontSize:14}}>Your Script</span>
+            <div style={{display:'flex',gap:8}}>
+              <CopyBtn text={out}/>
+              <button onClick={()=>setTeleprompter(true)}
+                style={{background:'linear-gradient(135deg,#1a1a2e,#16213e)',color:'#00C2FF',
+                  border:'1px solid rgba(0,212,255,0.4)',borderRadius:8,padding:'7px 16px',
+                  fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:6}}>
+                📺 Teleprompter Mode
+              </button>
+            </div>
+          </div>
+          <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+        </div>
+      )}
+
+      {/* Teleprompter fullscreen overlay */}
+      {teleprompter && (
+        <Teleprompter text={out} onClose={()=>setTeleprompter(false)}/>
+      )}
+    </div>
+  );
+}
+
+function EpisodeClips() {
+  const [title,setTitle] = useState('');
+  const [notes,setNotes] = useState('');
+  const [out,setOut] = useState('');
+  const [loading,setLoading] = useState(false);
+  const run = async () => {
+    if(!title) return;
+    setLoading(true); setOut('');
+    const res = await ai(EPISODE_PROMPT(title, notes));
+    setOut(res); setLoading(false);
+  };
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🎙️</span>
+        <div><h2 style={{color:B.white,margin:0}}>Episode to Clips</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>One podcast episode → 5-7 clips + carousel + LinkedIn + quotes + email</p></div>
+      </div>
+      <Card>
+        <SecLabel>Episode Title</SecLabel>
+        <input value={title} onChange={e=>setTitle(e.target.value)}
+          placeholder="e.g. How I went from active duty to building 3 businesses..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+        <SecLabel>Episode Notes / Key Points (optional)</SecLabel>
+        <textarea value={notes} onChange={e=>setNotes(e.target.value)} rows={4}
+          placeholder="Paste show notes, key timestamps, main topics covered..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!title}>
+          {loading?'Extracting Clips...':'Extract All Clips & Assets'}
+        </RedBtn></div>
+      </Card>
+      {loading && <Spin/>}
+      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+    </div>
+  );
+}
+
+function RepurposeEngine() {
+  const [script,setScript] = useState('');
+  const [originalPlatform,setOriginalPlatform] = useState('Instagram');
+  const [out,setOut] = useState('');
+  const [loading,setLoading] = useState(false);
+  const run = async () => {
+    if(!script) return;
+    setLoading(true); setOut('');
+    const res = await ai(REPURPOSE_PROMPT(script, originalPlatform));
+    setOut(res); setLoading(false);
+  };
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>♻️</span>
+        <div><h2 style={{color:B.white,margin:0}}>Repurpose Engine</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>One script → 4 platform-native versions <SOPBadge/></p></div>
+      </div>
+      <Card>
+        <SecLabel>Original Platform</SecLabel>
+        <div style={{display:'flex',gap:8,marginBottom:12}}>
+          {PLATFORMS.map(p => (
+            <button key={p} onClick={()=>setOriginalPlatform(p)}
+              style={{background:originalPlatform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:originalPlatform===p?700:400}}>
+              {p}
+            </button>
+          ))}
+        </div>
+        <SecLabel>Original Script</SecLabel>
+        <textarea value={script} onChange={e=>setScript(e.target.value)} rows={6}
+          placeholder="Paste your existing script or content to repurpose..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!script}>
+          {loading?'Repurposing...':'Repurpose to All Platforms'}
+        </RedBtn></div>
+      </Card>
+      {loading && <Spin/>}
+      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+    </div>
+  );
+}
+
+function HookLibrary() {
+  const [topic,setTopic] = useState('');
+  const [quantity,setQuantity] = useState(20);
+  const [out,setOut] = useState('');
+  const [loading,setLoading] = useState(false);
+  const run = async () => {
+    if(!topic) return;
+    setLoading(true); setOut('');
+    const res = await ai(HOOK_PROMPT(topic, quantity));
+    setOut(res); setLoading(false);
+  };
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🪝</span>
+        <div><h2 style={{color:B.white,margin:0}}>Hook Library</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>5 hook types — Pattern Interrupt, Question, Bold Statement, Story, Data</p></div>
+      </div>
+      <Card>
+        <SecLabel>Topic</SecLabel>
+        <input value={topic} onChange={e=>setTopic(e.target.value)}
+          placeholder="e.g. Veteran transition, Mindset shift, Real estate investing, Morning routines..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+        <SecLabel>How Many Hooks?</SecLabel>
+        <div style={{display:'flex',gap:8,marginBottom:16}}>
+          {[10,20,30,40].map(q => (
+            <button key={q} onClick={()=>setQuantity(q)}
+              style={{background:quantity===q?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:quantity===q?700:400}}>
+              {q}
+            </button>
+          ))}
+        </div>
+        <RedBtn onClick={run} disabled={loading||!topic}>
+          {loading?'Writing Hooks...':'Generate Hooks'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+    </div>
+  );
+}
+
+function DesignStudio() {
+  const [topic,setTopic] = useState('');
+  const [format,setFormat] = useState('Carousel');
+  const [angle,setAngle] = useState('emotional');
+  const [out,setOut] = useState('');
+  const [loading,setLoading] = useState(false);
+  const run = async () => {
+    if(!topic) return;
+    setLoading(true); setOut('');
+    const angleLabel = ANGLES.find(a=>a.id===angle)?.label;
+    const res = await ai(DESIGN_PROMPT(topic, format, angleLabel));
+    setOut(res); setLoading(false);
+  };
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🎨</span>
+        <div><h2 style={{color:B.white,margin:0}}>Design Studio</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Carousel + static post concepts with visual direction + captions</p></div>
+      </div>
+      <Card>
+        <SecLabel>Topic</SecLabel>
+        <input value={topic} onChange={e=>setTopic(e.target.value)}
+          placeholder="e.g. 5 signs you're ready for a mindset shift..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+        <SecLabel>Format</SecLabel>
+        <div style={{display:'flex',gap:8,marginBottom:12}}>
+          {['Carousel','Static Post','Story Sequence'].map(f => (
+            <button key={f} onClick={()=>setFormat(f)}
+              style={{background:format===f?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:format===f?700:400}}>
+              {f}
+            </button>
+          ))}
+        </div>
+        <SecLabel>Content Angle</SecLabel>
+        <AngleGrid selected={angle} onSelect={setAngle}/>
+        <RedBtn onClick={run} disabled={loading||!topic}>
+          {loading?'Designing...':'Generate Design Concepts'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+    </div>
+  );
+}
+
+function WeeklyReview() {
+  const [metrics,setMetrics] = useState('');
+  const [wins,setWins] = useState('');
+  const [struggles,setStruggles] = useState('');
+  const [out,setOut] = useState('');
+  const [loading,setLoading] = useState(false);
+  const run = async () => {
+    if(!metrics) return;
+    setLoading(true); setOut('');
+    const res = await ai(REVIEW_PROMPT(metrics, wins, struggles));
+    setOut(res); setLoading(false);
+  };
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>📊</span>
+        <div><h2 style={{color:B.white,margin:0}}>Weekly Review</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Performance analysis + Swarbrick 8-dimension audit + next week's focus</p></div>
+      </div>
+      <Card>
+        <SecLabel>This Week's Metrics</SecLabel>
+        <textarea value={metrics} onChange={e=>setMetrics(e.target.value)} rows={3}
+          placeholder="e.g. Instagram: 3 Reels, 12K reach, 340 new followers, 2 DMs, 89 saves. Best post: veteran story reel..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+        <SecLabel>Wins This Week</SecLabel>
+        <textarea value={wins} onChange={e=>setWins(e.target.value)} rows={2}
+          placeholder="e.g. Posted consistently 5x, first viral reel hit 50K, landed podcast guest..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+        <SecLabel>Struggles / Challenges</SecLabel>
+        <textarea value={struggles} onChange={e=>setStruggles(e.target.value)} rows={2}
+          placeholder="e.g. Low engagement on financial content, ran out of ideas mid-week, missed 2 posting days..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!metrics}>
+          {loading?'Analyzing Week...':'Run Weekly Review'}
+        </RedBtn></div>
+      </Card>
+      {loading && <Spin/>}
+      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TELEPROMPTER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function Teleprompter({ text, onClose }) {
+  const [speed, setSpeed] = useState(30);       // px per second
+  const [running, setRunning] = useState(false);
+  const [fontSize, setFontSize] = useState(42);
+  const [mirror, setMirror] = useState(false);
+  const scrollRef = useRef(null);
+  const rafRef   = useRef(null);
+  const lastRef  = useRef(null);
+
+  // Clean script text: strip markdown bold/italic, keep structure
+  const cleanText = text
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/#{1,3} /g, '')
+    .trim();
+
+  const tick = (ts) => {
+    if (!lastRef.current) lastRef.current = ts;
+    const delta = ts - lastRef.current;
+    lastRef.current = ts;
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop += (speed * delta) / 1000;
+    }
+    rafRef.current = requestAnimationFrame(tick);
+  };
+
+  useEffect(() => {
+    if (running) {
+      lastRef.current = null;
+      rafRef.current = requestAnimationFrame(tick);
+    } else {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    }
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [running, speed]);
+
+  // Keyboard controls
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setRunning(r => !r); }
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowUp')   setSpeed(s => Math.min(s + 5, 150));
+      if (e.key === 'ArrowDown') setSpeed(s => Math.max(s - 5, 5));
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  return (
+    <div style={{position:'fixed',inset:0,background:'#000',zIndex:9999,display:'flex',flexDirection:'column'}}>
+      {/* Controls bar */}
+      <div style={{background:'rgba(255,255,255,0.05)',borderBottom:'1px solid rgba(255,255,255,0.1)',
+        padding:'10px 20px',display:'flex',alignItems:'center',gap:16,flexWrap:'wrap',flexShrink:0}}>
+        <button onClick={() => setRunning(r => !r)}
+          style={{background:running?B.red:'#00C2FF',color:'#000',border:'none',borderRadius:8,
+            padding:'8px 22px',fontWeight:900,fontSize:14,cursor:'pointer',minWidth:90}}>
+          {running ? '⏸ Pause' : '▶ Start'}
+        </button>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <span style={{color:B.gray,fontSize:12}}>Speed</span>
+          <button onClick={()=>setSpeed(s=>Math.max(s-5,5))}
+            style={{background:'rgba(255,255,255,0.1)',color:B.white,border:'none',borderRadius:6,width:28,height:28,cursor:'pointer',fontSize:16}}>−</button>
+          <span style={{color:B.white,fontWeight:700,fontSize:13,minWidth:24,textAlign:'center'}}>{speed}</span>
+          <button onClick={()=>setSpeed(s=>Math.min(s+5,150))}
+            style={{background:'rgba(255,255,255,0.1)',color:B.white,border:'none',borderRadius:6,width:28,height:28,cursor:'pointer',fontSize:16}}>+</button>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <span style={{color:B.gray,fontSize:12}}>Size</span>
+          <button onClick={()=>setFontSize(s=>Math.max(s-4,24))}
+            style={{background:'rgba(255,255,255,0.1)',color:B.white,border:'none',borderRadius:6,width:28,height:28,cursor:'pointer',fontSize:14}}>A-</button>
+          <button onClick={()=>setFontSize(s=>Math.min(s+4,80))}
+            style={{background:'rgba(255,255,255,0.1)',color:B.white,border:'none',borderRadius:6,width:28,height:28,cursor:'pointer',fontSize:14}}>A+</button>
+        </div>
+        <button onClick={()=>setMirror(m=>!m)}
+          style={{background:mirror?'rgba(0,212,255,0.15)':'rgba(255,255,255,0.07)',
+            color:mirror?'#00C2FF':B.gray,border:`1px solid ${mirror?'rgba(0,212,255,0.4)':'transparent'}`,
+            borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+          ↔ Mirror
+        </button>
+        <div style={{marginLeft:'auto',color:B.gray,fontSize:11,lineHeight:1.6,textAlign:'right'}}>
+          Space/Enter: play/pause<br/>↑↓: speed &nbsp;·&nbsp; Esc: exit
+        </div>
+        <button onClick={onClose}
+          style={{background:'rgba(233,69,96,0.15)',color:B.red,border:'1px solid rgba(233,69,96,0.3)',
+            borderRadius:8,padding:'7px 16px',cursor:'pointer',fontSize:13,fontWeight:700}}>
+          ✕ Exit
+        </button>
+      </div>
+
+      {/* Focus line */}
+      <div style={{position:'absolute',top:'42%',left:0,right:0,height:4,
+        background:'rgba(0,212,255,0.25)',pointerEvents:'none',zIndex:1}}/>
+      <div style={{position:'absolute',top:'42%',left:0,right:0,height:'18%',
+        background:'linear-gradient(transparent,rgba(0,212,255,0.04),transparent)',
+        pointerEvents:'none',zIndex:1}}/>
+
+      {/* Script text */}
+      <div ref={scrollRef} style={{flex:1,overflowY:'scroll',padding:'0 10vw',
+        scrollbarWidth:'none',msOverflowStyle:'none',
+        transform:mirror?'scaleX(-1)':'none'}}>
+        <div style={{paddingTop:'44vh',paddingBottom:'60vh'}}>
+          {cleanText.split('\n').filter(l=>l.trim()).map((line, i) => {
+            const isHook = i === 0;
+            const isCTA  = line.toLowerCase().includes('cta') || line.toLowerCase().startsWith('comment') || line.toLowerCase().startsWith('follow');
+            return (
+              <p key={i} style={{
+                fontSize: isHook ? fontSize * 1.15 : fontSize,
+                fontWeight: isHook ? 900 : (line.startsWith('**')||line.startsWith('VARIATION')||line.startsWith('Hook')||line.startsWith('Body')||line.startsWith('CTA') ? 700 : 400),
+                color: isCTA ? '#00C2FF' : isHook ? B.white : 'rgba(255,255,255,0.88)',
+                lineHeight: 1.55,
+                marginBottom: '0.9em',
+                textAlign: 'center',
+                letterSpacing: fontSize > 50 ? '-0.02em' : 'normal',
+                transition: 'color 0.3s',
+              }}>
+                {line.replace(/^\*\*|\*\*$/g,'').replace(/^#+\s/,'')}
+              </p>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TREND ALERTS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const TREND_ALERTS_KEY  = 'encis_trend_alerts';
+const TREND_ALERTS_DATE = 'encis_trend_date';
+const APP_VERSION_KEY   = 'encis_version';
+const CURRENT_VERSION   = '2.1';
+
+// One-time migration: clear stale data from old format on version bump
+try {
+  if (typeof window !== 'undefined' && localStorage.getItem(APP_VERSION_KEY) !== CURRENT_VERSION) {
+    localStorage.removeItem(TREND_ALERTS_KEY);
+    localStorage.removeItem(TREND_ALERTS_DATE);
+    localStorage.setItem(APP_VERSION_KEY, CURRENT_VERSION);
+  }
+} catch {}
+
+function useTrendAlerts() {
+  const [alerts,  setAlerts]  = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [lastRun, setLastRun] = useState(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(TREND_ALERTS_KEY);
+      const date   = localStorage.getItem(TREND_ALERTS_DATE);
+      if (stored) setAlerts(JSON.parse(stored));
+      if (date)   setLastRun(date);
+    } catch {}
+  }, []);
+
+  const checkTrends = async () => {
+    setLoading(true);
+    try {
+      const today = new Date().toDateString();
+
+      // Strict 24-48 hour window, 1M+ views only
+      const todayStr = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+      const makeQuery = (niche) =>
+        `Today is ${todayStr}. Search right now for a specific viral video about ${niche} posted on Instagram Reels or YouTube Shorts within the last 24-48 hours that has already surpassed 1 million views on Instagram Reels, TikTok, or YouTube Shorts. This must be brand new content: posted today or yesterday only. Do not report anything older than 48 hours. Do not estimate view counts: only report if you can verify over 1M views. If no video in this niche meets both requirements (posted in last 48 hours AND verified 1M+ views), respond with exactly: NO_RESULT\n\nIf you find one, respond ONLY in this exact format:\n\nACCOUNT: [exact @handle or YouTube channel name]\nPLATFORM: [Instagram or YouTube]\nVIDEO TITLE: [exact title or caption]\nVIEWS: [verified count: must exceed 1M]\nPOSTED: [exact date posted, e.g. March 18, 2026]\nWHY IT BLEW UP: [one sentence: specific psychology or format reason]\nHOOK TO STEAL: [opening line Jason Fricka could use to make a similar video]`;
+
+      const angleQueries = [
+        { angle: "Emotional",     q: makeQuery("emotional intelligence, self-awareness, stress management, or mental health in 2026") },
+        { angle: "Physical",      q: makeQuery("fitness, athletic performance, recovery, sleep optimization, or physical training in 2026") },
+        { angle: "Social",        q: makeQuery("relationships, parenting, community building, or social connection in 2026") },
+        { angle: "Intellectual",  q: makeQuery("learning, problem solving, personal development, or skill building in 2026") },
+        { angle: "Occupational",  q: makeQuery("work ethic, career growth, leadership, productivity, or professional success in 2026") },
+        { angle: "Financial",     q: makeQuery("real estate investing, personal finance, building wealth, or money habits in 2026") },
+        { angle: "Environmental", q: makeQuery("outdoor lifestyle, Colorado, nature, or physical environment and wellness in 2026") },
+        { angle: "Spiritual",     q: makeQuery("purpose, values, meaning, discipline mindset, or why people do hard things in 2026") },
+      ];
+
+      const results = await Promise.all(
+        angleQueries.map(async ({ angle, q }, i) => {
+          try {
+            const res = await fetch('/api/perplexity', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ query: q })
+            });
+            const d = await res.json();
+            const raw = (d.result || d.text || '').trim();
+
+            // Skip if Perplexity couldn't find a verified 1M+ video
+            if (!raw || raw.includes('NO_RESULT') || raw.toLowerCase().includes('cannot find') ||
+                raw.toLowerCase().includes('no specific') || raw.toLowerCase().includes("i don't have")) {
+              return null;
+            }
+
+
+            // Parse structured labeled fields from the response
+            const getField = (label) => {
+              const regex = new RegExp(`${label}:\\s*(.+)`, 'i');
+              const match = raw.match(regex);
+              return match ? match[1].replace(/\*\*/g,'').trim() : null;
+            };
+
+            const account  = getField('ACCOUNT');
+            const platform = getField('PLATFORM') || 'Instagram';
+            const title    = getField('VIDEO TITLE');
+            const views    = getField('VIEWS');
+            const posted   = getField('POSTED');
+            const why      = getField('WHY IT BLEW UP');
+            const hook     = getField('HOOK TO STEAL');
+
+            // Hard filter: reject anything under 1M views
+            if (views) {
+              const vNum  = parseFloat(views.replace(/[^0-9.]/g, '')) || 0;
+              const vUp   = views.toUpperCase();
+              const vMil  = vUp.includes('B') ? vNum * 1000 : vUp.includes('M') ? vNum : vUp.includes('K') ? vNum / 1000 : vNum / 1000000;
+              if (vMil < 1) return null;
+            }
+            // Reject if account is missing or clearly fabricated
+            if (!account || account.toLowerCase().includes('not available') || account === 'N/A') return null;
+
+
+            // Clean handle: strip @ for URL construction
+            const handleRaw = account || '';
+            const handle    = handleRaw.replace(/^@/, '');
+
+            // Build direct profile + search links
+            const isYT   = platform.toLowerCase().includes('youtube');
+            const isIG   = platform.toLowerCase().includes('instagram');
+
+            // Profile link: goes straight to the creator
+            const profileUrl = isYT
+              ? `https://www.youtube.com/@${handle}`
+              : `https://www.instagram.com/${handle}/reels/`;
+
+            // Search link: title search on the right platform
+            const titleEnc   = encodeURIComponent(title || handle || angle);
+            const searchUrl  = isYT
+              ? `https://www.youtube.com/results?search_query=${titleEnc}&sp=EgQIARAB`
+              : `https://www.instagram.com/explore/search/keyword/?q=${titleEnc}`;
+
+            // Perplexity deep-dive link
+            const perpLink = 'https://www.perplexity.ai/search?q=' + encodeURIComponent(
+              (handleRaw || angle) + ' ' + (title || '') + ' viral video 2026'
+            );
+
+            // Main display text
+            const text = [
+              title && ('"' + title + '"'),
+              why,
+            ].filter(Boolean).join(': ') || raw.slice(0, 200);
+
+            return {
+              id: Date.now() + i,
+              angle,
+              account: handleRaw || null,
+              platform,
+              title,
+              views,
+              posted,
+              text,
+              hook,
+              profileUrl,
+              searchUrl,
+              perpLink,
+              raw,
+              ts: Date.now(),
+              seen: false,
+            };
+          } catch { return null; }
+        })
+      );
+
+      const parsed = results.filter(Boolean);
+      try { localStorage.setItem(TREND_ALERTS_KEY, JSON.stringify(parsed)); } catch {}
+      try { localStorage.setItem(TREND_ALERTS_DATE, Date.now().toString()); } catch {}
+      setAlerts(parsed);
+      // Fire web push notification if permission granted
+      try {
+        if ('Notification' in window && Notification.permission === 'granted' && parsed.length > 0) {
+          const topAngle = parsed[0]?.angle || 'Multiple angles';
+          new Notification(`🔥 ${parsed.length} trend alert${parsed.length !== 1 ? 's' : ''} — SIGNAL`, {
+            body: `${topAngle} trending right now. Check before it peaks.`,
+            icon: '/E-E-Logo.jpg',
+            tag: 'signal-trend-alert',
+          });
+        }
+      } catch {}
+      setLastRun(new Date().toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', month:'short', day:'numeric'}));
+    } catch(e) { console.error(e); }
+    setLoading(false);
+  };
+
+  // Auto-check twice per day: trends move fast, 12-hour refresh window
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(TREND_ALERTS_DATE) || '0';
+      const lastTs = /^\d+$/.test(stored) ? parseInt(stored) : 0; // guard against old date-string format
+      const hoursSinceLast = (Date.now() - lastTs) / (1000 * 60 * 60);
+      if (hoursSinceLast > 12 && !loading) checkTrends();
+    } catch {}
+  }, []);
+
+  const markSeen = () => {
+    const updated = alerts.map(a => ({...a, seen:true}));
+    setAlerts(updated);
+    try { localStorage.setItem(TREND_ALERTS_KEY, JSON.stringify(updated)); } catch {}
+  };
+
+  const unseen = alerts.filter(a => !a.seen).length;
+  return { alerts, loading, lastRun, checkTrends, markSeen, unseen };
+}
+
+function TrendAlertBanner() {
+  const { alerts, loading, lastRun, checkTrends, markSeen, unseen } = useTrendAlerts();
+  const [expanded, setExpanded] = useState(false);
+
+  if (!alerts.length && !loading) return null;
+
+  // Angle emoji map
+  const angleEmoji = {
+    'Emotional':     '🧠',
+    'Physical':      '🏋️',
+    'Social':        '🤝',
+    'Intellectual':  '📚',
+    'Occupational':  '💼',
+    'Financial':     '💰',
+    'Environmental': '🏔️',
+    'Spiritual':     '🔥',
+  };
+
+  // Truncate alert text cleanly
+  const preview = alerts.find(a => a.text?.length > 10)?.text?.slice(0, 90) || 'Checking your 8 content angles...';
+
+  return (
+    <div style={{background:'rgba(0,194,255,0.04)',borderBottom:'1px solid rgba(0,194,255,0.1)',
+      position:'sticky',top:52,zIndex:90}}>
+      <div style={{maxWidth:1100,margin:'0 auto',padding:'0 16px'}}>
+
+        {/* Collapsed bar: toggle button only, no full-row onClick so links inside always work */}
+        <div style={{display:'flex',alignItems:'center',gap:12,padding:'9px 0',minHeight:40}}>
+          <span style={{fontSize:14,flexShrink:0}}>🔥</span>
+          <span style={{color:B.red,fontWeight:700,fontSize:12,whiteSpace:'nowrap',flexShrink:0}}>Trend Alerts</span>
+          {unseen > 0 && !expanded && (
+            <span style={{background:B.red,color:'#fff',borderRadius:10,padding:'1px 6px',fontSize:10,fontWeight:700,flexShrink:0}}>
+              {unseen} new
+            </span>
+          )}
+          {loading
+            ? <span style={{color:B.gray,fontSize:12,flex:1}}>Checking all 8 content angles...</span>
+            : !expanded && <span style={{color:'rgba(255,255,255,0.55)',fontSize:12,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{preview}...</span>
+          }
+          <div style={{display:'flex',alignItems:'center',gap:8,marginLeft:'auto',flexShrink:0}}>
+            <button onClick={checkTrends}
+              style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',
+                borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer'}}>
+              {loading ? '⏳' : '↻ Refresh'}
+            </button>
+            <button
+              onClick={()=>{ setExpanded(e=>!e); if(unseen>0) markSeen(); }}
+              style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',
+                borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer',fontWeight:700}}>
+              {expanded ? '▲ Hide' : '▼ Show All'}
+            </button>
+          </div>
+        </div>
+
+        {/* Expanded grid */}
+        {expanded && (
+          <div style={{paddingBottom:16}}>
+            {lastRun && (
+              <div style={{color:B.gray,fontSize:11,marginBottom:10,display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+                <span>Last checked: {lastRun}</span>
+                <span style={{color:B.red,fontWeight:700}}>{alerts.length} verified 1M+ trends found</span>
+                {alerts.length < 8 && (
+                  <span style={{color:'rgba(255,255,255,0.35)'}}>· {8 - alerts.length} angles had no verified 1M+ content this week</span>
+                )}
+              </div>
+            )}
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:10}}>
+              {alerts.map(alert => (
+                <div key={alert.id} style={{
+                  background:'rgba(0,0,0,0.25)',
+                  border:`1px solid ${alert.seen?'rgba(255,255,255,0.07)':'rgba(233,69,96,0.3)'}`,
+                  borderRadius:12,padding:'14px 16px',
+                  display:'flex',flexDirection:'column',gap:8,
+                }}>
+                  {/* Angle label + badge */}
+                  <div style={{display:'flex',alignItems:'center',gap:6}}>
+                    <span style={{fontSize:15}}>{angleEmoji[alert.angle] || '📌'}</span>
+                    <span style={{color:B.red,fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:1,flex:1}}>
+                      {alert.angle}
+                    </span>
+                    {!alert.seen && (
+                      <span style={{background:B.red,color:'#fff',borderRadius:8,padding:'1px 6px',fontSize:9,fontWeight:700}}>NEW</span>
+                    )}
+                  </div>
+
+                  {/* Views + Account + Posted row */}
+                  <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                    {alert.views && (
+                      <span style={{background:'rgba(233,69,96,0.2)',color:B.red,borderRadius:6,padding:'3px 9px',fontSize:11,fontWeight:800}}>
+                        🔥 {alert.views}
+                      </span>
+                    )}
+                    {alert.account && (
+                      <span style={{background:'rgba(255,255,255,0.08)',color:'rgba(255,255,255,0.85)',borderRadius:6,padding:'3px 9px',fontSize:11,fontWeight:700}}>
+                        {alert.account}
+                      </span>
+                    )}
+                    {alert.platform && (
+                      <span style={{color:B.gray,fontSize:10,textTransform:'uppercase',letterSpacing:1}}>
+                        {alert.platform}
+                      </span>
+                    )}
+                    {alert.posted && (
+                      <span style={{color:'rgba(0,212,255,0.7)',fontSize:10,marginLeft:'auto'}}>
+                        📅 {alert.posted}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Video title */}
+                  {alert.title && (
+                    <div style={{color:B.white,fontWeight:700,fontSize:13,lineHeight:1.5}}>
+                      "{alert.title}"
+                    </div>
+                  )}
+
+                  {/* Why it blew up */}
+                  <div style={{color:alert.seen?'rgba(255,255,255,0.45)':'rgba(255,255,255,0.78)',fontSize:12,lineHeight:1.7}}>
+                    {alert.text}
+                  </div>
+
+                  {/* Hook to steal */}
+                  {alert.hook && (
+                    <div style={{background:'rgba(0,212,255,0.07)',border:'1px solid rgba(0,212,255,0.2)',borderRadius:8,padding:'9px 12px'}}>
+                      <div style={{color:'#00C2FF',fontSize:10,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:4}}>Hook to Steal</div>
+                      <div style={{color:'rgba(255,255,255,0.85)',fontSize:12,lineHeight:1.65,fontStyle:'italic'}}>"{alert.hook}"</div>
+                    </div>
+                  )}
+
+                  {/* Action links: stop propagation so clicks work inside the banner */}
+                  <div style={{display:'flex',gap:6,marginTop:'auto',flexWrap:'wrap'}} onClick={e=>e.stopPropagation()}>
+                    {alert.account && (
+                      <a href={alert.profileUrl} target="_blank" rel="noopener noreferrer"
+                        style={{flex:2,display:'flex',alignItems:'center',justifyContent:'center',gap:5,
+                          background:B.red,color:'#fff',borderRadius:8,padding:'9px 12px',
+                          fontSize:12,fontWeight:700,textDecoration:'none'}}>
+                        👤 View {alert.account}
+                      </a>
+                    )}
+                    <a href={alert.searchUrl} target="_blank" rel="noopener noreferrer"
+                      style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,
+                        background:'rgba(255,255,255,0.07)',color:B.white,border:'1px solid rgba(255,255,255,0.12)',
+                        borderRadius:8,padding:'9px 10px',fontSize:12,fontWeight:600,textDecoration:'none'}}>
+                      🔎 Search
+                    </a>
+                    <a href={alert.perpLink} target="_blank" rel="noopener noreferrer"
+                      style={{display:'flex',alignItems:'center',justifyContent:'center',
+                        background:'rgba(255,255,255,0.04)',color:B.gray,border:'1px solid rgba(255,255,255,0.08)',
+                        borderRadius:8,padding:'9px 10px',fontSize:11,textDecoration:'none',whiteSpace:'nowrap'}}>
+                      🔍 Deep Dive
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ROI DASHBOARD
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const ROI_KEY = 'encis_roi_data';
+
+function ROIDashboard() {
+  const [weeks,    setWeeks]    = useState([]);
+  const [form,     setForm]     = useState({ week:'', followers:'', reach:'', saves:'', shares:'', leads:'', topContent:'', notes:'' });
+  const [showForm, setShowForm] = useState(false);
+  const [editIdx,  setEditIdx]  = useState(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(ROI_KEY);
+      if (stored) setWeeks(JSON.parse(stored));
+    } catch {}
+  }, []);
+
+  const saveWeeks = (updated) => {
+    setWeeks(updated);
+    try { localStorage.setItem(ROI_KEY, JSON.stringify(updated)); } catch {}
+  };
+
+  const submit = () => {
+    if (!form.week) return;
+    const entry = { ...form, id: editIdx !== null ? weeks[editIdx].id : Date.now() };
+    let updated;
+    if (editIdx !== null) {
+      updated = weeks.map((w,i) => i === editIdx ? entry : w);
+      setEditIdx(null);
+    } else {
+      updated = [...weeks, entry].sort((a,b) => new Date(a.week) - new Date(b.week));
+    }
+    saveWeeks(updated);
+    setForm({ week:'', followers:'', reach:'', saves:'', shares:'', leads:'', topContent:'', notes:'' });
+    setShowForm(false);
+  };
+
+  const deleteWeek = (i) => {
+    if (window.confirm('Delete this week?')) saveWeeks(weeks.filter((_,idx)=>idx!==i));
+  };
+
+  // Simple SVG sparkline
+  const Sparkline = ({ data, color='#00C2FF', height=40 }) => {
+    if (data.length < 2) return null;
+    const nums = data.map(Number).filter(n=>!isNaN(n));
+    if (!nums.length) return null;
+    const min = Math.min(...nums), max = Math.max(...nums);
+    const range = max - min || 1;
+    const w = 120, h = height;
+    const pts = nums.map((v,i) => `${(i/(nums.length-1))*w},${h - ((v-min)/range)*(h-4)+2}`).join(' ');
+    return (
+      <svg width={w} height={h} style={{display:'block'}}>
+        <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round"/>
+        <circle cx={(nums.length-1)/(nums.length-1)*w} cy={h - ((nums[nums.length-1]-min)/range)*(h-4)+2} r="3" fill={color}/>
+      </svg>
+    );
+  };
+
+  // Growth calculations
+  const latest  = weeks[weeks.length - 1];
+  const prev    = weeks[weeks.length - 2];
+  const growth  = (field) => {
+    if (!latest || !prev || !latest[field] || !prev[field]) return null;
+    const pct = ((Number(latest[field]) - Number(prev[field])) / Number(prev[field]) * 100);
+    return pct.toFixed(1);
+  };
+
+  const fields = [
+    { k:'followers', label:'Followers',  color:'#00C2FF' },
+    { k:'reach',     label:'Weekly Reach', color:'#00C2FF' },
+    { k:'saves',     label:'Saves',       color:'#f5a623' },
+    { k:'shares',    label:'Shares',      color:'#27ae60' },
+    { k:'leads',     label:'Leads/DMs',   color:'#9b59b6' },
+  ];
+
+  const formFields = [
+    { k:'week',       label:'Week (date)',       ph:'e.g. Mar 18, 2026',            full:false },
+    { k:'followers',  label:'Total Followers',   ph:'e.g. 2847',                    full:false },
+    { k:'reach',      label:'Total Reach',       ph:'e.g. 18400',                   full:false },
+    { k:'saves',      label:'Total Saves',       ph:'e.g. 234',                     full:false },
+    { k:'shares',     label:'Total Shares',      ph:'e.g. 67',                      full:false },
+    { k:'leads',      label:'Leads / DMs',       ph:'e.g. 8',                       full:false },
+    { k:'topContent', label:'Top Performing Post',ph:'e.g. Veteran morning routine got 900 saves', full:true },
+    { k:'notes',      label:'Notes',             ph:'e.g. Tried shorter captions: engagement up 40%', full:true },
+  ];
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <span style={{fontSize:32}}>📈</span>
+          <div>
+            <h2 style={{color:B.white,margin:0}}>ROI Dashboard</h2>
+            <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Weekly scorecard — track growth, identify what drives real results</p>
+          </div>
+        </div>
+        <button onClick={()=>{ setForm({ week:'', followers:'', reach:'', saves:'', shares:'', leads:'', topContent:'', notes:'' }); setEditIdx(null); setShowForm(true); }}
+          style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'8px 18px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+          + Log This Week
+        </button>
+      </div>
+
+      {/* Empty state */}
+      {weeks.length === 0 && !showForm && (
+        <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.03)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
+          <div style={{fontSize:48,marginBottom:16}}>📊</div>
+          <div style={{color:B.white,fontWeight:700,fontSize:18,marginBottom:8}}>No data yet</div>
+          <div style={{color:B.gray,fontSize:14,lineHeight:1.7,marginBottom:20}}>Log your first week of metrics and the dashboard builds automatically.<br/>Takes 60 seconds. Pays off every week after.</div>
+          <button onClick={()=>setShowForm(true)}
+            style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'10px 22px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+            + Log First Week
+          </button>
+        </div>
+      )}
+
+      {/* Metric cards + sparklines */}
+      {weeks.length > 0 && (
+        <>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:12,marginBottom:24}}>
+            {fields.map(f => {
+              const g = growth(f.k);
+              const vals = weeks.map(w => w[f.k]);
+              return (
+                <div key={f.k} style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:12,padding:'14px 16px'}}>
+                  <div style={{fontSize:11,color:B.gray,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:6}}>{f.label}</div>
+                  <div style={{fontSize:26,fontWeight:800,color:B.white,marginBottom:4}}>{latest?.[f.k] || '—'}</div>
+                  {g !== null && (
+                    <div style={{fontSize:12,fontWeight:700,color:Number(g)>=0?'#27ae60':'#e74c3c',marginBottom:8}}>
+                      {Number(g)>=0?'▲':'▼'} {Math.abs(Number(g))}% vs last week
+                    </div>
+                  )}
+                  <Sparkline data={vals} color={f.color}/>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Top content tracker */}
+          {weeks.some(w=>w.topContent) && (
+            <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:12,padding:'16px',marginBottom:20}}>
+              <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:12}}>Top Content Log</div>
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {[...weeks].reverse().filter(w=>w.topContent).slice(0,6).map((w,i) => (
+                  <div key={i} style={{display:'flex',gap:12,alignItems:'flex-start'}}>
+                    <span style={{color:B.gray,fontSize:11,whiteSpace:'nowrap',paddingTop:2}}>{w.week}</span>
+                    <span style={{color:B.white,fontSize:13,lineHeight:1.5}}>{w.topContent}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Week log table */}
+          <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:12,overflow:'hidden',marginBottom:20}}>
+            <div style={{overflowX:'auto'}}>
+              <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+                <thead>
+                  <tr style={{borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+                    {['Week','Followers','Reach','Saves','Shares','Leads','Notes',''].map(h => (
+                      <th key={h} style={{padding:'10px 12px',textAlign:'left',color:B.gray,fontWeight:700,letterSpacing:1,fontSize:10,textTransform:'uppercase',whiteSpace:'nowrap'}}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...weeks].reverse().map((w,i) => (
+                    <tr key={w.id} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
+                      <td style={{padding:'10px 12px',color:B.white,fontWeight:600,whiteSpace:'nowrap'}}>{w.week}</td>
+                      {['followers','reach','saves','shares','leads'].map(f => (
+                        <td key={f} style={{padding:'10px 12px',color:'rgba(255,255,255,0.75)'}}>{w[f]|| '—'}</td>
+                      ))}
+                      <td style={{padding:'10px 12px',color:B.gray,maxWidth:200,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{w.notes|| '—'}</td>
+                      <td style={{padding:'10px 12px'}}>
+                        <div style={{display:'flex',gap:6}}>
+                          <button onClick={()=>{ setForm({...w}); setEditIdx(weeks.length-1-i); setShowForm(true); }}
+                            style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',borderRadius:5,padding:'3px 8px',fontSize:11,cursor:'pointer'}}>Edit</button>
+                          <button onClick={()=>deleteWeek(weeks.length-1-i)}
+                            style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',borderRadius:5,padding:'3px 6px',fontSize:12,cursor:'pointer'}}>✕</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Entry form */}
+      {showForm && (
+        <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:14,padding:'22px',marginBottom:20}}>
+          <div style={{color:B.white,fontWeight:700,fontSize:15,marginBottom:18}}>{editIdx!==null?'Edit Week':'Log This Week'}</div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+            {formFields.map(f => (
+              <div key={f.k} style={{gridColumn:f.full?'1/-1':'auto'}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:B.red,textTransform:'uppercase',marginBottom:5}}>{f.label}</div>
+                {f.full
+                  ? <textarea value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} rows={2} placeholder={f.ph}
+                      style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+                  : <input value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} placeholder={f.ph}
+                      style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                }
+              </div>
+            ))}
+          </div>
+          <div style={{display:'flex',gap:10,marginTop:18}}>
+            <RedBtn onClick={submit} disabled={!form.week}>{editIdx!==null?'Save Changes':'Log Week'}</RedBtn>
+            <button onClick={()=>{ setShowForm(false); setEditIdx(null); }}
+              style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,cursor:'pointer'}}>Cancel</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAIN APP
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const TOP_NAV = [
+  { id:'home',     emoji:'⚡', label:'Dashboard' },
+  { id:'strategy', emoji:'📋', label:'Strategy' },
+  { id:'research', emoji:'🔬', label:'Research' },
+  { id:'create',   emoji:'🎬', label:'Create' },
+  { id:'optimize', emoji:'📊', label:'Optimize' },
+  { id:'agency',   emoji:'🏢', label:'Agency' },
+  { id:'youtube',  emoji:'▶️',  label:'YouTube' },
+];
+
+const SUB_NAV = {
+  strategy: [
+    { id:'onboard',   emoji:'🚀', label:'Onboarding' },
+    { id:'calendar',  emoji:'📅', label:'Calendar' },
+    { id:'profile',   emoji:'👤', label:'Profile Audit' },
+    { id:'magnet',    emoji:'🧲', label:'Lead Magnet' },
+    { id:'community', emoji:'🏔️', label:'Community' },
+    { id:'email',     emoji:'📧',  label:'Email Sequences' },
+    { id:'challenge',  emoji:'🔥',  label:'Challenge Builder' },
+    { id:'campaign',    emoji:'🎯',  label:'Campaign Builder' },
+    { id:'visualcal',    emoji:'🗓️',  label:'Visual Calendar' },
+    { id:'series',       emoji:'📺',  label:'Series Planner' },
+    { id:'storyarc',     emoji:'📖',  label:'Story Arc' },
+    { id:'biolink',      emoji:'🔗',  label:'Bio Link Builder' },
+    { id:'biooptimizer', emoji:'✏️',  label:'Bio Optimizer' },
+  ],
+  research: [
+    { id:'pipeline',  emoji:'🔬', label:'Pipeline' },
+    { id:'spy',       emoji:'🕵️', label:'Competitor Intel' },
+    { id:'vault',     emoji:'🗄️', label:'Prompt Vault' },
+    { id:'collab',    emoji:'🤝', label:'Collab Finder' },
+    { id:'extract',   emoji:'💡', label:'Insight Extractor' },
+    { id:'spy',      emoji:'🕵️', label:'Competitor Spy' },
+  ],
+  create: [
+    { id:'script',    emoji:'✍️',  label:'Script Engine' },
+    { id:'caption',   emoji:'💬',  label:'Caption Writer' },
+    { id:'batch',     emoji:'⚡',  label:'Bulk Batch' },
+    { id:'episode',   emoji:'🎙️',  label:'Episode Clips' },
+    { id:'repurpose', emoji:'♻️',  label:'Repurpose' },
+    { id:'hooks',     emoji:'🪝',  label:'Hook Library' },
+    { id:'design',    emoji:'🎨',  label:'Design Studio' },
+    { id:'comment',   emoji:'💬',  label:'Comment Responder' },
+    { id:'hooktester',emoji:'🧪',  label:'Hook Tester' },
+    { id:'podcast',   emoji:'🎙️',  label:'Podcast Prep' },
+    { id:'dmscripts',  emoji:'📩',  label:'DM Scripts' },
+    { id:'videodirector',  emoji:'🎬', label:'Video Director' },
+    { id:'objections',    emoji:'💬', label:'Objection Handler' },
+    { id:'guestprep',     emoji:'🎤', label:'Guest Prep Kit' },
+    { id:'contentbrief',  emoji:'📋', label:'Content Brief' },
+  ],
+  optimize: [
+    { id:'review',   emoji:'📊', label:'Weekly Review' },
+    { id:'roi',      emoji:'📈', label:'ROI Dashboard' },
+    { id:'memory',   emoji:'🧠', label:'Content Memory' },
+    { id:'schedule', emoji:'🗓️', label:'Schedule' },
+    { id:'gaps',      emoji:'🔍', label:'Gap Analyzer' },
+    { id:'predictor',    emoji:'🔮', label:'Predictor' },
+    { id:'stratreview',   emoji:'🧠', label:'Strategy Review' },
+    { id:'abtests',       emoji:'🧪', label:'A/B Tests' },
+    { id:'revenue',       emoji:'💵', label:'Revenue Attribution' },
+    { id:'pricing',       emoji:'💰', label:'Pricing Calculator' },
+  ],
+  agency: [
+    { id:'portal',      emoji:'🏢', label:'Client Portal' },
+    { id:'deliverable', emoji:'📦', label:'Deliverables' },
+    { id:'report',      emoji:'📊', label:'Monthly Report' },
+    { id:'voice',       emoji:'🧬', label:'Voice Fingerprint' },
+    { id:'clients',     emoji:'👥', label:'Client Profiles' },
+    { id:'tracker',     emoji:'📋', label:'Collab Tracker' },
+    { id:'whitelabel',  emoji:'🏷️', label:'White Label' },
+    { id:'persona',     emoji:'🤖', label:'AI Persona' },
+    { id:'transcript',    emoji:'📞', label:'Transcripts' },
+    { id:'analytics',     emoji:'📊', label:'Analytics Import' },
+    { id:'onboardauto',    emoji:'⚡', label:'Auto Onboarding' },
+    { id:'clientcomms',   emoji:'📨', label:'Client Comms' },
+  ],
+  youtube: [
+    { id:'yttoolkit', emoji:'▶️', label:'YouTube Toolkit' },
+  ],
+};
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE 1: CAPTION WRITER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const CAPTION_PROMPT = (topic, platform, angle, hook, cta) => `
+${VOICE}
+${CONTENT_SOP}
+
+Topic: ${topic}
+Platform: ${platform}
+Angle: ${angle}
+Hook to open with: ${hook || 'Write your own strong hook'}
+CTA style: ${cta}
+
+Write 3 caption variations for this ${platform} post. Each must feel completely different : different energy, different structure, different length.
+
+**CAPTION 1 : SHORT & PUNCHY** (under 100 words)
+[Hook line]
+[2-3 lines of value]
+[CTA]
+[10 hashtags]
+
+**CAPTION 2 : STORY-DRIVEN** (150-250 words)
+[Personal moment or scene-setter]
+[The lesson or shift]
+[Connect to audience]
+[CTA]
+[15 hashtags]
+
+**CAPTION 3 : EDUCATE & CONVERT** (100-150 words)
+[Bold statement hook]
+[3 punchy insight lines]
+[CTA with keyword trigger]
+[15 hashtags]
+
+Rules: No "Hey guys." No emojis unless they add something. Hashtags tiered : 5 niche, 5 mid, 5 broad. CTA matches the platform's culture.`;
+
+function CaptionWriter() {
+  const [topic, setTopic] = useState('');
+  const [platform, setPlatform] = useState('Instagram');
+  const [angle, setAngle] = useState('emotional');
+  const [hook, setHook] = useState('');
+  const [cta, setCta] = useState('comment');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [teleprompter, setTeleprompter] = useState(false);
+  const [activeClient] = useActiveClient();
+
+  const run = async () => {
+    if (!topic) return;
+    setLoading(true); setOut('');
+    const angleLabel = ANGLES.find(a => a.id === angle)?.label || angle;
+    const res = await ai(CAPTION_PROMPT(topic, platform, angleLabel, hook, cta));
+    setOut(res);
+    logToMemory({ type:'caption', title:`Caption: ${topic}`, topic, platform, angle:angleLabel, client:activeClient?.name, preview:res.slice(0,200) });
+    setLoading(false);
+  };
+
+  const ctaTypes = [
+    { id:'comment', label:'Comment CTA', desc:'Drop a word to get something' },
+    { id:'dm', label:'DM CTA', desc:'Send me a message' },
+    { id:'link', label:'Link CTA', desc:'Check link in bio' },
+    { id:'save', label:'Save CTA', desc:'Save this for later' },
+    { id:'share', label:'Share CTA', desc:'Send this to someone' },
+  ];
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>✍️</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Caption Writer</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>3 caption variations : short, story, and educational. Platform-native, saves-first.</p>
+        </div>
+      </div>
+      {activeClient && <ClientBanner client={activeClient}/>}
+      <Card>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+          <div>
+            <SecLabel>Platform</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {PLATFORMS.map(p => (
+                <button key={p} onClick={() => setPlatform(p)}
+                  style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                    borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <SecLabel>CTA Type</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {ctaTypes.map(c => (
+                <button key={c.id} onClick={() => setCta(c.id)}
+                  style={{background:cta===c.id?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                    borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:cta===c.id?700:400}}>
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <SecLabel>Topic / What the post is about</SecLabel>
+        <textarea value={topic} onChange={e=>setTopic(e.target.value)} rows={2}
+          placeholder="e.g. Why I wake up at 4:45 AM even on weekends, what nobody tells you about veteran transition..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+
+        <SecLabel>Opening Hook (optional : paste from Script Engine or write your own)</SecLabel>
+        <input value={hook} onChange={e=>setHook(e.target.value)}
+          placeholder="e.g. Nobody talks about what happens the week after you get out..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+
+        <SecLabel>Content Angle</SecLabel>
+        <AngleGrid selected={angle} onSelect={setAngle}/>
+
+        <RedBtn onClick={run} disabled={loading||!topic}>
+          {loading ? 'Writing Captions...' : 'Write 3 Caption Variations'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && (
+        <div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:8}}>
+            <span style={{color:B.white,fontWeight:700,fontSize:14}}>Your Captions</span>
+            <div style={{display:'flex',gap:8}}>
+              <CopyBtn text={out}/>
+              <button onClick={() => setTeleprompter(true)}
+                style={{background:'linear-gradient(135deg,#1a1a2e,#16213e)',color:'#00C2FF',
+                  border:'1px solid rgba(0,212,255,0.4)',borderRadius:8,padding:'7px 16px',
+                  fontSize:12,fontWeight:700,cursor:'pointer'}}>
+                📺 Teleprompter
+              </button>
+            </div>
+          </div>
+          <DocOutput text={out} title={`${topic || angle || "Content"} : SIGNAL`}/>
+        </div>
+      )}
+      {teleprompter && <Teleprompter text={out} onClose={() => setTeleprompter(false)}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE 2 : SCHEDULE OPTIMIZER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function ScheduleOptimizer() {
+  const [weeks] = useState(() => {
+    try { const s = localStorage.getItem('encis_roi_data'); return s ? JSON.parse(s) : []; } catch { return []; }
+  });
+  const [log] = useState(() => {
+    try { const s = localStorage.getItem('encis_content_log'); return s ? JSON.parse(s) : []; } catch { return []; }
+  });
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [hours, setHours] = useState('10');
+
+  const run = async () => {
+    setLoading(true); setOut('');
+    const roiSummary = weeks.length
+      ? weeks.slice(-8).map(w => `Week of ${w.week}: Followers ${w.followers}, Reach ${w.reach}, Saves ${w.saves}, Shares ${w.shares}, Top content: ${w.topContent || 'none'}, Notes: ${w.notes || 'none'}`).join('\n')
+      : 'No ROI data logged yet.';
+    const memorySummary = log.length
+      ? log.slice(0, 30).map(e => `${e.date} : ${e.type} : ${e.title} : Rating: ${e.perf || 'unrated'}`).join('\n')
+      : 'No content memory logged yet.';
+
+    const prompt = `${VOICE}
+
+You are analyzing Jason Fricka's actual content performance data to build a specific posting schedule.
+
+ROI DATA (last 8 weeks):
+${roiSummary}
+
+CONTENT MEMORY (recent 30 pieces):
+${memorySummary}
+
+Available hours per week: ${hours}
+
+Based on this actual data, build a specific weekly posting schedule. Do not give generic advice : base every recommendation on what the data shows.
+
+# Optimal Posting Schedule for @everydayelevations
+
+## What the Data Shows
+[Specific patterns from the ROI and content memory data above : what's working, what's not, best performing content types]
+
+## Recommended Weekly Schedule
+[Day-by-day posting plan based on ${hours} hours/week]
+For each day: Platform, Content Type, Best Time to Post, Why (based on data)
+
+## Content Mix Breakdown
+[Exact % split across content types based on what's performing]
+
+## What to Stop Doing
+[Specific underperforming patterns from the data]
+
+## 30-Day Execution Plan
+[Week by week focus based on what the numbers say]
+
+## Key Metrics to Watch
+[The 3 numbers that matter most based on this data]`;
+
+    const res = await ai(prompt);
+    setOut(res);
+    setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🗓️</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Schedule Optimizer</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Reads your ROI data and Content Memory : tells you exactly when and what to post.</p>
+        </div>
+      </div>
+
+      {weeks.length === 0 && log.length === 0 && (
+        <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:10,padding:'16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
+          ⚠️ No performance data yet. Log a few weeks in the ROI Dashboard and generate some content first : then come back for a data-driven schedule.
+        </div>
+      )}
+
+      <Card>
+        <SecLabel>Hours Available Per Week</SecLabel>
+        <div style={{display:'flex',gap:8,marginBottom:20}}>
+          {['3','5','10','15','20+'].map(h => (
+            <button key={h} onClick={() => setHours(h)}
+              style={{background:hours===h?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                borderRadius:6,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:hours===h?700:400}}>
+              {h}h
+            </button>
+          ))}
+        </div>
+
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:20}}>
+          <div style={{background:'rgba(255,255,255,0.03)',borderRadius:10,padding:'14px'}}>
+            <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>ROI Data</div>
+            <div style={{fontSize:22,fontWeight:800,color:B.white}}>{weeks.length}</div>
+            <div style={{fontSize:12,color:B.gray}}>weeks logged</div>
+          </div>
+          <div style={{background:'rgba(255,255,255,0.03)',borderRadius:10,padding:'14px'}}>
+            <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>Content Memory</div>
+            <div style={{fontSize:22,fontWeight:800,color:B.white}}>{log.length}</div>
+            <div style={{fontSize:12,color:B.gray}}>pieces tracked</div>
+          </div>
+        </div>
+
+        <RedBtn onClick={run} disabled={loading}>
+          {loading ? 'Analyzing your data...' : '🗓️ Build My Optimal Schedule'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && <DocOutput text={out} title="SIGNAL Strategy Document"/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE 3 : CONTENT GAP ANALYZER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function ContentGapAnalyzer() {
+  const [log] = useState(() => {
+    try { const s = localStorage.getItem('encis_content_log'); return s ? JSON.parse(s) : []; } catch { return []; }
+  });
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const run = async () => {
+    setLoading(true); setOut('');
+
+    // Build angle frequency map
+    const angleCount = {};
+    const typeCount = {};
+    const rated = { viral: [], good: [], flopped: [] };
+    const recent = log.slice(0, 50);
+
+    recent.forEach(e => {
+      if (e.angle) angleCount[e.angle] = (angleCount[e.angle] || 0) + 1;
+      if (e.type) typeCount[e.type] = (typeCount[e.type] || 0) + 1;
+      if (e.perf === '🔥') rated.viral.push(e.title || e.topic);
+      if (e.perf === '⭐') rated.good.push(e.title || e.topic);
+      if (e.perf === '💀') rated.flopped.push(e.title || e.topic);
+    });
+
+    const summary = `
+Content logged: ${log.length} total pieces
+Most used angles: ${Object.entries(angleCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} (${v}x)`).join(', ') || 'none'}
+Content types used: ${Object.entries(typeCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} (${v}x)`).join(', ') || 'none'}
+Viral content: ${rated.viral.slice(0,5).join(' | ') || 'none rated yet'}
+Good performers: ${rated.good.slice(0,5).join(' | ') || 'none rated yet'}
+Flopped content: ${rated.flopped.slice(0,5).join(' | ') || 'none rated yet'}
+Available angles: ${ANGLES.map(a=>a.label).join(', ')}
+`;
+
+    const prompt = `${VOICE}
+
+You are analyzing Jason Fricka's content library to find gaps, over-posting, and missed opportunities.
+
+CONTENT AUDIT DATA:
+${summary}
+
+# Content Gap Analysis : @everydayelevations
+
+## What You're Over-Posting
+[Angles and formats appearing too frequently : risk of audience fatigue]
+
+## What You're Under-Posting
+[Angles with zero or low coverage : specific missed opportunities for each]
+
+## Dead Angles (Not Touched in 30+ Days)
+[List each untouched angle with ONE specific content idea for each]
+
+## Your Viral Pattern
+[What the 🔥 rated content has in common : format, angle, topic type]
+
+## What's Flopping and Why
+[Pattern in the 💀 content : what to stop or change]
+
+## 10 Specific Pieces to Create This Week
+[Based on the gaps : specific filmable titles, not generic topics]
+
+## 30-Day Content Rebalancing Plan
+[How to fix the distribution over the next month]`;
+
+    const res = await ai(prompt);
+    setOut(res);
+    setLoading(false);
+  };
+
+  const angleCountDisplay = {};
+  log.slice(0, 50).forEach(e => {
+    if (e.angle) angleCountDisplay[e.angle] = (angleCount[e.angle] || 0) + 1;
+  });
+  const allAngles = ANGLES.map(a => a.label);
+  const missingAngles = allAngles.filter(a => !angleCountDisplay[a]);
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🔍</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Content Gap Analyzer</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Scans your content library : finds what you're over-posting, under-posting, and missing entirely.</p>
+        </div>
+      </div>
+
+      {log.length === 0 && (
+        <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:10,padding:'16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
+          ⚠️ No content in memory yet. Generate content using any tool : it auto-saves here : then run the analyzer.
+        </div>
+      )}
+
+      {log.length > 0 && (
+        <>
+          {/* Quick visual breakdown */}
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:8,marginBottom:20}}>
+            {ANGLES.map(a => {
+              const count = angleCount[a.label] || 0;
+              const max = Math.max(...Object.values(angleCount), 1);
+              const pct = Math.round((count / max) * 100);
+              return (
+                <div key={a.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'12px'}}>
+                  <div style={{fontSize:12,color:B.white,fontWeight:600,marginBottom:6}}>{a.emoji} {a.label}</div>
+                  <div style={{height:4,background:'rgba(255,255,255,0.08)',borderRadius:2,marginBottom:4}}>
+                    <div style={{height:'100%',width:`${pct}%`,background:count===0?'rgba(233,69,96,0.3)':count===max?B.red:'#00C2FF',borderRadius:2,transition:'width 0.3s'}}/>
+                  </div>
+                  <div style={{fontSize:11,color:count===0?B.red:B.gray}}>{count===0?'⚠️ Gap':count + ' pieces'}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          {missingAngles.length > 0 && (
+            <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:10,padding:'12px 16px',marginBottom:16,fontSize:12,color:'rgba(255,255,255,0.8)'}}>
+              <strong style={{color:B.red}}>⚠️ Untouched angles:</strong> {missingAngles.join(', ')}
+            </div>
+          )}
+        </>
+      )}
+
+      <Card>
+        <div style={{color:B.gray,fontSize:13,lineHeight:1.7,marginBottom:16}}>
+          Analyzing <strong style={{color:B.white}}>{log.length} pieces</strong> across your content library.
+          {log.filter(e=>e.perf==='🔥').length > 0 && <span> Found <strong style={{color:B.red}}>{log.filter(e=>e.perf==='🔥').length} viral hits</strong> to pattern-match.</span>}
+        </div>
+        <RedBtn onClick={run} disabled={loading||log.length===0}>
+          {loading ? 'Analyzing library...' : '🔍 Run Gap Analysis'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && <DocOutput text={out} title="SIGNAL Strategy Document"/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE 4 : TELEPROMPTER BUTTON ON ALL OUTPUTS
+// (injected via enhanced Output component)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function OutputWithTeleprompter({text}) {
+  const [teleprompter, setTeleprompter] = useState(false);
+  if (!text) return null;
+  return (
+    <div style={{marginTop:16}}>
+      <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginBottom:8}}>
+        <CopyBtn text={text}/>
+        <button onClick={() => setTeleprompter(true)}
+          style={{background:'linear-gradient(135deg,#1a1a2e,#16213e)',color:'#00C2FF',
+            border:'1px solid rgba(0,212,255,0.4)',borderRadius:8,padding:'6px 14px',
+            fontSize:12,fontWeight:700,cursor:'pointer'}}>
+          📺 Teleprompter
+        </button>
+      </div>
+      <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'1rem',
+        border:'1px solid rgba(255,255,255,0.1)'}}>
+        <pre style={{color:B.white,fontSize:13,whiteSpace:'pre-wrap',margin:0,lineHeight:1.7,
+          fontFamily:'inherit'}}>{text}</pre>
+      </div>
+      {teleprompter && <Teleprompter text={text} onClose={() => setTeleprompter(false)}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE 5 : COLLAB OUTREACH TRACKER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const COLLAB_TRACKER_KEY = 'encis_collab_tracker';
+
+function CollabTracker() {
+  const [contacts, setContacts] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [filter, setFilter] = useState('all');
+  const blank = { name:'', handle:'', platform:'Instagram', type:'podcast guest', status:'not contacted', notes:'', pitchSent:'', lastContact:'' };
+  const [form, setForm] = useState(blank);
+
+  useEffect(() => {
+    try { const s = localStorage.getItem(COLLAB_TRACKER_KEY); if (s) setContacts(JSON.parse(s)); } catch {}
+  }, []);
+
+  const save = (list) => {
+    setContacts(list);
+    try { localStorage.setItem(COLLAB_TRACKER_KEY, JSON.stringify(list)); } catch {}
+  };
+
+  const submit = () => {
+    if (!form.name) return;
+    const entry = { ...form, id: editId || Date.now().toString(), updatedAt: Date.now() };
+    if (editId) {
+      save(contacts.map(c => c.id === editId ? entry : c));
+    } else {
+      save([entry, ...contacts]);
+    }
+    setForm(blank); setShowForm(false); setEditId(null);
+  };
+
+  const remove = (id) => { if (window.confirm('Remove this contact?')) save(contacts.filter(c => c.id !== id)); };
+
+  const statusColors = {
+    'not contacted': 'rgba(255,255,255,0.15)',
+    'pitched': 'rgba(245,166,35,0.4)',
+    'in conversation': 'rgba(0,212,255,0.4)',
+    'confirmed': 'rgba(39,174,96,0.4)',
+    'passed': 'rgba(233,69,96,0.3)',
+  };
+  const statusText = {
+    'not contacted': B.gray,
+    'pitched': '#f5a623',
+    'in conversation': '#00C2FF',
+    'confirmed': '#27ae60',
+    'passed': B.red,
+  };
+
+  const statuses = ['not contacted','pitched','in conversation','confirmed','passed'];
+  const types = ['podcast guest','stitch/collab','community partner','brand deal'];
+  const platforms = ['Instagram','YouTube','Facebook','LinkedIn','Podcast','Other'];
+
+  const filtered = filter === 'all' ? contacts : contacts.filter(c => c.status === filter);
+
+  const stats = statuses.map(s => ({ status:s, count:contacts.filter(c=>c.status===s).length }));
+
+  const formFields = [
+    { k:'name', l:'Name / Brand', ph:'e.g. Joe Schmoe', full:false },
+    { k:'handle', l:'Handle / Channel', ph:'e.g. @joeschmoe', full:false },
+    { k:'pitchSent', l:'Pitch Sent On', ph:'e.g. Mar 18, 2026', full:false },
+    { k:'lastContact', l:'Last Contact', ph:'e.g. Mar 20, 2026', full:false },
+    { k:'notes', l:'Notes / Context', ph:'e.g. Responded positively, wants to schedule for May...', full:true },
+  ];
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <span style={{fontSize:32}}>📋</span>
+          <div>
+            <h2 style={{color:B.white,margin:0}}>Collab Outreach Tracker</h2>
+            <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Track every pitch, conversation, and confirmed collab in one place.</p>
+          </div>
+        </div>
+        <button onClick={() => { setForm(blank); setEditId(null); setShowForm(true); }}
+          style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'8px 18px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+          + Add Contact
+        </button>
+      </div>
+
+      {/* Stats row */}
+      <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
+        {stats.map(s => (
+          <div key={s.status} style={{background:'rgba(255,255,255,0.03)',border:`1px solid ${statusColors[s.status]}`,
+            borderRadius:8,padding:'10px 16px',textAlign:'center',minWidth:100}}>
+            <div style={{fontSize:20,fontWeight:800,color:statusText[s.status]}}>{s.count}</div>
+            <div style={{fontSize:10,color:B.gray,textTransform:'capitalize',marginTop:2}}>{s.status}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filter tabs */}
+      <div style={{display:'flex',gap:6,marginBottom:16,flexWrap:'wrap'}}>
+        {['all', ...statuses].map(s => (
+          <button key={s} onClick={() => setFilter(s)}
+            style={{background:filter===s?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',
+              borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:filter===s?700:400,textTransform:'capitalize'}}>
+            {s} {s!=='all'?`(${contacts.filter(c=>c.status===s).length})`:`(${contacts.length})`}
+          </button>
+        ))}
+      </div>
+
+      {/* Empty state */}
+      {contacts.length === 0 && (
+        <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.02)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)',marginBottom:20}}>
+          <div style={{fontSize:48,marginBottom:12}}>🤝</div>
+          <div style={{color:B.white,fontWeight:700,fontSize:16,marginBottom:8}}>No contacts yet</div>
+          <div style={{color:B.gray,fontSize:13,marginBottom:20}}>Add podcast guests, collab targets, and brand partners. Track every conversation.</div>
+          <button onClick={() => setShowForm(true)}
+            style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+            + Add First Contact
+          </button>
+        </div>
+      )}
+
+      {/* Contact cards */}
+      {filtered.length > 0 && (
+        <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
+          {filtered.map(contact => (
+            <div key={contact.id} style={{background:'rgba(255,255,255,0.03)',
+              border:`1px solid ${statusColors[contact.status] || 'rgba(255,255,255,0.07)'}`,
+              borderRadius:12,padding:'16px'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:10}}>
+                <div style={{flex:1}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
+                    <span style={{color:B.white,fontWeight:700,fontSize:14}}>{contact.name}</span>
+                    <span style={{color:B.gray,fontSize:12}}>{contact.handle}</span>
+                    <span style={{background:'rgba(255,255,255,0.07)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>{contact.platform}</span>
+                    <span style={{background:'rgba(255,255,255,0.07)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10,textTransform:'capitalize'}}>{contact.type}</span>
+                  </div>
+                  {contact.notes && (
+                    <div style={{color:'rgba(255,255,255,0.65)',fontSize:12,lineHeight:1.6,marginBottom:6}}>{contact.notes}</div>
+                  )}
+                  <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+                    {contact.pitchSent && <span style={{color:B.gray,fontSize:11}}>Pitched: {contact.pitchSent}</span>}
+                    {contact.lastContact && <span style={{color:B.gray,fontSize:11}}>Last contact: {contact.lastContact}</span>}
+                  </div>
+                </div>
+                <div style={{display:'flex',flexDirection:'column',gap:6,alignItems:'flex-end'}}>
+                  {/* Status selector */}
+                  <select value={contact.status}
+                    onChange={e => save(contacts.map(c => c.id===contact.id ? {...c,status:e.target.value,updatedAt:Date.now()} : c))}
+                    style={{background:'rgba(0,0,0,0.4)',color:statusText[contact.status],border:`1px solid ${statusColors[contact.status]}`,
+                      borderRadius:6,padding:'4px 8px',fontSize:11,fontWeight:700,cursor:'pointer',textTransform:'capitalize'}}>
+                    {statuses.map(s => <option key={s} value={s} style={{color:'#F1F5F9',background:'#080D14'}}>{s}</option>)}
+                  </select>
+                  <div style={{display:'flex',gap:6}}>
+                    <button onClick={() => { setForm({...contact}); setEditId(contact.id); setShowForm(true); }}
+                      style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer'}}>
+                      Edit
+                    </button>
+                    <button onClick={() => remove(contact.id)}
+                      style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',borderRadius:6,padding:'4px 8px',fontSize:12,cursor:'pointer'}}>✕</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Platform + Type selector in form */}
+      {showForm && (
+        <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:14,padding:'22px',marginBottom:20}}>
+          <div style={{color:B.white,fontWeight:700,fontSize:15,marginBottom:16}}>{editId ? 'Edit Contact' : 'Add Contact'}</div>
+
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+            <div>
+              <SecLabel>Platform</SecLabel>
+              <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                {platforms.map(p => (
+                  <button key={p} onClick={() => setForm(f => ({...f, platform:p}))}
+                    style={{background:form.platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                      borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:form.platform===p?700:400}}>
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <SecLabel>Collab Type</SecLabel>
+              <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                {types.map(t => (
+                  <button key={t} onClick={() => setForm(f => ({...f, type:t}))}
+                    style={{background:form.type===t?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                      borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:form.type===t?700:400,textTransform:'capitalize'}}>
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+            {formFields.map(f => (
+              <div key={f.k} style={{gridColumn:f.full?'1/-1':'auto'}}>
+                <SecLabel>{f.l}</SecLabel>
+                {f.full
+                  ? <textarea value={form[f.k]|| ''} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} rows={2} placeholder={f.ph}
+                      style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+                  : <input value={form[f.k]|| ''} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} placeholder={f.ph}
+                      style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                }
+              </div>
+            ))}
+          </div>
+
+          <div style={{marginTop:16}}>
+            <SecLabel>Status</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+              {statuses.map(s => (
+                <button key={s} onClick={() => setForm(f => ({...f, status:s}))}
+                  style={{background:form.status===s?statusColors[s]:'rgba(255,255,255,0.05)',
+                    color:form.status===s?statusText[s]:B.gray,
+                    border:`1px solid ${form.status===s?statusColors[s]:'rgba(255,255,255,0.08)'}`,
+                    borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:form.status===s?700:400,textTransform:'capitalize'}}>
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{display:'flex',gap:10}}>
+            <RedBtn onClick={submit} disabled={!form.name}>{editId ? 'Save Changes' : 'Add Contact'}</RedBtn>
+            <button onClick={() => { setShowForm(false); setEditId(null); setForm(blank); }}
+              style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,cursor:'pointer'}}>Cancel</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMMENT RESPONDER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const COMMENT_REPLY_PROMPT = (comments, mode, client) => `
+${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
+
+${mode === 'bulk'
+  ? `Write a reply to EACH of these comments. Number your replies to match. Each reply should feel personal and human: not copy-pasted. Build community, acknowledge what they said, and where natural, invite more conversation.`
+  : `Write 3 different reply options for this comment. Each option should have a different energy — one warm/personal, one direct/punchy, one community-building. All in Jason's voice.`
+}
+
+${mode === 'bulk' ? 'COMMENTS:\n' + comments : 'COMMENT:\n' + comments}
+
+Rules:
+- Sound like a real person talking, not a brand
+- No "Great comment!" or "Thanks for sharing!" openers: they're dead
+- Keep replies under 3 sentences unless the comment warrants more
+- Use the person's name if they signed it
+- If it's a question, answer it directly first
+- End with something that invites the next reply where it makes sense`;
+
+function CommentResponder() {
+  const [mode, setMode] = useState('single');
+  const [input, setInput] = useState('');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [teleprompter, setTeleprompter] = useState(false);
+  const [activeClient] = useActiveClient();
+
+  const run = async () => {
+    if (!input.trim()) return;
+    setLoading(true); setOut('');
+    const res = await ai(COMMENT_REPLY_PROMPT(input, mode, activeClient));
+    setOut(res);
+    setLoading(false);
+  };
+
+  const placeholder = mode === 'single'
+    ? 'Paste the comment here...\n\ne.g. "This hit different today. Been struggling with the transition and nobody talks about how lonely it gets. How did you get through it?"'
+    : 'Paste multiple comments, one per line or numbered:\n\n1. This is exactly what I needed today\n2. How long did it take you to get consistent?\n3. Do you offer coaching?\n4. Sharing this with my whole team';
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>💬</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Comment Responder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Reply in your voice — single comment with 3 options, or bulk paste up to 20 at once.</p>
+        </div>
+      </div>
+      {activeClient && <ClientBanner client={activeClient}/>}
+
+      <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
+        💡 The first-hour engagement window is everything. Respond fast, respond real, and the algorithm rewards you. Use bulk mode after a post drops to clear your comment queue in one shot.
+      </div>
+
+      <Card>
+        <div style={{display:'flex',gap:8,marginBottom:16}}>
+          {[{id:'single',label:'Single Comment',desc:'3 reply options'},
+            {id:'bulk',label:'Bulk Mode',desc:'Up to 20 comments at once'}].map(m => (
+            <button key={m.id} onClick={() => { setMode(m.id); setOut(''); }}
+              style={{flex:1,background:mode===m.id?B.red:'rgba(255,255,255,0.06)',color:B.white,
+                border:`1px solid ${mode===m.id?B.red:'rgba(255,255,255,0.1)'}`,
+                borderRadius:10,padding:'12px',cursor:'pointer',textAlign:'left'}}>
+              <div style={{fontWeight:700,fontSize:13}}>{m.label}</div>
+              <div style={{color:mode===m.id?'rgba(255,255,255,0.8)':B.gray,fontSize:11,marginTop:2}}>{m.desc}</div>
+            </button>
+          ))}
+        </div>
+
+        <SecLabel>{mode === 'single' ? 'The Comment' : 'Comments (paste all at once)'}</SecLabel>
+        <textarea value={input} onChange={e=>setInput(e.target.value)}
+          rows={mode === 'bulk' ? 8 : 4}
+          placeholder={placeholder}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            resize:'vertical',marginBottom:16,boxSizing:'border-box',lineHeight:1.6}}/>
+
+        <RedBtn onClick={run} disabled={loading||!input.trim()}>
+          {loading ? 'Writing replies...' : mode === 'single' ? '💬 Write 3 Reply Options' : '💬 Reply to All Comments'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && (
+        <div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:8}}>
+            <span style={{color:B.white,fontWeight:700,fontSize:14}}>
+              {mode === 'single' ? '3 Reply Options' : 'Bulk Replies'}
+            </span>
+            <CopyBtn text={out}/>
+          </div>
+          <Output text={out}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// HOOK TESTER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const HOOK_TEST_PROMPT = (hooks, topic) => `
+${VOICE}
+
+Topic: ${topic}
+
+You are a viral content strategist who has analyzed thousands of hooks. Score and improve each of these hook variations.
+
+HOOKS TO TEST:
+${hooks.map((h,i) => `${i+1}. ${h}`).join('\n')}
+
+For EACH hook, provide:
+
+**HOOK [N]: [quote the hook]**
+Score: [X/10]
+Scroll-Stop Power: [1-10] : does the first word make them stop?
+Curiosity Gap: [1-10] : does it create an itch they need to scratch?
+Specificity: [1-10] : is it concrete or vague?
+Weakness: [one sentence : the exact problem]
+Rewrite: [improved version that fixes the weakness]
+
+---
+
+After scoring all hooks:
+
+**WINNER:** Hook [N] : [one sentence why it wins]
+
+**THE OPTIMAL HOOK:**
+[Best possible version combining the strongest elements from all of them]
+
+**Why This Wins:**
+[3 specific reasons : psychology, format, first word]`;
+
+function HookTester() {
+  const [topic, setTopic] = useState('');
+  const [hooks, setHooks] = useState(['', '', '']);
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const addHook = () => { if (hooks.length < 6) setHooks([...hooks, '']); };
+  const removeHook = (i) => { if (hooks.length > 2) setHooks(hooks.filter((_,idx) => idx !== i)); };
+  const updateHook = (i, val) => setHooks(hooks.map((h,idx) => idx === i ? val : h));
+
+  const run = async () => {
+    const filledHooks = hooks.filter(h => h.trim());
+    if (!topic || filledHooks.length < 2) return;
+    setLoading(true); setOut('');
+    const res = await ai(HOOK_TEST_PROMPT(filledHooks, topic));
+    setOut(res);
+    setLoading(false);
+  };
+
+  const filledCount = hooks.filter(h => h.trim()).length;
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🧪</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Hook Tester</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Write 2-6 hook variations : AI scores each one and builds the best version.</p>
+        </div>
+      </div>
+
+      <div style={{background:'rgba(233,69,96,0.06)',border:'1px solid rgba(233,69,96,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
+        🎯 Your hook is 80% of the result. Same video, different hook = 10x difference in views. Test before you post.
+      </div>
+
+      <Card>
+        <SecLabel>What's the video about?</SecLabel>
+        <input value={topic} onChange={e=>setTopic(e.target.value)}
+          placeholder="e.g. Why most people quit before they see results"
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            marginBottom:20,boxSizing:'border-box'}}/>
+
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+          <SecLabel style={{margin:0}}>Your Hook Variations ({filledCount} entered, 2 minimum)</SecLabel>
+          {hooks.length < 6 && (
+            <button onClick={addHook}
+              style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',
+                borderRadius:6,padding:'4px 12px',cursor:'pointer',fontSize:12}}>
+              + Add Hook
+            </button>
+          )}
+        </div>
+
+        <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
+          {hooks.map((hook, i) => (
+            <div key={i} style={{display:'flex',gap:8,alignItems:'center'}}>
+              <span style={{color:B.red,fontWeight:800,fontSize:13,minWidth:20}}>{i+1}.</span>
+              <input value={hook} onChange={e=>updateHook(i,e.target.value)}
+                placeholder={i === 0 ? 'e.g. Nobody told me this about getting out...' :
+                             i === 1 ? 'e.g. I spent 3 years doing it wrong. Here\'s the truth.' :
+                             'Another hook variation...'}
+                style={{flex:1,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+                  borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              {hooks.length > 2 && (
+                <button onClick={() => removeHook(i)}
+                  style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',
+                    borderRadius:6,padding:'4px 8px',fontSize:16,cursor:'pointer',flexShrink:0}}>✕</button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <RedBtn onClick={run} disabled={loading || !topic || filledCount < 2}>
+          {loading ? 'Testing hooks...' : `🧪 Test ${filledCount} Hook${filledCount!==1?'s':''}`}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && (
+        <div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+            <span style={{color:B.white,fontWeight:700,fontSize:14}}>Hook Analysis</span>
+            <CopyBtn text={out}/>
+          </div>
+          <Output text={out}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// EMAIL SEQUENCE BUILDER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const EMAIL_PROMPT = (magnet, audience, offer, length, client) => `
+${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
+${SWARBRICK}
+
+Lead Magnet: ${magnet}
+Audience: ${audience}
+Offer / Next Step: ${offer}
+Sequence Length: ${length} emails
+
+Write a complete ${length}-email nurture sequence for someone who just opted in to receive "${magnet}".
+
+This is not a corporate drip campaign. It reads like real emails from a real person.
+
+${length >= 3 ? `
+**EMAIL 1: DELIVER + QUICK WIN**
+Subject: [subject line]
+Preview text: [50 chars]
+Body: Deliver the magnet. Give one immediate action they can take today. Make them glad they signed up.
+[Full email body]
+
+**EMAIL 2: PERSONAL STORY**
+Subject: [subject line]
+Preview text: [50 chars]
+Body: The real story behind why this matters. A specific moment from Jason's life. No pitch. Just connection.
+[Full email body]
+
+**EMAIL 3: PURE VALUE**
+Subject: [subject line]
+Preview text: [50 chars]
+Body: Teach something they didn't get in the lead magnet. Make it so good they forward it.
+[Full email body]` : ''}
+
+${length >= 5 ? `
+**EMAIL 4: SOCIAL PROOF + SHIFT**
+Subject: [subject line]
+Preview text: [50 chars]
+Body: A win from the community. Something that happened when someone applied the method. Transition toward the offer.
+[Full email body]
+
+**EMAIL 5: SOFT PITCH**
+Subject: [subject line]
+Preview text: [50 chars]
+Body: The invitation. What the next step is, why now, what it costs to stay stuck. No pressure: real talk.
+[Full email body]` : ''}
+
+${length >= 7 ? `
+**EMAIL 6: OBJECTION HANDLER**
+Subject: [subject line]
+Preview text: [50 chars]
+Body: Address the real reasons people haven't taken the next step yet. Be honest about what this is and isn't.
+[Full email body]
+
+**EMAIL 7: LAST CALL**
+Subject: [subject line]
+Preview text: [50 chars]
+Body: Final email in the sequence. Clear, direct, no drama. Either they're in or they're not: respect both.
+[Full email body]` : ''}
+
+Rules: No corporate speak. No "I hope this email finds you well." No numbered lists in the body: write like a person. Short paragraphs. Real subject lines people actually open.`;
+
+function EmailSequenceBuilder() {
+  const [magnet, setMagnet] = useState('');
+  const [audience, setAudience] = useState('People working on their emotional and physical health, professionals building better careers, parents trying to show up well, anyone who wants their daily choices to actually mean something');
+  const [offer, setOffer] = useState('Mindset coaching, Everyday Elevations podcast, the community community, real estate');
+  const [length, setLength] = useState('5');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [activeClient] = useActiveClient();
+
+  const run = async () => {
+    if (!magnet) return;
+    setLoading(true); setOut('');
+    const res = await ai(EMAIL_PROMPT(magnet, audience, offer, length, activeClient));
+    setOut(res);
+    logToMemory({ type:'email', title:`Email Seq: ${magnet}`, preview:res.slice(0,200), client:activeClient?.name });
+    setLoading(false);
+  };
+
+  const downloadEmails = async () => {
+    if (!out) return;
+    setDownloading(true);
+    try {
+      const res = await fetch('/api/claude', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          message: `Convert this email sequence into clean HTML. Each email should be in its own section with a clear header. Use proper formatting: subject lines bold, body text readable, preview text in italics. Return only the HTML body content:\n\n${out}`,
+          system: 'You convert email sequences into clean HTML. Return only inner HTML content.'
+        })
+      });
+      const d = await res.json();
+      const html = d.text || d.result || '';
+      const full = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Email Sequence</title><style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 24px;color:#111;line-height:1.8}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#E94560;margin-top:48px;border-top:1px solid #eee;padding-top:24px}strong{color:#0A1628}.subject{font-size:18px;font-weight:bold;margin-bottom:4px}.preview{color:#666;font-style:italic;font-size:13px;margin-bottom:20px}@media print{body{margin:24px}}</style></head><body><h1>${magnet} — Email Sequence</h1>${html}</body></html>`;
+      const blob = new Blob([full], {type:'text/html'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'EmailSequence.html';
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+    } catch(e) { console.error(e); }
+    setDownloading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>📧</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Email Sequence Builder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Full nurture sequences — deliver, connect, convert. Written in your voice, not a template.</p>
+        </div>
+      </div>
+      {activeClient && <ClientBanner client={activeClient}/>}
+
+      <Card>
+        <SecLabel>Lead Magnet / Opt-in Trigger</SecLabel>
+        <input value={magnet} onChange={e=>setMagnet(e.target.value)}
+          placeholder="e.g. 5 AM Success Protocol PDF, Performance Longevity Blueprint, Free Mindset Audit"
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            marginBottom:16,boxSizing:'border-box'}}/>
+
+        <SecLabel>Who Opted In</SecLabel>
+        <textarea value={audience} onChange={e=>setAudience(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+
+        <SecLabel>Your Offer / Next Step You Want Them to Take</SecLabel>
+        <textarea value={offer} onChange={e=>setOffer(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+
+        <SecLabel>Sequence Length</SecLabel>
+        <div style={{display:'flex',gap:8,marginBottom:20}}>
+          {[
+            {v:'3', label:'3 emails', desc:'Quick intro'},
+            {v:'5', label:'5 emails', desc:'Standard nurture'},
+            {v:'7', label:'7 emails', desc:'Full funnel'},
+          ].map(opt => (
+            <button key={opt.v} onClick={() => setLength(opt.v)}
+              style={{flex:1,background:length===opt.v?B.red:'rgba(255,255,255,0.06)',
+                color:B.white,border:`1px solid ${length===opt.v?B.red:'rgba(255,255,255,0.1)'}`,
+                borderRadius:10,padding:'12px',cursor:'pointer',textAlign:'center'}}>
+              <div style={{fontWeight:700,fontSize:14}}>{opt.label}</div>
+              <div style={{color:length===opt.v?'rgba(255,255,255,0.8)':B.gray,fontSize:11,marginTop:2}}>{opt.desc}</div>
+            </button>
+          ))}
+        </div>
+
+        <RedBtn onClick={run} disabled={loading||!magnet}>
+          {loading ? 'Writing sequence...' : `Write ${length}-Email Sequence`}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && (
+        <div style={{marginTop:16}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:10}}>
+            <span style={{color:B.white,fontWeight:700,fontSize:15}}>Your Email Sequence</span>
+            <div style={{display:'flex',gap:8}}>
+              <CopyBtn text={out}/>
+              <button onClick={downloadEmails} disabled={downloading}
+                style={{background:B.red,color:'#fff',border:'none',borderRadius:8,
+                  padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',fontSize:13}}>
+                {downloading ? 'Preparing...' : '⬇ Download Emails'}
+              </button>
+            </div>
+          </div>
+          <Output text={out}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PODCAST PRE-PRODUCTION SUITE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const PODCAST_PREPROD_PROMPT = (guestName, guestBio, episode_angle, showContext) => `
+${VOICE}
+
+Show: Everyday Elevations Podcast (Host: Jason Fricka: veteran, HR manager, mindset coach, Colorado)
+Guest: ${guestName}
+Guest Background: ${guestBio}
+Episode Angle / Theme: ${episode_angle}
+Additional Context: ${showContext || 'None'}
+
+Build the complete pre-production package for this episode.
+
+# ${guestName}: Episode Pre-Production
+
+## Guest Intelligence Brief
+- Who they are in 3 sentences (what Jason needs to know before the call)
+- Their core message / what they stand for
+- What their audience cares about
+- One potential point of disagreement or productive tension
+- The thing they probably never get asked
+
+## Episode Positioning
+- Episode title (3 options: specific, not generic)
+- The one thing this episode must deliver
+- Why the community specifically needs to hear this
+
+## Opening (First 3 Minutes)
+[Full scripted intro Jason reads: sets the guest up without overselling, teases the transformation]
+
+## Interview Outline (12 questions)
+Grouped in 3 acts:
+Act 1: Who They Are (3 questions): Background, journey, the turn
+Act 2: The Method (5 questions): What they know, how they know it, the counterintuitive stuff
+Act 3: The Application (4 questions): What listeners do Monday morning, the hard truth, the invitation
+
+For each question: the question + why it matters + the follow-up if they give a surface answer
+
+## Closing Script
+[Full word-for-word outro: thanks guest, tells audience what to do next, teases next episode]
+
+## Show Notes (SEO-optimized)
+[Full show notes: 200 words, guest bio, key topics, timestamps placeholder, links section]
+
+## Content Extraction Plan
+5 specific clip moments to watch for during the interview (with suggested hooks for each)
+1 carousel concept from this episode
+LinkedIn post angle for Jason post-release`;
+
+const PODCAST_SOLO_PROMPT = (topic, angle, duration) => `
+${VOICE}
+${SWARBRICK}
+
+Solo episode topic: ${topic}
+Angle: ${angle}
+Target length: ${duration} minutes
+
+Build the complete solo episode framework.
+
+# Solo Episode: ${topic}
+
+## Episode Hook (First 60 Seconds)
+[Full scripted cold open: drop them into a moment or a question, no intro yet]
+
+## Why This Episode, Why Now
+[2-3 sentences Jason says before diving in: context without fluff]
+
+## Episode Outline
+For a ${duration}-minute episode, structured in acts:
+
+Opening Hook (60 sec)
+Act 1: The Problem / Setup (${Math.round(parseInt(duration)*0.2)} min)
+Act 2: The Turn / Insight (${Math.round(parseInt(duration)*0.4)} min)
+Act 3: The Method / Application (${Math.round(parseInt(duration)*0.3)} min)
+Close + CTA (${Math.round(parseInt(duration)*0.1)} min)
+
+For each section: talking points, transitions, stories to pull from Jason's life
+
+## Retention Hooks (3 mid-episode teases)
+[Specific lines to say mid-episode to keep people listening]
+
+## Show Notes
+[150-word SEO-optimized description]
+
+## 5 Short-Form Clips to Pull
+[Specific moments from the outline that will work as Reels/Shorts: with hooks]`;
+
+function PodcastPreProd() {
+  const [mode, setMode] = useState('guest');
+  const [guestName, setGuestName] = useState('');
+  const [guestBio, setGuestBio] = useState('');
+  const [angle, setAngle] = useState('');
+  const [showContext, setShowContext] = useState('');
+  const [soloTopic, setSoloTopic] = useState('');
+  const [soloAngle, setSoloAngle] = useState('occupational');
+  const [duration, setDuration] = useState('30');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
+
+  const fetchGuestIntel = async () => {
+    if (!guestName) return;
+    setFetching(true);
+    const res = await perp(`Who is ${guestName}? What do they do, what is their background, what are they known for, what podcast or speaking topics do they cover? Give me a detailed bio.`);
+    setGuestBio(res);
+    setFetching(false);
+  };
+
+  const run = async () => {
+    setLoading(true); setOut('');
+    let res;
+    if (mode === 'guest') {
+      res = await ai(PODCAST_PREPROD_PROMPT(guestName, guestBio, angle, showContext));
+      logToMemory({ type:'podcast', title:`Episode Prep: ${guestName}`, preview:res.slice(0,200) });
+    } else {
+      const angleLabel = ANGLES.find(a=>a.id===soloAngle)?.label || soloAngle;
+      res = await ai(PODCAST_SOLO_PROMPT(soloTopic, angleLabel, duration));
+      logToMemory({ type:'podcast', title:`Solo Episode: ${soloTopic}`, preview:res.slice(0,200) });
+    }
+    setOut(res);
+    setLoading(false);
+  };
+
+  const canRun = mode === 'guest' ? (guestName && guestBio && angle) : (soloTopic);
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🎙️</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Podcast Pre-Production</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Guest research brief, full interview outline, show notes, and clip plan — before you hit record.</p>
+        </div>
+      </div>
+
+      <div style={{display:'flex',gap:8,marginBottom:20}}>
+        {[{id:'guest',label:'🎤 Guest Episode',desc:'Interview prep + research'},
+          {id:'solo',label:'🎙️ Solo Episode',desc:'Outline + structure'}].map(m => (
+          <button key={m.id} onClick={() => { setMode(m.id); setOut(''); }}
+            style={{flex:1,background:mode===m.id?B.red:'rgba(255,255,255,0.06)',color:B.white,
+              border:`1px solid ${mode===m.id?B.red:'rgba(255,255,255,0.1)'}`,
+              borderRadius:10,padding:'14px',cursor:'pointer',textAlign:'left'}}>
+            <div style={{fontWeight:700,fontSize:14}}>{m.label}</div>
+            <div style={{color:mode===m.id?'rgba(255,255,255,0.8)':B.gray,fontSize:11,marginTop:3}}>{m.desc}</div>
+          </button>
+        ))}
+      </div>
+
+      <Card>
+        {mode === 'guest' ? (
+          <>
+            <SecLabel>Guest Name</SecLabel>
+            <div style={{display:'flex',gap:8,marginBottom:16}}>
+              <input value={guestName} onChange={e=>setGuestName(e.target.value)}
+                placeholder="e.g. David Goggins, Jocko Willink, your next guest..."
+                style={{flex:1,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+                  borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              <button onClick={fetchGuestIntel} disabled={fetching||!guestName}
+                style={{background:'rgba(0,212,255,0.1)',color:'#00C2FF',border:'1px solid rgba(0,212,255,0.3)',
+                  borderRadius:8,padding:'10px 16px',fontWeight:700,cursor:(!guestName||fetching)?'not-allowed':'pointer',
+                  fontSize:12,whiteSpace:'nowrap'}}>
+                {fetching ? 'Researching...' : '🔍 Research Guest'}
+              </button>
+            </div>
+
+            <SecLabel>Guest Bio / Background</SecLabel>
+            <textarea value={guestBio} onChange={e=>setGuestBio(e.target.value)} rows={4}
+              placeholder="Paste their bio, or hit Research Guest above to pull it automatically..."
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+
+            <SecLabel>Episode Angle / What This Episode Is Really About</SecLabel>
+            <input value={angle} onChange={e=>setAngle(e.target.value)}
+              placeholder="e.g. How high performers recover from identity loss, The truth about discipline nobody talks about"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                marginBottom:16,boxSizing:'border-box'}}/>
+
+            <SecLabel>Additional Context (optional)</SecLabel>
+            <textarea value={showContext} onChange={e=>setShowContext(e.target.value)} rows={2}
+              placeholder="e.g. We connected at a veteran event, he's been on Rogan twice, my audience loved my last episode on recovery..."
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                resize:'vertical',boxSizing:'border-box'}}/>
+          </>
+        ) : (
+          <>
+            <SecLabel>Episode Topic</SecLabel>
+            <input value={soloTopic} onChange={e=>setSoloTopic(e.target.value)}
+              placeholder="e.g. Why I almost quit at month 4, What the Army taught me about consistency, The real cost of staying comfortable"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                marginBottom:16,boxSizing:'border-box'}}/>
+
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+              <div>
+                <SecLabel>Content Angle</SecLabel>
+                <AngleGrid selected={soloAngle} onSelect={setSoloAngle}/>
+              </div>
+              <div>
+                <SecLabel>Target Length</SecLabel>
+                <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                  {['15','20','30','45','60'].map(d => (
+                    <button key={d} onClick={() => setDuration(d)}
+                      style={{background:duration===d?B.red:'rgba(255,255,255,0.07)',color:B.white,
+                        border:'none',borderRadius:6,padding:'8px 14px',cursor:'pointer',
+                        fontSize:13,fontWeight:duration===d?700:400}}>
+                      {d} min
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        <div style={{marginTop:20}}>
+          <RedBtn onClick={run} disabled={loading||!canRun}>
+            {loading ? 'Building pre-production package...' : mode==='guest' ? '🎤 Build Full Episode Package' : '🎙️ Build Solo Episode Framework'}
+          </RedBtn>
+          {mode === 'guest' && !guestBio && guestName && (
+            <span style={{color:B.gray,fontSize:12,marginLeft:12}}>Research guest first for best results</span>
+          )}
+        </div>
+      </Card>
+      {loading && <Spin/>}
+      {out && <DocOutput text={out} title="SIGNAL Strategy Document"/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// YOUTUBE TOOLKIT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── VIDIQ SOP ───────────────────────────────────────────────────────────────
+const VIDIQ_SOP = `
+VIDIQ OUTLIER SCORE FRAMEWORK (follow this to the letter):
+- Outlier Score > 1.0 = video outperforms channel average → study and replicate these elements
+- Outlier Score ≈ 1.0 = performing average → analyze for engagement improvements
+- Outlier Score < 1.0 = underperforming → diagnose: was it topic, title, thumbnail, or timing?
+- Score 2.0+ = 2x-10x+ above norm → break down thumbnail, topic, title, length, and style and repeat exactly
+- High outlier videos ARE the content blueprint : never guess when you have outlier data
+
+UPLOAD TIMING SOP (non-negotiable):
+- Best days: Tuesday through Friday : avoid Saturday
+- Best times: 1 PM, 2 PM, 5 PM, or 9 PM Eastern Time
+- Upload 1-2 hours BEFORE peak activity : gives YouTube time to index before audience goes active
+- Strong early engagement in first 24-48 hours = algorithm signals = more recommendations
+- Consistency > perfection : uploading regularly gives more outlier data to learn from
+
+CONTENT STRATEGY FROM OUTLIER DATA:
+- After every upload, check outlier score vs channel average
+- Top outliers → extract: topic angle, title format, thumbnail style, video length, opening hook
+- Replicate those exact elements in next 3 uploads
+- Low outliers → do NOT delete : compare to high outliers and identify the specific difference
+- More variety early = more data = faster discovery of channel superpowers
+
+PERFORMANCE SIGNALS THAT MATTER MOST (in order):
+1. Click-through rate (CTR) : title + thumbnail combo
+2. Average view duration : hook and content quality
+3. Subscriber conversion rate : are viewers becoming fans
+4. Early engagement velocity : first 24-48 hours determines algorithm push
+`;
+
+const YT_SCRIPT_PROMPT = (topic, angle, duration, style) => `
+${VOICE}
+${CONTENT_SOP}
+${SWARBRICK}
+${VIDIQ_SOP}
+
+Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+Topic: "${topic}"
+Angle: ${angle}
+Duration: ${duration}
+Style: ${style}
+
+Write a complete, camera-ready YouTube video script using the VIDIQ outlier framework. Format it clean and structured : every section clearly labeled, ready to hand to a director or read straight into camera.
+
+---
+
+# ${topic}
+
+## PRE-PRODUCTION
+**Upload Window:** Tuesday-Friday, 12-2 PM ET (indexed before 1-5 PM peak)
+**Outlier Target:** 2.0+ : this script is built to beat your channel average
+**Optimize For:** High CTR title + first 30 seconds for average view duration
+
+---
+
+## TITLE OPTIONS (A/B test these)
+**Option A:** [Curiosity gap : makes them need to know the answer]
+**Option B:** [Personal story : specific moment or result]
+**Option C:** [Bold claim : counterintuitive or surprising]
+**Recommended test:** Option A vs Option B
+
+**Thumbnail text (5 words max):** [exact words]
+**Thumbnail visual:** [what Jason is doing or showing : specific]
+**Emotion to convey:** [the feeling that drives clicks]
+
+---
+
+## FULL SCRIPT
+
+### HOOK (first 30 seconds : this is where outlier videos are won or lost)
+*Hook type: [Pattern Interrupt / Question / Bold Statement / Story / Data Point]*
+
+[Word-for-word hook : no intro, no "hey guys", value or conflict hits immediately]
+
+---
+
+### SECTION 1: [Title] (~${duration === '15-20 min' ? '3-4' : duration === '8-10 min' ? '2-3' : '1-2'} minutes)
+
+[Full word-for-word script for this section]
+
+*[Retention note: what keeps viewers watching through this section]*
+
+---
+
+### SECTION 2: [Title] (~${duration === '15-20 min' ? '3-4' : duration === '8-10 min' ? '2-3' : '1-2'} minutes)
+
+[Full word-for-word script]
+
+*[Retention note]*
+
+---
+
+### SECTION 3: [Title] (~${duration === '15-20 min' ? '3-4' : duration === '8-10 min' ? '2-3' : '1-2'} minutes)
+
+[Full word-for-word script]
+
+*[Retention note]*
+
+${duration !== '3-5 min' ? `---
+
+### SECTION 4: [Title] (~${duration === '15-20 min' ? '3-4' : '2-3'} minutes)
+
+[Full word-for-word script]
+
+*[Retention note]*` : ''}
+
+${duration === '15-20 min' ? `---
+
+### SECTION 5: [Title] (~3-4 minutes)
+
+[Full word-for-word script]
+
+*[Retention note]*` : ''}
+
+---
+
+### PATTERN INTERRUPT (mid-video re-engagement)
+
+[A line that snaps back viewers who are drifting : creates urgency to keep watching]
+
+---
+
+### END SCREEN (~last 30 seconds)
+
+[Natural lead-in to end screen : tease next video, reason to subscribe, mention email list]
+[Word-for-word : sounds like a conversation, not a script]
+
+---
+
+## CHAPTER MARKERS
+0:00 Hook
+[Time]: [Section 1 title]
+[Time]: [Section 2 title]
+[Time]: [Section 3 title]
+${duration !== '3-5 min' ? '[Time]: [Section 4 title]' : ''}
+${duration === '15-20 min' ? '[Time]: [Section 5 title]' : ''}
+
+---
+
+## SEO PACKAGE
+
+**Primary keyword:** [exact phrase : what viewers type to find this]
+**Secondary keywords:** [3 supporting terms]
+
+**Description (first 2 lines : shown before "Show More"):**
+[Line 1: hook with primary keyword]
+[Line 2: channel identity + secondary keyword]
+
+**Full description (150-200 words):**
+[Natural, keyword-rich, written as if talking to the viewer]
+
+**Tags (20):**
+[comma-separated : exact match, broad match, topic variations, creator name]
+
+**Pinned comment (post within 5 min of going live):**
+[Drives early engagement : question, resource link, or value add]
+
+---
+
+## VIDIQ PERFORMANCE FORECAST
+**Outlier score prediction:** [estimate vs channel average]
+**Biggest CTR risk:** [specific : what might hurt click-through rate]
+**Biggest AVD risk:** [where viewers are most likely to drop off and why]
+**Check at 48 hours:** [specific metrics : what numbers tell you it's working or not]
+**If it underperforms:** [specific one change to test first]
+`;
+
+
+const YT_TITLE_PROMPT = (topic, angle) => `
+${VOICE}
+
+Topic: ${topic}
+Angle: ${angle}
+
+Write 7 YouTube title variations for this topic. Each must be distinct : different psychological trigger, different format.
+
+For each title:
+**TITLE [N]:** [The title]
+CTR Trigger: [curiosity / controversy / how-to / personal story / data / listicle / fear of missing out]
+Thumbnail Direction: [what image/text overlay makes this title pop]
+Why It Works: [one sentence]
+
+After all 7:
+**WINNER:** Title [N]
+**Best Thumbnail Text:** [3-5 words that go on the thumbnail]
+**A/B Test:** Title [X] vs Title [Y] : test these two first`;
+
+const YT_CHAPTERS_PROMPT = (script) => `
+You are a YouTube SEO specialist. Based on this video script, create:
+
+1. **Timestamp Chapters** (for YouTube description)
+Format: 0:00 Title
+Create chapters every 2-4 minutes at natural topic breaks. First chapter always 0:00.
+
+2. **SEO Description** (for YouTube)
+- First 2 sentences: hook with primary keywords (these show before "Show More")
+- Full description: 200-300 words, keyword-rich, natural language
+- Relevant links section placeholder
+- Hashtags: 5 most relevant
+
+3. **Tags** (30 tags, comma-separated)
+Mix: exact match, broad match, related topics, creator name variations
+
+4. **Pinned Comment** (to post immediately after publishing)
+Something that drives engagement and adds value
+
+SCRIPT:
+${script}`;
+
+const YT_AUDIT_PROMPT = (channelData, auditExtra='') => `
+${VOICE}
+
+YouTube Channel Data (from Perplexity):
+${channelData}
+
+${auditExtra ? `Additional Context from Jason (treat this as ground truth : he knows his channel better than any search):
+${auditExtra}` : ''}
+
+You are auditing Jason Fricka's YouTube channel @everydayelevations using the VIDIQ outlier framework. Be direct. No softening. Use the additional context above to make every recommendation specific.
+
+# YouTube Channel Audit : @everydayelevations
+
+## Channel Health Score: [X/10]
+
+## What the Data Shows
+[Specific observations from the channel data above]
+
+## 3 Biggest Problems Right Now
+[Specific, actionable : not generic YouTube advice]
+
+## What's Actually Working
+[Double down on these immediately]
+
+## Title & Thumbnail Audit
+[Score the approach, specific fixes]
+
+## The Content Gap
+[What your audience is searching for that you're not making]
+
+## 30-Day YouTube Sprint
+[Specific week-by-week plan to grow the channel]
+
+## The One Change That Moves the Needle Most
+[Single highest-use action]
+
+## VIDIQ Outlier Action Plan
+Based on the data above:
+- **Your likely outlier score range:** [estimate current average performance]
+- **What would push a video to 2.0+ outlier:** [specific topic + format + timing combination]
+- **Upload timing recommendation:** [specific day + time in ET based on your audience]
+- **Next 3 videos to test:** [specific topics with outlier potential, in priority order]
+- **What to measure at 48 hours post-upload:** [specific metrics and what to do if they're low]`;
+
+const YT_ENDSCREEN_PROMPT = (videoTopic, channelGoal) => `
+${VOICE}
+
+Video topic: ${videoTopic}
+Channel goal: ${channelGoal}
+
+Write 3 end screen CTA scripts (last 20 seconds of video). Each version has a different primary goal.
+
+**VERSION 1 : SUBSCRIBE FOCUS**
+[Word-for-word script, 15-20 seconds when spoken]
+Visual direction: [what should be on screen]
+
+**VERSION 2 : NEXT VIDEO FOCUS**
+[Word-for-word script]
+Visual direction: [what video to suggest and why]
+
+**VERSION 3 : EMAIL LIST FOCUS**
+[Word-for-word script]
+Visual direction: [how to point to link in description]
+
+Make them feel like Jason is talking to a friend, not reading a script.`;
+
+function YouTubeToolkit() {
+  const [tool, setTool] = useState('script');
+  const [topic, setTopic] = useState('');
+  const [angle, setAngle] = useState('emotional');
+  const [script, setScript] = useState('');
+  const [channelData, setChannelData] = useState('');
+  const [channelGoal, setChannelGoal] = useState('grow subscribers and build email list');
+  const [auditExtra, setAuditExtra] = useState('');
+  const [ytDuration, setYtDuration] = useState('8-10 min');
+  const [ytStyle, setYtStyle] = useState('Educational Story');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
+
+  const tools = [
+    { id:'script',   emoji:'🎬', label:'Script Writer',      desc:'Full VIDIQ-optimized script + SEO package' },
+    { id:'titles',   emoji:'📝', label:'Title Optimizer',    desc:'7 title variations + CTR analysis' },
+    { id:'seo',      emoji:'🔍', label:'SEO + Chapters',     desc:'Description, tags, chapters, pinned comment' },
+    { id:'audit',    emoji:'📊', label:'Channel Audit',      desc:'Perplexity pulls your channel, Claude audits it' },
+    { id:'endscreen',emoji:'📺', label:'End Screen Scripts', desc:'3 CTA variations for last 20 seconds' },
+  ];
+
+  const fetchChannel = async () => {
+    setFetching(true); setChannelData('');
+    const res = await perp(`Audit the YouTube channel @everydayelevations. Report: subscriber count, total views, number of videos, recent upload frequency, most viewed videos (titles + approximate views), channel description, content topics covered, what's working and what isn't based on the data visible.`);
+    setChannelData(res);
+    setFetching(false);
+  };
+
+  const run = async () => {
+    setLoading(true); setOut('');
+    let res;
+    const angleLabel = ANGLES.find(a=>a.id===angle)?.label || angle;
+
+    if (tool === 'script') res = await ai(YT_SCRIPT_PROMPT(topic, angleLabel, ytDuration, ytStyle));
+    else if (tool === 'titles') res = await ai(YT_TITLE_PROMPT(topic, angleLabel));
+    else if (tool === 'seo') res = await ai(YT_CHAPTERS_PROMPT(script));
+    else if (tool === 'audit') res = await ai(YT_AUDIT_PROMPT(channelData, auditExtra));
+    else if (tool === 'endscreen') res = await ai(YT_ENDSCREEN_PROMPT(topic, channelGoal));
+
+    setOut(res);
+    logToMemory({ type:'youtube', title:`YT ${tool}: ${topic || 'audit'}`, preview:res.slice(0,200) });
+    setLoading(false);
+  };
+
+  const canRun = () => {
+    if (tool === 'script') return !!topic;
+    if (tool === 'titles') return !!topic;
+    if (tool === 'seo') return !!script;
+    if (tool === 'audit') return !!channelData;
+    if (tool === 'endscreen') return !!topic;
+    return false;
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>▶️</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>YouTube Toolkit</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Title optimizer, SEO engine, channel audit, and end screen scripts : built for YouTube's algorithm.</p>
+        </div>
+      </div>
+
+      {/* Tool selector */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:20}}>
+        {tools.map(t => (
+          <button key={t.id} onClick={() => { setTool(t.id); setOut(''); }}
+            style={{background:tool===t.id?B.red:'rgba(255,255,255,0.04)',color:B.white,
+              border:`1px solid ${tool===t.id?B.red:'rgba(255,255,255,0.08)'}`,
+              borderRadius:10,padding:'14px',cursor:'pointer',textAlign:'left',transition:'all 0.15s'}}>
+            <div style={{fontSize:18,marginBottom:4}}>{t.emoji}</div>
+            <div style={{fontWeight:700,fontSize:13}}>{t.label}</div>
+            <div style={{color:tool===t.id?'rgba(255,255,255,0.75)':B.gray,fontSize:11,marginTop:2}}>{t.desc}</div>
+          </button>
+        ))}
+      </div>
+
+      <Card>
+        {tool === 'script' && (
+          <>
+            <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.2)',borderRadius:8,padding:'10px 14px',marginBottom:16,fontSize:12,color:'rgba(0,212,255,0.85)',lineHeight:1.7}}>
+              📊 <strong>VIDIQ-Optimized:</strong> Every script is built to maximize outlier score : upload timing, hook structure, chapter markers, SEO package, and CTR analysis included.
+            </div>
+            <SecLabel>Video Topic</SecLabel>
+            <input value={topic} onChange={e=>setTopic(e.target.value)}
+              placeholder="e.g. Why I stopped chasing motivation and what I do instead..."
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                marginBottom:12,boxSizing:'border-box'}}/>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+              <div>
+                <SecLabel>Target Duration</SecLabel>
+                <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                  {['3-5 min','8-10 min','15-20 min'].map(d => (
+                    <button key={d} onClick={() => setYtDuration(d)}
+                      style={{background:ytDuration===d?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                        borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:ytDuration===d?700:400}}>
+                      {d}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <SecLabel>Script Style</SecLabel>
+                <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                  {['Educational Story','Personal Experience','Tutorial','Interview Prep'].map(s => (
+                    <button key={s} onClick={() => setYtStyle(s)}
+                      style={{background:ytStyle===s?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                        borderRadius:6,padding:'6px 10px',cursor:'pointer',fontSize:11,fontWeight:ytStyle===s?700:400}}>
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <SecLabel>Content Angle</SecLabel>
+            <AngleGrid selected={angle} onSelect={setAngle}/>
+          </>
+        )}
+
+        {tool === 'titles' && (
+          <>
+            <SecLabel>Video Topic</SecLabel>
+            <input value={topic} onChange={e=>setTopic(e.target.value)}
+              placeholder="e.g. Why I stopped chasing motivation and what I do instead"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                marginBottom:16,boxSizing:'border-box'}}/>
+            <SecLabel>Content Angle</SecLabel>
+            <AngleGrid selected={angle} onSelect={setAngle}/>
+          </>
+        )}
+
+        {tool === 'seo' && (
+          <>
+            <SecLabel>Video Script or Summary</SecLabel>
+            <textarea value={script} onChange={e=>setScript(e.target.value)} rows={8}
+              placeholder="Paste your full script or a detailed summary of the video content..."
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                resize:'vertical',boxSizing:'border-box'}}/>
+          </>
+        )}
+
+        {tool === 'audit' && (
+          <>
+            <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:8,padding:'12px 16px',marginBottom:16,fontSize:12,color:'rgba(255,255,255,0.7)'}}>
+              <strong style={{color:B.red}}>Step 1</strong> : Pull your live channel data from Perplexity, then add any additional context the audit should know, then run.
+            </div>
+            <button onClick={fetchChannel} disabled={fetching}
+              style={{background:'rgba(255,255,255,0.08)',color:B.white,border:'1px solid rgba(255,255,255,0.2)',
+                borderRadius:8,padding:'10px 20px',fontWeight:700,cursor:fetching?'not-allowed':'pointer',
+                fontSize:13,marginBottom:16}}>
+              {fetching ? 'Pulling channel data...' : '🔍 Pull @everydayelevations Data'}
+            </button>
+            {channelData && (
+              <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'12px',marginBottom:16,
+                fontSize:12,color:'rgba(255,255,255,0.7)',maxHeight:160,overflowY:'auto',lineHeight:1.7}}>
+                {channelData}
+              </div>
+            )}
+            <SecLabel>Additional Channel Context</SecLabel>
+            <textarea value={auditExtra} onChange={e=>setAuditExtra(e.target.value)} rows={4}
+              placeholder="Add anything Perplexity can't see: your VIDIQ outlier scores, which videos performed best, current upload frequency, subscriber growth rate, what you've already tried, content goals, target audience details, monetization status, recent changes..."
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                resize:'vertical',marginBottom:4,boxSizing:'border-box'}}/>
+            <div style={{color:B.gray,fontSize:11,marginBottom:12}}>This context gets sent directly to the audit : the more specific, the better the recommendations.</div>
+          </>
+        )}
+
+        {tool === 'endscreen' && (
+          <>
+            <SecLabel>Video Topic</SecLabel>
+            <input value={topic} onChange={e=>setTopic(e.target.value)}
+              placeholder="e.g. Why discipline beats motivation every time"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+                marginBottom:16,boxSizing:'border-box'}}/>
+            <SecLabel>Primary Channel Goal Right Now</SecLabel>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:4}}>
+              {['grow subscribers','build email list','drive real estate leads','promote podcast'].map(g => (
+                <button key={g} onClick={() => setChannelGoal(g)}
+                  style={{background:channelGoal===g?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                    borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,
+                    fontWeight:channelGoal===g?700:400,textTransform:'capitalize'}}>
+                  {g}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        <div style={{marginTop:20}}>
+          <RedBtn onClick={run} disabled={loading||!canRun()}>
+            {loading ? 'Working...' : tools.find(t=>t.id===tool)?.label}
+          </RedBtn>
+        </div>
+      </Card>
+      {loading && <Spin/>}
+      {out && (
+        <div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:8}}>
+            <span style={{color:B.white,fontWeight:700,fontSize:14}}>{tools.find(t=>t.id===tool)?.label} Results</span>
+            <CopyBtn text={out}/>
+          </div>
+          <DocOutput text={out} title={tool === 'script' ? `YouTube Script : ${topic}` : tool === 'audit' ? 'Channel Audit : @everydayelevations' : `YouTube ${tool} : ${topic || 'Content'}`}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DM SCRIPT LIBRARY
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const DM_SCRIPTS_KEY = 'encis_dm_scripts';
+
+const DM_GEN_PROMPT = (trigger, context, goal, client) => `
+${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
+
+Someone just triggered a DM conversation. Write the scripts for handling this.
+
+Trigger: ${trigger}
+Context: ${context || 'Standard inbound DM'}
+Goal: ${goal}
+
+Write a complete DM conversation flow: not just one message. The full sequence from first reply to close.
+
+**OPENING MESSAGE** (the first reply you send)
+[Write it: under 3 sentences, warm, human, direct]
+
+**IF THEY RESPOND POSITIVELY** (they're interested)
+[Next message: move toward the goal without being pushy]
+
+**IF THEY GIVE A SHORT REPLY** (one word, emoji, low engagement)
+[Re-engage message: ask one good question]
+
+**IF THEY ASK FOR PRICE/MORE INFO**
+[How to handle this: deliver value before the ask]
+
+**THE CLOSE MESSAGE** (when the time is right)
+[Clear ask: specific, easy to say yes to]
+
+**IF THEY GO COLD** (no reply in 48+ hours)
+[Follow-up message: no desperation, just a genuine check-in]
+
+Rules: Sound like Jason texting a real person. No emojis unless they feel natural. No "Hey there!" No corporate words. Move the conversation forward with every message.`;
+
+function DMScriptLibrary() {
+  const [saved, setSaved] = useState([]);
+  const [showGen, setShowGen] = useState(false);
+  const [showSaved, setShowSaved] = useState(true);
+  const [trigger, setTrigger] = useState('');
+  const [context, setContext] = useState('');
+  const [goal, setGoal] = useState('book a call');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [scriptName, setScriptName] = useState('');
+  const [activeClient] = useActiveClient();
+
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem(DM_SCRIPTS_KEY);
+      if (s) setSaved(JSON.parse(s));
+    } catch {}
+  }, []);
+
+  const saveScript = (list) => {
+    setSaved(list);
+    try { localStorage.setItem(DM_SCRIPTS_KEY, JSON.stringify(list)); } catch {}
+  };
+
+  const run = async () => {
+    if (!trigger) return;
+    setLoading(true); setOut('');
+    const res = await ai(DM_GEN_PROMPT(trigger, context, goal, activeClient));
+    setOut(res);
+    setLoading(false);
+  };
+
+  const saveToLibrary = () => {
+    if (!out || !scriptName) return;
+    const entry = {
+      id: Date.now().toString(),
+      name: scriptName || trigger,
+      trigger,
+      goal,
+      script: out,
+      createdAt: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
+    };
+    saveScript([entry, ...saved]);
+    setScriptName('');
+    setSaving(false);
+  };
+
+  const removeScript = (id) => saveScript(saved.filter(s => s.id !== id));
+
+  const goals = [
+    'book a call',
+    'deliver lead magnet',
+    'podcast guest invite',
+    'real estate inquiry',
+    'coaching interest',
+    'collab pitch',
+    'community invite',
+  ];
+
+  const quickTriggers = [
+    { label: 'Commented keyword', trigger: 'They commented a keyword (PERFORMANCE, BRAIN, FREE, etc.) on a post to receive a lead magnet' },
+    { label: 'Asked about coaching', trigger: 'They sent a DM asking about coaching or working together' },
+    { label: 'Real estate inquiry', trigger: 'They saw a real estate post and asked about buying or selling in Colorado' },
+    { label: 'Podcast guest interest', trigger: 'They expressed interest in being on Everyday Elevations podcast or had me on theirs' },
+    { label: 'Just followed', trigger: 'They just followed the account and sent a generic hello or no message' },
+    { label: 'Shared my post', trigger: 'They shared one of my posts and I want to start a conversation' },
+    { label: 'Cold outreach', trigger: 'I am reaching out cold to someone I want to collaborate with or connect with' },
+  ];
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <span style={{fontSize:32}}>📩</span>
+          <div>
+            <h2 style={{color:B.white,margin:0}}>DM Script Library</h2>
+            <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Build and save full conversation flows — from first reply to close.</p>
+          </div>
+        </div>
+        <button onClick={() => { setShowGen(g => !g); setOut(''); }}
+          style={{background:showGen?B.red:'rgba(255,255,255,0.08)',color:B.white,border:'none',
+            borderRadius:8,padding:'8px 18px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+          {showGen ? '✕ Close' : '+ Generate New Script'}
+        </button>
+      </div>
+      {activeClient && <ClientBanner client={activeClient}/>}
+
+      {/* Generator */}
+      {showGen && (
+        <Card style={{marginBottom:20}}>
+          <SecLabel>Quick Trigger Templates</SecLabel>
+          <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:16}}>
+            {quickTriggers.map((qt, i) => (
+              <button key={i} onClick={() => setTrigger(qt.trigger)}
+                style={{background:trigger===qt.trigger?B.red:'rgba(255,255,255,0.06)',
+                  color:trigger===qt.trigger?'#fff':'rgba(255,255,255,0.75)',
+                  border:`1px solid ${trigger===qt.trigger?B.red:'rgba(255,255,255,0.1)'}`,
+                  borderRadius:20,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:500}}>
+                {qt.label}
+              </button>
+            ))}
+          </div>
+
+          <SecLabel>What Triggered This DM?</SecLabel>
+          <textarea value={trigger} onChange={e=>setTrigger(e.target.value)} rows={2}
+            placeholder="e.g. They commented PERFORMANCE on my reel about morning routines..."
+            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+              borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+              resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+
+          <SecLabel>Goal of This Conversation</SecLabel>
+          <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:16}}>
+            {goals.map(g => (
+              <button key={g} onClick={() => setGoal(g)}
+                style={{background:goal===g?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',
+                  borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,
+                  fontWeight:goal===g?700:400,textTransform:'capitalize'}}>
+                {g}
+              </button>
+            ))}
+          </div>
+
+          <SecLabel>Extra Context (optional)</SecLabel>
+          <input value={context} onChange={e=>setContext(e.target.value)}
+            placeholder="e.g. They have 5K followers, run a fitness account, mentioned they're a veteran..."
+            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+              borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+              marginBottom:16,boxSizing:'border-box'}}/>
+
+          <RedBtn onClick={run} disabled={loading||!trigger}>
+            {loading ? 'Writing scripts...' : '📩 Build Full DM Flow'}
+          </RedBtn>
+
+          {loading && <Spin/>}
+
+          {out && (
+            <div style={{marginTop:16}}>
+              <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'1rem',
+                border:'1px solid rgba(255,255,255,0.1)',marginBottom:12}}>
+                <pre style={{color:B.white,fontSize:13,whiteSpace:'pre-wrap',margin:0,
+                  lineHeight:1.7,fontFamily:'inherit'}}>{out}</pre>
+              </div>
+              <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+                <CopyBtn text={out}/>
+                {!saving ? (
+                  <button onClick={() => setSaving(true)}
+                    style={{background:'rgba(39,174,96,0.15)',color:'#27ae60',
+                      border:'1px solid rgba(39,174,96,0.3)',borderRadius:8,
+                      padding:'6px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+                    💾 Save to Library
+                  </button>
+                ) : (
+                  <div style={{display:'flex',gap:8,flex:1}}>
+                    <input value={scriptName} onChange={e=>setScriptName(e.target.value)}
+                      placeholder="Name this script (e.g. Lead Magnet Delivery)..."
+                      style={{flex:1,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+                        borderRadius:8,padding:'7px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                    <button onClick={saveToLibrary} disabled={!scriptName}
+                      style={{background:B.red,color:'#fff',border:'none',borderRadius:8,
+                        padding:'7px 14px',fontSize:12,fontWeight:700,cursor:scriptName?'pointer':'not-allowed'}}>
+                      Save
+                    </button>
+                    <button onClick={() => setSaving(false)}
+                      style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',
+                        borderRadius:8,padding:'7px 12px',fontSize:12,cursor:'pointer'}}>
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Saved Library */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+        <div style={{color:B.white,fontWeight:700,fontSize:14}}>
+          Saved Scripts <span style={{color:B.gray,fontWeight:400,fontSize:12}}>({saved.length})</span>
+        </div>
+        {saved.length > 0 && (
+          <button onClick={() => setShowSaved(s => !s)}
+            style={{background:'none',border:'none',color:B.gray,cursor:'pointer',fontSize:12}}>
+            {showSaved ? 'Hide' : 'Show'}
+          </button>
+        )}
+      </div>
+
+      {saved.length === 0 && !showGen && (
+        <div style={{textAlign:'center',padding:'3rem 2rem',background:'rgba(255,255,255,0.02)',
+          borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
+          <div style={{fontSize:40,marginBottom:12}}>📩</div>
+          <div style={{color:B.white,fontWeight:700,fontSize:15,marginBottom:8}}>No saved scripts yet</div>
+          <div style={{color:B.gray,fontSize:13,marginBottom:20}}>Generate a DM flow and save it — build your library over time.</div>
+          <button onClick={() => setShowGen(true)}
+            style={{background:B.red,color:'#fff',border:'none',borderRadius:8,
+              padding:'10px 20px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+            + Generate First Script
+          </button>
+        </div>
+      )}
+
+      {showSaved && saved.length > 0 && (
+        <div style={{display:'flex',flexDirection:'column',gap:10}}>
+          {saved.map(s => (
+            <div key={s.id} style={{background:'rgba(255,255,255,0.03)',
+              border:'1px solid rgba(255,255,255,0.08)',borderRadius:12,overflow:'hidden'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',
+                padding:'14px 16px',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+                <div>
+                  <div style={{color:B.white,fontWeight:700,fontSize:13}}>{s.name}</div>
+                  <div style={{color:B.gray,fontSize:11,marginTop:2}}>
+                    Goal: {s.goal} · Saved {s.createdAt}
+                  </div>
+                </div>
+                <div style={{display:'flex',gap:8}}>
+                  <CopyBtn text={s.script}/>
+                  <button onClick={() => removeScript(s.id)}
+                    style={{background:'transparent',color:'rgba(255,255,255,0.2)',
+                      border:'none',fontSize:16,cursor:'pointer',padding:'4px 8px'}}>✕</button>
+                </div>
+              </div>
+              <div style={{padding:'14px 16px',maxHeight:200,overflowY:'auto'}}>
+                <pre style={{color:'rgba(255,255,255,0.7)',fontSize:12,whiteSpace:'pre-wrap',
+                  margin:0,lineHeight:1.7,fontFamily:'inherit'}}>{s.script}</pre>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 30-DAY CHALLENGE BUILDER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const CHALLENGE_PROMPT = (name, transformation, audience, platform, client) => `
+${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
+${SWARBRICK}
+${CONTENT_SOP}
+
+Challenge Name: ${name}
+Transformation Promise: ${transformation}
+Target Audience: ${audience}
+Primary Platform: ${platform}
+
+Build a complete 30-day challenge system. This is not a generic template: it needs to feel like Jason built it specifically for the community.
+
+# ${name}: Complete Challenge System
+
+## The Concept
+- Core promise in one sentence (what they have at day 30 that they didn't at day 1)
+- Why 30 days (the psychology of this timeframe)
+- The one rule that makes this work
+
+## Lead Magnet Integration
+- Challenge landing page headline
+- Email opt-in hook (what they get when they sign up)
+- Welcome email subject line + first paragraph
+
+## Week-by-Week Architecture
+**Week 1: Foundation (Days 1-7)**
+Theme: [what this week is about]
+Daily prompt format: [how each day works]
+Days 1-7: [specific daily challenge for each day]
+Week 1 win: [what they achieve by Sunday]
+
+**Week 2: Resistance (Days 8-14)**
+Theme: [this is where people quit: what you do about it]
+Days 8-14: [specific daily challenges]
+Mid-challenge check-in: [what you post on day 14]
+
+**Week 3: Momentum (Days 15-21)**
+Theme: [the turn: things start clicking]
+Days 15-21: [specific daily challenges]
+Community spotlight: [how you feature participants]
+
+**Week 4: Identity (Days 22-30)**
+Theme: [they're not the same person they were on day 1]
+Days 22-30: [specific daily challenges]
+Day 30 celebration: [exactly what happens]
+
+## Content Series (10 posts that run alongside the challenge)
+For each: day to post, format, hook, topic
+
+## Engagement Mechanics
+- Daily accountability prompt (the question you ask every day)
+- How participants share progress (hashtag, format, where)
+- How you feature participant wins
+- What happens when someone misses a day (the re-entry script)
+
+## Email Sequence (5 emails during the 30 days)
+Day 1, Day 7, Day 14, Day 21, Day 30: subject line + 2-sentence summary of each
+
+## Post-Challenge Offer
+- What you invite them into at day 30
+- The transition message (how you move from challenge to offer without it feeling like a pitch)`;
+
+function ChallengeBuilder() {
+  const [name, setName] = useState('');
+  const [transformation, setTransformation] = useState('');
+  const [audience, setAudience] = useState('Everyday people who want to build a daily discipline practice: veterans, parents, professionals who feel stuck');
+  const [platform, setPlatform] = useState('Instagram');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [activeClient] = useActiveClient();
+
+  const quickChallenges = [
+    { name: '30-Day 5AM Club', transformation: 'Wake up at 5AM every day for 30 days and build the morning routine that changes everything' },
+    { name: '30-Day No Excuse Challenge', transformation: 'Show up every single day regardless of how you feel: build the identity of someone who does not quit' },
+    { name: '30-Day Elevation Challenge', transformation: 'One small elevation action per day: in mindset, fitness, relationships, or finances' },
+    { name: '30-Day Real Talk Challenge', transformation: 'Say the hard thing, do the hard thing, face the hard thing: daily prompts for radical honesty' },
+  ];
+
+  const run = async () => {
+    if (!name || !transformation) return;
+    setLoading(true); setOut('');
+    const res = await ai(CHALLENGE_PROMPT(name, transformation, audience, platform, activeClient));
+    setOut(res);
+    logToMemory({ type:'challenge', title:`Challenge: ${name}`, preview:res.slice(0,200), client:activeClient?.name });
+    setLoading(false);
+  };
+
+  const downloadChallenge = async () => {
+    if (!out) return;
+    setDownloading(true);
+    try {
+      const res = await fetch('/api/claude', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          message: `Convert this 30-day challenge plan into clean, well-formatted HTML. Use proper headings, tables for the daily schedule, and make it easy to read and print. Return only the HTML body content:\n\n${out}`,
+          system: 'Convert challenge plans to clean HTML. Return only inner HTML.'
+        })
+      });
+      const d = await res.json();
+      const html = d.text || d.result || '';
+      const full = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name}</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#111;line-height:1.7}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#E94560;margin-top:36px}h3{color:#0A1628}strong{color:#0A1628}table{width:100%;border-collapse:collapse;margin:16px 0}td,th{border:1px solid #ddd;padding:8px 12px;text-align:left}th{background:#0A1628;color:#fff}@media print{body{margin:24px}}</style></head><body>${html}</body></html>`;
+      const blob = new Blob([full], {type:'text/html'});
+      const url = URL.createObjectURL(blob);
+      const printWin = window.open(url, '_blank');
+      if (printWin) { printWin.onload = () => printWin.print(); }
+      else { const a = document.createElement('a'); a.href=url; a.download=(name|| 'document').replace(/\s+/g,'-')+'.html'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+      URL.revokeObjectURL(url);
+    } catch(e) { console.error(e); }
+    setDownloading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🔥</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>30-Day Challenge Builder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Full challenge system — 30 daily prompts, content series, email sequence, and post-challenge offer.</p>
+        </div>
+      </div>
+      {activeClient && <ClientBanner client={activeClient}/>}
+
+      <Card>
+        <SecLabel>Quick Start Templates</SecLabel>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:8,marginBottom:20}}>
+          {quickChallenges.map((qc, i) => (
+            <button key={i} onClick={() => { setName(qc.name); setTransformation(qc.transformation); }}
+              style={{background:name===qc.name?'rgba(233,69,96,0.15)':'rgba(255,255,255,0.04)',
+                border:`1px solid ${name===qc.name?'rgba(233,69,96,0.4)':'rgba(255,255,255,0.08)'}`,
+                borderRadius:10,padding:'12px',cursor:'pointer',textAlign:'left'}}>
+              <div style={{color:B.white,fontWeight:700,fontSize:12,marginBottom:4}}>{qc.name}</div>
+              <div style={{color:B.gray,fontSize:11,lineHeight:1.5}}>{qc.transformation.slice(0,70)}...</div>
+            </button>
+          ))}
+        </div>
+
+        <SecLabel>Challenge Name</SecLabel>
+        <input value={name} onChange={e=>setName(e.target.value)}
+          placeholder="e.g. 30-Day Elevation Challenge, 30-Day 5AM Club..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            marginBottom:16,boxSizing:'border-box'}}/>
+
+        <SecLabel>The Transformation Promise</SecLabel>
+        <textarea value={transformation} onChange={e=>setTransformation(e.target.value)} rows={2}
+          placeholder="What does someone have at day 30 that they didn't at day 1? Be specific."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+
+        <SecLabel>Target Audience</SecLabel>
+        <textarea value={audience} onChange={e=>setAudience(e.target.value)} rows={2}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+
+        <SecLabel>Primary Platform</SecLabel>
+        <div style={{display:'flex',gap:8,marginBottom:20}}>
+          {PLATFORMS.map(p => (
+            <button key={p} onClick={() => setPlatform(p)}
+              style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                borderRadius:6,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:platform===p?700:400}}>
+              {p}
+            </button>
+          ))}
+        </div>
+
+        <RedBtn onClick={run} disabled={loading||!name||!transformation}>
+          {loading ? 'Building challenge system...' : '🔥 Build Full 30-Day Challenge'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && (
+        <div style={{marginTop:16}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:10}}>
+            <span style={{color:B.white,fontWeight:700,fontSize:15}}>{name}</span>
+            <div style={{display:'flex',gap:8}}>
+              <CopyBtn text={out}/>
+              <button onClick={downloadChallenge} disabled={downloading}
+                style={{background:B.red,color:'#fff',border:'none',borderRadius:8,
+                  padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',fontSize:13}}>
+                {downloading ? 'Preparing...' : '⬇ Download Plan'}
+              </button>
+            </div>
+          </div>
+          <StrategyOutput text={out} onDownload={downloadChallenge} downloading={downloading}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPETITOR CONTENT SPY
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const SPY_PROMPT = (handle, platform, rawData, angle) => `
+${VOICE}
+
+You are analyzing a competitor's content strategy to find gaps Jason Fricka can own.
+
+Creator: ${handle}
+Platform: ${platform}
+Live data pulled: ${rawData}
+Jason's angle to compete from: ${angle || 'mindset/real estate/Colorado/occupational purpose/financial independence'}
+
+This is intelligence work: not copying. Find what they are missing so Jason can own it.
+
+# Competitor Intel: ${handle}
+
+## Who They Are (Quick Brief)
+[3 sentences: what they do, who their audience is, what they're known for]
+
+## What's Working for Them
+[Top 3-5 content formats/topics that are clearly resonating: with specific examples from the data]
+
+## Their Posting Pattern
+[Frequency, timing, content mix: what's consistent]
+
+## Audience They're Attracting
+[Who comments, what they ask, what the community looks like]
+
+## THE GAPS: What They're NOT Doing
+[This is the most important section. Be specific. What angles, formats, or topics are they avoiding or doing poorly?]
+
+## What Jason Can Own That They Can't
+[Based on Jason's unique background : HR manager, real estate agent, endurance athlete, Colorado: what can he cover authentically that this creator cannot?]
+
+## 5 Specific Content Ideas to Beat Them
+[Specific filmable concepts: not generic topics. Each one directly counters a gap you identified above]
+
+## The One Thing That Would Make Jason Stand Out in This Space
+[Single highest-use differentiator]`;
+
+function CompetitorSpy() {
+  const [handle, setHandle] = useState('');
+  const [platform, setPlatform] = useState('Instagram');
+  const [angle, setAngle] = useState('');
+  const [rawData, setRawData] = useState('');
+  const [out, setOut] = useState('');
+  const [fetching, setFetching] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem('encis_spy_history');
+      if (s) setHistory(JSON.parse(s));
+    } catch {}
+  }, []);
+
+  const fetchProfile = async () => {
+    if (!handle) return;
+    setFetching(true); setRawData(''); setOut('');
+    const cleanHandle = handle.replace('@','');
+    const q = platform === 'YouTube'
+      ? `Analyze the YouTube channel ${handle}. Report: subscriber count, total views, upload frequency, most popular videos with view counts, content topics, what formats they use, what their audience responds to most.`
+      : `Analyze the ${platform} account ${handle.startsWith('@') ? handle : '@'+handle}. Report: follower count, engagement patterns, most popular recent posts, content themes, posting frequency, what their audience engages with most, what hashtags they use.`;
+    const res = await perp(q);
+    setRawData(res);
+    setFetching(false);
+  };
+
+  const run = async () => {
+    if (!rawData) return;
+    setLoading(true); setOut('');
+    const res = await ai(SPY_PROMPT(handle, platform, rawData, angle));
+    setOut(res);
+    // Save to history
+    const entry = { id: Date.now().toString(), handle, platform, date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), preview: res.slice(0,100) };
+    const updated = [entry, ...history].slice(0, 10);
+    setHistory(updated);
+    try { localStorage.setItem('encis_spy_history', JSON.stringify(updated)); } catch {}
+    setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🕵️</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Competitor Content Spy</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pull any creator's content strategy — find the gaps Jason can own.</p>
+        </div>
+      </div>
+
+      <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
+        🎯 This is intelligence, not imitation. The goal is to find what they are NOT doing so you can own it. Every gap they leave is an opening.
+      </div>
+
+      <Card>
+        <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:10,marginBottom:16,alignItems:'end'}}>
+          <div>
+            <SecLabel>Creator Handle or Channel</SecLabel>
+            <input value={handle} onChange={e=>setHandle(e.target.value)}
+              placeholder="e.g. @hubermanlab, @davidgoggins, ThinkMedia..."
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Platform</SecLabel>
+            <div style={{display:'flex',gap:6}}>
+              {PLATFORMS.map(p => (
+                <button key={p} onClick={() => setPlatform(p)}
+                  style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                    borderRadius:6,padding:'8px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <button onClick={fetchProfile} disabled={fetching||!handle}
+          style={{background:fetching?B.gray:'rgba(0,212,255,0.1)',color:'#00C2FF',
+            border:'1px solid rgba(0,212,255,0.3)',borderRadius:8,padding:'10px 20px',
+            fontWeight:700,cursor:(!handle||fetching)?'not-allowed':'pointer',
+            fontSize:13,marginBottom:16,display:'block'}}>
+          {fetching ? 'Pulling profile data...' : `🔍 Pull ${platform} Data for ${handle|| 'this creator'}`}
+        </button>
+
+        {rawData && (
+          <div style={{background:'rgba(0,0,0,0.25)',borderRadius:8,padding:'12px',marginBottom:16,
+            maxHeight:140,overflowY:'auto',border:'1px solid rgba(255,255,255,0.07)'}}>
+            <div style={{fontSize:10,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>Live Data Pulled</div>
+            <div style={{color:'rgba(255,255,255,0.65)',fontSize:12,lineHeight:1.7}}>{rawData}</div>
+          </div>
+        )}
+
+        <SecLabel>Jason's Angle (optional: helps focus the gap analysis)</SecLabel>
+        <input value={angle} onChange={e=>setAngle(e.target.value)}
+          placeholder="e.g. Veteran mindset, Colorado real estate, endurance athlete over 40..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
+            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            marginBottom:16,boxSizing:'border-box'}}/>
+
+        <RedBtn onClick={run} disabled={loading||!rawData}>
+          {loading ? 'Running intel analysis...' : '🕵️ Run Competitor Intel'}
+        </RedBtn>
+      </Card>
+
+      {loading && <Spin/>}
+      {out && <DocOutput text={out} title="SIGNAL Strategy Document"/>}
+
+      {/* Recent spy history */}
+      {history.length > 0 && (
+        <div style={{marginTop:24}}>
+          <div style={{fontSize:11,color:B.gray,fontWeight:700,letterSpacing:1.5,
+            textTransform:'uppercase',marginBottom:10}}>Recent Profiles Analyzed</div>
+          <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+            {history.map(h => (
+              <button key={h.id}
+                onClick={() => { setHandle(h.handle); setPlatform(h.platform); }}
+                style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',
+                  borderRadius:8,padding:'6px 12px',cursor:'pointer',color:'rgba(255,255,255,0.7)',fontSize:12}}>
+                {h.handle} <span style={{color:B.gray}}>· {h.platform} · {h.date}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BRAND VOICE FINGERPRINTING
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const VOICE_KEY = 'encis_voice_fingerprints';
+
+const VOICE_FINGERPRINT_PROMPT = (samples, clientName) => `
+You are a voice analyst. Analyze these ${samples.length} content samples from ${clientName} and extract a precise voice fingerprint.
+
+SAMPLES:
+${samples.map((s, i) => `--- Sample ${i+1} ---\n${s}`).join('\n\n')}
+
+Return a detailed voice fingerprint as a JSON object with exactly these fields:
+{
+  "tone": "2-3 word tone description",
+  "pace": "short/medium/long sentence preference",
+  "vocabulary": ["10 words or phrases this person uses naturally"],
+  "avoids": ["8 words or phrases this person never uses"],
+  "structures": ["3 common sentence patterns they use"],
+  "themes": ["5 recurring themes or subjects"],
+  "openings": ["4 typical ways they start content"],
+  "ctas": ["3 natural call-to-action styles"],
+  "personality": "2-3 sentence description of the personality behind the writing",
+  "dos": ["6 specific writing rules to follow for this voice"],
+  "donts": ["6 specific writing rules to never break for this voice"],
+  "sample_hook": "Write one example hook in this exact voice on the topic of discipline"
+}
+
+Return ONLY valid JSON. No explanation, no markdown, no backticks.`;
+
+function BrandVoiceFingerprint() {
+  const [clients, saveClients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [samples, setSamples] = useState(['', '', '', '', '']);
+  const [fingerprints, setFingerprints] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('build');
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(VOICE_KEY);
+      if (stored) setFingerprints(JSON.parse(stored));
+    } catch {}
+    setSelectedClient(activeClient);
+  }, []);
+
+  const saveFingerprint = (clientId, fp) => {
+    const updated = { ...fingerprints, [clientId]: { ...fp, updatedAt: Date.now() } };
+    setFingerprints(updated);
+    try { localStorage.setItem(VOICE_KEY, JSON.stringify(updated)); } catch {}
+  };
+
+  const run = async () => {
+    if (!selectedClient) return;
+    const filled = samples.filter(s => s.trim().length > 20);
+    if (filled.length < 2) return;
+    setLoading(true);
+    try {
+      const res = await ai(VOICE_FINGERPRINT_PROMPT(filled, selectedClient.name), 'You are a voice analyst. Return only valid JSON.');
+      const clean = res.replace(/```json|```/g, '').trim();
+      const fp = JSON.parse(clean);
+      saveFingerprint(selectedClient.id, { ...fp, clientName: selectedClient.name, sampleCount: filled.length });
+      setActiveTab('view');
+    } catch(e) { console.error('Voice fingerprint error:', e); }
+    setLoading(false);
+  };
+
+  const fp = selectedClient ? fingerprints[selectedClient.id] : null;
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🧬</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Brand Voice Fingerprinting</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Paste real content samples. The system extracts the exact voice DNA and applies it to every tool automatically.</p>
+        </div>
+      </div>
+
+      {/* Client selector */}
+      <div style={{marginBottom:20}}>
+        <SecLabel>Client</SecLabel>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          {clients.map(c => (
+            <button key={c.id} onClick={() => { setSelectedClient(c); setActiveTab(fingerprints[c.id] ? 'view' : 'build'); }}
+              style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:B.white,border:`1px solid ${selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.1)'}`,borderRadius:8,padding:'7px 16px',cursor:'pointer',fontSize:12,fontWeight:selectedClient?.id===c.id?700:400}}>
+              {c.name} {fingerprints[c.id] ? '✓' : ''}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{display:'flex',gap:6,marginBottom:20}}>
+        {['build','view'].map(t => (
+          <button key={t} onClick={() => setActiveTab(t)}
+            style={{background:activeTab===t?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',borderRadius:8,padding:'8px 20px',cursor:'pointer',fontSize:13,fontWeight:activeTab===t?700:400,textTransform:'capitalize'}}>
+            {t === 'build' ? '+ Build Fingerprint' : '🧬 View Fingerprint'}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'build' && (
+        <Card>
+          <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:8,padding:'10px 14px',marginBottom:16,fontSize:12,color:'rgba(0,212,255,0.85)',lineHeight:1.7}}>
+            Paste 2 to 5 real content samples: captions, scripts, emails, anything the client actually wrote or approved. The more samples, the more accurate the fingerprint.
+          </div>
+          {samples.map((s, i) => (
+            <div key={i} style={{marginBottom:12}}>
+              <SecLabel>Sample {i+1} {i < 2 ? '(required)' : '(optional)'}</SecLabel>
+              <textarea value={s} onChange={e => setSamples(prev => { const n=[...prev]; n[i]=e.target.value; return n; })}
+                rows={4} placeholder={`Paste real content from ${selectedClient?.name || 'this client'}...`}
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+            </div>
+          ))}
+          <RedBtn onClick={run} disabled={loading || !selectedClient || samples.filter(s=>s.trim().length>20).length < 2}>
+            {loading ? 'Analyzing voice...' : '🧬 Generate Voice Fingerprint'}
+          </RedBtn>
+          {loading && <Spin/>}
+        </Card>
+      )}
+
+      {activeTab === 'view' && fp && (
+        <div>
+          <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.2)',borderRadius:12,padding:'20px',marginBottom:16}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16,flexWrap:'wrap',gap:10}}>
+              <div>
+                <div style={{color:'#00C2FF',fontWeight:800,fontSize:16}}>{fp.clientName} Voice Fingerprint</div>
+                <div style={{color:B.gray,fontSize:12,marginTop:2}}>Based on {fp.sampleCount} samples. Updated {fp.updatedAt ? new Date(fp.updatedAt).toLocaleDateString() : 'recently'}.</div>
+              </div>
+              <button onClick={() => setActiveTab('build')} style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',borderRadius:6,padding:'6px 14px',fontSize:12,cursor:'pointer'}}>Rebuild</button>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+              <div>
+                <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:8}}>Tone and Pace</div>
+                <div style={{color:B.white,fontSize:13,marginBottom:4}}>{fp.tone}</div>
+                <div style={{color:B.gray,fontSize:12}}>Sentence style: {fp.pace}</div>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:8}}>Personality</div>
+                <div style={{color:B.white,fontSize:12,lineHeight:1.6}}>{fp.personality}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+            {[
+              { label:'Natural Vocabulary', items: fp.vocabulary, color:'#00C2FF' },
+              { label:'Never Uses', items: fp.avoids, color:B.red },
+              { label:'Themes', items: fp.themes, color:'#f5a623' },
+              { label:'How They Open', items: fp.openings, color:'#27ae60' },
+            ].map(section => (
+              <div key={section.label} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'14px'}}>
+                <div style={{fontSize:11,color:section.color,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:10}}>{section.label}</div>
+                <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+                  {(section.items||[]).map((item,i) => (
+                    <span key={i} style={{background:'rgba(255,255,255,0.07)',color:'rgba(255,255,255,0.8)',borderRadius:4,padding:'3px 8px',fontSize:11}}>{item}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+            <div style={{background:'rgba(39,174,96,0.08)',border:'1px solid rgba(39,174,96,0.2)',borderRadius:10,padding:'14px'}}>
+              <div style={{fontSize:11,color:'#27ae60',fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:10}}>Writing Rules: Do</div>
+              {(fp.dos||[]).map((rule,i) => <div key={i} style={{color:'rgba(255,255,255,0.8)',fontSize:12,marginBottom:5,display:'flex',gap:8}}><span style={{color:'#27ae60',flexShrink:0}}>+</span>{rule}</div>)}
+            </div>
+            <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:10,padding:'14px'}}>
+              <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:10}}>Writing Rules: Never</div>
+              {(fp.donts||[]).map((rule,i) => <div key={i} style={{color:'rgba(255,255,255,0.8)',fontSize:12,marginBottom:5,display:'flex',gap:8}}><span style={{color:B.red,flexShrink:0}}>x</span>{rule}</div>)}
+            </div>
+          </div>
+
+          {fp.sample_hook && (
+            <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:10,padding:'16px'}}>
+              <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:8}}>Sample Hook in This Voice</div>
+              <div style={{color:B.white,fontSize:14,fontStyle:'italic',lineHeight:1.7}}>"{fp.sample_hook}"</div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'view' && !fp && (
+        <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.02)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
+          <div style={{fontSize:48,marginBottom:12}}>🧬</div>
+          <div style={{color:B.white,fontWeight:700,fontSize:16,marginBottom:8}}>No fingerprint yet for {selectedClient?.name}</div>
+          <div style={{color:B.gray,fontSize:13,marginBottom:20}}>Paste content samples to generate the voice fingerprint.</div>
+          <button onClick={() => setActiveTab('build')} style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,fontWeight:700,cursor:'pointer'}}>Build Fingerprint</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CLIENT PORTAL / DASHBOARD
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const CLIENT_NOTES_KEY = 'encis_client_notes';
+const CLIENT_DELIVERABLES_KEY = 'encis_deliverables';
+
+function ClientPortal() {
+  const [clients, saveClients] = useClients();
+  const [activeClient, setActiveClient] = useActiveClient();
+  const [view, setView] = useState('list'); // list | dashboard
+  const [focusClient, setFocusClient] = useState(null);
+  const [notes, setNotes] = useState({});
+  const [deliverables, setDeliverables] = useState([]);
+  const [newNote, setNewNote] = useState('');
+  const [newDeliverable, setNewDeliverable] = useState({ title:'', type:'strategy', status:'pending', dueDate:'' });
+  const [showDelForm, setShowDelForm] = useState(false);
+
+  useEffect(() => {
+    try {
+      const n = localStorage.getItem(CLIENT_NOTES_KEY); if (n) setNotes(JSON.parse(n));
+      const d = localStorage.getItem(CLIENT_DELIVERABLES_KEY); if (d) setDeliverables(JSON.parse(d));
+    } catch {}
+  }, []);
+
+  const saveNotes = (updated) => { setNotes(updated); try { localStorage.setItem(CLIENT_NOTES_KEY, JSON.stringify(updated)); } catch {} };
+  const saveDeliverables = (updated) => { setDeliverables(updated); try { localStorage.setItem(CLIENT_DELIVERABLES_KEY, JSON.stringify(updated)); } catch {} };
+
+  const addNote = () => {
+    if (!newNote.trim() || !focusClient) return;
+    const updated = { ...notes, [focusClient.id]: [...(notes[focusClient.id]||[]), { id:Date.now(), text:newNote, date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) }] };
+    saveNotes(updated); setNewNote('');
+  };
+
+  const addDeliverable = () => {
+    if (!newDeliverable.title || !focusClient) return;
+    saveDeliverables([...deliverables, { ...newDeliverable, id:Date.now(), clientId:focusClient.id, createdAt:Date.now() }]);
+    setNewDeliverable({ title:'', type:'strategy', status:'pending', dueDate:'' }); setShowDelForm(false);
+  };
+
+  const updateDeliverableStatus = (id, status) => saveDeliverables(deliverables.map(d => d.id===id ? {...d,status} : d));
+  const removeDeliverable = (id) => saveDeliverables(deliverables.filter(d => d.id!==id));
+  const removeNote = (clientId, noteId) => { const updated = {...notes,[clientId]:(notes[clientId]||[]).filter(n=>n.id!==noteId)}; saveNotes(updated); };
+
+  const clientDeliverables = focusClient ? deliverables.filter(d => d.clientId===focusClient.id) : [];
+  const clientNotes = focusClient ? (notes[focusClient.id]||[]) : [];
+
+  const statusColors = { pending:'rgba(245,166,35,0.3)', 'in-progress':'rgba(0,212,255,0.3)', review:'rgba(155,89,182,0.3)', approved:'rgba(39,174,96,0.3)', delivered:'rgba(255,255,255,0.15)' };
+  const statusText = { pending:'#f5a623', 'in-progress':'#00C2FF', review:'#9b59b6', approved:'#27ae60', delivered:B.gray };
+  const deliverableTypes = ['strategy','content-calendar','script-pack','audit','report','lead-magnet','email-sequence','other'];
+  const statuses = ['pending','in-progress','review','approved','delivered'];
+
+  if (view === 'dashboard' && focusClient) {
+    const totalDels = clientDeliverables.length;
+    const pending = clientDeliverables.filter(d=>d.status==='pending').length;
+    const approved = clientDeliverables.filter(d=>d.status==='approved'||d.status==='delivered').length;
+
+    return (
+      <div>
+        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+          <button onClick={() => setView('list')} style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',borderRadius:6,padding:'6px 12px',fontSize:12,cursor:'pointer'}}>
+            ← All Clients
+          </button>
+          <div style={{flex:1}}>
+            <h2 style={{color:B.white,margin:0}}>{focusClient.name}</h2>
+            <div style={{color:B.gray,fontSize:12,marginTop:2}}>{focusClient.handle} · {focusClient.platforms}</div>
+          </div>
+          <button onClick={() => { setActiveClient(focusClient); }}
+            style={{background:activeClient?.id===focusClient.id?'rgba(39,174,96,0.2)':B.red,color:activeClient?.id===focusClient.id?'#27ae60':'#fff',border:`1px solid ${activeClient?.id===focusClient.id?'rgba(39,174,96,0.4)':B.red}`,borderRadius:8,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+            {activeClient?.id===focusClient.id ? '✓ Active Client' : 'Set Active'}
+          </button>
+        </div>
+
+        {/* Stats row */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:24}}>
+          {[
+            { label:'Deliverables', val:totalDels, color:B.red },
+            { label:'Pending', val:pending, color:'#f5a623' },
+            { label:'Approved', val:approved, color:'#27ae60' },
+            { label:'Notes', val:clientNotes.length, color:'#00C2FF' },
+          ].map(s => (
+            <div key={s.label} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'14px',textAlign:'center'}}>
+              <div style={{fontSize:26,fontWeight:800,color:s.color}}>{s.val}</div>
+              <div style={{fontSize:11,color:B.gray,marginTop:2,textTransform:'uppercase',letterSpacing:1}}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Voice fingerprint status */}
+        {(() => {
+          try {
+            const fps = JSON.parse(localStorage.getItem(VOICE_KEY)|| '{}');
+            const fp = fps[focusClient.id];
+            return fp ? (
+              <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:16,display:'flex',alignItems:'center',gap:10}}>
+                <span style={{fontSize:18}}>🧬</span>
+                <div style={{flex:1}}><span style={{color:'#00C2FF',fontWeight:700,fontSize:13}}>Voice Fingerprint Active</span><span style={{color:B.gray,fontSize:12,marginLeft:8}}>{fp.tone} · {fp.pace} sentences · {fp.sampleCount} samples</span></div>
+              </div>
+            ) : (
+              <div style={{background:'rgba(233,69,96,0.06)',border:'1px solid rgba(233,69,96,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:16,display:'flex',alignItems:'center',gap:10}}>
+                <span style={{fontSize:18}}>⚠️</span>
+                <div style={{color:'rgba(255,255,255,0.7)',fontSize:13}}>No voice fingerprint yet. Go to Agency → Voice Fingerprint to build one.</div>
+              </div>
+            );
+          } catch { return null; }
+        })()}
+
+        {/* Deliverables */}
+        <div style={{marginBottom:24}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+            <div style={{fontSize:13,fontWeight:700,color:B.white}}>Deliverables</div>
+            <button onClick={() => setShowDelForm(p=>!p)} style={{background:B.red,color:'#fff',border:'none',borderRadius:6,padding:'5px 12px',fontSize:12,fontWeight:700,cursor:'pointer'}}>+ Add</button>
+          </div>
+          {showDelForm && (
+            <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:10,padding:'16px',marginBottom:12}}>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:10}}>
+                <div>
+                  <SecLabel>Title</SecLabel>
+                  <input value={newDeliverable.title} onChange={e=>setNewDeliverable(p=>({...p,title:e.target.value}))} placeholder="e.g. April Content Calendar"
+                    style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:6,padding:'8px 10px',color:B.white,fontSize:12,boxSizing:'border-box'}}/>
+                </div>
+                <div>
+                  <SecLabel>Due Date</SecLabel>
+                  <input value={newDeliverable.dueDate} onChange={e=>setNewDeliverable(p=>({...p,dueDate:e.target.value}))} placeholder="e.g. Apr 1, 2026"
+                    style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:6,padding:'8px 10px',color:B.white,fontSize:12,boxSizing:'border-box'}}/>
+                </div>
+              </div>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:10}}>
+                {deliverableTypes.map(t => <button key={t} onClick={()=>setNewDeliverable(p=>({...p,type:t}))} style={{background:newDeliverable.type===t?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',borderRadius:5,padding:'4px 10px',fontSize:11,cursor:'pointer',textTransform:'capitalize'}}>{t.replace('-',' ')}</button>)}
+              </div>
+              <div style={{display:'flex',gap:8}}>
+                <RedBtn onClick={addDeliverable} disabled={!newDeliverable.title}>Add Deliverable</RedBtn>
+                <button onClick={()=>setShowDelForm(false)} style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:6,padding:'8px 14px',fontSize:12,cursor:'pointer'}}>Cancel</button>
+              </div>
+            </div>
+          )}
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+            {clientDeliverables.length === 0 && <div style={{color:B.gray,fontSize:13,padding:'20px 0',textAlign:'center'}}>No deliverables yet. Add the first one.</div>}
+            {clientDeliverables.map(d => (
+              <div key={d.id} style={{background:'rgba(255,255,255,0.03)',border:`1px solid ${statusColors[d.status]|| 'rgba(255,255,255,0.07)'}`,borderRadius:8,padding:'12px 14px',display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+                <div style={{flex:1}}>
+                  <div style={{color:B.white,fontWeight:600,fontSize:13}}>{d.title}</div>
+                  <div style={{color:B.gray,fontSize:11,marginTop:2,textTransform:'capitalize'}}>{d.type.replace('-',' ')} {d.dueDate ? `· Due ${d.dueDate}` : ''}</div>
+                </div>
+                <select value={d.status} onChange={e=>updateDeliverableStatus(d.id,e.target.value)}
+                  style={{background:'rgba(0,0,0,0.4)',color:statusText[d.status]||B.white,border:`1px solid ${statusColors[d.status]}`,borderRadius:5,padding:'4px 8px',fontSize:11,fontWeight:700,cursor:'pointer',textTransform:'capitalize'}}>
+                  {statuses.map(s=><option key={s} value={s} style={{color:'#fff',background:'#080D14',textTransform:'capitalize'}}>{s.replace('-',' ')}</option>)}
+                </select>
+                <button onClick={()=>removeDeliverable(d.id)} style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',cursor:'pointer',fontSize:14}}>✕</button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Notes */}
+        <div>
+          <div style={{fontSize:13,fontWeight:700,color:B.white,marginBottom:12}}>Client Notes</div>
+          <div style={{display:'flex',gap:8,marginBottom:12}}>
+            <input value={newNote} onChange={e=>setNewNote(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addNote()} placeholder="Add a note..."
+              style={{flex:1,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13}}/>
+            <RedBtn onClick={addNote} disabled={!newNote.trim()} style={{padding:'9px 16px'}}>Add</RedBtn>
+          </div>
+          <div style={{display:'flex',flexDirection:'column',gap:6}}>
+            {clientNotes.length===0 && <div style={{color:B.gray,fontSize:13,padding:'16px 0',textAlign:'center'}}>No notes yet.</div>}
+            {[...clientNotes].reverse().map(n => (
+              <div key={n.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:8,padding:'10px 14px',display:'flex',gap:10,alignItems:'flex-start'}}>
+                <div style={{flex:1}}>
+                  <div style={{color:'rgba(255,255,255,0.85)',fontSize:13,lineHeight:1.5}}>{n.text}</div>
+                  <div style={{color:B.gray,fontSize:11,marginTop:4}}>{n.date}</div>
+                </div>
+                <button onClick={()=>removeNote(focusClient.id,n.id)} style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',cursor:'pointer',fontSize:12}}>✕</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // List view
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🏢</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Client Portal</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Full dashboard per client. Deliverables, notes, voice fingerprint, performance at a glance.</p>
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:12}}>
+        {clients.map(c => {
+          const cDels = deliverables.filter(d=>d.clientId===c.id);
+          const pending = cDels.filter(d=>d.status==='pending'||d.status==='in-progress').length;
+          const fps = (() => { try { return JSON.parse(localStorage.getItem(VOICE_KEY)|| '{}'); } catch { return {}; } })();
+          const hasFp = !!fps[c.id];
+          return (
+            <div key={c.id} onClick={() => { setFocusClient(c); setView('dashboard'); }}
+              style={{background:'rgba(255,255,255,0.03)',border:`1px solid ${activeClient?.id===c.id?'rgba(233,69,96,0.3)':'rgba(255,255,255,0.08)'}`,borderRadius:12,padding:'20px',cursor:'pointer',transition:'all 0.15s'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
+                <div>
+                  <div style={{color:B.white,fontWeight:700,fontSize:15}}>{c.name}</div>
+                  <div style={{color:B.gray,fontSize:12,marginTop:2}}>{c.handle}</div>
+                </div>
+                {c.isDefault && <span style={{background:'rgba(233,69,96,0.15)',color:B.red,borderRadius:4,padding:'2px 7px',fontSize:10,fontWeight:700}}>YOU</span>}
+              </div>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:12}}>
+                <span style={{background:'rgba(255,255,255,0.07)',color:B.gray,borderRadius:4,padding:'2px 8px',fontSize:10}}>{c.platforms}</span>
+                {hasFp && <span style={{background:'rgba(0,212,255,0.1)',color:'#00C2FF',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700}}>🧬 Voice</span>}
+                {pending > 0 && <span style={{background:'rgba(245,166,35,0.15)',color:'#f5a623',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700}}>{pending} pending</span>}
+              </div>
+              <div style={{color:'rgba(255,255,255,0.5)',fontSize:12}}>{cDels.length} deliverables · {(notes[c.id]||[]).length} notes</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MONTHLY REPORTING SUITE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const MONTHLY_REPORT_PROMPT = (client, roiData, contentData, month, goals, wins, challenges) => `
+${VOICE}
+
+You are writing a professional monthly performance report for a social media agency client.
+
+CLIENT: ${client.name} (${client.handle})
+PLATFORMS: ${client.platforms}
+REPORT PERIOD: ${month}
+
+ROI DATA:
+${roiData}
+
+TOP PERFORMING CONTENT:
+${contentData}
+
+CLIENT GOALS THIS MONTH: ${goals}
+WINS: ${wins}
+CHALLENGES: ${challenges}
+
+Write a complete, professional monthly report. This goes directly to the client. Make it feel premium.
+
+# ${client.name}: Monthly Performance Report
+## ${month}
+Prepared by SIGNAL — Social Media OS
+
+---
+
+## Executive Summary
+3-4 sentences. What happened this month, the single biggest win, and the one thing to focus on next month.
+
+## Performance Scorecard
+For each metric with data: current value, change from last month (number and %), trend direction.
+Include: Followers, Reach, Saves, Shares, Leads/DMs, Engagement Rate.
+
+## Content Performance
+What worked: top 3 pieces with specific reasons why.
+What did not work: bottom performers with honest diagnosis.
+Format insights: which formats are winning (Reels vs Carousels vs Stories).
+
+## Audience Insights
+What the data tells us about who is engaging, when, and why.
+
+## Goal Progress
+For each client goal: progress update, on track / at risk / achieved.
+
+## What We Are Doing Next Month
+3 specific strategic shifts based on this month's data. Each with a reason grounded in the numbers.
+
+## Recommendations
+2-3 clear, specific recommendations the client can act on immediately.
+
+---
+This report was generated on ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}.`;
+
+function MonthlyReportSuite() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [month, setMonth] = useState(new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'}));
+  const [goals, setGoals] = useState('');
+  const [wins, setWins] = useState('');
+  const [challenges, setChallenges] = useState('');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => { setSelectedClient(activeClient); }, []);
+
+  const roiData = (() => {
+    try {
+      const stored = localStorage.getItem('encis_roi_data');
+      if (!stored) return 'No ROI data logged yet.';
+      const weeks = JSON.parse(stored).slice(-4);
+      return weeks.map(w => `Week of ${w.week}: Followers ${w.followers|| 'N/A'}, Reach ${w.reach||'N/A'}, Saves ${w.saves|| 'N/A'}, Shares ${w.shares||'N/A'}, Leads ${w.leads|| 'N/A'}. Top content: ${w.topContent||'none'}. Notes: ${w.notes|| 'none'}`).join('\n');
+    } catch { return 'No data available.'; }
+  })();
+
+  const contentData = (() => {
+    try {
+      const stored = localStorage.getItem('encis_content_log');
+      if (!stored) return 'No content logged yet.';
+      return JSON.parse(stored).filter(e => e.perf === '🔥' || e.perf === '⭐').slice(0,8)
+        .map(e => `${e.perf} ${e.title||e.topic|| 'Untitled'} (${e.type}, ${e.date})`).join('\n') || 'No rated content yet.';
+    } catch { return 'No data available.'; }
+  })();
+
+  const run = async () => {
+    if (!selectedClient) return;
+    setLoading(true); setOut('');
+    const res = await ai(MONTHLY_REPORT_PROMPT(selectedClient, roiData, contentData, month, goals, wins, challenges));
+    setOut(res);
+    setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>📊</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Monthly Reporting Suite</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>One-click monthly reports. Pulls your ROI data and content performance. Exports as PDF.</p>
+        </div>
+      </div>
+      <Card>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+          <div>
+            <SecLabel>Client</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {clients.map(c => <button key={c.id} onClick={()=>setSelectedClient(c)}
+                style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:selectedClient?.id===c.id?700:400}}>{c.name}</button>)}
+            </div>
+          </div>
+          <div>
+            <SecLabel>Report Period</SecLabel>
+            <input value={month} onChange={e=>setMonth(e.target.value)}
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+        </div>
+
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+          <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:8,padding:'12px'}}>
+            <div style={{fontSize:11,color:'#27ae60',fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>ROI Data Found</div>
+            <div style={{color:B.gray,fontSize:12,lineHeight:1.6}}>{roiData.slice(0,120)}{roiData.length>120?'...':''}</div>
+          </div>
+          <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:8,padding:'12px'}}>
+            <div style={{fontSize:11,color:'#f5a623',fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>Top Content Found</div>
+            <div style={{color:B.gray,fontSize:12,lineHeight:1.6}}>{contentData.slice(0,120)}{contentData.length>120?'...':''}</div>
+          </div>
+        </div>
+
+        <SecLabel>Goals This Month</SecLabel>
+        <textarea value={goals} onChange={e=>setGoals(e.target.value)} rows={2}
+          placeholder="e.g. Reach 5K followers, launch lead magnet, generate 3 real estate inquiries"
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+          <div>
+            <SecLabel>Wins</SecLabel>
+            <textarea value={wins} onChange={e=>setWins(e.target.value)} rows={2}
+              placeholder="e.g. First viral Reel at 45K reach, booked 2 podcast guests"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Challenges</SecLabel>
+            <textarea value={challenges} onChange={e=>setChallenges(e.target.value)} rows={2}
+              placeholder="e.g. Missed 3 posting days, LinkedIn engagement dropped"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+          </div>
+        </div>
+        <RedBtn onClick={run} disabled={loading||!selectedClient}>{loading ? 'Generating report...' : '📊 Generate Monthly Report'}</RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && (
+        <div>
+          <DocOutput text={out} title={`${selectedClient?.name} - ${month} Report`}/>
+          <ReportEmailButton
+            reportText={out}
+            clientName={selectedClient?.name}
+            clientEmail={selectedClient?.email || ''}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CLIENT DELIVERABLE BUILDER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const DELIVERABLE_PROMPT = (client, type, brief, voiceFingerprint) => `
+${VOICE}
+
+You are creating a professional client deliverable for a social media agency.
+
+CLIENT: ${client.name} (${client.handle})
+PLATFORMS: ${client.platforms}
+CLIENT VOICE: ${client.voice || 'Direct and authentic.'}
+DELIVERABLE TYPE: ${type}
+BRIEF: ${brief}
+
+${voiceFingerprint ? `VOICE FINGERPRINT FOR THIS CLIENT:
+Tone: ${voiceFingerprint.tone}
+Natural vocabulary: ${(voiceFingerprint.vocabulary||[]).join(', ')}
+Never uses: ${(voiceFingerprint.avoids||[]).join(', ')}
+Personality: ${voiceFingerprint.personality}
+Writing rules: ${(voiceFingerprint.dos||[]).join('. ')}` : ''}
+
+Create a complete, polished, client-ready deliverable. This goes directly to the client. Format it professionally. Make every section fully written, not templated.
+
+Write the complete deliverable now. No placeholders. Actual content the client can use today.`;
+
+function DeliverableBuilder() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [delivType, setDelivType] = useState('content-calendar');
+  const [brief, setBrief] = useState('');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => { setSelectedClient(activeClient); }, []);
+
+  const getFingerprint = (clientId) => {
+    try { const fps = JSON.parse(localStorage.getItem(VOICE_KEY)|| '{}'); return fps[clientId] || null; } catch { return null; }
+  };
+
+  const delivTypes = [
+    { id:'content-calendar', label:'Content Calendar', desc:'30/60-day calendar with specific topics' },
+    { id:'strategy-brief', label:'Strategy Brief', desc:'Condensed strategy document for client review' },
+    { id:'script-pack', label:'Script Pack', desc:'5 camera-ready scripts on a theme' },
+    { id:'audit-report', label:'Platform Audit', desc:'Profile audit with specific rewrites' },
+    { id:'lead-magnet', label:'Lead Magnet', desc:'Complete finished lead magnet' },
+    { id:'hook-pack', label:'Hook Pack', desc:'20 hooks across the 5 types for one topic' },
+    { id:'caption-pack', label:'Caption Pack', desc:'10 platform-native captions ready to post' },
+    { id:'email-sequence', label:'Email Sequence', desc:'5-email nurture sequence' },
+  ];
+
+  const run = async () => {
+    if (!selectedClient || !brief) return;
+    setLoading(true); setOut('');
+    const fp = getFingerprint(selectedClient.id);
+    const res = await ai(DELIVERABLE_PROMPT(selectedClient, delivTypes.find(d=>d.id===delivType)?.label || delivType, brief, fp));
+    setOut(res);
+    logToMemory({ type:'deliverable', title:`Deliverable: ${delivType} for ${selectedClient.name}`, client:selectedClient.name, preview:res.slice(0,200) });
+    setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>📦</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Client Deliverable Builder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Generate polished, client-ready deliverables. Uses voice fingerprint automatically if built.</p>
+        </div>
+      </div>
+      <Card>
+        <SecLabel>Client</SecLabel>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:16}}>
+          {clients.map(c => {
+            const hasFp = !!getFingerprint(c.id);
+            return (
+              <button key={c.id} onClick={()=>setSelectedClient(c)}
+                style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.07)',color:B.white,border:`1px solid ${selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.1)'}`,borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:selectedClient?.id===c.id?700:400,display:'flex',alignItems:'center',gap:5}}>
+                {c.name} {hasFp && <span style={{fontSize:10,color:selectedClient?.id===c.id?'rgba(255,255,255,0.8)':'rgba(0,212,255,0.7)'}}>🧬</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        <SecLabel>Deliverable Type</SecLabel>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:8,marginBottom:16}}>
+          {delivTypes.map(d => (
+            <button key={d.id} onClick={()=>setDelivType(d.id)}
+              style={{background:delivType===d.id?B.red:'rgba(255,255,255,0.04)',border:`1px solid ${delivType===d.id?B.red:'rgba(255,255,255,0.08)'}`,borderRadius:8,padding:'12px',cursor:'pointer',textAlign:'left',transition:'all 0.15s'}}>
+              <div style={{color:B.white,fontWeight:700,fontSize:12,marginBottom:3}}>{d.label}</div>
+              <div style={{color:delivType===d.id?'rgba(255,255,255,0.75)':B.gray,fontSize:11}}>{d.desc}</div>
+            </button>
+          ))}
+        </div>
+
+        <SecLabel>Brief</SecLabel>
+        <textarea value={brief} onChange={e=>setBrief(e.target.value)} rows={3}
+          placeholder="What specifically do you need? Include topic, time period, goals, any special requirements..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+
+        {selectedClient && getFingerprint(selectedClient.id) && (
+          <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:8,padding:'8px 12px',marginBottom:16,fontSize:12,color:'rgba(0,212,255,0.85)'}}>
+            🧬 Voice fingerprint active for {selectedClient.name}. Output will match their exact voice.
+          </div>
+        )}
+        <RedBtn onClick={run} disabled={loading||!selectedClient||!brief}>{loading ? 'Building deliverable...' : '📦 Generate Deliverable'}</RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && <DocOutput text={out} title={`${selectedClient?.name} - ${delivTypes.find(d=>d.id===delivType)?.label}`}/>}
+    </div>
+  );
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPETITOR INTELLIGENCE DASHBOARD
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const COMP_INTEL_KEY = 'encis_competitor_intel';
+
+const COMP_ANALYSIS_PROMPT = (competitor, rawData, clientContext) => `
+${VOICE}
+Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+
+COMPETITOR: ${competitor}
+CLIENT CONTEXT: ${clientContext}
+
+RAW DATA ON COMPETITOR:
+${rawData}
+
+You are running competitive intelligence for a social media agency. Be direct and specific. Every observation needs to point to a specific action.
+
+# Competitor Intelligence: ${competitor}
+
+## What They Are Doing Right Now
+Specific content types, posting frequency, formats working for them. Only what the data shows.
+
+## What Is Working for Them
+Top performing content patterns. What their audience responds to. Why it works psychologically.
+
+## The Gaps (What They Are Not Covering)
+Specific angles, topics, and formats they are missing or doing poorly. These are opportunities.
+
+## Their Weaknesses
+Where they are overexposed, repetitive, inauthentic, or predictable.
+
+## How to Beat Them
+5 specific, actionable content moves that would take their audience. Not generic. Specific topics, angles, and formats with reasons.
+
+## Hooks to Steal (and Improve)
+3 of their best-performing hook patterns, rewritten for ${clientContext}.
+
+## What to Watch
+2-3 things to monitor about this competitor over the next 30 days.`;
+
+function CompetitorIntel() {
+  const [competitors, setCompetitors] = useState([]);
+  const [newHandle, setNewHandle] = useState('');
+  const [newPlatform, setNewPlatform] = useState('Instagram');
+  const [selectedComp, setSelectedComp] = useState(null);
+  const [results, setResults] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const [clientContext, setClientContext] = useState('Jason Fricka @everydayelevations - mindset, real estate, Colorado lifestyle, discipline content');
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(COMP_INTEL_KEY);
+      if (stored) {
+        const data = JSON.parse(stored);
+        setCompetitors(data.competitors || []);
+        setResults(data.results || {});
+      }
+    } catch {}
+  }, []);
+
+  const save = (comps, res) => {
+    try { localStorage.setItem(COMP_INTEL_KEY, JSON.stringify({ competitors:comps, results:res })); } catch {}
+  };
+
+  const addCompetitor = () => {
+    if (!newHandle.trim()) return;
+    const comp = { id:Date.now().toString(), handle:newHandle.trim(), platform:newPlatform, addedAt:Date.now() };
+    const updated = [...competitors, comp];
+    setCompetitors(updated); save(updated, results); setNewHandle('');
+  };
+
+  const removeComp = (id) => {
+    const updated = competitors.filter(c=>c.id!==id);
+    const newResults = {...results}; delete newResults[id];
+    setCompetitors(updated); setResults(newResults); save(updated, newResults);
+    if (selectedComp?.id===id) setSelectedComp(null);
+  };
+
+  const runIntel = async (comp) => {
+    setSelectedComp(comp); setFetching(true);
+    const query = `Analyze the social media presence of ${comp.handle} on ${comp.platform} right now in 2026. Report: posting frequency, content types, estimated engagement rates, what topics they cover most, their best performing content types based on visible engagement, their bio and positioning, what their audience responds to, and any notable recent content or campaigns.`;
+    const raw = await perp(query);
+    setFetching(false); setLoading(true);
+    const analysis = await ai(COMP_ANALYSIS_PROMPT(comp.handle, raw, clientContext));
+    const newResults = { ...results, [comp.id]: { raw, analysis, updatedAt:Date.now() } };
+    setResults(newResults); save(competitors, newResults); setLoading(false);
+  };
+
+  const result = selectedComp ? results[selectedComp.id] : null;
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🕵️</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Competitor Intelligence</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Track up to 10 competitors. Perplexity pulls live data. Claude finds the gaps you can own.</p>
+        </div>
+      </div>
+
+      {/* Add competitor */}
+      <Card style={{marginBottom:16}}>
+        <SecLabel>Add Competitor</SecLabel>
+        <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
+          <input value={newHandle} onChange={e=>setNewHandle(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addCompetitor()}
+            placeholder="@handle or channel name"
+            style={{flex:1,minWidth:160,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13}}/>
+          {['Instagram','YouTube','LinkedIn','TikTok'].map(p => (
+            <button key={p} onClick={()=>setNewPlatform(p)}
+              style={{background:newPlatform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:newPlatform===p?700:400}}>{p}</button>
+          ))}
+          <RedBtn onClick={addCompetitor} disabled={!newHandle.trim()}>Add</RedBtn>
+        </div>
+        <SecLabel>Your Context (used in gap analysis)</SecLabel>
+        <input value={clientContext} onChange={e=>setClientContext(e.target.value)}
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+      </Card>
+
+      <div style={{display:'grid',gridTemplateColumns:competitors.length>0?'280px 1fr':'1fr',gap:16,alignItems:'start'}}>
+        {/* Competitor list */}
+        {competitors.length > 0 && (
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+            {competitors.map(comp => {
+              const hasResult = !!results[comp.id];
+              const isSelected = selectedComp?.id===comp.id;
+              return (
+                <div key={comp.id} style={{background:isSelected?'rgba(233,69,96,0.1)':'rgba(255,255,255,0.03)',border:`1px solid ${isSelected?'rgba(233,69,96,0.3)':'rgba(255,255,255,0.08)'}`,borderRadius:10,padding:'14px',cursor:'pointer'}} onClick={()=>setSelectedComp(comp)}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:8}}>
+                    <div>
+                      <div style={{color:B.white,fontWeight:700,fontSize:13}}>{comp.handle}</div>
+                      <div style={{color:B.gray,fontSize:11,marginTop:2}}>{comp.platform}</div>
+                    </div>
+                    <button onClick={e=>{e.stopPropagation();removeComp(comp.id);}} style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',cursor:'pointer',fontSize:12}}>✕</button>
+                  </div>
+                  {hasResult && <div style={{color:B.gray,fontSize:10,marginBottom:8}}>Last run: {new Date(results[comp.id].updatedAt).toLocaleDateString()}</div>}
+                  <button onClick={e=>{e.stopPropagation();runIntel(comp);}} disabled={fetching||loading}
+                    style={{width:'100%',background:hasResult?'rgba(255,255,255,0.07)':B.red,color:B.white,border:'none',borderRadius:6,padding:'6px',fontSize:11,fontWeight:700,cursor:'pointer'}}>
+                    {fetching&&isSelected?'Pulling data...' : loading&&isSelected?'Analyzing...' : hasResult?'Refresh Intel':'Run Intel'}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Result panel */}
+        <div>
+          {(fetching || loading) && <Spin/>}
+          {result && !fetching && !loading && (
+            <DocOutput text={result.analysis} title={`Competitor Intel: ${selectedComp?.handle}`}/>
+          )}
+          {!result && !fetching && !loading && (
+            <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.02)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
+              <div style={{fontSize:48,marginBottom:12}}>🕵️</div>
+              <div style={{color:B.white,fontWeight:700,fontSize:16,marginBottom:8}}>{competitors.length===0?'No competitors added yet':'Select a competitor to run intel'}</div>
+              <div style={{color:B.gray,fontSize:13}}>{competitors.length===0?'Add up to 10 competitor handles above.':'Click "Run Intel" to pull live data and analysis.'}</div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// AI VIDEO SCRIPT DIRECTOR
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const VIDEO_DIRECTOR_PROMPT = (topic, angle, duration, location, equipment, style, shotStyle) => `
+${VOICE}
+
+Topic: "${topic}"
+Content Angle: ${angle}
+Video Duration: ${duration}
+Primary Location: ${location || 'flexible'}
+Available Equipment: ${equipment || 'phone, basic lighting'}
+Video Style: ${style}
+Shot Style: ${shotStyle}
+
+Write a complete AI Video Script Director brief. This goes to the videographer, editor, and talent. Every section must be specific enough that someone can pick this up and film tomorrow without asking a single question.
+
+# Video Production Brief: "${topic}"
+
+## The Idea (One Sentence)
+What this video is and why someone will watch all the way through.
+
+## Hook (First 3 Seconds)
+Exact words. Exact action. What is on screen the moment the video starts.
+
+## Shot List
+Number every shot. For each:
+- Shot number and type (close-up, medium, wide, over-shoulder, POV, b-roll)
+- Exact location or background
+- What subject is doing
+- Lighting direction (natural window left, ring light front, etc.)
+- Duration on screen (seconds)
+- Audio: talking to camera / voiceover / music only / ambient
+
+## Script (Word for Word)
+Every line of dialogue or voiceover. Mark clearly: [TALKING HEAD], [VOICEOVER], [TEXT ON SCREEN], [MUSIC ONLY]
+
+## B-Roll List
+10 specific b-roll shots that support the script. Each with: subject, location, movement (static/pan/handheld), and why it is needed.
+
+## On-Screen Text
+Every text overlay: exact words, when it appears (seconds), style direction (bold/subtle/color).
+
+## Music Direction
+Mood, energy level, when music enters and exits, any specific reference tracks or genres.
+
+## Thumbnail Shot
+Exact description of the frame that will become the thumbnail. Expression, framing, background, any text.
+
+## Editing Notes
+Pacing direction, transition style, color grade mood, any specific effects or cuts.
+
+## Equipment Checklist
+Based on ${equipment || 'phone + basic setup'}: exactly what to bring and how to set it up for this specific shoot.
+
+## Common Mistakes to Avoid for This Video
+3 specific things that would kill this video's performance.`;
+
+function VideoScriptDirector() {
+  const [topic, setTopic] = useState('');
+  const [angle, setAngle] = useState('occupational');
+  const [duration, setDuration] = useState('60-90 sec');
+  const [location, setLocation] = useState('');
+  const [equipment, setEquipment] = useState('');
+  const [style, setStyle] = useState('Talking Head');
+  const [shotStyle, setShotStyle] = useState('Cinematic');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [activeClient] = useActiveClient();
+
+  const run = async () => {
+    if (!topic) return;
+    setLoading(true); setOut('');
+    const res = await ai(VIDEO_DIRECTOR_PROMPT(topic, ANGLES.find(a=>a.id===angle)?.label||angle, duration, location, equipment, style, shotStyle));
+    setOut(res);
+    logToMemory({ type:'video-director', title:`Video Brief: ${topic}`, client:activeClient?.name, preview:res.slice(0,200) });
+    setLoading(false);
+  };
+
+  const styles = ['Talking Head','Cinematic B-Roll','Day-in-Life','Tutorial/Demo','Story Narrative','Interview Style'];
+  const shots = ['Cinematic','Documentary','Raw/Authentic','High Energy/Fast Cut','Minimal/Clean'];
+  const durations = ['30-45 sec','60-90 sec','3-5 min','8-10 min','15-20 min'];
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🎬</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>AI Video Script Director</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Full production brief. Shot list, script, b-roll, music direction, thumbnail shot, editing notes. Hand this to any videographer.</p>
+        </div>
+      </div>
+      {activeClient && <ClientBanner client={activeClient}/>}
+      <Card>
+        <SecLabel>Video Topic</SecLabel>
+        <input value={topic} onChange={e=>setTopic(e.target.value)}
+          placeholder="e.g. My 5 AM routine and why I have not missed it in 3 years"
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:16,boxSizing:'border-box'}}/>
+
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+          <div>
+            <SecLabel>Primary Location</SecLabel>
+            <input value={location} onChange={e=>setLocation(e.target.value)} placeholder="e.g. home office, gym, truck, Colorado outdoors"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Equipment Available</SecLabel>
+            <input value={equipment} onChange={e=>setEquipment(e.target.value)} placeholder="e.g. iPhone 15 Pro, ring light, tripod, lapel mic"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+        </div>
+
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:16}}>
+          <div>
+            <SecLabel>Duration</SecLabel>
+            <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+              {durations.map(d => <button key={d} onClick={()=>setDuration(d)} style={{background:duration===d?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:duration===d?700:400}}>{d}</button>)}
+            </div>
+          </div>
+          <div>
+            <SecLabel>Video Style</SecLabel>
+            <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+              {styles.map(s => <button key={s} onClick={()=>setStyle(s)} style={{background:style===s?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:style===s?700:400}}>{s}</button>)}
+            </div>
+          </div>
+          <div>
+            <SecLabel>Shot Energy</SecLabel>
+            <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+              {shots.map(s => <button key={s} onClick={()=>setShotStyle(s)} style={{background:shotStyle===s?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:shotStyle===s?700:400}}>{s}</button>)}
+            </div>
+          </div>
+        </div>
+
+        <SecLabel>Content Angle (Swarbrick Dimension)</SecLabel>
+        <AngleGrid selected={angle} onSelect={setAngle}/>
+        <RedBtn onClick={run} disabled={loading||!topic}>{loading ? 'Directing...' : '🎬 Generate Production Brief'}</RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && <DocOutput text={out} title={`Production Brief: ${topic}`}/>}
+    </div>
+  );
+}
+
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CAMPAIGN BUILDER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const CAMPAIGNS_KEY = 'encis_campaigns';
+
+const CAMPAIGN_PROMPT = (name, goal, audience, duration, platforms, launchDate, offer, client) => `
+${client ? `CLIENT: ${client.name} (${client.handle}). Voice: ${client.voice}` : VOICE}
+${CONTENT_SOP}
+${SWARBRICK}
+
+Campaign Name: "${name}"
+Campaign Goal: ${goal}
+Target Audience: ${audience}
+Duration: ${duration} weeks
+Platforms: ${platforms}
+Launch Date: ${launchDate || 'To be determined'}
+Offer or CTA: ${offer}
+
+Build a complete, sequenced multi-week campaign. Every piece of content must serve the campaign arc. Nothing is one-off. Everything connects.
+
+# Campaign: "${name}"
+
+## Campaign Strategy
+One paragraph. The arc of this campaign, why this sequence builds momentum, and what the audience experiences from first touch to conversion.
+
+## Campaign Metrics
+What success looks like. Specific numbers for each platform and each phase.
+
+## Pre-Launch Phase (Days -7 to -1): Build Anticipation
+What to post before the campaign officially starts. Tease without revealing. Create curiosity.
+
+For each piece:
+- Day: [which day before launch]
+- Platform: [where]
+- Format: [Reel / Story / Post / Email]
+- Hook: [exact opening line]
+- Purpose: [what this piece does for the campaign arc]
+- CTA: [exact words]
+
+## Launch Week (Days 1-7): Maximum Impact
+The launch sequence. Coordinated across all platforms. First 24 hours are critical.
+
+For each piece:
+- Day and time: [specific — Day 1 at 12pm, Day 2 at 6pm, etc.]
+- Platform: [where]
+- Format: [type]
+- Hook: [exact opening]
+- Key message: [the one thing this piece says]
+- CTA: [exact words]
+
+${parseInt(duration) >= 2 ? `## Week 2: Sustain and Deepen
+Content that keeps momentum, introduces social proof, and handles objections.
+
+For each piece: Day, Platform, Format, Hook, Purpose, CTA` : ''}
+
+${parseInt(duration) >= 3 ? `## Week 3: Convert
+Content shifts toward the offer. Urgency builds. Stories of transformation. Final push.
+
+For each piece: Day, Platform, Format, Hook, Purpose, CTA` : ''}
+
+${parseInt(duration) >= 4 ? `## Week 4: Close and Extend
+Last call content. Wrap-up for those who took action. Re-engagement for those who did not.
+
+For each piece: Day, Platform, Format, Hook, Purpose, CTA` : ''}
+
+## Email Sequence for This Campaign
+${parseInt(duration)} emails timed to the campaign phases. Subject line, preview text, and full email body for each.
+
+## Story Arc (Instagram/Facebook Stories)
+Daily story plan for the full campaign. Each day: story purpose, slide count, key visual, CTA.
+
+## Campaign Hashtag Strategy
+Primary campaign hashtag. Supporting hashtags by platform. How to seed the hashtag before launch.
+
+## What Can Go Wrong
+3 specific risks in this campaign and exactly what to do if they happen.
+`;
+
+function CampaignBuilder() {
+  const [campaigns, setCampaigns] = useState([]);
+  const [view, setView] = useState('list');
+  const [name, setName] = useState('');
+  const [goal, setGoal] = useState('');
+  const [audience, setAudience] = useState('');
+  const [duration, setDuration] = useState('2');
+  const [platforms, setPlatforms] = useState(['Instagram']);
+  const [launchDate, setLaunchDate] = useState('');
+  const [offer, setOffer] = useState('');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [activeClient] = useActiveClient();
+
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem(CAMPAIGNS_KEY);
+      if (s) setCampaigns(JSON.parse(s));
+    } catch {}
+  }, []);
+
+  const saveCampaigns = (list) => {
+    setCampaigns(list);
+    try { localStorage.setItem(CAMPAIGNS_KEY, JSON.stringify(list)); } catch {}
+  };
+
+  const run = async () => {
+    if (!name || !goal) return;
+    setLoading(true); setOut('');
+    const res = await ai(CAMPAIGN_PROMPT(name, goal, audience, duration, platforms.join(', '), launchDate, offer, activeClient?.isDefault ? null : activeClient));
+    setOut(res);
+    const campaign = { id: Date.now(), name, goal, duration, platforms, launchDate, createdAt: Date.now(), preview: res.slice(0, 200) };
+    saveCampaigns([campaign, ...campaigns]);
+    setLoading(false);
+  };
+
+  const togglePlatform = (p) => setPlatforms(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
+
+  const goalPresets = [
+    'Launch a lead magnet and build email list',
+    'Promote a podcast episode or series',
+    'Drive real estate inquiries',
+    'Build awareness for a new offer',
+    'Re-engage cold audience',
+    'Launch a 30-day challenge',
+    'Promote a speaking event or appearance',
+    'Personal brand launch or rebrand',
+  ];
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🎯</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Campaign Builder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Multi-week coordinated campaigns. Pre-launch, launch, sustain, convert. Every post connected to the arc.</p>
+        </div>
+      </div>
+      {activeClient && !activeClient.isDefault && <ClientBanner client={activeClient}/>}
+
+      {campaigns.length > 0 && (
+        <div style={{marginBottom:20}}>
+          <SecLabel>Past Campaigns</SecLabel>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+            {campaigns.slice(0,5).map(c => (
+              <div key={c.id} style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:8,padding:'8px 14px',fontSize:12}}>
+                <div style={{color:B.white,fontWeight:700}}>{c.name}</div>
+                <div style={{color:B.gray,fontSize:11,marginTop:2}}>{c.duration} weeks · {c.platforms?.join(', ')}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <Card>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:14}}>
+          <div>
+            <SecLabel>Campaign Name</SecLabel>
+            <input value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Spring Lead Magnet Launch"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Launch Date (optional)</SecLabel>
+            <input value={launchDate} onChange={e=>setLaunchDate(e.target.value)} placeholder="e.g. April 1, 2026"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+        </div>
+
+        <SecLabel>Campaign Goal</SecLabel>
+        <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:8}}>
+          {goalPresets.map(g => (
+            <button key={g} onClick={() => setGoal(g)}
+              style={{background:goal===g?B.red:'rgba(255,255,255,0.06)',color:B.white,border:`1px solid ${goal===g?B.red:'rgba(255,255,255,0.1)'}`,borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:goal===g?700:400}}>
+              {g}
+            </button>
+          ))}
+        </div>
+        <input value={goal} onChange={e=>setGoal(e.target.value)} placeholder="Or type a custom goal..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:14,boxSizing:'border-box'}}/>
+
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:14}}>
+          <div>
+            <SecLabel>Target Audience</SecLabel>
+            <textarea value={audience} onChange={e=>setAudience(e.target.value)} rows={2}
+              placeholder="Who is this campaign for specifically?"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Offer or CTA</SecLabel>
+            <textarea value={offer} onChange={e=>setOffer(e.target.value)} rows={2}
+              placeholder="What are you asking them to do or get?"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+          </div>
+        </div>
+
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:16}}>
+          <div>
+            <SecLabel>Duration</SecLabel>
+            <div style={{display:'flex',gap:8}}>
+              {['1','2','3','4','6','8'].map(d => (
+                <button key={d} onClick={()=>setDuration(d)}
+                  style={{background:duration===d?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:duration===d?700:400}}>
+                  {d}w
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <SecLabel>Platforms</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {['Instagram','YouTube','Facebook','LinkedIn','Email'].map(p => (
+                <button key={p} onClick={()=>togglePlatform(p)}
+                  style={{background:platforms.includes(p)?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:12,fontWeight:platforms.includes(p)?700:400}}>
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <RedBtn onClick={run} disabled={loading||!name||!goal}>{loading ? 'Building campaign...' : '🎯 Build Full Campaign'}</RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && <DocOutput text={out} title={`Campaign: ${name}`}/>}
+    </div>
+  );
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONTENT PERFORMANCE PREDICTOR
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const PREDICTOR_PROMPT = (content, platform, contentType, historicalData) => `
+${VOICE}
+Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+
+You are a content performance analyst. Score this content before it is posted.
+
+PLATFORM: ${platform}
+CONTENT TYPE: ${contentType}
+CONTENT TO EVALUATE:
+${content}
+
+${historicalData ? `HISTORICAL PERFORMANCE DATA FROM THIS ACCOUNT:
+${historicalData}` : ''}
+
+Score this content and give specific, actionable feedback. No vague advice.
+
+# Performance Prediction: ${platform} ${contentType}
+
+## Overall Score: [X/10]
+One sentence on why this score.
+
+## Score Breakdown
+
+### Hook Strength: [X/10]
+Does the first line stop the scroll? What psychological trigger does it use? What would make it stronger?
+Rewritten hook: [write a stronger version]
+
+### Save Potential: [X/10]
+Will people bookmark this to reference later? What specific element drives saves? What is missing?
+
+### Share Potential: [X/10]
+Will people send this to someone? What would make them say "you need to see this"? What is missing?
+
+### Comment Trigger: [X/10]
+Does this naturally prompt a response? What question or reaction does it create?
+
+### Retention Score: [X/10]
+Will they watch or read to the end? Where do you lose them?
+
+### CTA Effectiveness: [X/10]
+Is the call to action clear and compelling? Does it match what this piece earned?
+
+## Predicted Performance Range
+Based on this content and platform norms:
+- Estimated reach: [range]
+- Expected saves: [range]
+- Expected comments: [range]
+- Outlier potential: [low/medium/high] because [specific reason]
+
+## The Single Biggest Problem
+One thing holding this back the most. Be direct.
+
+## Rewritten Version
+A full rewrite that fixes the identified problems. Keep the core idea. Improve everything else.
+
+## A/B Test Suggestion
+Two specific variations to test. What changes and what metric to watch.
+`;
+
+function ContentPredictor() {
+  const [content, setContent] = useState('');
+  const [platform, setPlatform] = useState('Instagram');
+  const [contentType, setContentType] = useState('Reel Script');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const historicalData = (() => {
+    try {
+      const roi = JSON.parse(localStorage.getItem('encis_roi_data') || '[]').slice(-4);
+      const top = JSON.parse(localStorage.getItem('encis_content_log') || '[]').filter(e => e.perf === '🔥').slice(0,5);
+      if (!roi.length && !top.length) return '';
+      return [
+        roi.length ? `Recent avg reach: ${roi.map(w=>w.reach||0).filter(Boolean).join(', ')}` : '',
+        top.length ? `Top performing content: ${top.map(e=>e.title||e.topic).join(' | ')}` : '',
+      ].filter(Boolean).join('\n');
+    } catch { return ''; }
+  })();
+
+  const contentTypes = ['Reel Script','Caption','Hook Only','Carousel Outline','LinkedIn Post','YouTube Title','Email Subject Line'];
+
+  const scoreColor = (score) => {
+    const n = parseInt(score);
+    if (n >= 8) return '#27ae60';
+    if (n >= 6) return '#f5a623';
+    return B.red;
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🔮</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Performance Predictor</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Paste content before you post. Get scored on hook strength, save potential, share potential, and a full rewrite.</p>
+        </div>
+      </div>
+
+      {historicalData && (
+        <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:8,padding:'10px 14px',marginBottom:16,fontSize:12,color:'rgba(0,212,255,0.8)'}}>
+          Using your historical performance data for calibrated predictions.
+        </div>
+      )}
+
+      <Card>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+          <div>
+            <SecLabel>Platform</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {PLATFORMS.map(p => (
+                <button key={p} onClick={()=>setPlatform(p)}
+                  style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <SecLabel>Content Type</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {contentTypes.map(t => (
+                <button key={t} onClick={()=>setContentType(t)}
+                  style={{background:contentType===t?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:contentType===t?700:400}}>
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <SecLabel>Paste Your Content</SecLabel>
+        <textarea value={content} onChange={e=>setContent(e.target.value)} rows={8}
+          placeholder="Paste a hook, caption, script, or any piece of content you are about to post..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:14,boxSizing:'border-box'}}/>
+
+        <RedBtn onClick={async()=>{if(!content)return;setLoading(true);setOut('');const r=await ai(PREDICTOR_PROMPT(content,platform,contentType,historicalData));setOut(r);setLoading(false);}} disabled={loading||!content}>
+          {loading ? 'Analyzing...' : '🔮 Predict Performance'}
+        </RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && <DocOutput text={out} title={`Performance Prediction: ${platform} ${contentType}`}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// WHITE LABEL MODE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const WL_KEY = 'encis_whitelabel';
+
+function useWhiteLabel() {
+  const [wl, setWlState] = useState(null);
+  useEffect(() => {
+    try { const s = localStorage.getItem(WL_KEY); if (s) setWlState(JSON.parse(s)); } catch {}
+  }, []);
+  const setWl = (data) => {
+    setWlState(data);
+    try { localStorage.setItem(WL_KEY, data ? JSON.stringify(data) : null); } catch {}
+  };
+  return [wl, setWl];
+}
+
+function WhiteLabelMode() {
+  const [wl, setWl] = useWhiteLabel();
+  const [form, setForm] = useState({
+    agencyName: '', tagline: '', primaryColor: '#00C2FF', accentColor: '#C9A84C',
+    logoUrl: '', footerText: '', hidePoweredBy: false,
+  });
+  const [saved, setSaved] = useState(false);
+  const [preview, setPreview] = useState(false);
+
+  useEffect(() => { if (wl) setForm({...form, ...wl}); }, []);
+
+  const save = () => {
+    setWl(form.agencyName ? form : null);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const reset = () => { setWl(null); setForm({agencyName:'',tagline:'',primaryColor:'#00C2FF',accentColor:'#00C2FF',logoUrl:'',footerText:'',hidePoweredBy:false}); };
+
+  const fields = [
+    { k:'agencyName', l:'Agency Name', ph:'e.g. Greenspan Consulting', type:'input' },
+    { k:'tagline', l:'Tagline', ph:'e.g. Social Media Strategy for High-Impact Brands', type:'input' },
+    { k:'logoUrl', l:'Logo URL (optional)', ph:'https://yoursite.com/logo.png', type:'input' },
+    { k:'footerText', l:'Footer / Powered By Text', ph:'e.g. Powered by Greenspan Consulting', type:'input' },
+  ];
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🏷️</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>White Label Mode</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Rebrand the app with your agency name, colors, and logo. Your clients see your brand, not SIGNAL.</p>
+        </div>
+      </div>
+
+      {wl && (
+        <div style={{background:'rgba(39,174,96,0.08)',border:'1px solid rgba(39,174,96,0.2)',borderRadius:10,padding:'12px 16px',marginBottom:20,display:'flex',alignItems:'center',gap:12}}>
+          <span style={{fontSize:18}}>✓</span>
+          <div style={{flex:1}}>
+            <div style={{color:'#27ae60',fontWeight:700,fontSize:13}}>White label active: {wl.agencyName}</div>
+            <div style={{color:B.gray,fontSize:12,marginTop:2}}>App header, titles, and documents are branded to your agency.</div>
+          </div>
+          <button onClick={reset} style={{background:'rgba(233,69,96,0.1)',color:B.red,border:'1px solid rgba(233,69,96,0.2)',borderRadius:6,padding:'5px 12px',fontSize:12,cursor:'pointer',fontWeight:700}}>Reset</button>
+        </div>
+      )}
+
+      <Card>
+        {fields.map(f => (
+          <div key={f.k} style={{marginBottom:14}}>
+            <SecLabel>{f.l}</SecLabel>
+            <input value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} placeholder={f.ph}
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+        ))}
+
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:14}}>
+          <div>
+            <SecLabel>Primary Color</SecLabel>
+            <div style={{display:'flex',alignItems:'center',gap:10}}>
+              <input type="color" value={form.primaryColor} onChange={e=>setForm(p=>({...p,primaryColor:e.target.value}))}
+                style={{width:48,height:40,border:'none',borderRadius:6,cursor:'pointer',background:'none'}}/>
+              <input value={form.primaryColor} onChange={e=>setForm(p=>({...p,primaryColor:e.target.value}))}
+                style={{flex:1,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13}}/>
+            </div>
+          </div>
+          <div>
+            <SecLabel>Accent Color</SecLabel>
+            <div style={{display:'flex',alignItems:'center',gap:10}}>
+              <input type="color" value={form.accentColor} onChange={e=>setForm(p=>({...p,accentColor:e.target.value}))}
+                style={{width:48,height:40,border:'none',borderRadius:6,cursor:'pointer',background:'none'}}/>
+              <input value={form.accentColor} onChange={e=>setForm(p=>({...p,accentColor:e.target.value}))}
+                style={{flex:1,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13}}/>
+            </div>
+          </div>
+        </div>
+
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,padding:'12px 14px',background:'rgba(255,255,255,0.03)',borderRadius:8,cursor:'pointer'}} onClick={()=>setForm(p=>({...p,hidePoweredBy:!p.hidePoweredBy}))}>
+          <div style={{width:20,height:20,borderRadius:4,background:form.hidePoweredBy?B.red:'rgba(255,255,255,0.1)',border:`2px solid ${form.hidePoweredBy?B.red:'rgba(255,255,255,0.2)'}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            {form.hidePoweredBy && <span style={{color:'#fff',fontSize:12}}>✓</span>}
+          </div>
+          <div>
+            <div style={{color:B.white,fontSize:13,fontWeight:600}}>Hide "Powered by SIGNAL"</div>
+            <div style={{color:B.gray,fontSize:11,marginTop:2}}>Remove all SIGNAL references. Show only your agency branding.</div>
+          </div>
+        </div>
+
+        {/* Live preview */}
+        {form.agencyName && (
+          <div style={{background:'rgba(0,0,0,0.4)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:10,padding:'16px',marginBottom:20}}>
+            <SecLabel>Preview</SecLabel>
+            <div style={{background:B.navy2,borderRadius:8,padding:'12px 16px',display:'flex',alignItems:'center',gap:12}}>
+              {form.logoUrl && <img src={form.logoUrl} style={{width:32,height:32,borderRadius:6,objectFit:'contain'}} alt="logo"/>}
+              <div>
+                <div style={{color:form.primaryColor,fontWeight:900,fontSize:16}}>{form.agencyName}</div>
+                {form.tagline && <div style={{color:B.gray,fontSize:11,marginTop:2}}>{form.tagline}</div>}
+              </div>
+            </div>
+            {form.footerText && <div style={{color:B.gray,fontSize:11,marginTop:8,textAlign:'center'}}>{form.footerText}</div>}
+          </div>
+        )}
+
+        <div style={{display:'flex',gap:10}}>
+          <RedBtn onClick={save} disabled={!form.agencyName}>{saved ? '✓ Saved' : 'Save White Label Settings'}</RedBtn>
+          {wl && <button onClick={reset} style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:8,padding:'10px 18px',fontSize:13,cursor:'pointer'}}>Reset to Default</button>}
+        </div>
+      </Card>
+
+      <div style={{marginTop:20,background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:12,padding:'16px'}}>
+        <div style={{color:B.white,fontWeight:700,fontSize:13,marginBottom:8}}>What white label changes</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+          {['App title bar and browser tab','Document headers on all PDF exports','Report titles and footers','Client portal header','Email sequence branding','Strategy doc cover pages'].map(item => (
+            <div key={item} style={{display:'flex',alignItems:'center',gap:8,fontSize:12,color:'rgba(255,255,255,0.65)'}}>
+              <span style={{color:'#27ae60',fontSize:10}}>✓</span>{item}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CUSTOM AI PERSONA PER CLIENT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const PERSONA_KEY = 'encis_personas';
+const PERSONA_RATINGS_KEY = 'encis_persona_ratings';
+
+const PERSONA_BUILD_PROMPT = (client, voiceFingerprint, contentHistory, ratings) => `
+You are building a custom AI persona for a social media content system.
+
+CLIENT: ${client.name} (${client.handle})
+PLATFORMS: ${client.platforms}
+CLIENT BACKGROUND: ${client.notes || client.voice || 'Not provided'}
+
+${voiceFingerprint ? `VOICE FINGERPRINT (from analyzed samples):
+Tone: ${voiceFingerprint.tone}
+Vocabulary: ${(voiceFingerprint.vocabulary||[]).join(', ')}
+Avoids: ${(voiceFingerprint.avoids||[]).join(', ')}
+Personality: ${voiceFingerprint.personality}
+Writing rules: ${(voiceFingerprint.dos||[]).slice(0,4).join('. ')}` : ''}
+
+${contentHistory ? `CONTENT HISTORY (what has actually been created):
+${contentHistory}` : ''}
+
+${ratings ? `PERFORMANCE RATINGS (what worked vs what did not):
+Viral content: ${ratings.viral.join(' | ') || 'none yet'}
+Good performers: ${ratings.good.join(' | ') || 'none yet'}
+Flopped: ${ratings.flopped.join(' | ') || 'none yet'}` : ''}
+
+Build a complete AI persona for ${client.name}. This persona will be injected into every content generation tool to produce output that sounds exactly like them. Make it specific enough that two different pieces of content generated with this persona would be unmistakably from the same person.
+
+Return as JSON with exactly these fields:
+{
+  "personaName": "short name for this persona (e.g. 'Jason Direct')",
+  "systemPrompt": "A 150-200 word system prompt that fully defines how to write as this person. Include voice, tone, vocabulary, sentence structure, what they never say, their perspective on their niche, and how they talk to their audience. This must be specific enough to use directly as an AI instruction.",
+  "voiceRules": ["8 specific one-sentence rules for writing in this voice"],
+  "exampleSentences": ["5 example sentences that sound exactly like this person"],
+  "avoidPhrases": ["10 specific phrases this person would never say"],
+  "signaturePhrases": ["5-8 phrases or expressions this person naturally uses"],
+  "contentStrengths": ["3 content types this person naturally excels at"],
+  "audienceRelationship": "How this person talks to their audience in one sentence",
+  "confidence": "low/medium/high based on available data",
+  "dataUsed": "brief description of what data was available to build this persona"
+}
+
+Return ONLY valid JSON. No markdown, no explanation.`;
+
+const PERSONA_REFINE_PROMPT = (persona, feedback, newSamples) => `
+You are refining an existing AI persona based on new feedback and content samples.
+
+CURRENT PERSONA SYSTEM PROMPT:
+${persona.systemPrompt}
+
+CURRENT VOICE RULES:
+${(persona.voiceRules||[]).join('\n')}
+
+NEW FEEDBACK (what feels off or needs adjustment):
+${feedback}
+
+${newSamples ? `NEW CONTENT SAMPLES TO INCORPORATE:
+${newSamples}` : ''}
+
+Update the persona to incorporate this feedback. Keep what works. Fix what does not. Return the same JSON structure with improvements applied.
+
+Return ONLY valid JSON. No markdown, no explanation.`;
+
+function CustomPersona() {
+  const [clients] = useClients();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [personas, setPersonas] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('build');
+  const [feedback, setFeedback] = useState('');
+  const [newSamples, setNewSamples] = useState('');
+  const [refining, setRefining] = useState(false);
+  const [activeClient] = useActiveClient();
+
+  useEffect(() => {
+    try { const s = localStorage.getItem(PERSONA_KEY); if (s) setPersonas(JSON.parse(s)); } catch {}
+    setSelectedClient(activeClient);
+  }, []);
+
+  const savePersona = (clientId, p) => {
+    const updated = { ...personas, [clientId]: { ...p, updatedAt: Date.now() } };
+    setPersonas(updated);
+    try { localStorage.setItem(PERSONA_KEY, JSON.stringify(updated)); } catch {}
+  };
+
+  const getContextData = (client) => {
+    const fp = (() => { try { return JSON.parse(localStorage.getItem(VOICE_KEY)|| '{}')[client.id] || null; } catch { return null; } })();
+    const log = (() => { try { return JSON.parse(localStorage.getItem('encis_content_log')|| '[]'); } catch { return []; } })();
+    const clientLog = log.filter(e => !e.client || e.client === client.name).slice(0, 20);
+    const history = clientLog.length ? clientLog.map(e => `${e.type}: ${e.title||e.topic||''}`).join('\n') : null;
+    const ratings = {
+      viral: clientLog.filter(e=>e.perf==='🔥').map(e=>e.title||e.topic|| '').filter(Boolean).slice(0,5),
+      good: clientLog.filter(e=>e.perf==='⭐').map(e=>e.title||e.topic|| '').filter(Boolean).slice(0,5),
+      flopped: clientLog.filter(e=>e.perf==='💀').map(e=>e.title||e.topic|| '').filter(Boolean).slice(0,5),
+    };
+    return { fp, history, ratings };
+  };
+
+  const buildPersona = async () => {
+    if (!selectedClient) return;
+    setLoading(true);
+    const { fp, history, ratings } = getContextData(selectedClient);
+    const res = await ai(PERSONA_BUILD_PROMPT(selectedClient, fp, history, ratings), 'You build AI personas. Return only valid JSON.');
+    try {
+      const clean = res.replace(/```json|```/g, '').trim();
+      const persona = JSON.parse(clean);
+      savePersona(selectedClient.id, persona);
+      setActiveTab('view');
+    } catch(e) { console.error('Persona parse error:', e); }
+    setLoading(false);
+  };
+
+  const refinePersona = async () => {
+    if (!selectedClient || !personas[selectedClient.id] || !feedback) return;
+    setRefining(true);
+    const res = await ai(PERSONA_REFINE_PROMPT(personas[selectedClient.id], feedback, newSamples), 'You refine AI personas. Return only valid JSON.');
+    try {
+      const clean = res.replace(/```json|```/g, '').trim();
+      const refined = JSON.parse(clean);
+      savePersona(selectedClient.id, { ...refined, refinedAt: Date.now(), refinementCount: (personas[selectedClient.id]?.refinementCount || 0) + 1 });
+      setFeedback(''); setNewSamples('');
+    } catch(e) { console.error('Refinement parse error:', e); }
+    setRefining(false);
+  };
+
+  const persona = selectedClient ? personas[selectedClient.id] : null;
+  const { fp, history, ratings } = selectedClient ? getContextData(selectedClient) : { fp: null, history: null, ratings: null };
+  const dataScore = [fp, history, ratings?.viral?.length > 0].filter(Boolean).length;
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🤖</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Custom AI Persona</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Builds a trained AI persona per client. Gets smarter as you rate content. Injected into every tool automatically.</p>
+        </div>
+      </div>
+
+      {/* Client selector */}
+      <div style={{marginBottom:20}}>
+        <SecLabel>Client</SecLabel>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          {clients.map(c => {
+            const hasPersona = !!personas[c.id];
+            const conf = personas[c.id]?.confidence;
+            const confColor = { high:'#27ae60', medium:'#f5a623', low:B.red }[conf] || B.gray;
+            return (
+              <button key={c.id} onClick={() => { setSelectedClient(c); setActiveTab(hasPersona ? 'view' : 'build'); }}
+                style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:B.white,border:`1px solid ${selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.1)'}`,borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:selectedClient?.id===c.id?700:400,display:'flex',alignItems:'center',gap:6}}>
+                {c.name}
+                {hasPersona && <span style={{fontSize:9,color:confColor,fontWeight:700}}>{conf?.toUpperCase()}</span>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {selectedClient && (
+        <>
+          {/* Data availability */}
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:20}}>
+            {[
+              { label:'Voice Fingerprint', val:!!fp, desc: fp ? `${fp.sampleCount} samples` : 'Not built' },
+              { label:'Content History', val:!!history, desc: history ? 'Content logged' : 'No content yet' },
+              { label:'Performance Data', val:!!(ratings?.viral?.length || ratings?.good?.length), desc: ratings?.viral?.length ? `${ratings.viral.length} viral hits` : 'No ratings yet' },
+            ].map(d => (
+              <div key={d.label} style={{background:d.val?'rgba(39,174,96,0.08)':'rgba(255,255,255,0.03)',border:`1px solid ${d.val?'rgba(39,174,96,0.2)':'rgba(255,255,255,0.07)'}`,borderRadius:8,padding:'10px 12px'}}>
+                <div style={{fontSize:10,color:d.val?'#27ae60':B.gray,fontWeight:700,textTransform:'uppercase',letterSpacing:1,marginBottom:4}}>{d.label}</div>
+                <div style={{fontSize:12,color:d.val?B.white:'rgba(255,255,255,0.4)'}}>{d.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tabs */}
+          <div style={{display:'flex',gap:6,marginBottom:20}}>
+            {['build','view','refine'].map(t => (
+              <button key={t} onClick={() => setActiveTab(t)}
+                style={{background:activeTab===t?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',borderRadius:8,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:activeTab===t?700:400,textTransform:'capitalize'}}>
+                {t === 'build' ? (persona ? 'Rebuild' : '+ Build Persona') : t === 'view' ? '🤖 View Persona' : '✏️ Refine'}
+              </button>
+            ))}
+          </div>
+
+          {activeTab === 'build' && (
+            <Card>
+              <div style={{color:B.gray,fontSize:13,lineHeight:1.7,marginBottom:16}}>
+                The persona is built from all available data: voice fingerprint ({fp ? 'found' : 'not built'}), content history ({history ? 'found' : 'none'}), and performance ratings ({ratings?.viral?.length ? ratings.viral.length + ' viral hits' : 'none yet'}). More data means a higher confidence persona.
+              </div>
+              {dataScore === 0 && (
+                <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:8,padding:'10px 14px',marginBottom:16,fontSize:12,color:'rgba(255,255,255,0.7)'}}>
+                  No data yet for {selectedClient.name}. Build a voice fingerprint first for better results. The persona will still be created from their client profile.
+                </div>
+              )}
+              <RedBtn onClick={buildPersona} disabled={loading}>
+                {loading ? 'Building persona...' : `🤖 Build ${selectedClient.name} Persona`}
+              </RedBtn>
+              {loading && <Spin/>}
+            </Card>
+          )}
+
+          {activeTab === 'view' && persona && (
+            <div>
+              <div style={{background:'rgba(233,69,96,0.06)',border:'1px solid rgba(233,69,96,0.15)',borderRadius:12,padding:'20px',marginBottom:16}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16,flexWrap:'wrap',gap:10}}>
+                  <div>
+                    <div style={{color:B.white,fontWeight:800,fontSize:16}}>"{persona.personaName}"</div>
+                    <div style={{color:B.gray,fontSize:12,marginTop:2}}>
+                      Confidence: <span style={{color:{high:'#27ae60',medium:'#f5a623',low:B.red}[persona.confidence]||B.gray,fontWeight:700}}>{persona.confidence?.toUpperCase()}</span>
+                      {persona.refinementCount > 0 && <span style={{color:B.gray}}> · Refined {persona.refinementCount}x</span>}
+                    </div>
+                    <div style={{color:'rgba(255,255,255,0.45)',fontSize:11,marginTop:4}}>{persona.dataUsed}</div>
+                  </div>
+                </div>
+                <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:8}}>Audience Relationship</div>
+                <div style={{color:'rgba(255,255,255,0.8)',fontSize:13,fontStyle:'italic',marginBottom:16}}>"{persona.audienceRelationship}"</div>
+                <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:8}}>System Prompt</div>
+                <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'12px',fontSize:12,color:'rgba(255,255,255,0.75)',lineHeight:1.7}}>{persona.systemPrompt}</div>
+              </div>
+
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+                <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'14px'}}>
+                  <div style={{fontSize:11,color:'#27ae60',fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:10}}>Signature Phrases</div>
+                  <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+                    {(persona.signaturePhrases||[]).map((p,i) => <span key={i} style={{background:'rgba(39,174,96,0.1)',color:'rgba(255,255,255,0.8)',borderRadius:4,padding:'3px 8px',fontSize:11}}>"{p}"</span>)}
+                  </div>
+                </div>
+                <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'14px'}}>
+                  <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:10}}>Never Says</div>
+                  <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+                    {(persona.avoidPhrases||[]).slice(0,8).map((p,i) => <span key={i} style={{background:'rgba(233,69,96,0.08)',color:'rgba(255,255,255,0.6)',borderRadius:4,padding:'3px 8px',fontSize:11}}>{p}</span>)}
+                  </div>
+                </div>
+              </div>
+
+              {persona.exampleSentences?.length > 0 && (
+                <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:10,padding:'14px'}}>
+                  <div style={{fontSize:11,color:'#00C2FF',fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:10}}>Example Sentences in This Voice</div>
+                  {persona.exampleSentences.map((s,i) => <div key={i} style={{color:'rgba(255,255,255,0.8)',fontSize:13,lineHeight:1.6,marginBottom:6,paddingLeft:12,borderLeft:'2px solid rgba(0,212,255,0.3)'}}>{s}</div>)}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'view' && !persona && (
+            <div style={{textAlign:'center',padding:'3rem',background:'rgba(255,255,255,0.02)',borderRadius:12,border:'1px solid rgba(255,255,255,0.06)'}}>
+              <div style={{fontSize:40,marginBottom:12}}>🤖</div>
+              <div style={{color:B.white,fontWeight:700,marginBottom:8}}>No persona built yet</div>
+              <button onClick={()=>setActiveTab('build')} style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'9px 18px',fontSize:13,fontWeight:700,cursor:'pointer'}}>Build Now</button>
+            </div>
+          )}
+
+          {activeTab === 'refine' && (
+            <Card>
+              <div style={{color:B.gray,fontSize:13,lineHeight:1.7,marginBottom:16}}>
+                Tell the system what feels off about the current persona. Add new content samples if you have them. The persona updates and gets smarter.
+                {persona?.refinementCount > 0 && <span style={{color:'#27ae60'}}> Refined {persona.refinementCount} time{persona.refinementCount!==1?'s':''}.</span>}
+              </div>
+              <SecLabel>What Needs to Change</SecLabel>
+              <textarea value={feedback} onChange={e=>setFeedback(e.target.value)} rows={3}
+                placeholder="e.g. The tone is too formal. They never use lists. They always start with a question. The vocabulary is too complex..."
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+              <SecLabel>New Content Samples (optional)</SecLabel>
+              <textarea value={newSamples} onChange={e=>setNewSamples(e.target.value)} rows={4}
+                placeholder="Paste new content that better represents the voice..."
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+              <RedBtn onClick={refinePersona} disabled={refining||!feedback||!persona}>{refining ? 'Refining...' : 'Refine Persona'}</RedBtn>
+              {refining && <Spin/>}
+            </Card>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CUSTOM ANGLES MANAGER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function CustomAnglesManager({ client, onClose }) {
+  const [data, setData] = useState({ mode: 'swarbrick', angles: [] });
+  const [newAngle, setNewAngle] = useState({ label: '', emoji: '📌', desc: '' });
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(CUSTOM_ANGLES_KEY) || '{}');
+      if (stored[client.id]) setData(stored[client.id]);
+    } catch {}
+  }, [client.id]);
+
+  const save = (updated) => {
+    setData(updated);
+    try {
+      const stored = JSON.parse(localStorage.getItem(CUSTOM_ANGLES_KEY) || '{}');
+      stored[client.id] = updated;
+      localStorage.setItem(CUSTOM_ANGLES_KEY, JSON.stringify(stored));
+    } catch {}
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1500);
+  };
+
+  const addAngle = () => {
+    if (!newAngle.label.trim()) return;
+    const angle = { id: 'custom_' + Date.now(), label: newAngle.label.trim(), emoji: newAngle.emoji || '📌', desc: newAngle.desc.trim(), custom: true };
+    save({ ...data, angles: [...data.angles, angle] });
+    setNewAngle({ label: '', emoji: '📌', desc: '' });
+  };
+
+  const removeAngle = (id) => save({ ...data, angles: data.angles.filter(a => a.id !== id) });
+
+  const modes = [
+    { id: 'swarbrick', label: 'Swarbrick Only', desc: "Use Dr. Swarbrick's 8 dimensions. Best for holistic wellness-oriented content." },
+    { id: 'custom', label: 'Custom Only', desc: 'Replace the 8 dimensions entirely with angles specific to this client.' },
+    { id: 'both', label: 'Both', desc: 'Show Swarbrick dimensions plus custom angles. More options in every tool.' },
+  ];
+
+  const emojis = ['📌','🎯','💡','🔥','⚡','🌟','💰','🏆','🎬','📱','🤝','🧩','🌿','🏠','🎤','📚','💪','🧠','❤️','🌐'];
+
+  return (
+    <div style={{background:'rgba(0,0,0,0.6)',position:'fixed',inset:0,zIndex:999,display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
+      <div style={{background:B.navy2,border:'1px solid rgba(255,255,255,0.1)',borderRadius:16,padding:28,width:'100%',maxWidth:600,maxHeight:'90vh',overflowY:'auto'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+          <div>
+            <div style={{color:B.white,fontWeight:800,fontSize:18}}>Content Angles</div>
+            <div style={{color:B.gray,fontSize:13,marginTop:2}}>{client.name}</div>
+          </div>
+          <button onClick={onClose} style={{background:'rgba(255,255,255,0.07)',border:'none',color:B.gray,borderRadius:8,padding:'6px 14px',cursor:'pointer',fontSize:13}}>Done {saved && '✓'}</button>
+        </div>
+
+        {/* Mode selector */}
+        <SecLabel>Angle Mode</SecLabel>
+        <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:20}}>
+          {modes.map(m => (
+            <button key={m.id} onClick={() => save({ ...data, mode: m.id })}
+              style={{background:data.mode===m.id?'rgba(233,69,96,0.1)':'rgba(255,255,255,0.03)',border:`1px solid ${data.mode===m.id?B.red:'rgba(255,255,255,0.08)'}`,borderRadius:10,padding:'12px 14px',cursor:'pointer',textAlign:'left'}}>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <div style={{width:14,height:14,borderRadius:'50%',background:data.mode===m.id?B.red:'rgba(255,255,255,0.15)',flexShrink:0}}/>
+                <div style={{color:B.white,fontWeight:700,fontSize:13}}>{m.label}</div>
+              </div>
+              <div style={{color:B.gray,fontSize:12,marginTop:4,paddingLeft:22}}>{m.desc}</div>
+            </button>
+          ))}
+        </div>
+
+        {/* Custom angles list */}
+        {(data.mode === 'custom' || data.mode === 'both') && (
+          <>
+            <SecLabel>Custom Angles for {client.name}</SecLabel>
+            {data.angles.length > 0 && (
+              <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:14}}>
+                {data.angles.map(a => (
+                  <div key={a.id} style={{background:'rgba(245,166,35,0.06)',border:'1px solid rgba(245,166,35,0.2)',borderRadius:8,padding:'10px 14px',display:'flex',alignItems:'center',gap:10}}>
+                    <span style={{fontSize:18,flexShrink:0}}>{a.emoji}</span>
+                    <div style={{flex:1}}>
+                      <div style={{color:B.white,fontWeight:700,fontSize:13}}>{a.label}</div>
+                      {a.desc && <div style={{color:B.gray,fontSize:11,marginTop:2}}>{a.desc}</div>}
+                    </div>
+                    <button onClick={() => removeAngle(a.id)} style={{background:'transparent',border:'none',color:'rgba(255,255,255,0.25)',cursor:'pointer',fontSize:14}}>✕</button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add new angle */}
+            <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:10,padding:14}}>
+              <SecLabel>Add Custom Angle</SecLabel>
+              <div style={{display:'flex',gap:8,marginBottom:8,flexWrap:'wrap'}}>
+                <div style={{display:'flex',gap:4,flexWrap:'wrap',flex:1}}>
+                  {emojis.map(e => (
+                    <button key={e} onClick={() => setNewAngle(p=>({...p,emoji:e}))}
+                      style={{background:newAngle.emoji===e?'rgba(233,69,96,0.2)':'rgba(255,255,255,0.05)',border:`1px solid ${newAngle.emoji===e?B.red:'transparent'}`,borderRadius:4,padding:'4px 6px',cursor:'pointer',fontSize:14}}>
+                      {e}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <input value={newAngle.label} onChange={e=>setNewAngle(p=>({...p,label:e.target.value}))} placeholder="Angle name (e.g. Luxury Real Estate, Wellness Coaching)"
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:8,boxSizing:'border-box'}}/>
+              <input value={newAngle.desc} onChange={e=>setNewAngle(p=>({...p,desc:e.target.value}))} placeholder="Short description (e.g. High-end property tours, buyer psychology)"
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:10,boxSizing:'border-box'}}/>
+              <RedBtn onClick={addAngle} disabled={!newAngle.label.trim()} style={{padding:'8px 18px',fontSize:12}}>+ Add Angle</RedBtn>
+            </div>
+          </>
+        )}
+
+        {/* Preview */}
+        {data.angles.length > 0 && (data.mode === 'custom' || data.mode === 'both') && (
+          <div style={{marginTop:16}}>
+            <SecLabel>Preview</SecLabel>
+            <AngleGrid selected={null} onSelect={()=>{}} angles={data.mode === 'both' ? [...ANGLES, ...data.angles] : data.angles}/>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CALL TRANSCRIPT INTEL
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const TRANSCRIPTS_KEY = 'encis_transcripts';
+
+const TRANSCRIPT_ANALYSIS_PROMPT = (client, transcript, type) => `
+${VOICE}
+Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+
+CLIENT: ${client.name} (${client.handle})
+TRANSCRIPT TYPE: ${type}
+
+TRANSCRIPT:
+${transcript}
+
+Analyze this ${type} transcript for content and client intelligence. Extract everything useful.
+
+# ${type} Analysis: ${client.name}
+
+## Key Themes
+What topics came up most. What the client cares about most. What problems they mentioned.
+
+## Exact Quotes to Use in Content
+5-8 direct quotes from this transcript that would work as hooks or social proof. Mark the speaker.
+
+## Content Ideas Extracted
+10 specific content pieces directly inspired by what was discussed. Each with: topic, angle, format, and hook.
+
+## Client Insights
+What you learned about the client's audience, goals, challenges, or voice that was not captured before.
+
+## Action Items
+Specific next steps for content or strategy based on this conversation.
+
+## Language Patterns
+Specific words, phrases, or expressions the client used that should be added to their voice fingerprint.
+`;
+
+function TranscriptIntel() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [transcripts, setTranscripts] = useState([]);
+  const [transcript, setTranscript] = useState('');
+  const [transcriptType, setTranscriptType] = useState('Strategy Call');
+  const [transcriptDate, setTranscriptDate] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [out, setOut] = useState('');
+  const [view, setView] = useState('upload');
+  const fileRef = useRef(null);
+
+  useEffect(() => {
+    try { const s = localStorage.getItem(TRANSCRIPTS_KEY); if (s) setTranscripts(JSON.parse(s)); } catch {}
+    setSelectedClient(activeClient);
+  }, []);
+
+  const saveTranscripts = (list) => { setTranscripts(list); try { localStorage.setItem(TRANSCRIPTS_KEY, JSON.stringify(list)); } catch {} };
+
+  const handleFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    const reader = new FileReader();
+    reader.onload = (ev) => { setTranscript(ev.target.result); setUploading(false); };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const analyze = async () => {
+    if (!transcript.trim() || !selectedClient) return;
+    setAnalyzing(true); setOut('');
+    const res = await ai(TRANSCRIPT_ANALYSIS_PROMPT(selectedClient, transcript.slice(0, 8000), transcriptType));
+    setOut(res);
+    const entry = {
+      id: Date.now(),
+      clientId: selectedClient.id,
+      clientName: selectedClient.name,
+      type: transcriptType,
+      date: transcriptDate || new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+      preview: transcript.slice(0, 200),
+      analysis: res,
+    };
+    saveTranscripts([entry, ...transcripts]);
+    setView('results');
+    setAnalyzing(false);
+  };
+
+  const clientTranscripts = selectedClient ? transcripts.filter(t => t.clientId === selectedClient.id) : [];
+  const types = ['Strategy Call', 'Client Onboarding', 'Monthly Review', 'Podcast Interview', 'Sales Call', 'Brainstorm Session', 'Other'];
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>📞</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Call Transcript Intel</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Upload or paste any call transcript. Extracts content ideas, client quotes, action items, and voice patterns. No Fireflies needed.</p>
+        </div>
+      </div>
+
+      {/* Client selector */}
+      <div style={{marginBottom:20}}>
+        <SecLabel>Client</SecLabel>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          {clients.map(c => (
+            <button key={c.id} onClick={() => setSelectedClient(c)}
+              style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:B.white,border:`1px solid ${selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.1)'}`,borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:selectedClient?.id===c.id?700:400}}>
+              {c.name} {transcripts.filter(t=>t.clientId===c.id).length > 0 && <span style={{color:'rgba(255,255,255,0.4)',fontSize:10}}>({transcripts.filter(t=>t.clientId===c.id).length})</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{display:'flex',gap:6,marginBottom:20}}>
+        {['upload','history'].map(t => (
+          <button key={t} onClick={() => setView(t)}
+            style={{background:view===t?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',borderRadius:8,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:view===t?700:400,textTransform:'capitalize'}}>
+            {t === 'upload' ? '+ New Transcript' : `History (${clientTranscripts.length})`}
+          </button>
+        ))}
+      </div>
+
+      {view === 'upload' && (
+        <Card>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+            <div>
+              <SecLabel>Call Type</SecLabel>
+              <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+                {types.map(t => (
+                  <button key={t} onClick={() => setTranscriptType(t)}
+                    style={{background:transcriptType===t?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:transcriptType===t?700:400}}>
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <SecLabel>Call Date</SecLabel>
+              <input value={transcriptDate} onChange={e=>setTranscriptDate(e.target.value)} placeholder="e.g. Mar 18, 2026"
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+            </div>
+          </div>
+
+          {/* File upload zone */}
+          <div style={{marginBottom:12}}>
+            <input ref={fileRef} type="file" accept=".txt,.md,.vtt,.srt,text/plain" onChange={handleFile} style={{display:'none'}}/>
+            <button onClick={() => fileRef.current?.click()} disabled={uploading}
+              style={{width:'100%',background:'rgba(255,255,255,0.03)',border:'2px dashed rgba(255,255,255,0.12)',borderRadius:10,padding:'16px',cursor:'pointer',color:B.gray,fontSize:13}}>
+              {uploading ? '⏳ Reading file...' : '📎 Upload transcript file (.txt, .vtt, .srt, .md)'}
+            </button>
+          </div>
+
+          <div style={{textAlign:'center',color:B.gray,fontSize:11,marginBottom:8}}>or paste directly below</div>
+
+          <textarea value={transcript} onChange={e=>setTranscript(e.target.value)} rows={10}
+            placeholder="Paste your call transcript here. Works with Zoom auto-transcripts, Otter.ai exports, manual notes, or any text format..."
+            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:14,boxSizing:'border-box'}}/>
+
+          {transcript.length > 0 && (
+            <div style={{color:B.gray,fontSize:11,marginBottom:12}}>{transcript.length.toLocaleString()} characters · ~{Math.round(transcript.length/5)} words</div>
+          )}
+
+          <RedBtn onClick={analyze} disabled={analyzing||!transcript.trim()||!selectedClient}>
+            {analyzing ? 'Analyzing transcript...' : '📞 Extract Intel from Transcript'}
+          </RedBtn>
+          {analyzing && <Spin/>}
+        </Card>
+      )}
+
+      {view === 'history' && (
+        <div>
+          {clientTranscripts.length === 0 ? (
+            <div style={{textAlign:'center',padding:'3rem',background:'rgba(255,255,255,0.02)',borderRadius:12,border:'1px solid rgba(255,255,255,0.06)'}}>
+              <div style={{fontSize:40,marginBottom:12}}>📞</div>
+              <div style={{color:B.white,fontWeight:700,marginBottom:8}}>No transcripts yet for {selectedClient?.name}</div>
+              <button onClick={()=>setView('upload')} style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'9px 18px',fontSize:13,fontWeight:700,cursor:'pointer'}}>Upload First Transcript</button>
+            </div>
+          ) : (
+            <div style={{display:'flex',flexDirection:'column',gap:10}}>
+              {clientTranscripts.map(t => (
+                <div key={t.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'16px',cursor:'pointer'}}
+                  onClick={() => { setOut(t.analysis); setView('results'); }}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:8}}>
+                    <div>
+                      <div style={{color:B.white,fontWeight:700,fontSize:13}}>{t.type}</div>
+                      <div style={{color:B.gray,fontSize:11,marginTop:2}}>{t.date}</div>
+                    </div>
+                    <span style={{background:'rgba(255,255,255,0.07)',color:B.gray,borderRadius:4,padding:'2px 8px',fontSize:10}}>View Analysis</span>
+                  </div>
+                  <div style={{color:'rgba(255,255,255,0.45)',fontSize:12,lineHeight:1.5}}>{t.preview.slice(0,120)}...</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {view === 'results' && out && (
+        <div>
+          <button onClick={() => setView('upload')} style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',borderRadius:6,padding:'6px 14px',fontSize:12,cursor:'pointer',marginBottom:16}}>
+            ← New Transcript
+          </button>
+          <DocOutput text={out} title={`${transcriptType} Analysis: ${selectedClient?.name}`}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ANALYTICS IMPORT HUB
+// Parses CSV exports from Instagram, YouTube, Facebook, LinkedIn natively
+// No API needed — user exports from the platform, imports here
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const ANALYTICS_KEY = 'encis_analytics_data';
+
+const ANALYTICS_INSIGHT_PROMPT = (client, platform, data, period) => `
+${VOICE}
+Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+
+CLIENT: ${client.name}
+PLATFORM: ${platform}
+PERIOD: ${period}
+
+IMPORTED ANALYTICS DATA:
+${data}
+
+Analyze this data and extract every useful insight. Be specific — use the actual numbers.
+
+# ${platform} Analytics Report: ${client.name}
+
+## Performance Summary
+What the numbers actually say. Top line metrics with context.
+
+## What Is Working
+Specific content types, posting times, or topics driving the best numbers. Use actual figures.
+
+## What Is Not Working
+Specific underperformers. What to cut or change.
+
+## Audience Insights
+When they are most active. What they engage with most. Any demographic signals in the data.
+
+## 5 Specific Actions for Next 30 Days
+Each action tied directly to a specific data point. Not generic advice.
+
+## Benchmark Check
+How does this performance compare to platform averages for an account this size?
+`;
+
+function AnalyticsHub() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [platform, setPlatform] = useState('Instagram');
+  const [importing, setImporting] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [rawData, setRawData] = useState('');
+  const [period, setPeriod] = useState('');
+  const [out, setOut] = useState('');
+  const [imports, setImports] = useState([]);
+  const [tab, setTab] = useState('import');
+  const fileRef = useRef(null);
+
+  useEffect(() => {
+    try { const s = localStorage.getItem(ANALYTICS_KEY); if (s) setImports(JSON.parse(s)); } catch {}
+    setSelectedClient(activeClient);
+  }, []);
+
+  const saveImports = (list) => { setImports(list); try { localStorage.setItem(ANALYTICS_KEY, JSON.stringify(list)); } catch {} };
+
+  const parseCSV = (text) => {
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) return 'No data rows found.';
+    const parseRow = (line) => {
+      const cols = []; let cur = ''; let inQ = false;
+      for (let c of line) {
+        if (c === '"') inQ = !inQ;
+        else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+        else cur += c;
+      }
+      cols.push(cur.trim());
+      return cols;
+    };
+    const headers = parseRow(lines[0]);
+    const rows = lines.slice(1).filter(l => l.trim()).map(l => {
+      const vals = parseRow(l);
+      return Object.fromEntries(headers.map((h, i) => [h, vals[i] || '']));
+    });
+    // Summarize key metrics
+    const summary = [`Platform export: ${platform}`, `Rows: ${rows.length}`, `Columns: ${headers.join(', ')}`, '', '--- Data Sample (first 5 rows) ---'];
+    rows.slice(0, 5).forEach(r => {
+      summary.push(Object.entries(r).filter(([k,v]) => v).slice(0,8).map(([k,v]) => `${k}: ${v}`).join(' | '));
+    });
+    if (rows.length > 5) {
+      // Aggregate key numeric columns
+      const numericCols = headers.filter(h => {
+        const vals = rows.map(r => parseFloat(r[h])).filter(v => !isNaN(v));
+        return vals.length > rows.length * 0.5;
+      });
+      if (numericCols.length) {
+        summary.push('', '--- Totals / Averages ---');
+        numericCols.slice(0, 8).forEach(col => {
+          const vals = rows.map(r => parseFloat(r[col])).filter(v => !isNaN(v));
+          const total = vals.reduce((a,b) => a+b, 0);
+          const avg = (total / vals.length).toFixed(1);
+          summary.push(`${col}: total ${total.toLocaleString()}, avg ${avg}`);
+        });
+      }
+    }
+    return summary.join('\n');
+  };
+
+  const handleFile = (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    setImporting(true);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target.result;
+      const parsed = text.toLowerCase().includes('reach') || text.includes(',') ? parseCSV(text) : text;
+      setRawData(parsed); setImporting(false);
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const analyze = async () => {
+    if (!rawData || !selectedClient) return;
+    setAnalyzing(true); setOut('');
+    const res = await ai(ANALYTICS_INSIGHT_PROMPT(selectedClient, platform, rawData, period));
+    setOut(res);
+    const entry = { id: Date.now(), clientId: selectedClient.id, clientName: selectedClient.name, platform, period, preview: rawData.slice(0, 200), analysis: res, importedAt: Date.now() };
+    saveImports([entry, ...imports.slice(0, 49)]);
+    setTab('insights');
+    setAnalyzing(false);
+  };
+
+  const exportInstructions = {
+    Instagram: ['Open Instagram app or Meta Business Suite', 'Go to Insights → Overview', 'Tap "Export" or use Meta Business Suite → Insights → Export Data', 'Choose date range → Export as CSV', 'Upload that file here'],
+    YouTube: ['Go to YouTube Studio → Analytics', 'Click "Advanced mode" top right', 'Set date range → click "Export" (download icon)', 'Upload the CSV file here'],
+    Facebook: ['Open Meta Business Suite → Insights', 'Select date range → Export → Download as CSV', 'Upload here'],
+    LinkedIn: ['Go to LinkedIn Analytics → Content', 'Click "Export" button top right', 'Upload the CSV file here'],
+    X: ['Go to analytics.twitter.com', 'Click "Export data" in the top right', 'Choose date range → Export (Tweet activity)', 'Upload the CSV file here'],
+    TikTok: ['Open TikTok app → Profile → Creator tools → Analytics', 'Tap "Export data" at the bottom', 'Data is emailed to you as CSV', 'Upload that CSV here — or paste your key metrics manually'],
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>📊</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Analytics Import Hub</h2>
+          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Export from any platform for free. Import here. SIGNAL turns raw CSV data into actionable intelligence.</p>
+        </div>
+      </div>
+
+      <div style={{background:'rgba(0,194,255,0.06)',border:'1px solid rgba(0,194,255,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:12,color:'rgba(0,194,255,0.85)',lineHeight:1.8}}>
+        <strong>No API subscription needed.</strong> Every major platform lets you export analytics as CSV for free. Export from the platform, import here, get insights in seconds.
+      </div>
+
+      <div style={{display:'flex',gap:6,marginBottom:20}}>
+        {['import','history'].map(t => (
+          <button key={t} onClick={() => setTab(t)} style={{background:tab===t?B.red:'rgba(255,255,255,0.06)',color:tab===t?'#000D1A':B.white,border:'none',borderRadius:8,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+            {t === 'import' ? '+ Import Analytics' : `History (${imports.length})`}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'import' && (
+        <Card>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+            <div>
+              <SecLabel>Client</SecLabel>
+              <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                {clients.map(c => <button key={c.id} onClick={()=>setSelectedClient(c)} style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:selectedClient?.id===c.id?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.name}</button>)}
+              </div>
+            </div>
+            <div>
+              <SecLabel>Platform</SecLabel>
+              <div style={{display:'flex',gap:6}}>
+                {['Instagram','YouTube','Facebook','LinkedIn','X','TikTok'].map(p => <button key={p} onClick={()=>setPlatform(p)} style={{background:platform===p?B.red:'rgba(255,255,255,0.06)',color:platform===p?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{p}</button>)}
+              </div>
+            </div>
+          </div>
+
+          <SecLabel>How to Export from {platform}</SecLabel>
+          <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'12px 14px',marginBottom:16}}>
+            {(exportInstructions[platform]||[]).map((step,i) => (
+              <div key={i} style={{color:'rgba(255,255,255,0.7)',fontSize:12,lineHeight:1.8,display:'flex',gap:8}}>
+                <span style={{color:B.red,fontWeight:700,flexShrink:0}}>{i+1}.</span>{step}
+              </div>
+            ))}
+          </div>
+
+          <input value={period} onChange={e=>setPeriod(e.target.value)} placeholder="Period (e.g. Jan–Mar 2026)"
+            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+
+          <input ref={fileRef} type="file" accept=".csv,.xlsx,text/csv" onChange={handleFile} style={{display:'none'}}/>
+          <button onClick={() => fileRef.current?.click()} disabled={importing}
+            style={{width:'100%',background:'rgba(255,255,255,0.03)',border:'2px dashed rgba(0,194,255,0.2)',borderRadius:10,padding:'16px',cursor:'pointer',color:B.light,fontSize:13,marginBottom:12}}>
+            {importing ? '⏳ Parsing data...' : `📎 Upload ${platform} Analytics CSV`}
+          </button>
+
+          {rawData && (
+            <>
+              <div style={{background:'rgba(0,0,0,0.4)',borderRadius:8,padding:'10px 12px',marginBottom:12,fontSize:11,color:'rgba(255,255,255,0.5)',maxHeight:120,overflowY:'auto',fontFamily:'DM Mono, monospace'}}>
+                {rawData.slice(0,500)}{rawData.length>500?'...\n[truncated]':''}
+              </div>
+              <RedBtn onClick={analyze} disabled={analyzing||!selectedClient}>{analyzing?'Analyzing...':'Generate Analytics Insights'}</RedBtn>
+            </>
+          )}
+          {analyzing && <Spin/>}
+        </Card>
+      )}
+
+      {tab === 'insights' && out && (
+        <DocOutput text={out} title={`${platform} Analytics: ${selectedClient?.name} ${period}`}/>
+      )}
+
+      {tab === 'history' && (
+        <div style={{display:'flex',flexDirection:'column',gap:8}}>
+          {imports.length === 0 && <div style={{textAlign:'center',padding:'3rem',color:B.gray}}>No imports yet.</div>}
+          {imports.map(imp => (
+            <div key={imp.id} onClick={() => { setOut(imp.analysis); setTab('insights'); }}
+              style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'14px',cursor:'pointer'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div>
+                  <div style={{color:B.white,fontWeight:700,fontSize:13}}>{imp.platform} — {imp.clientName}</div>
+                  <div style={{color:B.gray,fontSize:11,marginTop:2}}>{imp.period} · {new Date(imp.importedAt).toLocaleDateString()}</div>
+                </div>
+                <span style={{color:'rgba(0,194,255,0.6)',fontSize:11}}>View →</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// VISUAL CONTENT CALENDAR (planning + scheduling layer)
+// Drag-free, click-to-assign content to dates
+// Export to Meta Business Suite / Google Calendar
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const VISUAL_CAL_KEY = 'encis_visual_calendar';
+
+function VisualCalendar() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [calendarData, setCalendarData] = useState({});
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({title:'',platform:'Instagram',format:'Reel',status:'planned',hook:'',cta:''});
+  const [showForm, setShowForm] = useState(false);
+
+  useEffect(() => {
+    try { const s = localStorage.getItem(VISUAL_CAL_KEY); if (s) setCalendarData(JSON.parse(s)); } catch {}
+    setSelectedClient(activeClient);
+  }, []);
+
+  const save = (data) => { setCalendarData(data); try { localStorage.setItem(VISUAL_CAL_KEY, JSON.stringify(data)); } catch {} };
+
+  const clientKey = selectedClient?.id || 'default';
+  const clientCal = calendarData[clientKey] || {};
+
+  const addPost = () => {
+    if (!form.title || !selectedDate) return;
+    const key = selectedDate;
+    const post = {...form, id: Date.now().toString(), date: key};
+    const updated = {...calendarData, [clientKey]: {...clientCal, [key]: [...(clientCal[key]||[]), post]}};
+    save(updated); setForm({title:'',platform:'Instagram',format:'Reel',status:'planned',hook:'',cta:''}); setShowForm(false);
+  };
+
+  const removePost = (date, postId) => {
+    const updated = {...calendarData, [clientKey]: {...clientCal, [date]: (clientCal[date]||[]).filter(p=>p.id!==postId)}};
+    save(updated);
+  };
+
+  const updateStatus = (date, postId, status) => {
+    const updated = {...calendarData, [clientKey]: {...clientCal, [date]: (clientCal[date]||[]).map(p=>p.id===postId?{...p,status}:p)}};
+    save(updated);
+  };
+
+  // Build calendar grid
+  const year = currentMonth.getFullYear();
+  const month = currentMonth.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const today = new Date().toISOString().split('T')[0];
+
+  const formatDate = (d) => `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  const monthName = currentMonth.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+
+  const statusColors = {planned:'rgba(0,194,255,0.3)',approved:'rgba(39,174,96,0.4)',published:'rgba(255,255,255,0.2)',needs_edit:'rgba(233,69,96,0.4)'};
+  const platformColors = {Instagram:'#C13584',YouTube:'#FF0000',Facebook:'#1877F2',LinkedIn:'#0A66C2',Email:'#00C2FF'};
+
+  // Export to scheduling-friendly format
+  const exportForMeta = () => {
+    const allPosts = Object.entries(clientCal).flatMap(([date, posts]) => posts.map(p => ({...p, date})));
+    const csv = ['Date,Platform,Format,Title,Hook,CTA,Status',
+      ...allPosts.map(p => `${p.date},${p.platform},${p.format},"${p.title}","${p.hook|| ''}","${p.cta||''}",${p.status}`)
+    ].join('\n');
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download=`${selectedClient?.name|| 'Content'}-Calendar.csv`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  };
+
+  const totalPosts = Object.values(clientCal).flat().length;
+  const planned = Object.values(clientCal).flat().filter(p=>p.status==='planned').length;
+  const approved = Object.values(clientCal).flat().filter(p=>p.status==='approved').length;
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <span style={{fontSize:32}}>📅</span>
+          <div>
+            <h2 style={{color:B.white,margin:0}}>Visual Content Calendar</h2>
+            <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Plan, approve, and export. Download CSV for Meta Business Suite or any free scheduler.</p>
+          </div>
+        </div>
+        <div style={{display:'flex',gap:8}}>
+          <button onClick={exportForMeta} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+            ↓ Export CSV
+          </button>
+        </div>
+      </div>
+
+      {/* Client selector */}
+      <div style={{marginBottom:16}}>
+        <SecLabel>Client</SecLabel>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+          {clients.map(c => <button key={c.id} onClick={()=>setSelectedClient(c)} style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:selectedClient?.id===c.id?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.name}</button>)}
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:16}}>
+        {[['Total Posts',totalPosts,'#00C2FF'],['Planned',planned,'#f5a623'],['Approved',approved,'#27ae60']].map(([l,v,c])=>(
+          <div key={l} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:8,padding:'10px',textAlign:'center'}}>
+            <div style={{fontSize:22,fontWeight:800,color:c}}>{v}</div>
+            <div style={{fontSize:10,color:B.gray,textTransform:'uppercase',letterSpacing:1,marginTop:2}}>{l}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Month navigation */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+        <button onClick={()=>setCurrentMonth(new Date(year,month-1,1))} style={{background:'rgba(255,255,255,0.06)',border:'none',color:B.white,borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:14}}>←</button>
+        <div style={{color:B.white,fontWeight:700,fontSize:15}}>{monthName}</div>
+        <button onClick={()=>setCurrentMonth(new Date(year,month+1,1))} style={{background:'rgba(255,255,255,0.06)',border:'none',color:B.white,borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:14}}>→</button>
+      </div>
+
+      {/* Day headers */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:4,marginBottom:4}}>
+        {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>(
+          <div key={d} style={{textAlign:'center',fontSize:10,fontWeight:700,color:B.gray,letterSpacing:1,textTransform:'uppercase',padding:'4px 0'}}>{d}</div>
+        ))}
+      </div>
+
+      {/* Calendar grid */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:4,marginBottom:16}}>
+        {Array.from({length:firstDay}, (_,i) => <div key={`e${i}`}/>)}
+        {Array.from({length:daysInMonth}, (_,i) => {
+          const d = i+1;
+          const dateStr = formatDate(d);
+          const posts = clientCal[dateStr] || [];
+          const isToday = dateStr === today;
+          const isSelected = selectedDate === dateStr;
+          return (
+            <div key={d} onClick={()=>{setSelectedDate(dateStr);setShowForm(true);}}
+              style={{minHeight:70,background:isSelected?'rgba(0,194,255,0.1)':isToday?'rgba(0,194,255,0.05)':'rgba(255,255,255,0.02)',border:`1px solid ${isSelected?'rgba(0,194,255,0.4)':isToday?'rgba(0,194,255,0.2)':'rgba(255,255,255,0.06)'}`,borderRadius:8,padding:'6px',cursor:'pointer',transition:'all 0.1s'}}>
+              <div style={{fontSize:11,fontWeight:isToday?800:500,color:isToday?'#00C2FF':B.gray,marginBottom:3}}>{d}</div>
+              {posts.slice(0,3).map(p => (
+                <div key={p.id} onClick={e=>{e.stopPropagation();}}
+                  style={{background:statusColors[p.status]|| 'rgba(255,255,255,0.1)',borderRadius:3,padding:'2px 4px',marginBottom:2,display:'flex',alignItems:'center',gap:3}}>
+                  <div style={{width:4,height:4,borderRadius:'50%',background:platformColors[p.platform]||B.red,flexShrink:0}}/>
+                  <span style={{fontSize:9,color:B.white,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>{p.title}</span>
+                  <button onClick={e=>{e.stopPropagation();removePost(dateStr,p.id);}} style={{background:'none',border:'none',color:'rgba(255,255,255,0.3)',cursor:'pointer',fontSize:9,padding:0,lineHeight:1}}>×</button>
+                </div>
+              ))}
+              {posts.length > 3 && <div style={{fontSize:9,color:B.gray}}>+{posts.length-3} more</div>}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Add post form */}
+      {showForm && selectedDate && (
+        <Card>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+            <div style={{color:B.white,fontWeight:700,fontSize:14}}>Add Post — {new Date(selectedDate+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</div>
+            <button onClick={()=>setShowForm(false)} style={{background:'rgba(255,255,255,0.06)',border:'none',color:B.gray,borderRadius:6,padding:'4px 10px',cursor:'pointer',fontSize:12}}>Close</button>
+          </div>
+
+          {/* Show existing posts for this date */}
+          {(clientCal[selectedDate]||[]).length > 0 && (
+            <div style={{marginBottom:14}}>
+              <SecLabel>Scheduled for this day</SecLabel>
+              {(clientCal[selectedDate]||[]).map(p => (
+                <div key={p.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:8,padding:'10px 12px',marginBottom:6,display:'flex',alignItems:'center',gap:10}}>
+                  <div style={{width:6,height:6,borderRadius:'50%',background:platformColors[p.platform],flexShrink:0}}/>
+                  <div style={{flex:1}}>
+                    <div style={{color:B.white,fontSize:12,fontWeight:600}}>{p.title}</div>
+                    <div style={{color:B.gray,fontSize:10,marginTop:1}}>{p.platform} · {p.format}</div>
+                  </div>
+                  <select value={p.status} onChange={e=>updateStatus(selectedDate,p.id,e.target.value)} style={{background:'rgba(0,0,0,0.4)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:4,padding:'3px 6px',fontSize:10,cursor:'pointer'}}>
+                    {['planned','approved','published','needs_edit'].map(s=><option key={s} value={s} style={{background:'#080D14'}}>{s.replace('_',' ')}</option>)}
+                  </select>
+                  <button onClick={()=>removePost(selectedDate,p.id)} style={{background:'none',border:'none',color:'rgba(255,255,255,0.2)',cursor:'pointer',fontSize:14}}>✕</button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <SecLabel>New Post</SecLabel>
+          <input value={form.title} onChange={e=>setForm(p=>({...p,title:e.target.value}))} placeholder="Post title or topic"
+            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:10,boxSizing:'border-box'}}/>
+          <input value={form.hook} onChange={e=>setForm(p=>({...p,hook:e.target.value}))} placeholder="Opening hook (optional)"
+            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:10,boxSizing:'border-box'}}/>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:10}}>
+            {['Instagram','YouTube','Facebook','LinkedIn','Email'].map(p=><button key={p} onClick={()=>setForm(f=>({...f,platform:p}))} style={{background:form.platform===p?B.red:'rgba(255,255,255,0.06)',color:form.platform===p?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
+          </div>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:14}}>
+            {['Reel','Carousel','Story','Post','Email','YouTube','Short'].map(f=><button key={f} onClick={()=>setForm(p=>({...p,format:f}))} style={{background:form.format===f?B.red:'rgba(255,255,255,0.06)',color:form.format===f?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{f}</button>)}
+          </div>
+          <RedBtn onClick={addPost} disabled={!form.title}>Add to Calendar</RedBtn>
+        </Card>
+      )}
+
+      <div style={{marginTop:16,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'12px 16px',fontSize:12,color:B.gray,lineHeight:1.8}}>
+        <strong style={{color:B.light}}>Free scheduling workflow:</strong> Plan here → Export CSV → Upload to Meta Business Suite (free, schedules Instagram + Facebook) or copy content to YouTube Studio, LinkedIn, or any scheduler. SIGNAL handles the strategy and planning layer.
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// AI STRATEGY REVIEW (auto-generated monthly, no API needed)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const STRATEGY_REVIEW_KEY = 'encis_strategy_reviews';
+
+const STRATEGY_REVIEW_PROMPT = (client, roiData, contentData, calendarData, period) => `
+${VOICE}
+Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+
+CLIENT: ${client.name} (${client.handle})
+REVIEW PERIOD: ${period}
+
+ROI PERFORMANCE DATA:
+${roiData}
+
+CONTENT PERFORMANCE (rated posts):
+${contentData}
+
+CALENDAR EXECUTION (what was planned vs posted):
+${calendarData}
+
+You are running a monthly AI strategy review. This replaces the monthly strategy call. Be direct. Use the actual numbers. Every recommendation must be tied to specific data.
+
+# Monthly Strategy Review: ${client.name}
+## ${period}
+
+## What the Numbers Say
+Straight reading of the data. What went up, what went down, what stayed flat. No spin.
+
+## The Strategic Verdict
+Is this account moving in the right direction? What is the single most important thing happening right now?
+
+## What Is Working (Double Down)
+3 specific patterns from the data worth repeating. Each with exact numbers and why it worked.
+
+## What Is Not Working (Cut or Change)
+3 specific underperformers with diagnosis. What to do about each.
+
+## Content Strategy Drift
+Has the content drifted from the original strategy? What angles are being neglected? What is being over-used?
+
+## The 30-Day Correction Plan
+5 specific changes for next month. Each tied to a data point. Specific enough to execute without another meeting.
+
+## Goals Check
+Are we on track for the 90-day goals? If not, what adjusts?
+
+## One Big Swing
+The single highest-leverage move this account could make right now that it has not tried yet.
+`;
+
+function AIStrategyReview() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [out, setOut] = useState('');
+  const [tab, setTab] = useState('generate');
+
+  useEffect(() => {
+    try { const s = localStorage.getItem(STRATEGY_REVIEW_KEY); if (s) setReviews(JSON.parse(s)); } catch {}
+    setSelectedClient(activeClient);
+  }, []);
+
+  const saveReviews = (list) => { setReviews(list); try { localStorage.setItem(STRATEGY_REVIEW_KEY, JSON.stringify(list)); } catch {} };
+
+  const buildContext = () => {
+    const roi = (() => { try { return JSON.parse(localStorage.getItem('encis_roi_data')|| '[]').slice(-8); } catch { return []; } })();
+    const log = (() => { try { return JSON.parse(localStorage.getItem('encis_content_log')|| '[]').slice(0,40); } catch { return []; } })();
+    const calData = (() => { try { const c = JSON.parse(localStorage.getItem(VISUAL_CAL_KEY)||'{}'); const k = selectedClient?.id|| 'default'; return Object.values(c[k]||{}).flat().slice(0,20); } catch { return []; } })();
+
+    const roiStr = roi.length ? roi.map(w=>`Week ${w.week}: Followers ${w.followers||'?'}, Reach ${w.reach|| '?'}, Saves ${w.saves||'?'}, Shares ${w.shares|| '?'}, Leads ${w.leads||'?'}. Top: ${w.topContent|| 'none'}`).join('\n') : 'No ROI data yet.';
+    const contentStr = log.length ? log.filter(e=>e.perf).slice(0,15).map(e=>`${e.perf} ${e.type}: "${e.title||e.topic|| 'untitled'}" (${e.date})`).join('\n') : 'No rated content yet.';
+    const calStr = calData.length ? calData.map(p=>`${p.date}: ${p.platform} ${p.format} "${p.title}" [${p.status}]`).join('\n') : 'No calendar data.';
+
+    return { roiStr, contentStr, calStr };
+  };
+
+  const generate = async () => {
+    if (!selectedClient) return;
+    setLoading(true); setOut('');
+    const { roiStr, contentStr, calStr } = buildContext();
+    const period = new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    const res = await ai(STRATEGY_REVIEW_PROMPT(selectedClient, roiStr, contentStr, calStr, period));
+    setOut(res);
+    const review = { id: Date.now(), clientId: selectedClient.id, clientName: selectedClient.name, period, analysis: res, generatedAt: Date.now() };
+    saveReviews([review, ...reviews.slice(0,11)]);
+    setTab('view');
+    setLoading(false);
+  };
+
+  const { roiStr, contentStr } = selectedClient ? buildContext() : { roiStr:'', contentStr:'' };
+  const hasData = roiStr !== 'No ROI data yet.' || contentStr !== 'No rated content yet.';
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🧠</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>AI Strategy Review</h2>
+          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Monthly strategic review generated automatically from your data. Replaces the $500/month strategy call.</p>
+        </div>
+      </div>
+
+      <div style={{display:'flex',gap:6,marginBottom:20}}>
+        {['generate','history'].map(t=>(
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?B.red:'rgba(255,255,255,0.06)',color:tab===t?'#000D1A':B.white,border:'none',borderRadius:8,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:700,textTransform:'capitalize'}}>
+            {t==='generate'?'Generate Review':`History (${reviews.length})`}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'generate' && (
+        <Card>
+          <SecLabel>Client</SecLabel>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+            {clients.map(c=><button key={c.id} onClick={()=>setSelectedClient(c)} style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:selectedClient?.id===c.id?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.name}</button>)}
+          </div>
+
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:16}}>
+            {[
+              {label:'ROI Data',val:roiStr!=='No ROI data yet.',desc:roiStr!=='No ROI data yet.'?'Weeks logged':'Log in ROI Dashboard'},
+              {label:'Content Ratings',val:contentStr!=='No rated content yet.',desc:contentStr!=='No rated content yet.'?'Rated posts found':'Rate in Content Memory'},
+              {label:'Calendar Data',val:false,desc:'Optional — add in Visual Calendar'},
+            ].map(d=>(
+              <div key={d.label} style={{background:d.val?'rgba(39,174,96,0.06)':'rgba(255,255,255,0.03)',border:`1px solid ${d.val?'rgba(39,174,96,0.2)':'rgba(255,255,255,0.07)'}`,borderRadius:8,padding:'10px 12px'}}>
+                <div style={{fontSize:10,color:d.val?'#27ae60':B.gray,fontWeight:700,textTransform:'uppercase',letterSpacing:1,marginBottom:4}}>{d.label}</div>
+                <div style={{fontSize:11,color:d.val?B.white:'rgba(255,255,255,0.4)'}}>{d.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          {!hasData && (
+            <div style={{background:'rgba(0,194,255,0.06)',border:'1px solid rgba(0,194,255,0.15)',borderRadius:8,padding:'10px 14px',marginBottom:16,fontSize:12,color:'rgba(0,194,255,0.8)'}}>
+              The review works best with ROI data and rated content. It will still generate from client profile and strategy context alone.
+            </div>
+          )}
+          <RedBtn onClick={generate} disabled={loading||!selectedClient}>{loading?'Generating review...':'Generate Monthly Strategy Review'}</RedBtn>
+          {loading&&<Spin/>}
+        </Card>
+      )}
+
+      {tab==='view' && out && <DocOutput text={out} title={`Strategy Review: ${selectedClient?.name}`}/>}
+
+      {tab==='history' && (
+        <div style={{display:'flex',flexDirection:'column',gap:8}}>
+          {reviews.length===0&&<div style={{textAlign:'center',padding:'3rem',color:B.gray}}>No reviews yet.</div>}
+          {reviews.map(r=>(
+            <div key={r.id} onClick={()=>{setOut(r.analysis);setTab('view');}} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'14px',cursor:'pointer'}}>
+              <div style={{color:B.white,fontWeight:700,fontSize:13}}>{r.clientName} — {r.period}</div>
+              <div style={{color:B.gray,fontSize:11,marginTop:2}}>Generated {new Date(r.generatedAt).toLocaleDateString()}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CLIENT ONBOARDING AUTOMATION
+// Runs all tools on new client add: audit, fingerprint, gaps, strategy draft
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const ONBOARDING_AUTO_PROMPT = (client) => `
+${VOICE}
+Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+
+NEW CLIENT ONBOARDING PACKAGE
+
+CLIENT PROFILE:
+Name: ${client.name}
+Handle: ${client.handle}
+Platforms: ${client.platforms}
+Voice: ${client.voice || 'Not provided'}
+Content angles: ${client.angles || 'Not specified'}
+Brand colors: ${client.colors || 'Not provided'}
+Additional context: ${client.notes || 'None'}
+
+Generate a complete client onboarding package. This replaces the discovery call and gives the agency everything needed to start executing on day one.
+
+# New Client Onboarding: ${client.name}
+
+## Client Snapshot
+Who this client is, what they do, and what their social media presence needs to accomplish. 3-4 sentences max.
+
+## Initial Platform Assessment
+For each platform (${client.platforms}): current state assessment based on profile data, priority ranking, and Week 1 action items.
+
+## Recommended Content Angles
+Based on who they are and what they sell: 5-6 specific content angles that will work for this specific client. Not generic. Tied to their business and audience.
+
+## Voice Profile (Initial)
+How this client should sound before voice fingerprinting. Tone, what they should never say, how they talk to their audience.
+
+## 30-Day Quick Start Plan
+Specific week-by-week actions for the first 30 days. Concrete tasks, not strategy fluff.
+
+## Content Ideas: First 10 Posts
+Specific filmable/postable ideas ready to execute. Each with: topic, format, platform, hook, and CTA.
+
+## Key Questions for First Call
+5-7 questions that will unlock the information needed to build a full 90-day strategy.
+
+## Red Flags to Watch
+Any inconsistencies or gaps in the profile that need to be addressed early.
+`;
+
+function OnboardingAutomation() {
+  const [clients] = useClients();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [out, setOut] = useState('');
+  const [packages, setPackages] = useState({});
+
+  useEffect(() => {
+    try { const s = localStorage.getItem('encis_onboarding_packages'); if (s) setPackages(JSON.parse(s)); } catch {}
+  }, []);
+
+  const generate = async () => {
+    if (!selectedClient) return;
+    setLoading(true); setOut('');
+    const res = await ai(ONBOARDING_AUTO_PROMPT(selectedClient));
+    setOut(res);
+    const updated = {...packages, [selectedClient.id]: {analysis: res, generatedAt: Date.now()}};
+    setPackages(updated);
+    try { localStorage.setItem('encis_onboarding_packages', JSON.stringify(updated)); } catch {}
+    setLoading(false);
+  };
+
+  const existing = selectedClient ? packages[selectedClient.id] : null;
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>⚡</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Onboarding Automation</h2>
+          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Add a client, run this. Full onboarding package before the first call. Platform assessment, content angles, 30-day plan, first 10 posts.</p>
+        </div>
+      </div>
+
+      <Card>
+        <SecLabel>Select Client to Onboard</SecLabel>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:8,marginBottom:16}}>
+          {clients.map(c => {
+            const done = !!packages[c.id];
+            return (
+              <button key={c.id} onClick={()=>setSelectedClient(c)}
+                style={{background:selectedClient?.id===c.id?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',border:`1px solid ${selectedClient?.id===c.id?'rgba(0,194,255,0.3)':'rgba(255,255,255,0.08)'}`,borderRadius:10,padding:'14px',cursor:'pointer',textAlign:'left'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:4}}>
+                  <div style={{color:B.white,fontWeight:700,fontSize:13}}>{c.name}</div>
+                  {done && <span style={{background:'rgba(39,174,96,0.15)',color:'#27ae60',borderRadius:4,padding:'1px 6px',fontSize:9,fontWeight:700}}>DONE</span>}
+                </div>
+                <div style={{color:B.gray,fontSize:11}}>{c.handle}</div>
+                {done && <div style={{color:'rgba(255,255,255,0.3)',fontSize:10,marginTop:4}}>Generated {new Date(packages[c.id].generatedAt).toLocaleDateString()}</div>}
+              </button>
+            );
+          })}
+        </div>
+
+        {selectedClient && (
+          <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+            <RedBtn onClick={generate} disabled={loading}>{loading?'Generating package...':'⚡ Generate Onboarding Package'}</RedBtn>
+            {existing && <button onClick={()=>setOut(existing.analysis)} style={{background:'rgba(255,255,255,0.06)',color:B.light,border:'none',borderRadius:8,padding:'10px 18px',fontSize:13,cursor:'pointer'}}>View Existing</button>}
+          </div>
+        )}
+        {loading && <Spin/>}
+      </Card>
+      {out && <DocOutput text={out} title={`Onboarding Package: ${selectedClient?.name}`}/>}
+    </div>
+  );
+}
+
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BIO LINK PAGE BUILDER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const BIOLINK_PROMPT = (client, links, headline, subtext, style) => `
+${VOICE}
+
+CLIENT: ${client.name} (${client.handle})
+PLATFORMS: ${client.platforms}
+HEADLINE: ${headline}
+SUBTEXT: ${subtext}
+LINKS TO INCLUDE: ${links}
+STYLE: ${style}
+
+Generate a complete, self-contained HTML bio link page. This is the page behind their link-in-bio.
+Requirements:
+- Mobile-first, looks premium on phone
+- Dark background matching SIGNAL aesthetic (#080D14 base)
+- Profile section with name, handle, and one-line description
+- Clean link buttons with icons for each platform/CTA
+- Email capture section with lead magnet hook
+- Footer with copyright
+
+Return ONLY the complete HTML — no explanation, no markdown, no backticks. Just the raw HTML starting with <!DOCTYPE html>.`;
+
+function BioLinkBuilder() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [headline, setHeadline] = useState('');
+  const [subtext, setSubtext] = useState('');
+  const [links, setLinks] = useState([
+    { id:1, label:'Follow on Instagram', url:'https://instagram.com/everydayelevations', icon:'📸' },
+    { id:2, label:'Listen to the Podcast', url:'https://everydayelevations.com/podcast', icon:'🎙️' },
+    { id:3, label:'Colorado Real Estate', url:'https://frickasellscolorado.com', icon:'🏠' },
+  ]);
+  const [newLink, setNewLink] = useState({ label:'', url:'', icon:'🔗' });
+  const [style, setStyle] = useState('Midnight Premium');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [preview, setPreview] = useState(false);
+
+  useEffect(() => { setSelectedClient(activeClient); }, []);
+
+  const addLink = () => {
+    if (!newLink.label || !newLink.url) return;
+    setLinks(prev => [...prev, { ...newLink, id: Date.now() }]);
+    setNewLink({ label:'', url:'', icon:'🔗' });
+  };
+
+  const removeLink = (id) => setLinks(prev => prev.filter(l => l.id !== id));
+
+  const run = async () => {
+    if (!selectedClient) return;
+    setLoading(true); setOut('');
+    const linkList = links.map(l => `${l.icon} ${l.label}: ${l.url}`).join('\n');
+    const res = await ai(BIOLINK_PROMPT(selectedClient, linkList, headline || `${selectedClient.name} — ${selectedClient.handle}`, subtext, style), 'You build bio link pages. Return only raw HTML starting with <!DOCTYPE html>.');
+    const html = res.replace(/```html|```/g, '').trim();
+    setOut(html);
+    setLoading(false);
+  };
+
+  const download = () => {
+    const blob = new Blob([out], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const printWin = window.open(url, '_blank');
+    if (printWin) printWin.onload = () => printWin.print();
+    else { const a = document.createElement('a'); a.href=url; a.download='biolink.html'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+    URL.revokeObjectURL(url);
+  };
+
+  const styles = ['Midnight Premium', 'Clean Minimal', 'Bold Dark', 'Warm Creator'];
+  const iconOptions = ['🔗','📸','▶️','💼','🏠','🎙️','📧','🤝','🏆','📱','🌐','💰','🔥','📚','🎯'];
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🔗</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Bio Link Page Builder</h2>
+          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Builds a complete link-in-bio landing page. Download and host free on GitHub Pages, Netlify, or Carrd.</p>
+        </div>
+      </div>
+      {activeClient && !activeClient.isDefault && <ClientBanner client={activeClient}/>}
+      <Card>
+        <SecLabel>Client</SecLabel>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+          {clients.map(c => <button key={c.id} onClick={()=>setSelectedClient(c)} style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:selectedClient?.id===c.id?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.name}</button>)}
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+          <div>
+            <SecLabel>Page Headline</SecLabel>
+            <input value={headline} onChange={e=>setHeadline(e.target.value)} placeholder={`${selectedClient?.name || 'Name'} — ${selectedClient?.handle || '@handle'}`}
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>One-Line Description</SecLabel>
+            <input value={subtext} onChange={e=>setSubtext(e.target.value)} placeholder="HR Manager · Mindset Coach · Colorado Real Estate"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+        </div>
+        <SecLabel>Page Style</SecLabel>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+          {styles.map(s => <button key={s} onClick={()=>setStyle(s)} style={{background:style===s?B.red:'rgba(255,255,255,0.06)',color:style===s?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{s}</button>)}
+        </div>
+        <SecLabel>Links</SecLabel>
+        <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:12}}>
+          {links.map((l,i) => (
+            <div key={l.id} style={{display:'flex',alignItems:'center',gap:8,background:'rgba(255,255,255,0.03)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:8,padding:'8px 12px'}}>
+              <span style={{fontSize:16,cursor:'pointer'}} onClick={()=>{const icons=iconOptions;const ci=icons.indexOf(l.icon);setLinks(prev=>prev.map(x=>x.id===l.id?{...x,icon:icons[(ci+1)%icons.length]}:x));}}>{l.icon}</span>
+              <div style={{flex:1}}>
+                <div style={{color:B.white,fontSize:12,fontWeight:600}}>{l.label}</div>
+                <div style={{color:B.gray,fontSize:11}}>{l.url}</div>
+              </div>
+              <button onClick={()=>removeLink(l.id)} style={{background:'none',border:'none',color:'rgba(255,255,255,0.2)',cursor:'pointer',fontSize:14}}>✕</button>
+            </div>
+          ))}
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'auto 1fr 1fr auto',gap:8,marginBottom:16,alignItems:'end'}}>
+          <div>
+            <SecLabel>Icon</SecLabel>
+            <select value={newLink.icon} onChange={e=>setNewLink(p=>({...p,icon:e.target.value}))} style={{background:'rgba(0,0,0,0.4)',color:B.white,border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 8px',fontSize:16,cursor:'pointer'}}>
+              {iconOptions.map(i=><option key={i} value={i}>{i}</option>)}
+            </select>
+          </div>
+          <div>
+            <SecLabel>Label</SecLabel>
+            <input value={newLink.label} onChange={e=>setNewLink(p=>({...p,label:e.target.value}))} placeholder="Button label"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>URL</SecLabel>
+            <input value={newLink.url} onChange={e=>setNewLink(p=>({...p,url:e.target.value}))} placeholder="https://"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div style={{paddingTop:20}}>
+            <button onClick={addLink} disabled={!newLink.label||!newLink.url} style={{background:B.red,color:'#000D1A',border:'none',borderRadius:8,padding:'9px 16px',fontWeight:800,cursor:'pointer',fontSize:13,whiteSpace:'nowrap'}}>+ Add</button>
+          </div>
+        </div>
+        <RedBtn onClick={run} disabled={loading||!selectedClient}>{loading?'Building page...':'🔗 Build Bio Link Page'}</RedBtn>
+      </Card>
+      {loading && <Spin/>}
+      {out && (
+        <div style={{marginTop:20}}>
+          <div style={{display:'flex',gap:8,marginBottom:12}}>
+            <button onClick={()=>setPreview(p=>!p)} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:'pointer'}}>{preview?'Hide Preview':'👁 Preview'}</button>
+            <button onClick={download} style={{background:B.red,color:'#000D1A',border:'none',borderRadius:8,padding:'7px 16px',fontSize:12,fontWeight:800,cursor:'pointer'}}>⬇ Download HTML</button>
+            <CopyBtn text={out}/>
+          </div>
+          {preview && <iframe srcDoc={out} style={{width:'100%',height:600,border:'1px solid rgba(0,194,255,0.1)',borderRadius:12}} title="Bio Link Preview"/>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CLIENT COMMUNICATION TEMPLATES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const COMM_TEMPLATES_PROMPT = (client, templateType, context, agencyName) => `
+${VOICE}
+
+AGENCY: ${agencyName || 'Everyday Elevations / SIGNAL'}
+CLIENT: ${client.name} (${client.handle})
+TEMPLATE TYPE: ${templateType}
+ADDITIONAL CONTEXT: ${context || 'None'}
+
+Write a complete, professional ${templateType} communication. This is sent from the agency to the client.
+Tone: warm but professional. Direct. No filler sentences. Sounds like a real person wrote it, not a template.
+Include subject line for emails.
+
+Write the complete message now. No placeholders where real content should go.`;
+
+function ClientCommsTemplates() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [templateType, setTemplateType] = useState('');
+  const [context, setContext] = useState('');
+  const [agencyName, setAgencyName] = useState('');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setSelectedClient(activeClient);
+    try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null'); if(wl?.agencyName) setAgencyName(wl.agencyName); } catch {}
+  }, []);
+
+  const templates = [
+    { id:'welcome', label:'Onboarding Welcome', desc:'First email when client signs' },
+    { id:'weekly', label:'Weekly Check-In', desc:'Tuesday touchpoint' },
+    { id:'report_delivery', label:'Report Delivery', desc:'Monthly report send email' },
+    { id:'scope_expansion', label:'Scope Expansion Pitch', desc:'Upsell additional services' },
+    { id:'missed_deadline', label:'Missed Deadline', desc:'Honest delay acknowledgment' },
+    { id:'renewal', label:'Contract Renewal', desc:'90-day renewal conversation' },
+    { id:'pause_request', label:'Pause Response', desc:'Client wants to pause work' },
+    { id:'rate_increase', label:'Rate Increase', desc:'Announcing price adjustment' },
+    { id:'feedback_request', label:'Feedback Request', desc:'Asking for testimonial/review' },
+    { id:'content_approval', label:'Content Approval Request', desc:'Sending work for sign-off' },
+    { id:'strategy_pivot', label:'Strategy Pivot', desc:'Recommending a direction change' },
+    { id:'offboarding', label:'Offboarding', desc:'Professional end-of-contract' },
+  ];
+
+  const run = async () => {
+    if (!selectedClient || !templateType) return;
+    setLoading(true); setOut('');
+    const tLabel = templates.find(t=>t.id===templateType)?.label || templateType;
+    const res = await ai(COMM_TEMPLATES_PROMPT(selectedClient, tLabel, context, agencyName));
+    setOut(res); setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>📨</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Client Communication Templates</h2>
+          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Every email agencies send. Written in your voice, personalized per client. Ready to copy and send.</p>
+        </div>
+      </div>
+      <Card>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+          <div>
+            <SecLabel>Client</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {clients.map(c=><button key={c.id} onClick={()=>setSelectedClient(c)} style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:selectedClient?.id===c.id?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.name}</button>)}
+            </div>
+          </div>
+          <div>
+            <SecLabel>Agency Name</SecLabel>
+            <input value={agencyName} onChange={e=>setAgencyName(e.target.value)} placeholder="Your agency name"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+        </div>
+        <SecLabel>Template Type</SecLabel>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:6,marginBottom:16}}>
+          {templates.map(t=>(
+            <button key={t.id} onClick={()=>setTemplateType(t.id)}
+              style={{background:templateType===t.id?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',border:`1px solid ${templateType===t.id?'rgba(0,194,255,0.3)':'rgba(255,255,255,0.07)'}`,borderRadius:8,padding:'10px 12px',cursor:'pointer',textAlign:'left'}}>
+              <div style={{color:B.white,fontWeight:700,fontSize:12}}>{t.label}</div>
+              <div style={{color:B.gray,fontSize:11,marginTop:2}}>{t.desc}</div>
+            </button>
+          ))}
+        </div>
+        <SecLabel>Additional Context (optional)</SecLabel>
+        <input value={context} onChange={e=>setContext(e.target.value)} placeholder="e.g. Report is 3 days late due to platform data delay, client is generally easy-going"
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:16,boxSizing:'border-box'}}/>
+        <RedBtn onClick={run} disabled={loading||!selectedClient||!templateType}>{loading?'Writing...':'📨 Write Communication'}</RedBtn>
+      </Card>
+      {loading&&<Spin/>}
+      {out && <DocOutput text={out} title={`${templates.find(t=>t.id===templateType)?.label} — ${selectedClient?.name}`}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONTENT BRIEF GENERATOR (pre-filming session brief)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const CONTENT_BRIEF_PROMPT = (client, sessionDate, location, topics, equipment, duration) => `
+${VOICE}
+
+CLIENT: ${client.name} (${client.handle})
+SESSION DATE: ${sessionDate || 'TBD'}
+PRIMARY LOCATION: ${location || "Client's choice"}
+TOPICS TO COVER: ${topics}
+EQUIPMENT AVAILABLE: ${equipment || 'Phone + basic setup'}
+SESSION DURATION: ${duration || '2-3 hours'}
+PLATFORMS: ${client.platforms}
+
+Generate a complete pre-filming production brief the client can read the night before and walk in ready to execute.
+
+# Pre-Filming Brief: ${client.name}
+## Session: ${sessionDate || 'Upcoming'}
+
+## What We Are Filming Today
+Specific pieces to capture in this session. Numbered, with time estimates.
+
+## Talking Points Per Piece
+For each piece: the key message, what to say, what NOT to say, and the natural CTA.
+
+## What to Wear
+Specific direction for each setup/location change.
+
+## Environment Setup
+Each filming location with exact notes on lighting, background, and framing.
+
+## Stories to Tell
+3-5 specific personal stories or moments to weave into the content naturally.
+
+## Hooks to Open With
+One ready-to-use opening line per piece. No improv needed.
+
+## Things to Avoid Today
+Words, topics, or angles that are off-brand for this client.
+
+## Post-Session Checklist
+What to confirm before leaving the filming location.
+
+## Content Breakdown
+Platform-by-platform breakdown of which pieces will be used where.
+`;
+
+function ContentBriefGenerator() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [sessionDate, setSessionDate] = useState('');
+  const [location, setLocation] = useState('');
+  const [topics, setTopics] = useState('');
+  const [equipment, setEquipment] = useState('');
+  const [duration, setDuration] = useState('2-3 hours');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => { setSelectedClient(activeClient); }, []);
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🎬</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Content Brief Generator</h2>
+          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Pre-filming brief for the client. What to wear, where to film, what to say, stories to tell. Read it the night before and walk in ready.</p>
+        </div>
+      </div>
+      {activeClient && !activeClient.isDefault && <ClientBanner client={activeClient}/>}
+      <Card>
+        <SecLabel>Client</SecLabel>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+          {clients.map(c=><button key={c.id} onClick={()=>setSelectedClient(c)} style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:selectedClient?.id===c.id?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.name}</button>)}
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+          <div>
+            <SecLabel>Session Date</SecLabel>
+            <input value={sessionDate} onChange={e=>setSessionDate(e.target.value)} placeholder="e.g. April 5, 2026"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Primary Location</SecLabel>
+            <input value={location} onChange={e=>setLocation(e.target.value)} placeholder="e.g. Home office, gym, outdoor trail"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Equipment Available</SecLabel>
+            <input value={equipment} onChange={e=>setEquipment(e.target.value)} placeholder="e.g. iPhone 15 Pro, ring light, tripod, lapel mic"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Session Duration</SecLabel>
+            <div style={{display:'flex',gap:6}}>
+              {['1 hour','2-3 hours','4-5 hours','Full day'].map(d=>(
+                <button key={d} onClick={()=>setDuration(d)} style={{background:duration===d?B.red:'rgba(255,255,255,0.06)',color:duration===d?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{d}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <SecLabel>Topics to Cover This Session</SecLabel>
+        <textarea value={topics} onChange={e=>setTopics(e.target.value)} rows={3}
+          placeholder="e.g. Morning routine reel, real estate market update, mindset post about showing up when it's hard, podcast promo clip"
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+        <RedBtn onClick={async()=>{if(!selectedClient||!topics)return;setLoading(true);setOut('');const r=await ai(CONTENT_BRIEF_PROMPT(selectedClient,sessionDate,location,topics,equipment,duration));setOut(r);setLoading(false);}} disabled={loading||!selectedClient||!topics}>
+          {loading?'Building brief...':'🎬 Generate Pre-Filming Brief'}
+        </RedBtn>
+      </Card>
+      {loading&&<Spin/>}
+      {out&&<DocOutput text={out} title={`Filming Brief: ${selectedClient?.name} — ${sessionDate|| 'Upcoming Session'}`}/>}
+    </div>
+  );
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// HASHTAG RESEARCH TOOL
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const HASHTAG_PROMPT = (niche, platform, angle, currentFollowers) => `
+${VOICE}
+Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+
+NICHE: ${niche}
+PLATFORM: ${platform}
+CONTENT ANGLE: ${angle}
+ACCOUNT SIZE: ${currentFollowers || 'Under 10K'} followers
+
+Generate a complete, tiered hashtag strategy for this niche on ${platform} right now. Every hashtag must be real and currently active.
+
+# Hashtag Strategy: ${niche} on ${platform}
+
+## Tier 1 — Niche (under 100K posts)
+10 hashtags that are specific enough to reach a targeted, engaged audience.
+For each: hashtag, approximate post count, why it works for this account.
+
+## Tier 2 — Mid-Range (100K–1M posts)
+10 hashtags with real reach but not oversaturated.
+For each: hashtag, approximate post count, content style that wins here.
+
+## Tier 3 — Broad (1M+ posts)
+5 hashtags for discovery. Use sparingly — these are competitive.
+For each: hashtag, approximate post count, when to use it.
+
+## Banned / Shadowbanned Risk
+5 hashtags in this niche that are commonly used but hurt reach. Avoid these.
+
+## Recommended Stack (copy-paste ready)
+The exact 20-25 hashtag combination optimized for this account size and niche.
+Put niche tags first, mid-range second, broad last.
+
+## Rotation Strategy
+How to rotate hashtags across posts to avoid the repetition penalty.
+`;
+
+function HashtagResearch() {
+  const [niche, setNiche] = useState('');
+  const [platform, setPlatform] = useState('Instagram');
+  const [angle, setAngle] = useState('emotional');
+  const [followers, setFollowers] = useState('Under 10K');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const [liveData, setLiveData] = useState('');
+
+  const fetchLive = async () => {
+    if (!niche) return;
+    setFetching(true); setLiveData('');
+    const res = await perp(`What are the most effective and currently active hashtags for ${niche} content on ${platform} in 2026? Include post counts and engagement levels. Which hashtags are oversaturated or shadowbanned?`);
+    setLiveData(res); setFetching(false);
+  };
+
+  const run = async () => {
+    if (!niche) return;
+    setLoading(true); setOut('');
+    const angleLabel = ANGLES.find(a=>a.id===angle)?.label || angle;
+    const combined = HASHTAG_PROMPT(niche, platform, angleLabel, followers) + (liveData ? `\n\nLIVE RESEARCH DATA:\n${liveData}` : '');
+    const res = await ai(combined);
+    setOut(res); setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>##</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Hashtag Research</h2>
+          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Perplexity pulls live hashtag data. SIGNAL builds a tiered strategy with a copy-paste ready stack and rotation plan.</p>
+        </div>
+      </div>
+      <Card>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+          <div>
+            <SecLabel>Niche / Topic</SecLabel>
+            <input value={niche} onChange={e=>setNiche(e.target.value)} placeholder="e.g. Colorado real estate, mindset coaching, endurance athlete"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Account Size</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {['Under 1K','1K–10K','10K–50K','50K–100K','100K+'].map(f=>(
+                <button key={f} onClick={()=>setFollowers(f)} style={{background:followers===f?B.red:'rgba(255,255,255,0.06)',color:followers===f?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{f}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+          <div>
+            <SecLabel>Platform</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {['Instagram','TikTok','X','LinkedIn','YouTube'].map(p=>(
+                <button key={p} onClick={()=>setPlatform(p)} style={{background:platform===p?B.red:'rgba(255,255,255,0.06)',color:platform===p?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <SecLabel>Content Angle</SecLabel>
+            <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
+              {ANGLES.map(a=>(
+                <button key={a.id} onClick={()=>setAngle(a.id)} style={{background:angle===a.id?B.red:'rgba(255,255,255,0.06)',color:angle===a.id?'#000D1A':B.white,border:'none',borderRadius:5,padding:'4px 8px',cursor:'pointer',fontSize:10,fontWeight:700}}>{a.emoji} {a.label}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <button onClick={fetchLive} disabled={fetching||!niche} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'9px 16px',cursor:'pointer',fontSize:12,fontWeight:700}}>{fetching?'Pulling live data...':'🔍 Pull Live Data First'}</button>
+          <RedBtn onClick={run} disabled={loading||!niche}>{loading?'Researching...':'## Build Hashtag Strategy'}</RedBtn>
+        </div>
+        {liveData && <div style={{marginTop:12,background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'10px',fontSize:11,color:'rgba(255,255,255,0.5)',maxHeight:80,overflowY:'auto'}}>{liveData.slice(0,300)}...</div>}
+      </Card>
+      {loading&&<Spin/>}
+      {out&&<DocOutput text={out} title={`Hashtag Strategy: ${niche} on ${platform}`}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONTENT SERIES PLANNER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const SERIES_PROMPT = (seriesName, theme, platform, episodeCount, client, cadence) => `
+${client ? `CLIENT: ${client.name} (${client.handle}). Voice: ${client.voice}` : VOICE}
+${CONTENT_SOP}
+${SWARBRICK}
+
+Series Name: "${seriesName}"
+Core Theme: ${theme}
+Platform: ${platform}
+Episodes: ${episodeCount}
+Cadence: ${cadence}
+
+Plan a complete content series that runs like a show, not random posts. Every episode connects to the arc.
+
+# Content Series: "${seriesName}"
+
+## Series Identity
+The one-paragraph pitch: what this series is, who it's for, and why they come back every episode.
+
+## Series Hook
+The one line that makes someone subscribe specifically for this series.
+
+## Recurring Format
+The exact structure every episode follows. Predictable enough to build habit, flexible enough to stay fresh.
+
+## Episode Plan (all ${episodeCount} episodes)
+For each episode:
+- Episode number and title
+- Core topic or story
+- Opening hook (first line)
+- Key point or reveal
+- Episode-specific CTA
+- Connection to the series arc
+
+## Series Branding
+Hashtag for the series. How to visually identify it in the feed. Audio or music direction.
+
+## Growth Arc
+How the series builds: what makes episode 6 more compelling than episode 1. How the audience grows with it.
+
+## Repurposing Plan
+How each episode becomes additional content: clips, carousels, quotes, email newsletter sections.
+`;
+
+function ContentSeriesPlanner() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [seriesName, setSeriesName] = useState('');
+  const [theme, setTheme] = useState('');
+  const [platform, setPlatform] = useState('Instagram');
+  const [episodeCount, setEpisodeCount] = useState('12');
+  const [cadence, setCadence] = useState('Weekly');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => { setSelectedClient(activeClient); }, []);
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>📺</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Content Series Planner</h2>
+          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Plan a named content series that runs like a show. Every episode mapped, connected, and optimized to build audience habit.</p>
+        </div>
+      </div>
+      {activeClient && !activeClient.isDefault && <ClientBanner client={activeClient}/>}
+      <Card>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+          <div>
+            <SecLabel>Series Name</SecLabel>
+            <input value={seriesName} onChange={e=>setSeriesName(e.target.value)} placeholder="e.g. Monday Mindset, Colorado Real Talk, The 5 AM Files"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Core Theme</SecLabel>
+            <input value={theme} onChange={e=>setTheme(e.target.value)} placeholder="e.g. Discipline over motivation, real estate truth, showing up daily"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:16}}>
+          <div>
+            <SecLabel>Platform</SecLabel>
+            <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
+              {['Instagram','YouTube','TikTok','LinkedIn','Podcast'].map(p=><button key={p} onClick={()=>setPlatform(p)} style={{background:platform===p?B.red:'rgba(255,255,255,0.06)',color:platform===p?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
+            </div>
+          </div>
+          <div>
+            <SecLabel>Episodes</SecLabel>
+            <div style={{display:'flex',gap:5}}>
+              {['6','8','12','16','24','52'].map(n=><button key={n} onClick={()=>setEpisodeCount(n)} style={{background:episodeCount===n?B.red:'rgba(255,255,255,0.06)',color:episodeCount===n?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{n}</button>)}
+            </div>
+          </div>
+          <div>
+            <SecLabel>Cadence</SecLabel>
+            <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
+              {['Daily','3x/week','Weekly','Bi-weekly'].map(c=><button key={c} onClick={()=>setCadence(c)} style={{background:cadence===c?B.red:'rgba(255,255,255,0.06)',color:cadence===c?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{c}</button>)}
+            </div>
+          </div>
+        </div>
+        <SecLabel>Client (optional)</SecLabel>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+          <button onClick={()=>setSelectedClient(null)} style={{background:!selectedClient?B.red:'rgba(255,255,255,0.06)',color:!selectedClient?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>My Voice</button>
+          {clients.filter(c=>!c.isDefault).map(c=><button key={c.id} onClick={()=>setSelectedClient(c)} style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:selectedClient?.id===c.id?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.name}</button>)}
+        </div>
+        <RedBtn onClick={async()=>{if(!seriesName||!theme)return;setLoading(true);setOut('');const r=await ai(SERIES_PROMPT(seriesName,theme,platform,episodeCount,selectedClient?.isDefault?null:selectedClient,cadence));setOut(r);setLoading(false);}} disabled={loading||!seriesName||!theme}>
+          {loading?'Planning series...':'📺 Plan Full Series'}
+        </RedBtn>
+      </Card>
+      {loading&&<Spin/>}
+      {out&&<DocOutput text={out} title={`Series Plan: "${seriesName}"`}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BIO OPTIMIZER (dedicated, more thorough than profile audit)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const BIO_OPTIMIZER_PROMPT = (client, platform, currentBio, goals) => `
+${VOICE}
+
+CLIENT: ${client.name} (${client.handle})
+PLATFORM: ${platform}
+CURRENT BIO: ${currentBio || 'Not provided — write from scratch based on client profile'}
+GOALS: ${goals || 'Grow followers, drive leads, build authority'}
+VOICE: ${client.voice || 'Direct, no fluff'}
+OFFERS: ${client.notes || 'Not specified'}
+
+Write 3 bio variations optimized for ${platform}. Each must be different enough to actually test.
+
+# Bio Optimization: ${client.name} on ${platform}
+
+## What the Current Bio Gets Wrong
+Specific problems with the existing bio. Not generic — look at what's there and diagnose it.
+
+## The 3 Core Jobs a ${platform} Bio Must Do
+For this specific account and goal.
+
+## Variation 1 — Authority First
+Leads with credibility and expertise. Who you are and why you matter.
+[Complete bio, ready to paste]
+Character count: [X/${platform === 'Instagram' ? '150' : platform === 'X' ? '160' : platform === 'TikTok' ? '80' : '220'}]
+
+## Variation 2 — Outcome First
+Leads with what the audience gets. What changes for them by following.
+[Complete bio, ready to paste]
+Character count: [X]
+
+## Variation 3 — Personality First
+Leads with voice and identity. Makes them feel like they already know you.
+[Complete bio, ready to paste]
+Character count: [X]
+
+## Recommended Variation
+Which to use and why. What to A/B test.
+
+## Name Field Optimization
+What to put in the name field for maximum SEO on ${platform}.
+
+## Link Strategy
+What the link should go to and what the CTA above it should say.
+`;
+
+function BioOptimizer() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [platform, setPlatform] = useState('Instagram');
+  const [currentBio, setCurrentBio] = useState('');
+  const [goals, setGoals] = useState('');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => { setSelectedClient(activeClient); }, []);
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>✏️</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Bio Optimizer</h2>
+          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>3 bio variations per platform — authority-first, outcome-first, personality-first. Name field SEO and link strategy included.</p>
+        </div>
+      </div>
+      {activeClient && !activeClient.isDefault && <ClientBanner client={activeClient}/>}
+      <Card>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+          <div>
+            <SecLabel>Client</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {clients.map(c=><button key={c.id} onClick={()=>setSelectedClient(c)} style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:selectedClient?.id===c.id?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.name}</button>)}
+            </div>
+          </div>
+          <div>
+            <SecLabel>Platform</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {['Instagram','TikTok','X','LinkedIn','YouTube','Facebook'].map(p=><button key={p} onClick={()=>setPlatform(p)} style={{background:platform===p?B.red:'rgba(255,255,255,0.06)',color:platform===p?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
+            </div>
+          </div>
+        </div>
+        <SecLabel>Current Bio (paste to get a diagnosis)</SecLabel>
+        <textarea value={currentBio} onChange={e=>setCurrentBio(e.target.value)} rows={3}
+          placeholder="Paste current bio here, or leave blank to write from scratch"
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+        <SecLabel>Primary Goals for This Platform</SecLabel>
+        <input value={goals} onChange={e=>setGoals(e.target.value)} placeholder="e.g. Drive real estate leads, grow email list, build podcast listeners"
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:16,boxSizing:'border-box'}}/>
+        <RedBtn onClick={async()=>{if(!selectedClient)return;setLoading(true);setOut('');const r=await ai(BIO_OPTIMIZER_PROMPT(selectedClient,platform,currentBio,goals));setOut(r);setLoading(false);}} disabled={loading||!selectedClient}>
+          {loading?'Optimizing...':'✏️ Optimize Bio'}
+        </RedBtn>
+      </Card>
+      {loading&&<Spin/>}
+      {out&&<DocOutput text={out} title={`Bio Optimization: ${selectedClient?.name} — ${platform}`}/>}
+    </div>
+  );
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PRICING CALCULATOR
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const PRICING_PROMPT = (niche, platforms, followers, engagementRate, services, market) => `
+${VOICE}
+Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+
+NICHE: ${niche}
+PLATFORMS: ${platforms}
+FOLLOWERS: ${followers}
+ENGAGEMENT RATE: ${engagementRate}%
+SERVICES TO PRICE: ${services}
+MARKET: ${market || 'US'}
+
+Generate a complete pricing guide. Be specific — use real market rates for 2026. No vague ranges.
+
+# Pricing Guide: ${niche} Creator
+
+## Market Context
+What creators at this level are actually charging right now. Where this account sits in the market.
+
+## Service Pricing
+
+### Brand Deals and Sponsored Content
+- Instagram Reel (dedicated): $[range]
+- Instagram Post (feed): $[range]
+- Instagram Story sequence: $[range]
+- TikTok dedicated: $[range]
+- YouTube integration (mid-roll): $[range]
+- YouTube dedicated: $[range]
+- LinkedIn sponsored post: $[range]
+Reasoning: why these rates for this account size and engagement.
+
+### UGC (User Generated Content)
+Rates for creating content the brand owns and posts themselves.
+- 30-second video: $[amount]
+- 60-second video: $[amount]
+- Photo set (5 images): $[amount]
+- Full package (video + photos + b-roll): $[amount]
+
+### Coaching and Consulting
+If applicable to this niche:
+- 1:1 session (60 min): $[amount]
+- Group program: $[amount]
+- VIP day: $[amount]
+
+### Real Estate (if applicable)
+- Referral fee structure
+- Content-to-lead conversion expectations
+
+### Agency / Content Creation Services
+- Monthly retainer: $[range]
+- Per deliverable rates
+
+## Negotiation Guide
+How to respond when a brand lowballs. What to never accept. When to walk away.
+
+## Rate Increase Strategy
+When to raise rates, by how much, and how to tell current clients.
+
+## Red Flags
+Types of deals to avoid regardless of the money.
+`;
+
+function PricingCalculator() {
+  const [niche, setNiche] = useState('Mindset coaching, real estate, Colorado lifestyle');
+  const [platforms, setPlatforms] = useState(['Instagram','YouTube']);
+  const [followers, setFollowers] = useState('2K–10K');
+  const [engagementRate, setEngagementRate] = useState('4');
+  const [services, setServices] = useState(['Brand Deals','UGC','Coaching','Real Estate']);
+  const [market, setMarket] = useState('US');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [activeClient] = useActiveClient();
+
+  const toggleItem = (arr, setArr, val) => setArr(prev => prev.includes(val) ? prev.filter(x=>x!==val) : [...prev, val]);
+
+  const followerRanges = ['Under 1K','1K–5K','2K–10K','10K–50K','50K–100K','100K–500K','500K+'];
+  const serviceOptions = ['Brand Deals','UGC','Coaching','Consulting','Real Estate','Agency Retainer','Speaking','Digital Products'];
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>💰</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Pricing Calculator</h2>
+          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Real 2026 market rates for brand deals, UGC, coaching, and agency services. Based on your follower count, engagement, and niche.</p>
+        </div>
+      </div>
+      {activeClient && !activeClient.isDefault && <ClientBanner client={activeClient}/>}
+      <Card>
+        <SecLabel>Niche Description</SecLabel>
+        <input value={niche} onChange={e=>setNiche(e.target.value)} placeholder="e.g. Fitness coaching, Colorado real estate, mindset content"
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:14,boxSizing:'border-box'}}/>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+          <div>
+            <SecLabel>Follower Range</SecLabel>
+            <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
+              {followerRanges.map(f=><button key={f} onClick={()=>setFollowers(f)} style={{background:followers===f?B.red:'rgba(255,255,255,0.06)',color:followers===f?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 9px',cursor:'pointer',fontSize:10,fontWeight:700}}>{f}</button>)}
+            </div>
+          </div>
+          <div>
+            <SecLabel>Engagement Rate (%)</SecLabel>
+            <input value={engagementRate} onChange={e=>setEngagementRate(e.target.value)} placeholder="e.g. 4.2"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+          <div>
+            <SecLabel>Active Platforms</SecLabel>
+            <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
+              {PLATFORMS.map(p=><button key={p} onClick={()=>toggleItem(platforms,setPlatforms,p)} style={{background:platforms.includes(p)?B.red:'rgba(255,255,255,0.06)',color:platforms.includes(p)?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 9px',cursor:'pointer',fontSize:10,fontWeight:700}}>{p}</button>)}
+            </div>
+          </div>
+          <div>
+            <SecLabel>Services to Price</SecLabel>
+            <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
+              {serviceOptions.map(s=><button key={s} onClick={()=>toggleItem(services,setServices,s)} style={{background:services.includes(s)?B.red:'rgba(255,255,255,0.06)',color:services.includes(s)?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 9px',cursor:'pointer',fontSize:10,fontWeight:700}}>{s}</button>)}
+            </div>
+          </div>
+        </div>
+        <RedBtn onClick={async()=>{if(!niche)return;setLoading(true);setOut('');const r=await ai(PRICING_PROMPT(niche,platforms.join(', '),followers,engagementRate,services.join(', '),market));setOut(r);setLoading(false);}} disabled={loading||!niche}>
+          {loading?'Calculating rates...':'💰 Generate Pricing Guide'}
+        </RedBtn>
+      </Card>
+      {loading&&<Spin/>}
+      {out&&<DocOutput text={out} title={`Pricing Guide: ${niche}`}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// STORY ARC PLANNER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const STORY_ARC_PROMPT = (client, campaign, duration, goal, platforms) => `
+${client ? `CLIENT: ${client.name} (${client.handle}). Voice: ${client.voice}` : VOICE}
+${CONTENT_SOP}
+
+Campaign: "${campaign}"
+Story Arc Duration: ${duration} days
+Goal: ${goal}
+Platforms: ${platforms}
+
+Plan the complete story arc for the Instagram and Facebook Stories that runs alongside this campaign.
+Stories move people emotionally. Each one serves a specific funnel purpose.
+
+# Story Arc: "${campaign}"
+
+## Arc Strategy
+The emotional journey from Day 1 to Day ${duration}. What the audience feels at each phase.
+
+## Daily Story Plan
+
+For each day include:
+- Day number and phase (Awareness / Connection / Trust / Proof / Urgency / Close)
+- Story purpose: what this story accomplishes in the funnel
+- Slide count: how many slides
+- Slide breakdown: what each slide contains (visual + text/voice)
+- CTA: exact swipe-up text or sticker prompt
+- Emotional target: how they feel after watching
+
+${Array.from({length: Math.min(parseInt(duration)||7, 30)}, (_,i) => `### Day ${i+1}`).join('\n')}
+
+## Reusable Story Templates
+3 story templates that work throughout the arc — save, share, poll types.
+
+## Story Highlights Plan
+Which stories to save to Highlights and how to organize them.
+`;
+
+function StoryArcPlanner() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [campaign, setCampaign] = useState('');
+  const [duration, setDuration] = useState('7');
+  const [goal, setGoal] = useState('');
+  const [platforms, setPlatforms] = useState(['Instagram']);
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => { setSelectedClient(activeClient); }, []);
+
+  const goalPresets = ['Launch lead magnet','Drive podcast listeners','Book real estate calls','Build community','Promote challenge','Announce new offer'];
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>📖</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Story Arc Planner</h2>
+          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Plan the complete Stories sequence for a campaign. Every slide mapped, every CTA purposeful, every day moves the funnel.</p>
+        </div>
+      </div>
+      {activeClient && !activeClient.isDefault && <ClientBanner client={activeClient}/>}
+      <Card>
+        <SecLabel>Client</SecLabel>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
+          <button onClick={()=>setSelectedClient(null)} style={{background:!selectedClient?B.red:'rgba(255,255,255,0.06)',color:!selectedClient?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>My Account</button>
+          {clients.filter(c=>!c.isDefault).map(c=><button key={c.id} onClick={()=>setSelectedClient(c)} style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:selectedClient?.id===c.id?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.name}</button>)}
+        </div>
+        <SecLabel>Campaign or Context</SecLabel>
+        <input value={campaign} onChange={e=>setCampaign(e.target.value)} placeholder="e.g. Spring Lead Magnet Launch, New Podcast Series, Real Estate Market Update"
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:14,boxSizing:'border-box'}}/>
+        <SecLabel>Goal</SecLabel>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:8}}>
+          {goalPresets.map(g=><button key={g} onClick={()=>setGoal(g)} style={{background:goal===g?B.red:'rgba(255,255,255,0.06)',color:goal===g?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{g}</button>)}
+        </div>
+        <input value={goal} onChange={e=>setGoal(e.target.value)} placeholder="Or describe the specific goal..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:14,boxSizing:'border-box'}}/>
+        <div style={{display:'flex',gap:12,marginBottom:16,flexWrap:'wrap'}}>
+          <div>
+            <SecLabel>Duration</SecLabel>
+            <div style={{display:'flex',gap:5}}>
+              {['3','5','7','10','14','21','30'].map(d=><button key={d} onClick={()=>setDuration(d)} style={{background:duration===d?B.red:'rgba(255,255,255,0.06)',color:duration===d?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{d}d</button>)}
+            </div>
+          </div>
+          <div>
+            <SecLabel>Platforms</SecLabel>
+            <div style={{display:'flex',gap:5}}>
+              {['Instagram','Facebook','TikTok'].map(p=><button key={p} onClick={()=>setPlatforms(prev=>prev.includes(p)?prev.filter(x=>x!==p):[...prev,p])} style={{background:platforms.includes(p)?B.red:'rgba(255,255,255,0.06)',color:platforms.includes(p)?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
+            </div>
+          </div>
+        </div>
+        <RedBtn onClick={async()=>{if(!campaign||!goal)return;setLoading(true);setOut('');const r=await ai(STORY_ARC_PROMPT(selectedClient?.isDefault?null:selectedClient,campaign,duration,goal,platforms.join(', ')));setOut(r);setLoading(false);}} disabled={loading||!campaign||!goal}>
+          {loading?'Planning arc...':'📖 Plan Story Arc'}
+        </RedBtn>
+      </Card>
+      {loading&&<Spin/>}
+      {out&&<DocOutput text={out} title={`Story Arc: ${campaign}`}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GUEST PREP KIT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const GUEST_PREP_PROMPT = (client, guestName, guestBio, guestHandle, episodeTopic, recordDate) => `
+${client ? `HOST: ${client.name} (${client.handle})` : VOICE}
+
+PODCAST: ${client?.name || 'Everyday Elevations'} Podcast
+GUEST: ${guestName}
+GUEST BIO: ${guestBio}
+GUEST HANDLE: ${guestHandle || 'Not provided'}
+EPISODE TOPIC: ${episodeTopic}
+RECORD DATE: ${recordDate || 'TBD'}
+
+Build a complete guest prep kit. Two documents in one:
+1. What the host gets (prep intel, questions, topics to avoid)
+2. What the guest gets (welcome email, tech instructions, what to expect)
+
+# Guest Prep Kit: ${guestName}
+
+## HOST PREP
+
+### Guest Intelligence
+Background on ${guestName}: their story, what they are known for, their best content, their audience, what they care about most.
+
+### Episode Strategy
+Why this guest now. What the audience will get. The specific angle to take.
+
+### 10 Interview Questions
+Ordered for narrative arc. Start with their story, build to insight, end with what the audience can do.
+Each question: the question + why it is being asked + the likely direction it goes.
+
+### Topics to Avoid
+Anything sensitive, overdone, or off-brand based on their public profile.
+
+### Soundbite Setup Questions
+3 questions almost guaranteed to produce a shareable quote.
+
+---
+
+## GUEST WELCOME PACKAGE
+
+### Welcome Email
+Subject line + full email welcoming them to the show. Warm, professional, excited without being cringe.
+
+### Tech Requirements
+Exactly what they need: equipment, software, internet, environment. Specific enough that a non-technical person can get it right.
+
+### What to Expect
+Timeline for the call, how long it runs, what topics will be covered, how the episode will be promoted.
+
+### Promotional Assets Checklist
+What the host needs from the guest before and after the episode.
+
+### Post-Episode Follow-Up Sequence
+Day 1: Thank you. Day 7: Episode live. Day 30: Check-in. Each fully written.
+`;
+
+function GuestPrepKit() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [guestName, setGuestName] = useState('');
+  const [guestBio, setGuestBio] = useState('');
+  const [guestHandle, setGuestHandle] = useState('');
+  const [episodeTopic, setEpisodeTopic] = useState('');
+  const [recordDate, setRecordDate] = useState('');
+  const [fetching, setFetching] = useState(false);
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => { setSelectedClient(activeClient); }, []);
+
+  const fetchGuestIntel = async () => {
+    if (!guestName) return;
+    setFetching(true);
+    const res = await perp(`Research ${guestName} ${guestHandle ? '(' + guestHandle + ')' : ''}: their background, what they are known for, their best content, their audience, recent projects in 2026, and their social media presence.`);
+    setGuestBio(res.slice(0, 1000));
+    setFetching(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🎤</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Guest Prep Kit</h2>
+          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Complete prep for host and guest. Intel, 10 questions, tech requirements, welcome email, and post-episode follow-up sequence.</p>
+        </div>
+      </div>
+      {activeClient && !activeClient.isDefault && <ClientBanner client={activeClient}/>}
+      <Card>
+        <SecLabel>Podcast Host</SecLabel>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
+          <button onClick={()=>setSelectedClient(null)} style={{background:!selectedClient?B.red:'rgba(255,255,255,0.06)',color:!selectedClient?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>Jason (Default)</button>
+          {clients.filter(c=>!c.isDefault).map(c=><button key={c.id} onClick={()=>setSelectedClient(c)} style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:selectedClient?.id===c.id?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.name}</button>)}
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+          <div>
+            <SecLabel>Guest Name</SecLabel>
+            <input value={guestName} onChange={e=>setGuestName(e.target.value)} placeholder="Full name"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Guest Handle</SecLabel>
+            <input value={guestHandle} onChange={e=>setGuestHandle(e.target.value)} placeholder="@handle or website"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+        </div>
+        <div style={{display:'flex',gap:8,marginBottom:12}}>
+          <div style={{flex:1}}>
+            <SecLabel>Guest Bio / Background</SecLabel>
+            <textarea value={guestBio} onChange={e=>setGuestBio(e.target.value)} rows={3}
+              placeholder="Paste bio or leave blank to auto-research with Perplexity"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+          </div>
+        </div>
+        <button onClick={fetchGuestIntel} disabled={fetching||!guestName}
+          style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:700,marginBottom:12}}>
+          {fetching?'Researching guest...':'🔍 Auto-Research Guest with Perplexity'}
+        </button>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+          <div>
+            <SecLabel>Episode Topic</SecLabel>
+            <input value={episodeTopic} onChange={e=>setEpisodeTopic(e.target.value)} placeholder="e.g. Building mental toughness through endurance sports"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Record Date</SecLabel>
+            <input value={recordDate} onChange={e=>setRecordDate(e.target.value)} placeholder="e.g. April 12, 2026"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+        </div>
+        <RedBtn onClick={async()=>{if(!guestName||!episodeTopic)return;setLoading(true);setOut('');const r=await ai(GUEST_PREP_PROMPT(selectedClient?.isDefault?null:selectedClient,guestName,guestBio,guestHandle,episodeTopic,recordDate));setOut(r);setLoading(false);}} disabled={loading||!guestName||!episodeTopic}>
+          {loading?'Building kit...':'🎤 Generate Guest Prep Kit'}
+        </RedBtn>
+      </Card>
+      {loading&&<Spin/>}
+      {out&&<DocOutput text={out} title={`Guest Prep Kit: ${guestName}`}/>}
+    </div>
+  );
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// OBJECTION HANDLER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const OBJECTION_PROMPT = (client, context, objections) => `
+${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
+
+CONTEXT: ${context}
+OBJECTIONS TO HANDLE: ${objections}
+
+Write complete, ready-to-use scripts for handling these objections. Every response should sound like a real person talking, not a sales script.
+
+# Objection Handler: ${context}
+
+For each objection, provide:
+
+## "[Objection]"
+
+**Why they say it:** What is really behind this objection. What fear, doubt, or circumstance is driving it.
+
+**DM / Text Response:**
+[Complete response, 2-4 sentences, conversational, copy-paste ready]
+
+**Email Response:**
+Subject: [subject line]
+[Full email, warm and direct]
+
+**In-Person / Call Response:**
+[Word-for-word script, natural pacing, includes pause points]
+
+**What NOT to say:**
+[2-3 things that will kill the conversation]
+
+**Follow-up if no response after 48 hours:**
+[Short, non-pushy follow-up message]
+`;
+
+function ObjectionHandler() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [context, setContext] = useState('');
+  const [customObjections, setCustomObjections] = useState('');
+  const [selectedObjections, setSelectedObjections] = useState([]);
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => { setSelectedClient(activeClient); }, []);
+
+  const contextPresets = [
+    { id:'realestate', label:'Real Estate', objections:["I'm not ready to buy yet","I want to wait for rates to drop","I'm just browsing","I already have an agent","Your commission is too high","I can sell it myself"] },
+    { id:'coaching', label:'Coaching / Consulting', objections:["I can't afford it right now","I need to think about it","I'm not sure it will work for me","Let me talk to my partner","I've tried things like this before","What makes you different?"] },
+    { id:'podcast', label:'Podcast Guest Pitch', objections:["I'm too busy","I don't do podcasts","I don't have enough experience","What's the audience size?","Can you send me more info?"] },
+    { id:'brand', label:'Brand Deal / Sponsorship', objections:["Your audience is too small","We don't have budget right now","We work with bigger creators","We need guaranteed numbers","We'll reach out when you grow"] },
+    { id:'agency', label:'Agency Pitch', objections:["We handle social in-house","We've been burned before","We need to see results first","The budget isn't there","We're not sure about ROI"] },
+  ];
+
+  const activeContext = contextPresets.find(c=>c.id===context);
+  const toggleObjection = (obj) => setSelectedObjections(prev=>prev.includes(obj)?prev.filter(o=>o!==obj):[...prev,obj]);
+
+  const run = async () => {
+    if (!context && !customObjections) return;
+    setLoading(true); setOut('');
+    const objList = selectedObjections.length > 0 ? selectedObjections.join('\n') : customObjections;
+    const contextLabel = activeContext?.label || context;
+    const res = await ai(OBJECTION_PROMPT(selectedClient?.isDefault?null:selectedClient, contextLabel, objList));
+    setOut(res); setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>💬</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Objection Handler</h2>
+          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Every objection in real estate, coaching, podcast pitching, and agency sales. DM, email, and in-person scripts ready to use.</p>
+        </div>
+      </div>
+      <Card>
+        <SecLabel>Context</SecLabel>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+          {contextPresets.map(c=><button key={c.id} onClick={()=>{setContext(c.id);setSelectedObjections([]);}} style={{background:context===c.id?B.red:'rgba(255,255,255,0.06)',color:context===c.id?'#000D1A':B.white,border:'none',borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.label}</button>)}
+        </div>
+        {activeContext && (
+          <>
+            <SecLabel>Select Objections</SecLabel>
+            <div style={{display:'flex',flexDirection:'column',gap:5,marginBottom:14}}>
+              {activeContext.objections.map(obj=>(
+                <button key={obj} onClick={()=>toggleObjection(obj)}
+                  style={{background:selectedObjections.includes(obj)?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',border:`1px solid ${selectedObjections.includes(obj)?'rgba(0,194,255,0.3)':'rgba(255,255,255,0.07)'}`,borderRadius:8,padding:'10px 14px',cursor:'pointer',textAlign:'left',color:selectedObjections.includes(obj)?'#00C2FF':B.white,fontSize:13,display:'flex',alignItems:'center',gap:10}}>
+                  <div style={{width:16,height:16,borderRadius:4,background:selectedObjections.includes(obj)?B.red:'rgba(255,255,255,0.1)',border:`2px solid ${selectedObjections.includes(obj)?B.red:'rgba(255,255,255,0.2)'}`,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    {selectedObjections.includes(obj)&&<span style={{color:'#000D1A',fontSize:10,fontWeight:900}}>✓</span>}
+                  </div>
+                  "{obj}"
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+        <SecLabel>Custom Objections (one per line)</SecLabel>
+        <textarea value={customObjections} onChange={e=>setCustomObjections(e.target.value)} rows={3}
+          placeholder="Add your own objections here, one per line..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+        <RedBtn onClick={run} disabled={loading||(selectedObjections.length===0&&!customObjections)}>
+          {loading?'Writing responses...':'💬 Generate Objection Scripts'}
+        </RedBtn>
+      </Card>
+      {loading&&<Spin/>}
+      {out&&<DocOutput text={out} title={`Objection Scripts: ${contextPresets.find(c=>c.id===context)?.label||context}`}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// A/B TEST TRACKER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const AB_KEY = 'encis_abtests';
+
+function ABTestTracker() {
+  const [tests, setTests] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({name:'',platform:'Instagram',type:'Hook',variantA:'',variantB:'',metric:'Saves',startDate:'',notes:''});
+  const [results, setResults] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [analysisOut, setAnalysisOut] = useState('');
+  const [selectedTest, setSelectedTest] = useState(null);
+
+  useEffect(() => { try { const s=localStorage.getItem(AB_KEY); if(s){const d=JSON.parse(s);setTests(d.tests||[]);setResults(d.results||{});} } catch {} }, []);
+
+  const save = (t, r) => { setTests(t); setResults(r); try { localStorage.setItem(AB_KEY, JSON.stringify({tests:t,results:r})); } catch {} };
+
+  const addTest = () => {
+    if (!form.name||!form.variantA||!form.variantB) return;
+    const test = {...form, id:Date.now().toString(), status:'running', createdAt:Date.now()};
+    const newTests = [test,...tests]; save(newTests, results); setForm({name:'',platform:'Instagram',type:'Hook',variantA:'',variantB:'',metric:'Saves',startDate:'',notes:''}); setShowForm(false);
+  };
+
+  const logResult = (testId, winner, aScore, bScore) => {
+    const newResults = {...results, [testId]:{winner, aScore, bScore, loggedAt:Date.now()}};
+    const newTests = tests.map(t=>t.id===testId?{...t,status:'complete'}:t);
+    save(newTests, newResults);
+  };
+
+  const analyzeAll = async () => {
+    const complete = tests.filter(t=>t.status==='complete');
+    if (!complete.length) return;
+    setLoading(true); setAnalysisOut('');
+    const summary = complete.map(t=>{
+      const r = results[t.id];
+      return `Test: "${t.name}" (${t.platform}, ${t.type})\nVariant A: ${t.variantA}\nVariant B: ${t.variantB}\nWinner: Variant ${r?.winner|| 'TBD'} | A score: ${r?.aScore||'?'} | B score: ${r?.bScore|| '?'}`;
+    }).join('\n\n');
+    const res = await ai(`${VOICE}\n\nAnalyze these completed A/B tests and extract the winning patterns:\n\n${summary}\n\nProvide:\n1. Overall patterns: what is consistently winning\n2. Platform-specific insights\n3. 5 specific recommendations for future content based on the data\n4. What to test next`);
+    setAnalysisOut(res); setLoading(false);
+  };
+
+  const types = ['Hook','Caption','Thumbnail','CTA','Format','Length','Posting Time'];
+  const metrics = ['Saves','Shares','Comments','Reach','Profile Visits','Link Clicks','Follows'];
+  const running = tests.filter(t=>t.status==='running');
+  const completedTests = tests.filter(t=>t.status==='complete');
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <span style={{fontSize:32}}>🧪</span>
+          <div>
+            <h2 style={{color:B.white,margin:0}}>A/B Test Tracker</h2>
+            <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Log content variations, track winners, and let SIGNAL find the patterns in what works.</p>
+          </div>
+        </div>
+        <div style={{display:'flex',gap:8}}>
+          {completedTests.length >= 3 && <button onClick={analyzeAll} disabled={loading} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>{loading?'Analyzing...':'🔍 Analyze All Results'}</button>}
+          <button onClick={()=>setShowForm(p=>!p)} style={{background:B.red,color:'#000D1A',border:'none',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:800}}>+ New Test</button>
+        </div>
+      </div>
+
+      {showForm && (
+        <Card style={{marginBottom:16}}>
+          <SecLabel>Test Name</SecLabel>
+          <input value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))} placeholder="e.g. Hook Test — Discipline Post April"
+            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:12}}>
+            <div>
+              <SecLabel>Platform</SecLabel>
+              <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
+                {['Instagram','TikTok','X','YouTube','LinkedIn'].map(p=><button key={p} onClick={()=>setForm(f=>({...f,platform:p}))} style={{background:form.platform===p?B.red:'rgba(255,255,255,0.06)',color:form.platform===p?'#000D1A':B.white,border:'none',borderRadius:4,padding:'4px 8px',cursor:'pointer',fontSize:10,fontWeight:700}}>{p}</button>)}
+              </div>
+            </div>
+            <div>
+              <SecLabel>Test Type</SecLabel>
+              <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
+                {types.map(t=><button key={t} onClick={()=>setForm(f=>({...f,type:t}))} style={{background:form.type===t?B.red:'rgba(255,255,255,0.06)',color:form.type===t?'#000D1A':B.white,border:'none',borderRadius:4,padding:'4px 8px',cursor:'pointer',fontSize:10,fontWeight:700}}>{t}</button>)}
+              </div>
+            </div>
+            <div>
+              <SecLabel>Success Metric</SecLabel>
+              <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
+                {metrics.map(m=><button key={m} onClick={()=>setForm(f=>({...f,metric:m}))} style={{background:form.metric===m?B.red:'rgba(255,255,255,0.06)',color:form.metric===m?'#000D1A':B.white,border:'none',borderRadius:4,padding:'4px 8px',cursor:'pointer',fontSize:10,fontWeight:700}}>{m}</button>)}
+              </div>
+            </div>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:12}}>
+            <div>
+              <SecLabel>Variant A</SecLabel>
+              <textarea value={form.variantA} onChange={e=>setForm(p=>({...p,variantA:e.target.value}))} rows={3} placeholder="First version..."
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'none',boxSizing:'border-box'}}/>
+            </div>
+            <div>
+              <SecLabel>Variant B</SecLabel>
+              <textarea value={form.variantB} onChange={e=>setForm(p=>({...p,variantB:e.target.value}))} rows={3} placeholder="Second version..."
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'none',boxSizing:'border-box'}}/>
+            </div>
+          </div>
+          <div style={{display:'flex',gap:8}}>
+            <RedBtn onClick={addTest} disabled={!form.name||!form.variantA||!form.variantB}>Add Test</RedBtn>
+            <button onClick={()=>setShowForm(false)} style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:8,padding:'9px 14px',fontSize:12,cursor:'pointer'}}>Cancel</button>
+          </div>
+        </Card>
+      )}
+
+      {running.length > 0 && (
+        <div style={{marginBottom:20}}>
+          <div style={{fontSize:11,color:'#f5a623',fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:10}}>Running ({running.length})</div>
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+            {running.map(t=>(
+              <div key={t.id} style={{background:'rgba(245,166,35,0.06)',border:'1px solid rgba(245,166,35,0.15)',borderRadius:10,padding:'14px'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10,flexWrap:'wrap',gap:8}}>
+                  <div>
+                    <div style={{color:B.white,fontWeight:700,fontSize:13}}>{t.name}</div>
+                    <div style={{color:B.gray,fontSize:11,marginTop:2}}>{t.platform} · {t.type} · Tracking: {t.metric}</div>
+                  </div>
+                  <div style={{display:'flex',gap:6}}>
+                    <button onClick={()=>logResult(t.id,'A','','')} style={{background:'rgba(0,194,255,0.1)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:5,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:700}}>A Won</button>
+                    <button onClick={()=>logResult(t.id,'B','','')} style={{background:'rgba(0,194,255,0.1)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:5,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:700}}>B Won</button>
+                  </div>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+                  <div style={{background:'rgba(255,255,255,0.03)',borderRadius:6,padding:'8px 10px'}}><div style={{fontSize:9,color:B.gray,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:3}}>Variant A</div><div style={{color:'rgba(255,255,255,0.75)',fontSize:12}}>{t.variantA}</div></div>
+                  <div style={{background:'rgba(255,255,255,0.03)',borderRadius:6,padding:'8px 10px'}}><div style={{fontSize:9,color:B.gray,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:3}}>Variant B</div><div style={{color:'rgba(255,255,255,0.75)',fontSize:12}}>{t.variantB}</div></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {completedTests.length > 0 && (
+        <div style={{marginBottom:20}}>
+          <div style={{fontSize:11,color:'#27ae60',fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:10}}>Completed ({completedTests.length})</div>
+          <div style={{display:'flex',flexDirection:'column',gap:6}}>
+            {completedTests.map(t=>{
+              const r=results[t.id];
+              return (
+                <div key={t.id} style={{background:'rgba(39,174,96,0.05)',border:'1px solid rgba(39,174,96,0.15)',borderRadius:10,padding:'12px 14px',display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+                  <div style={{flex:1}}>
+                    <div style={{color:B.white,fontWeight:600,fontSize:12}}>{t.name}</div>
+                    <div style={{color:B.gray,fontSize:11}}>{t.platform} · {t.type}</div>
+                  </div>
+                  {r?.winner && <span style={{background:'rgba(39,174,96,0.15)',color:'#27ae60',borderRadius:5,padding:'3px 10px',fontSize:11,fontWeight:700}}>Variant {r.winner} Won</span>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {tests.length === 0 && (
+        <div style={{textAlign:'center',padding:'3rem',background:'rgba(255,255,255,0.02)',borderRadius:12,border:'1px solid rgba(255,255,255,0.06)'}}>
+          <div style={{fontSize:40,marginBottom:12}}>🧪</div>
+          <div style={{color:B.white,fontWeight:700,marginBottom:8}}>No tests yet</div>
+          <div style={{color:B.gray,fontSize:13}}>Start your first A/B test to build a database of what works.</div>
+        </div>
+      )}
+
+      {analysisOut && <DocOutput text={analysisOut} title="A/B Test Pattern Analysis"/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// VIRAL FORMAT LIBRARY
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const VIRAL_FORMAT_PROMPT = (format, topic, platform, client) => `
+${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
+${CONTENT_SOP}
+${SWARBRICK}
+
+Viral Format: "${format.name}"
+Format Description: ${format.desc}
+Topic: ${topic}
+Platform: ${platform}
+
+Execute this viral format completely. Write the full script, caption, and hook. Make it feel native to the format and the platform.
+
+# ${format.name} — ${platform}
+
+## Why This Format Works
+The psychological mechanism behind why this format performs. What makes people watch, save, or share.
+
+## Full Script / Post
+[Complete, camera-ready execution of this format on the given topic. Word for word. No placeholders.]
+
+## Platform-Specific Caption
+[Native caption for ${platform}. With CTA and hashtag strategy.]
+
+## Thumbnail / Cover Frame
+[Exact description of the visual that should accompany this content.]
+
+## Variations
+3 quick ways to use this same format on a different topic from the Swarbrick dimensions.
+`;
+
+function ViralFormatLibrary() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedFormat, setSelectedFormat] = useState(null);
+  const [topic, setTopic] = useState('');
+  const [platform, setPlatform] = useState('Instagram');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState('All');
+
+  useEffect(() => { setSelectedClient(activeClient); }, []);
+
+  const formats = [
+    { id:'day-in-life', name:'Day in My Life', cat:'Lifestyle', desc:'Follow someone through a real day. Authenticity drives connection. Works across all niches.', platforms:['Instagram','TikTok','YouTube'] },
+    { id:'nobody-talks', name:'Nobody Talks About This', cat:'Education', desc:'Contrarian insight that challenges a common assumption. Triggers saves and shares.', platforms:['Instagram','TikTok','X','LinkedIn'] },
+    { id:'learned-after', name:'What I Learned After X Years', cat:'Authority', desc:'Position expertise through lived experience. Works better with specific numbers.', platforms:['Instagram','LinkedIn','YouTube'] },
+    { id:'things-stopped', name:'Things I Stopped Doing', cat:'Pattern Interrupt', desc:'Negative list format. Counterintuitive angle. High engagement because it challenges behavior.', platforms:['Instagram','TikTok','X'] },
+    { id:'told-myself', name:'Lies I Told Myself', cat:'Vulnerability', desc:'Honest self-reflection that creates parasocial connection. Trust builder.', platforms:['Instagram','TikTok','YouTube'] },
+    { id:'hot-take', name:'Hot Take', cat:'Opinion', desc:'Bold, potentially controversial claim stated with confidence. Reply bait. Use carefully.', platforms:['X','TikTok','Instagram','LinkedIn'] },
+    { id:'morning-routine', name:'Morning Routine', cat:'Lifestyle', desc:'People are obsessed with other people\'s routines. Specific details outperform aspirational.', platforms:['Instagram','TikTok','YouTube'] },
+    { id:'honest-review', name:'Honest Review', cat:'Trust', desc:'Raw, unsponsored opinion. Builds credibility because it acknowledges flaws.', platforms:['TikTok','YouTube','X'] },
+    { id:'before-after', name:'Before and After', cat:'Transformation', desc:'The clearest proof of concept. Physical, mental, financial, or skill transformation.', platforms:['Instagram','TikTok','YouTube'] },
+    { id:'pov', name:'POV Format', cat:'Storytelling', desc:'Second person immersive storytelling. High completion rates when opening line is specific.', platforms:['TikTok','Instagram'] },
+    { id:'questions-ask', name:'Questions to Ask Yourself', cat:'Reflection', desc:'Introspective prompt list. Saves well because people want to return to it.', platforms:['Instagram','LinkedIn','X'] },
+    { id:'unpopular-opinion', name:'Unpopular Opinion', cat:'Engagement', desc:'Starts debate. Comments go up because people must respond. High algorithm signal.', platforms:['Instagram','X','TikTok'] },
+    { id:'storytime', name:'Storytime', cat:'Narrative', desc:'Single specific story with a turning point. The more specific, the more universal.', platforms:['TikTok','Instagram','YouTube'] },
+    { id:'grwm', name:'Get Ready With Me (GRWM)', cat:'Lifestyle', desc:'Parallel narrative — doing something physical while delivering insight. Retention format.', platforms:['TikTok','Instagram','YouTube'] },
+    { id:'reading-comments', name:'Reading Comments / Responding', cat:'Community', desc:'Turns audience into content. Signals engagement. Builds parasocial connection.', platforms:['TikTok','YouTube','Instagram'] },
+    { id:'stitch-duet', name:'Stitch or Duet Response', cat:'Reach', desc:'Borrow someone else\'s momentum. Agree, disagree, or add to their take.', platforms:['TikTok'] },
+    { id:'checklist', name:'The Checklist', cat:'Education', desc:'Actionable list format. Saves more than almost anything else because it is reference material.', platforms:['Instagram','LinkedIn','TikTok'] },
+    { id:'what-no-one-tells', name:'What No One Tells You About', cat:'Education', desc:'Expectation vs reality. Creates urgency to watch because everyone fears being uninformed.', platforms:['TikTok','Instagram','YouTube','LinkedIn'] },
+  ];
+
+  const categories = ['All', ...new Set(formats.map(f=>f.cat))];
+  const filtered = filter === 'All' ? formats : formats.filter(f=>f.cat===filter);
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🔥</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Viral Format Library</h2>
+          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>18 proven formats with the psychology behind why they work. Pick a format, enter a topic, get a complete camera-ready execution.</p>
+        </div>
+      </div>
+
+      <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+        {categories.map(c=><button key={c} onClick={()=>setFilter(c)} style={{background:filter===c?B.red:'rgba(255,255,255,0.06)',color:filter===c?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:700}}>{c}</button>)}
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:8,marginBottom:20}}>
+        {filtered.map(f=>(
+          <button key={f.id} onClick={()=>setSelectedFormat(f)}
+            style={{background:selectedFormat?.id===f.id?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',border:`1px solid ${selectedFormat?.id===f.id?'rgba(0,194,255,0.3)':'rgba(255,255,255,0.07)'}`,borderRadius:10,padding:'12px',cursor:'pointer',textAlign:'left'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:4}}>
+              <div style={{color:B.white,fontWeight:700,fontSize:12}}>{f.name}</div>
+              <span style={{fontSize:9,color:'#00C2FF',fontWeight:700,background:'rgba(0,194,255,0.1)',borderRadius:3,padding:'1px 5px'}}>{f.cat}</span>
+            </div>
+            <div style={{color:B.gray,fontSize:11,lineHeight:1.5,marginBottom:6}}>{f.desc}</div>
+            <div style={{display:'flex',gap:3,flexWrap:'wrap'}}>
+              {f.platforms.map(p=><span key={p} style={{fontSize:9,color:'rgba(255,255,255,0.4)',background:'rgba(255,255,255,0.06)',borderRadius:3,padding:'1px 5px'}}>{p}</span>)}
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {selectedFormat && (
+        <Card>
+          <div style={{marginBottom:14}}>
+            <div style={{color:'#00C2FF',fontWeight:800,fontSize:15,marginBottom:4}}>{selectedFormat.name}</div>
+            <div style={{color:B.gray,fontSize:12,lineHeight:1.6}}>{selectedFormat.desc}</div>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+            <div>
+              <SecLabel>Topic</SecLabel>
+              <input value={topic} onChange={e=>setTopic(e.target.value)} placeholder="What is this about?"
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+            </div>
+            <div>
+              <SecLabel>Platform</SecLabel>
+              <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
+                {(selectedFormat.platforms).map(p=><button key={p} onClick={()=>setPlatform(p)} style={{background:platform===p?B.red:'rgba(255,255,255,0.06)',color:platform===p?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
+              </div>
+            </div>
+          </div>
+          <RedBtn onClick={async()=>{if(!topic)return;setLoading(true);setOut('');const r=await ai(VIRAL_FORMAT_PROMPT(selectedFormat,topic,platform,selectedClient?.isDefault?null:selectedClient));setOut(r);setLoading(false);}} disabled={loading||!topic}>
+            {loading?'Executing format...':'🔥 Execute This Format'}
+          </RedBtn>
+        </Card>
+      )}
+      {loading&&<Spin/>}
+      {out&&<DocOutput text={out} title={`${selectedFormat?.name}: ${topic}`}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// REVENUE ATTRIBUTION TRACKER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const REVENUE_KEY = 'encis_revenue';
+
+function RevenueAttribution() {
+  const [entries, setEntries] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({contentTitle:'',platform:'Instagram',format:'Reel',outcome:'',outcomeType:'Inquiry',revenue:'',date:'',notes:''});
+  const [analysisOut, setAnalysisOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => { try { const s=localStorage.getItem(REVENUE_KEY); if(s) setEntries(JSON.parse(s)); } catch {} }, []);
+  const save = (list) => { setEntries(list); try { localStorage.setItem(REVENUE_KEY, JSON.stringify(list)); } catch {} };
+
+  const addEntry = () => {
+    if (!form.contentTitle||!form.outcome) return;
+    save([{...form,id:Date.now().toString(),createdAt:Date.now()},...entries]);
+    setForm({contentTitle:'',platform:'Instagram',format:'Reel',outcome:'',outcomeType:'Inquiry',revenue:'',date:'',notes:''});
+    setShowForm(false);
+  };
+
+  const analyze = async () => {
+    if (entries.length < 3) return;
+    setLoading(true); setAnalysisOut('');
+    const summary = entries.slice(0,30).map(e=>`${e.platform} ${e.format}: "${e.contentTitle}" → ${e.outcomeType}: ${e.outcome}${e.revenue?` ($${e.revenue})`:''}. Date: ${e.date}. Notes: ${e.notes|| 'none'}`).join('\n');
+    const res = await ai(`${VOICE}\n\nAnalyze this content-to-revenue attribution data:\n\n${summary}\n\nProvide:\n1. Which platforms and formats are generating the most revenue opportunities\n2. Which content topics correlate with high-value outcomes\n3. The typical path from content to conversion for this account\n4. What to create more of based on ROI\n5. Estimated content ROI if tracked fully`);
+    setAnalysisOut(res); setLoading(false);
+  };
+
+  const outcomeTypes = ['Inquiry','Booked Call','Closed Deal','Email Signup','Product Sale','Coaching Client','Referral','Partnership'];
+  const totalRevenue = entries.filter(e=>e.revenue).reduce((sum,e)=>sum+parseFloat(e.revenue||0),0);
+  const byPlatform = PLATFORMS.map(p=>({platform:p,count:entries.filter(e=>e.platform===p).length,revenue:entries.filter(e=>e.platform===p&&e.revenue).reduce((s,e)=>s+parseFloat(e.revenue||0),0)})).filter(p=>p.count>0);
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <span style={{fontSize:32}}>💵</span>
+          <div>
+            <h2 style={{color:B.white,margin:0}}>Revenue Attribution</h2>
+            <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Tag content to real outcomes. Prove content creates revenue, not just followers.</p>
+          </div>
+        </div>
+        <div style={{display:'flex',gap:8}}>
+          {entries.length >= 3 && <button onClick={analyze} disabled={loading} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>{loading?'Analyzing...':'🔍 Analyze ROI'}</button>}
+          <button onClick={()=>setShowForm(p=>!p)} style={{background:B.red,color:'#000D1A',border:'none',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:800}}>+ Log Attribution</button>
+        </div>
+      </div>
+
+      {entries.length > 0 && (
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:8,marginBottom:20}}>
+          <div style={{background:'rgba(39,174,96,0.08)',border:'1px solid rgba(39,174,96,0.2)',borderRadius:10,padding:'14px',textAlign:'center'}}>
+            <div style={{fontSize:22,fontWeight:800,color:'#27ae60'}}>${totalRevenue.toLocaleString()}</div>
+            <div style={{fontSize:10,color:B.gray,textTransform:'uppercase',letterSpacing:1,marginTop:2}}>Attributed Revenue</div>
+          </div>
+          <div style={{background:'rgba(0,194,255,0.06)',border:'1px solid rgba(0,194,255,0.15)',borderRadius:10,padding:'14px',textAlign:'center'}}>
+            <div style={{fontSize:22,fontWeight:800,color:'#00C2FF'}}>{entries.length}</div>
+            <div style={{fontSize:10,color:B.gray,textTransform:'uppercase',letterSpacing:1,marginTop:2}}>Total Attributions</div>
+          </div>
+          {byPlatform.map(p=>(
+            <div key={p.platform} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'14px',textAlign:'center'}}>
+              <div style={{fontSize:18,fontWeight:800,color:B.white}}>{p.count}</div>
+              <div style={{fontSize:10,color:B.gray,textTransform:'uppercase',letterSpacing:1,marginTop:2}}>{p.platform}</div>
+              {p.revenue>0&&<div style={{fontSize:10,color:'#27ae60',marginTop:2}}>${p.revenue.toLocaleString()}</div>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {showForm && (
+        <Card style={{marginBottom:16}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+            <div>
+              <SecLabel>Content Title</SecLabel>
+              <input value={form.contentTitle} onChange={e=>setForm(p=>({...p,contentTitle:e.target.value}))} placeholder="What post drove this outcome?"
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+            </div>
+            <div>
+              <SecLabel>Date</SecLabel>
+              <input value={form.date} onChange={e=>setForm(p=>({...p,date:e.target.value}))} placeholder="When did this happen?"
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+            </div>
+          </div>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:12}}>
+            {PLATFORMS.map(p=><button key={p} onClick={()=>setForm(f=>({...f,platform:p}))} style={{background:form.platform===p?B.red:'rgba(255,255,255,0.06)',color:form.platform===p?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 9px',cursor:'pointer',fontSize:10,fontWeight:700}}>{p}</button>)}
+          </div>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:12}}>
+            {outcomeTypes.map(o=><button key={o} onClick={()=>setForm(f=>({...f,outcomeType:o}))} style={{background:form.outcomeType===o?B.red:'rgba(255,255,255,0.06)',color:form.outcomeType===o?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 9px',cursor:'pointer',fontSize:10,fontWeight:700}}>{o}</button>)}
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+            <div>
+              <SecLabel>Outcome Description</SecLabel>
+              <input value={form.outcome} onChange={e=>setForm(p=>({...p,outcome:e.target.value}))} placeholder="e.g. Booked listing consultation, 3 DMs asking about coaching"
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+            </div>
+            <div>
+              <SecLabel>Revenue Value (optional, $)</SecLabel>
+              <input value={form.revenue} onChange={e=>setForm(p=>({...p,revenue:e.target.value}))} placeholder="e.g. 8500"
+                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+            </div>
+          </div>
+          <div style={{display:'flex',gap:8}}>
+            <RedBtn onClick={addEntry} disabled={!form.contentTitle||!form.outcome}>Log Attribution</RedBtn>
+            <button onClick={()=>setShowForm(false)} style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:8,padding:'9px 14px',fontSize:12,cursor:'pointer'}}>Cancel</button>
+          </div>
+        </Card>
+      )}
+
+      <div style={{display:'flex',flexDirection:'column',gap:6}}>
+        {entries.length===0&&(
+          <div style={{textAlign:'center',padding:'3rem',background:'rgba(255,255,255,0.02)',borderRadius:12,border:'1px solid rgba(255,255,255,0.06)'}}>
+            <div style={{fontSize:40,marginBottom:12}}>💵</div>
+            <div style={{color:B.white,fontWeight:700,marginBottom:8}}>No attributions yet</div>
+            <div style={{color:B.gray,fontSize:13,maxWidth:300,margin:'0 auto'}}>Every time a post leads to an inquiry, booking, or sale — log it here. Build proof that content drives revenue.</div>
+          </div>
+        )}
+        {entries.map(e=>(
+          <div key={e.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:8,padding:'12px 14px',display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+            <div style={{flex:1}}>
+              <div style={{color:B.white,fontWeight:600,fontSize:12}}>{e.contentTitle}</div>
+              <div style={{color:B.gray,fontSize:11,marginTop:2}}>{e.platform} · {e.format} → {e.outcomeType}</div>
+              <div style={{color:'rgba(255,255,255,0.6)',fontSize:11,marginTop:2}}>{e.outcome}</div>
+            </div>
+            {e.revenue&&<div style={{color:'#27ae60',fontWeight:800,fontSize:14}}>${parseFloat(e.revenue).toLocaleString()}</div>}
+            <button onClick={()=>save(entries.filter(x=>x.id!==e.id))} style={{background:'none',border:'none',color:'rgba(255,255,255,0.2)',cursor:'pointer',fontSize:14}}>✕</button>
+          </div>
+        ))}
+      </div>
+
+      {loading&&<Spin/>}
+      {analysisOut&&<DocOutput text={analysisOut} title="Revenue Attribution Analysis"/>}
+    </div>
+  );
+}
+
+
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE 4: AUTO-LEARNING VOICE FINGERPRINT
+// When content is rated 🔥 in Content Memory, extract language patterns and
+// offer to update the active client's voice fingerprint automatically
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const AUTO_VOICE_UPDATE_PROMPT = (clientName, currentFingerprint, viralSamples) => `
+You are refining a brand voice fingerprint based on content that actually went viral.
+
+CLIENT: ${clientName}
+
+CURRENT FINGERPRINT SUMMARY:
+Tone: ${currentFingerprint?.tone || 'Unknown'}
+Vocabulary: ${(currentFingerprint?.vocabulary || []).join(', ')}
+Personality: ${currentFingerprint?.personality || 'Unknown'}
+
+CONTENT THAT PERFORMED AT VIRAL LEVEL (🔥 rated):
+${viralSamples.map((s, i) => `${i + 1}. [${s.type}] "${s.title || s.topic || 'Untitled'}"\nPreview: ${s.preview || s.title || ''}`).join('\n\n')}
+
+Analyze what these viral pieces have in common. What specific language patterns, structural choices, and voice elements made them work? Update the fingerprint to reflect what is actually proven to perform.
+
+Return a JSON object with these exact fields — update only what the viral data supports, preserve what is already working:
+{
+  "tone": "updated tone description",
+  "pace": "sentence pace preference",
+  "vocabulary": ["12 words or phrases from the viral content"],
+  "avoids": ["8 phrases this voice never uses"],
+  "structures": ["3 sentence patterns from the viral content"],
+  "themes": ["5 recurring themes in high-performing content"],
+  "openings": ["4 opening styles from viral pieces"],
+  "ctas": ["3 CTA styles that performed well"],
+  "personality": "updated personality description based on what actually worked",
+  "dos": ["6 writing rules confirmed by viral performance"],
+  "donts": ["6 rules confirmed by what did NOT perform"],
+  "sample_hook": "A hook in this exact proven voice on the topic of discipline",
+  "autoUpdatedAt": "${new Date().toISOString()}",
+  "viralSampleCount": ${viralSamples.length}
+}
+
+Return ONLY valid JSON. No markdown, no explanation.`;
+
+// Hook: watches content memory for viral ratings and triggers fingerprint update
+function useAutoVoiceUpdate(activeClient) {
+  const [pendingUpdate, setPendingUpdate] = useState(null);
+  const [updating, setUpdating] = useState(false);
+  const [lastChecked, setLastChecked] = useState(0);
+
+  useEffect(() => {
+    if (!activeClient) return;
+    const interval = setInterval(() => {
+      try {
+        const log = JSON.parse(localStorage.getItem(MEMORY_KEY) || '[]');
+        const fps = JSON.parse(localStorage.getItem(VOICE_KEY) || '{}');
+        const fp = fps[activeClient.id];
+        const lastUpdate = fp?.autoUpdatedAt ? new Date(fp.autoUpdatedAt).getTime() : 0;
+
+        // Find viral content since last auto-update
+        const viralSince = log.filter(e =>
+          e.perf === '🔥' &&
+          e.timestamp > lastUpdate &&
+          e.timestamp > lastChecked
+        );
+
+        if (viralSince.length >= 2 && !pendingUpdate) {
+          setPendingUpdate(viralSince);
+        }
+      } catch {}
+    }, 30000); // check every 30s
+
+    return () => clearInterval(interval);
+  }, [activeClient, lastChecked]);
+
+  const runUpdate = async (samples) => {
+    if (!activeClient || updating) return;
+    setUpdating(true);
+    try {
+      const fps = JSON.parse(localStorage.getItem(VOICE_KEY) || '{}');
+      const currentFp = fps[activeClient.id];
+      const res = await ai(
+        AUTO_VOICE_UPDATE_PROMPT(activeClient.name, currentFp, samples),
+        'You refine voice fingerprints. Return only valid JSON.'
+      );
+      const clean = res.replace(/```json|```/g, '').trim();
+      const updated = JSON.parse(clean);
+      fps[activeClient.id] = { ...currentFp, ...updated, refinementCount: (currentFp?.refinementCount || 0) + 1 };
+      try { localStorage.setItem(VOICE_KEY, JSON.stringify(fps)); } catch {}
+      setLastChecked(Date.now());
+      setPendingUpdate(null);
+    } catch (e) { console.error('Auto voice update failed:', e); }
+    setUpdating(false);
+  };
+
+  const dismiss = () => { setLastChecked(Date.now()); setPendingUpdate(null); };
+
+  return { pendingUpdate, updating, runUpdate, dismiss };
+}
+
+// Banner component that appears when viral content triggers an update
+function AutoVoiceUpdateBanner({ activeClient }) {
+  const { pendingUpdate, updating, runUpdate, dismiss } = useAutoVoiceUpdate(activeClient);
+
+  if (!pendingUpdate || !activeClient) return null;
+
+  return (
+    <div style={{
+      background: 'rgba(0,194,255,0.06)',
+      border: '1px solid rgba(0,194,255,0.2)',
+      borderRadius: 10,
+      padding: '12px 16px',
+      margin: '0 16px 12px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12,
+      flexWrap: 'wrap',
+    }}>
+      <span style={{ fontSize: 18 }}>🧬</span>
+      <div style={{ flex: 1 }}>
+        <div style={{ color: '#00C2FF', fontWeight: 700, fontSize: 13 }}>
+          Voice fingerprint can be updated
+        </div>
+        <div style={{ color: B.gray, fontSize: 11, marginTop: 2 }}>
+          {pendingUpdate.length} viral pieces rated since last update for {activeClient.name}. SIGNAL can extract the patterns that made them work.
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button onClick={() => runUpdate(pendingUpdate)} disabled={updating}
+          style={{ background: B.red, color: '#000D1A', border: 'none', borderRadius: 7, padding: '6px 14px', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
+          {updating ? 'Updating...' : 'Update Now'}
+        </button>
+        <button onClick={dismiss}
+          style={{ background: 'rgba(255,255,255,0.06)', color: B.gray, border: 'none', borderRadius: 7, padding: '6px 12px', fontSize: 12, cursor: 'pointer' }}>
+          Later
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE 6: ONBOARDING FLOW
+// First-time user setup — shown once, stored in localStorage
+// 4 steps: Welcome → Brand Setup → Voice → First Strategy
+// ═══════════════════════════════════════════════════════════════════════════════
+
+
+function OnboardingFlow({ onComplete }) {
+  const [step, setStep] = useState(0);
+  const [form, setForm] = useState({
+    name: 'Jason Fricka',
+    handle: '@everydayelevations',
+    platforms: ['Instagram', 'YouTube'],
+    niche: '',
+    goals: '',
+    voice: '',
+  });
+  const [animating, setAnimating] = useState(false);
+
+  const next = () => {
+    setAnimating(true);
+    setTimeout(() => { setStep(s => s + 1); setAnimating(false); }, 200);
+  };
+
+  const finish = () => {
+    try { localStorage.setItem(ONBOARDING_DONE_KEY, '1'); } catch {}
+    onComplete();
+  };
+
+  const togglePlatform = (p) => setForm(f => ({
+    ...f,
+    platforms: f.platforms.includes(p) ? f.platforms.filter(x => x !== p) : [...f.platforms, p]
+  }));
+
+  const steps = [
+    {
+      title: "Welcome to SIGNAL",
+      sub: "The last social media tool you'll need. Let's get you set up in 2 minutes.",
+      content: (
+        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+          <div style={{
+            width: 80, height: 80, borderRadius: '50%',
+            background: 'linear-gradient(135deg, #00C2FF, #0096CC)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 20px', fontSize: 36, boxShadow: '0 0 40px rgba(0,194,255,0.3)'
+          }}>⚡</div>
+          <p style={{ color: B.light, fontSize: 14, lineHeight: 1.8, maxWidth: 380, margin: '0 auto' }}>
+            SIGNAL is pre-loaded with your brand identity, voice, and goals. Every tool knows who you are before you start.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, marginTop: 28 }}>
+            {[['60', 'Tools'], ['0', 'Subscriptions\nNeeded'], ['AI', 'Powered']].map(([n, l]) => (
+              <div key={l} style={{ background: 'rgba(0,194,255,0.06)', border: '1px solid rgba(0,194,255,0.12)', borderRadius: 10, padding: '14px 8px', textAlign: 'center' }}>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#00C2FF', letterSpacing: '-0.04em' }}>{n}</div>
+                <div style={{ fontSize: 10, color: B.gray, marginTop: 4, textTransform: 'uppercase', letterSpacing: 1, whiteSpace: 'pre-line' }}>{l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Your Brand",
+      sub: "Tell SIGNAL who you are. This gets injected into every tool automatically.",
+      content: (
+        <div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+            <div>
+              <SecLabel>Your Name</SecLabel>
+              <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: B.white, fontSize: 13, boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <SecLabel>Primary Handle</SecLabel>
+              <input value={form.handle} onChange={e => setForm(f => ({ ...f, handle: e.target.value }))} placeholder="@handle"
+                style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: B.white, fontSize: 13, boxSizing: 'border-box' }} />
+            </div>
+          </div>
+          <SecLabel>Active Platforms</SecLabel>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
+            {PLATFORMS.map(p => (
+              <button key={p} onClick={() => togglePlatform(p)}
+                style={{ background: form.platforms.includes(p) ? B.red : 'rgba(255,255,255,0.06)', color: form.platforms.includes(p) ? '#000D1A' : B.white, border: 'none', borderRadius: 7, padding: '7px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>
+                {p}
+              </button>
+            ))}
+          </div>
+          <SecLabel>Your Niche</SecLabel>
+          <input value={form.niche} onChange={e => setForm(f => ({ ...f, niche: e.target.value }))}
+            placeholder="e.g. Mindset coaching, Colorado real estate, endurance athlete"
+            style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: B.white, fontSize: 13, marginBottom: 14, boxSizing: 'border-box' }} />
+          <SecLabel>Primary Content Goal</SecLabel>
+          <input value={form.goals} onChange={e => setForm(f => ({ ...f, goals: e.target.value }))}
+            placeholder="e.g. Grow to 10K Instagram followers, generate real estate leads"
+            style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: B.white, fontSize: 13, boxSizing: 'border-box' }} />
+        </div>
+      )
+    },
+    {
+      title: "Your Voice",
+      sub: "How do you actually talk? Three sentences is enough. This is what separates SIGNAL from every other AI tool.",
+      content: (
+        <div>
+          <div style={{ background: 'rgba(0,194,255,0.06)', border: '1px solid rgba(0,194,255,0.12)', borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 12, color: 'rgba(0,194,255,0.8)', lineHeight: 1.7 }}>
+            Don't describe your voice. Just write like you talk. "I keep it real. No hype. I'm talking to someone who actually wants to do the work." That's all it needs.
+          </div>
+          <SecLabel>Write 2-3 sentences in your actual voice</SecLabel>
+          <textarea value={form.voice} onChange={e => setForm(f => ({ ...f, voice: e.target.value }))} rows={5}
+            placeholder="Just write naturally. Like you're talking to a friend who follows you. Don't overthink it..."
+            style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: B.white, fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }} />
+          <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            {['Direct, no fluff', 'Motivating but real', 'Storyteller', 'Data-driven', 'Conversational', 'Authority-first'].map(style => (
+              <button key={style} onClick={() => setForm(f => ({ ...f, voice: f.voice ? f.voice + ' ' + style.toLowerCase() + '.' : style + '.' }))}
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, padding: '7px 10px', cursor: 'pointer', color: B.gray, fontSize: 11, textAlign: 'left' }}>
+                + {style}
+              </button>
+            ))}
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "You're ready.",
+      sub: "SIGNAL knows who you are. Every tool is pre-loaded with your context.",
+      content: (
+        <div style={{ textAlign: 'center', padding: '10px 0' }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>🚀</div>
+          <p style={{ color: B.light, fontSize: 14, lineHeight: 1.8, marginBottom: 24 }}>
+            Start with the <strong style={{ color: '#00C2FF' }}>90-Day Strategy Builder</strong> to generate your full content foundation, or jump straight to <strong style={{ color: '#00C2FF' }}>Script Engine</strong> to create your first piece.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 300, margin: '0 auto' }}>
+            {[
+              { label: '🚀 Build 90-Day Strategy', sub: 'Recommended first step' },
+              { label: '✍️ Write a Script', sub: 'Start creating immediately' },
+              { label: '👤 Run a Profile Audit', sub: 'See where you stand' },
+            ].map(item => (
+              <div key={item.label} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,194,255,0.1)', borderRadius: 8, padding: '10px 14px', textAlign: 'left' }}>
+                <div style={{ color: B.white, fontWeight: 700, fontSize: 12 }}>{item.label}</div>
+                <div style={{ color: B.gray, fontSize: 11, marginTop: 2 }}>{item.sub}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    },
+  ];
+
+  const current = steps[step];
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 999,
+      background: 'rgba(8,13,20,0.96)',
+      backdropFilter: 'blur(20px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: 16,
+    }}>
+      <div style={{
+        background: B.navy2,
+        border: '1px solid rgba(0,194,255,0.15)',
+        borderRadius: 20,
+        width: '100%', maxWidth: 520,
+        boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
+        overflow: 'hidden',
+        opacity: animating ? 0 : 1,
+        transform: animating ? 'translateY(8px)' : 'translateY(0)',
+        transition: 'all 0.2s ease',
+      }}>
+        {/* Progress bar */}
+        <div style={{ height: 3, background: 'rgba(0,194,255,0.1)' }}>
+          <div style={{ height: '100%', background: '#00C2FF', width: `${((step + 1) / steps.length) * 100}%`, transition: 'width 0.4s ease' }} />
+        </div>
+
+        <div style={{ padding: '28px 32px 24px' }}>
+          {/* Step indicator */}
+          <div style={{ display: 'flex', gap: 6, marginBottom: 20 }}>
+            {steps.map((_, i) => (
+              <div key={i} style={{ height: 4, flex: 1, borderRadius: 2, background: i <= step ? '#00C2FF' : 'rgba(255,255,255,0.08)', transition: 'all 0.3s' }} />
+            ))}
+          </div>
+
+          <h2 style={{ color: B.white, fontSize: 22, fontWeight: 900, letterSpacing: '-0.03em', marginBottom: 6 }}>
+            {current.title}
+          </h2>
+          <p style={{ color: B.gray, fontSize: 13, marginBottom: 24, lineHeight: 1.6 }}>
+            {current.sub}
+          </p>
+
+          {current.content}
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 28 }}>
+            <button onClick={() => step > 0 ? setStep(s => s - 1) : null}
+              style={{ background: 'none', border: 'none', color: step > 0 ? B.gray : 'transparent', cursor: step > 0 ? 'pointer' : 'default', fontSize: 13, padding: '8px 0' }}>
+              ← Back
+            </button>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+              {step < steps.length - 1 && (
+                <button onClick={() => setStep(s => s + 1)}
+                  style={{ background: 'none', border: 'none', color: B.gray, cursor: 'pointer', fontSize: 12, padding: '8px 12px' }}>
+                  Skip
+                </button>
+              )}
+              <button onClick={step === steps.length - 1 ? finish : next}
+                style={{ background: 'linear-gradient(135deg, #00C2FF, #0096CC)', color: '#000D1A', border: 'none', borderRadius: 10, padding: '10px 24px', fontWeight: 800, cursor: 'pointer', fontSize: 14, boxShadow: '0 0 20px rgba(0,194,255,0.3)' }}>
+                {step === steps.length - 1 ? 'Start Using SIGNAL →' : 'Continue →'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE 5: INTELLIGENCE DASHBOARD HOME
+// Replaces the tool-grid home with a live data dashboard.
+// Shows: key metrics, trend alerts, pending deliverables, recent content,
+// content gap score, top performer, and quick-launch recent tools.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function IntelligenceDashboard({ setNav, setSub }) {
+  const [activeClient] = useActiveClient();
+  const [clients] = useClients();
+  const [metrics, setMetrics] = useState(null);
+  const [recentContent, setRecentContent] = useState([]);
+  const [trendCount, setTrendCount] = useState(0);
+  const [pendingDeliverables, setPendingDeliverables] = useState(0);
+  const [gapAngles, setGapAngles] = useState([]);
+  const [weeklyGrowth, setWeeklyGrowth] = useState(null);
+  const [topPerformer, setTopPerformer] = useState(null);
+  const [showTools, setShowTools] = useState(false);
+
+  useEffect(() => {
+    // Load ROI metrics
+    try {
+      const roi = JSON.parse(localStorage.getItem('encis_roi_data') || '[]');
+      if (roi.length >= 2) {
+        const latest = roi[0];
+        const prev = roi[1];
+        const growth = prev.followers > 0
+          ? Math.round(((latest.followers - prev.followers) / prev.followers) * 100)
+          : null;
+        setMetrics(latest);
+        setWeeklyGrowth(growth);
+      } else if (roi.length === 1) {
+        setMetrics(roi[0]);
+      }
+    } catch {}
+
+    // Load content memory
+    try {
+      const log = JSON.parse(localStorage.getItem(MEMORY_KEY) || '[]');
+      setRecentContent(log.slice(0, 6));
+      const viral = log.filter(e => e.perf === '🔥');
+      if (viral.length > 0) setTopPerformer(viral[0]);
+
+      // Analyze gaps
+      const angleCounts = {};
+      ANGLES.forEach(a => { angleCounts[a.id] = 0; });
+      log.forEach(e => { if (e.angle && angleCounts[e.angle] !== undefined) angleCounts[e.angle]++; });
+      const sorted = ANGLES.sort((a, b) => (angleCounts[a.id] || 0) - (angleCounts[b.id] || 0));
+      setGapAngles(sorted.slice(0, 3));
+    } catch {}
+
+    // Trend alert count
+    try {
+      const alerts = JSON.parse(localStorage.getItem('encis_trend_alerts') || '[]');
+      setTrendCount(alerts.length);
+    } catch {}
+
+    // Pending deliverables
+    try {
+      const dels = JSON.parse(localStorage.getItem(CLIENT_DELIVERABLES_KEY) || '[]');
+      setPendingDeliverables(dels.filter(d => d.status === 'pending' || d.status === 'in-progress').length);
+    } catch {}
+  }, [activeClient]);
+
+  const wl = (() => { try { return JSON.parse(localStorage.getItem('encis_whitelabel') || 'null'); } catch { return null; } })();
+  const appName = wl?.agencyName || 'SIGNAL';
+  const accentColor = wl?.primaryColor || '#00C2FF';
+
+  const quickTools = [
+    { nav: 'create', sub: 'script', emoji: '✍️', label: 'Script Engine' },
+    { nav: 'create', sub: 'caption', emoji: '💬', label: 'Caption Writer' },
+    { nav: 'research', sub: 'pipeline', emoji: '🔬', label: 'Research Pipeline' },
+    { nav: 'optimize', sub: 'predictor', emoji: '🔮', label: 'Predictor' },
+    { nav: 'strategy', sub: 'calendar', emoji: '📅', label: 'Calendar' },
+    { nav: 'agency', sub: 'deliverable', emoji: '📦', label: 'Deliverables' },
+  ];
+
+  return (
+    <div style={{ animation: 'slideUp 0.3s ease-out' }}>
+      {/* HEADER */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 11, color: B.gray, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 4 }}>
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+            </div>
+            <h1 style={{ color: B.white, fontSize: 26, fontWeight: 900, letterSpacing: '-0.04em', margin: 0 }}>
+              {activeClient?.isDefault ? `Good ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, Jason.` : `${activeClient?.name}`}
+            </h1>
+            <p style={{ color: B.gray, fontSize: 13, margin: '4px 0 0' }}>
+              {!metrics ? "No metrics logged yet. Add data in ROI Dashboard." : `Last logged: ${metrics.week || 'this week'}`}
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={() => { setNav('strategy'); setSub('onboard'); }}
+              style={{ background: 'linear-gradient(135deg, #00C2FF, #0096CC)', color: '#000D1A', border: 'none', borderRadius: 8, padding: '8px 16px', fontWeight: 800, cursor: 'pointer', fontSize: 12, boxShadow: '0 0 16px rgba(0,194,255,0.25)' }}>
+              + New Strategy
+            </button>
+            <button onClick={() => setShowTools(s => !s)}
+              style={{ background: 'rgba(255,255,255,0.06)', color: B.light, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+              {showTools ? 'Hide Tools' : 'All Tools'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* METRIC CARDS */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8, marginBottom: 20 }}>
+        {[
+          { label: 'Followers', val: metrics?.followers ? Number(metrics.followers).toLocaleString() : '--', growth: weeklyGrowth, icon: '👥' },
+          { label: 'Weekly Reach', val: metrics?.reach ? Number(metrics.reach).toLocaleString() : '--', icon: '📡' },
+          { label: 'Saves', val: metrics?.saves || '--', icon: '🔖' },
+          { label: 'Shares', val: metrics?.shares || '--', icon: '↗️' },
+          { label: 'Leads/DMs', val: metrics?.leads || '--', icon: '💬' },
+          { label: 'Trend Alerts', val: trendCount, icon: '🔥', action: () => {} },
+          { label: 'Pending Work', val: pendingDeliverables, icon: '📦', action: () => { setNav('agency'); setSub('portal'); } },
+          { label: 'Content Logged', val: recentContent.length, icon: '📝' },
+        ].map(m => (
+          <div key={m.label} onClick={m.action}
+            style={{ background: 'rgba(12,20,32,0.8)', border: '1px solid rgba(0,194,255,0.08)', borderRadius: 10, padding: '14px 12px', cursor: m.action ? 'pointer' : 'default', transition: 'all 0.15s' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+              <div style={{ fontSize: 10, color: B.gray, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, lineHeight: 1.3 }}>{m.label}</div>
+              <span style={{ fontSize: 14 }}>{m.icon}</span>
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: B.white, letterSpacing: '-0.04em', lineHeight: 1 }}>{m.val}</div>
+            {m.growth !== undefined && m.growth !== null && (
+              <div style={{ fontSize: 10, color: m.growth >= 0 ? '#27ae60' : B.red, marginTop: 4, fontWeight: 700 }}>
+                {m.growth >= 0 ? '+' : ''}{m.growth}% this week
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* MAIN GRID */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+
+        {/* Quick Launch */}
+        <div style={{ background: 'rgba(12,20,32,0.8)', border: '1px solid rgba(0,194,255,0.08)', borderRadius: 12, padding: '16px' }}>
+          <div style={{ fontSize: 11, color: accentColor, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Quick Launch</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+            {quickTools.map(t => (
+              <button key={t.sub} onClick={() => { setNav(t.nav); setSub(t.sub); }}
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,194,255,0.06)', borderRadius: 8, padding: '10px', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16 }}>{t.emoji}</span>
+                <span style={{ color: B.white, fontSize: 11, fontWeight: 600, lineHeight: 1.3 }}>{t.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Content Gaps */}
+        <div style={{ background: 'rgba(12,20,32,0.8)', border: '1px solid rgba(0,194,255,0.08)', borderRadius: 12, padding: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ fontSize: 11, color: accentColor, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase' }}>Content Gaps</div>
+            <button onClick={() => { setNav('optimize'); setSub('gaps'); }}
+              style={{ background: 'none', border: 'none', color: B.gray, cursor: 'pointer', fontSize: 11 }}>View all →</button>
+          </div>
+          {gapAngles.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {gapAngles.map(a => (
+                <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 16 }}>{a.emoji}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ color: B.white, fontSize: 12, fontWeight: 600 }}>{a.label}</div>
+                    <div style={{ color: B.gray, fontSize: 10, marginTop: 1 }}>Under-represented in your content</div>
+                  </div>
+                  <button onClick={() => { setNav('create'); setSub('script'); }}
+                    style={{ background: 'rgba(0,194,255,0.08)', color: '#00C2FF', border: 'none', borderRadius: 5, padding: '3px 8px', fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
+                    Create
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ color: B.gray, fontSize: 12, textAlign: 'center', padding: '20px 0' }}>
+              Rate content in Content Memory to see your gaps.
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Recent Content + Top Performer */}
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12, marginBottom: 16 }}>
+        <div style={{ background: 'rgba(12,20,32,0.8)', border: '1px solid rgba(0,194,255,0.08)', borderRadius: 12, padding: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ fontSize: 11, color: accentColor, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase' }}>Recent Content</div>
+            <button onClick={() => { setNav('optimize'); setSub('memory'); }}
+              style={{ background: 'none', border: 'none', color: B.gray, cursor: 'pointer', fontSize: 11 }}>View all →</button>
+          </div>
+          {recentContent.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {recentContent.slice(0, 5).map(e => (
+                <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                  <span style={{ fontSize: 14 }}>{e.perf || '·'}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ color: B.white, fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.title || e.topic || 'Untitled'}</div>
+                    <div style={{ color: B.gray, fontSize: 10, marginTop: 1 }}>{e.type} · {e.date}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ color: B.gray, fontSize: 12, textAlign: 'center', padding: '20px 0' }}>
+              Generate content to see your history here.
+            </div>
+          )}
+        </div>
+
+        <div style={{ background: 'rgba(12,20,32,0.8)', border: '1px solid rgba(0,194,255,0.08)', borderRadius: 12, padding: '16px' }}>
+          <div style={{ fontSize: 11, color: accentColor, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Top Performer</div>
+          {topPerformer ? (
+            <div>
+              <div style={{ fontSize: 28, marginBottom: 8 }}>🔥</div>
+              <div style={{ color: B.white, fontWeight: 700, fontSize: 13, marginBottom: 4, lineHeight: 1.4 }}>
+                {topPerformer.title || topPerformer.topic || 'Viral Post'}
+              </div>
+              <div style={{ color: B.gray, fontSize: 11, marginBottom: 12 }}>{topPerformer.type} · {topPerformer.date}</div>
+              <button onClick={() => { setNav('create'); setSub('repurpose'); }}
+                style={{ background: 'rgba(0,194,255,0.08)', color: '#00C2FF', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 7, padding: '7px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer', width: '100%' }}>
+                ♻️ Repurpose This
+              </button>
+            </div>
+          ) : (
+            <div style={{ color: B.gray, fontSize: 12, textAlign: 'center', padding: '20px 0' }}>
+              Rate a piece 🔥 in Content Memory.
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Client switcher if agency mode */}
+      {clients.length > 1 && (
+        <div style={{ background: 'rgba(12,20,32,0.8)', border: '1px solid rgba(0,194,255,0.08)', borderRadius: 12, padding: '14px 16px', marginBottom: 16 }}>
+          <div style={{ fontSize: 11, color: accentColor, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 10 }}>Active Client</div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {clients.map(c => {
+              const pending = (() => { try { return JSON.parse(localStorage.getItem(CLIENT_DELIVERABLES_KEY) || '[]').filter(d => d.clientId === c.id && (d.status === 'pending' || d.status === 'in-progress')).length; } catch { return 0; } })();
+              return (
+                <button key={c.id} onClick={() => { setNav('agency'); setSub('portal'); }}
+                  style={{ background: activeClient?.id === c.id ? 'rgba(0,194,255,0.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${activeClient?.id === c.id ? 'rgba(0,194,255,0.3)' : 'rgba(255,255,255,0.07)'}`, borderRadius: 8, padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ color: activeClient?.id === c.id ? '#00C2FF' : B.white, fontWeight: 700, fontSize: 12 }}>{c.name}</span>
+                  {pending > 0 && <span style={{ background: '#f5a623', color: '#000', borderRadius: 10, padding: '1px 6px', fontSize: 9, fontWeight: 800 }}>{pending}</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* All tools toggle */}
+      {showTools && (
+        <div style={{ marginTop: 8 }}>
+          <div style={{ fontSize: 11, color: accentColor, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid rgba(0,194,255,0.08)' }}>
+            All 60 Tools
+          </div>
+          {['STRATEGY', 'RESEARCH', 'CREATE', 'OPTIMIZE', 'AGENCY', 'YOUTUBE'].map(group => {
+            const groupColors = { STRATEGY: '#00C2FF', RESEARCH: '#00C2FF', CREATE: '#f5a623', OPTIMIZE: '#27ae60', AGENCY: '#9b59b6', YOUTUBE: '#ff4444' };
+            const allTools = [
+              { nav:'strategy',sub:'onboard',emoji:'🚀',title:'90-Day Strategy'},{nav:'strategy',sub:'calendar',emoji:'📅',title:'Content Calendar'},{nav:'strategy',sub:'profile',emoji:'👤',title:'Profile Audit'},{nav:'strategy',sub:'magnet',emoji:'🧲',title:'Lead Magnet'},{nav:'strategy',sub:'community',emoji:'🏔️',title:'Community Builder'},{nav:'strategy',sub:'email',emoji:'📧',title:'Email Sequences'},{nav:'strategy',sub:'challenge',emoji:'🔥',title:'Challenge Builder'},{nav:'strategy',sub:'campaign',emoji:'🎯',title:'Campaign Builder'},{nav:'strategy',sub:'visualcal',emoji:'🗓️',title:'Visual Calendar'},{nav:'strategy',sub:'series',emoji:'📺',title:'Series Planner'},{nav:'strategy',sub:'storyarc',emoji:'📖',title:'Story Arc'},{nav:'strategy',sub:'biolink',emoji:'🔗',title:'Bio Link Page'},{nav:'strategy',sub:'biooptimizer',emoji:'✏️',title:'Bio Optimizer'},
+              {nav:'research',sub:'pipeline',emoji:'🔬',title:'Research Pipeline'},{nav:'research',sub:'spy',emoji:'🕵️',title:'Competitor Intel'},{nav:'research',sub:'vault',emoji:'🗄️',title:'Prompt Vault'},{nav:'research',sub:'collab',emoji:'🤝',title:'Collab Finder'},{nav:'research',sub:'extract',emoji:'💡',title:'Insight Extractor'},{nav:'research',sub:'hashtags',emoji:'##',title:'Hashtag Research'},{nav:'research',sub:'viral',emoji:'🔥',title:'Viral Formats'},
+              {nav:'create',sub:'script',emoji:'✍️',title:'Script Engine'},{nav:'create',sub:'caption',emoji:'💬',title:'Caption Writer'},{nav:'create',sub:'videodirector',emoji:'🎬',title:'Video Director'},{nav:'create',sub:'batch',emoji:'⚡',title:'Bulk Batch'},{nav:'create',sub:'episode',emoji:'🎙️',title:'Episode Clips'},{nav:'create',sub:'repurpose',emoji:'♻️',title:'Repurpose Engine'},{nav:'create',sub:'hooks',emoji:'🪝',title:'Hook Library'},{nav:'create',sub:'design',emoji:'🎨',title:'Design Studio'},{nav:'create',sub:'comment',emoji:'💬',title:'Comment Responder'},{nav:'create',sub:'dmscripts',emoji:'📩',title:'DM Scripts'},{nav:'create',sub:'podcast',emoji:'🎙️',title:'Podcast Prep'},{nav:'create',sub:'objections',emoji:'💬',title:'Objection Handler'},{nav:'create',sub:'guestprep',emoji:'🎤',title:'Guest Prep Kit'},{nav:'create',sub:'contentbrief',emoji:'📋',title:'Content Brief'},
+              {nav:'optimize',sub:'review',emoji:'📊',title:'Weekly Review'},{nav:'optimize',sub:'roi',emoji:'📈',title:'ROI Dashboard'},{nav:'optimize',sub:'memory',emoji:'🧠',title:'Content Memory'},{nav:'optimize',sub:'schedule',emoji:'🗓️',title:'Schedule Optimizer'},{nav:'optimize',sub:'gaps',emoji:'🔍',title:'Gap Analyzer'},{nav:'optimize',sub:'predictor',emoji:'🔮',title:'Predictor'},{nav:'optimize',sub:'stratreview',emoji:'🧠',title:'Strategy Review'},{nav:'optimize',sub:'abtests',emoji:'🧪',title:'A/B Tests'},{nav:'optimize',sub:'revenue',emoji:'💵',title:'Revenue Attribution'},{nav:'optimize',sub:'pricing',emoji:'💰',title:'Pricing Calculator'},{nav:'optimize',sub:'hooktester',emoji:'🧪',title:'Hook Tester'},
+              {nav:'agency',sub:'portal',emoji:'🏢',title:'Client Portal'},{nav:'agency',sub:'deliverable',emoji:'📦',title:'Deliverables'},{nav:'agency',sub:'report',emoji:'📊',title:'Monthly Report'},{nav:'agency',sub:'voice',emoji:'🧬',title:'Voice Fingerprint'},{nav:'agency',sub:'persona',emoji:'🤖',title:'AI Persona'},{nav:'agency',sub:'transcript',emoji:'📞',title:'Transcripts'},{nav:'agency',sub:'analytics',emoji:'📊',title:'Analytics Import'},{nav:'agency',sub:'onboardauto',emoji:'⚡',title:'Auto Onboarding'},{nav:'agency',sub:'clientcomms',emoji:'📨',title:'Client Comms'},{nav:'agency',sub:'clients',emoji:'👥',title:'Client Profiles'},{nav:'agency',sub:'tracker',emoji:'📋',title:'Collab Tracker'},{nav:'agency',sub:'whitelabel',emoji:'🏷️',title:'White Label'},{nav:'agency',sub:'compintel',emoji:'🕵️',title:'Comp Intel'},
+              {nav:'youtube',sub:'yttoolkit',emoji:'▶️',title:'YouTube Toolkit'},
+            ];
+            const groupTools = allTools.filter(t => t.nav === group.toLowerCase());
+            if (!groupTools.length) return null;
+            return (
+              <div key={group} style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 9, color: groupColors[group], fontWeight: 800, letterSpacing: 2.5, textTransform: 'uppercase', marginBottom: 8 }}>{group}</div>
+                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                  {groupTools.map(t => (
+                    <button key={t.sub} onClick={() => { setNav(t.nav); setSub(t.sub); setShowTools(false); }}
+                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 7, padding: '6px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <span style={{ fontSize: 12 }}>{t.emoji}</span>
+                      <span style={{ color: B.light, fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap' }}>{t.title}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE 8: TREND ALERT NOTIFICATIONS (Web Push API — free)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function useTrendNotifications() {
+  const [permission, setPermission] = useState('default');
+
+  useEffect(() => {
+    if ('Notification' in window) {
+      setPermission(Notification.permission);
+    }
+  }, []);
+
+  const requestPermission = async () => {
+    if (!('Notification' in window)) return false;
+    const result = await Notification.requestPermission();
+    setPermission(result);
+    return result === 'granted';
+  };
+
+  const sendNotification = (title, body, onClick) => {
+    if (permission !== 'granted' || !('Notification' in window)) return;
+    try {
+      const notif = new Notification(title, {
+        body,
+        icon: '/E-E-Logo.jpg',
+        badge: '/E-E-Logo.jpg',
+        tag: 'signal-trend-alert',
+      });
+      if (onClick) notif.onclick = onClick;
+    } catch {}
+  };
+
+  const notifyTrendAlerts = (alertCount, topAngle) => {
+    sendNotification(
+      `🔥 ${alertCount} new trend alert${alertCount !== 1 ? 's' : ''} — SIGNAL`,
+      `${topAngle || 'Multiple angles'} trending right now. Check before it peaks.`
+    );
+  };
+
+  return { permission, requestPermission, notifyTrendAlerts, sendNotification };
+}
+
+// Notification Permission Banner — shows in header when not granted
+function NotificationBanner() {
+  const { permission, requestPermission } = useTrendNotifications();
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    try { if (localStorage.getItem('notif_dismissed')) setDismissed(true); } catch {}
+  }, []);
+
+  if (permission === 'granted' || permission === 'denied' || dismissed) return null;
+
+  return (
+    <div style={{ background: 'rgba(201,168,76,0.06)', borderBottom: '1px solid rgba(201,168,76,0.15)', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+      <span style={{ fontSize: 14 }}>🔔</span>
+      <div style={{ flex: 1, fontSize: 12, color: 'rgba(201,168,76,0.9)' }}>
+        Enable notifications to get alerted when trends break in your niche — before competitors see them.
+      </div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button onClick={async () => { await requestPermission(); }}
+          style={{ background: '#C9A84C', color: '#000', border: 'none', borderRadius: 6, padding: '5px 14px', fontSize: 11, fontWeight: 800, cursor: 'pointer' }}>
+          Enable
+        </button>
+        <button onClick={() => { setDismissed(true); try { localStorage.setItem('notif_dismissed', '1'); } catch {} }}
+          style={{ background: 'none', border: 'none', color: B.gray, cursor: 'pointer', fontSize: 11 }}>
+          Not now
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE 10: AUTOMATED MONTHLY REPORT EMAIL
+// Generates report, formats it, opens mailto: deep link so user sends it
+// from their own email. No SendGrid, no API key, no cost.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function useMonthlyReportEmail() {
+  const sendReportEmail = (clientEmail, clientName, reportMarkdown, agencyName) => {
+    // Convert markdown to plain text for email
+    const plain = reportMarkdown
+      .replace(/#+\s/g, '')
+      .replace(/\*\*/g, '')
+      .replace(/---/g, '---')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+
+    const subject = encodeURIComponent(`${agencyName || 'SIGNAL'} — Monthly Report for ${clientName} — ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`);
+    const body = encodeURIComponent(`Hi ${clientName},\n\nYour monthly performance report is below.\n\n---\n\n${plain.slice(0, 2000)}\n\n[Full report attached as PDF]\n\n---\n\nBest,\n${agencyName || 'SIGNAL'}`);
+
+    // Copy full report to clipboard
+    try { navigator.clipboard.writeText(reportMarkdown); } catch {}
+
+    // Open mailto
+    window.open(`mailto:${clientEmail || ''}?subject=${subject}&body=${body}`);
+  };
+
+  return { sendReportEmail };
+}
+
+// Email send button — added to Monthly Reporting Suite output
+function ReportEmailButton({ reportText, clientName, clientEmail }) {
+  const { sendReportEmail } = useMonthlyReportEmail();
+  const [email, setEmail] = useState(clientEmail || '');
+  const [showInput, setShowInput] = useState(false);
+  const wl = (() => { try { return JSON.parse(localStorage.getItem('encis_whitelabel') || 'null'); } catch { return null; } })();
+
+  if (!reportText) return null;
+
+  return (
+    <div style={{ marginTop: 12 }}>
+      {!showInput ? (
+        <button onClick={() => setShowInput(true)}
+          style={{ background: 'rgba(201,168,76,0.1)', color: '#C9A84C', border: '1px solid rgba(201,168,76,0.25)', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+          📧 Email Report to Client
+        </button>
+      ) : (
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          <input value={email} onChange={e => setEmail(e.target.value)} placeholder="client@email.com"
+            style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '8px 12px', color: B.white, fontSize: 13, width: 220 }} />
+          <button onClick={() => { sendReportEmail(email, clientName, reportText, wl?.agencyName); }}
+            style={{ background: '#C9A84C', color: '#000', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
+            Send via Email App
+          </button>
+          <div style={{ fontSize: 11, color: B.gray }}>Full report copied to clipboard</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+const COMPONENT_MAP = {
+  home: Home,
+  onboard: Onboarding,
+  calendar: ContentCalendar,
+  profile: ProfileAudit,
+  magnet: LeadMagnet,
+  community: CommunityBuilder,
+  pipeline: Pipeline,
+  vault: Vault,
+  collab: CollabFinder,
+  extract: Extract,
+  script: ScriptEngine,
+  batch: BulkBatch,
+  episode: EpisodeClips,
+  repurpose: RepurposeEngine,
+  hooks: HookLibrary,
+  design: DesignStudio,
+  review: WeeklyReview,
+  roi: ROIDashboard,
+  memory: ContentMemory,
+  caption: CaptionWriter,
+  schedule: ScheduleOptimizer,
+  gaps: ContentGapAnalyzer,
+  tracker: CollabTracker,
+  clients: ClientMode,
+  comment: CommentResponder,
+  hooktester: HookTester,
+  email: EmailSequenceBuilder,
+  podcast: PodcastPreProd,
+  yttoolkit: YouTubeToolkit,
+  dmscripts: DMScriptLibrary,
+  challenge: ChallengeBuilder,
+  spy: CompetitorIntel,
+  portal: ClientPortal,
+  deliverable: DeliverableBuilder,
+  report: MonthlyReportSuite,
+  voice: BrandVoiceFingerprint,
+  videodirector: VideoScriptDirector,
+  compintel: CompetitorIntel,
+  campaign: CampaignBuilder,
+  predictor: ContentPredictor,
+  whitelabel: WhiteLabelMode,
+  persona: CustomPersona,
+  transcript: TranscriptIntel,
+  analytics: AnalyticsHub,
+  visualcal: VisualCalendar,
+  stratreview: AIStrategyReview,
+  onboardauto: OnboardingAutomation,
+  biolink: BioLinkBuilder,
+  clientcomms: ClientCommsTemplates,
+  contentbrief: ContentBriefGenerator,
+  hashtags: HashtagResearch,
+  series: ContentSeriesPlanner,
+  biooptimizer: BioOptimizer,
+  pricing: PricingCalculator,
+  storyarc: StoryArcPlanner,
+  guestprep: GuestPrepKit,
+  objections: ObjectionHandler,
+  abtests: ABTestTracker,
+  viral: ViralFormatLibrary,
+  revenue: RevenueAttribution,
+};
+
+
+// ── Global Error Boundary — prevents white screen crashes ───────────────────
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -480,14 +12021,26 @@ class ErrorBoundary extends React.Component {
     return { hasError: true, error };
   }
   componentDidCatch(error, info) {
-    console.error('App error boundary', error, info);
+    console.error('SIGNAL Error:', error, info);
   }
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: 24, color: '#fff' }}>
-          <h2>Something went wrong.</h2>
-          <p>{this.state.error && this.state.error.message}</p>
+        <div style={{minHeight:'100vh',background:'#080D14',display:'flex',alignItems:'center',justifyContent:'center',padding:32}}>
+          <div style={{background:'rgba(12,20,32,0.9)',border:'1px solid rgba(0,194,255,0.2)',borderRadius:16,padding:40,maxWidth:520,textAlign:'center'}}>
+            <div style={{fontSize:48,marginBottom:16}}>⚡</div>
+            <h2 style={{color:'#F1F5F9',fontWeight:900,fontSize:20,marginBottom:12,letterSpacing:'-0.03em'}}>Something went wrong</h2>
+            <p style={{color:'#5A6A82',fontSize:14,marginBottom:24,lineHeight:1.6}}>
+              SIGNAL hit an unexpected error. Your data is safe in localStorage.
+            </p>
+            <div style={{background:'rgba(0,0,0,0.4)',borderRadius:8,padding:'10px 14px',marginBottom:24,textAlign:'left',fontSize:11,color:'rgba(255,255,255,0.4)',fontFamily:'monospace',maxHeight:80,overflow:'hidden'}}>
+              {this.state.error?.message || 'Unknown error'}
+            </div>
+            <button onClick={() => { this.setState({hasError:false,error:null}); window.location.reload(); }}
+              style={{background:'linear-gradient(135deg,#00C2FF,#0096CC)',color:'#000D1A',border:'none',borderRadius:8,padding:'10px 24px',fontWeight:800,cursor:'pointer',fontSize:14}}>
+              Reload SIGNAL
+            </button>
+          </div>
         </div>
       );
     }
@@ -495,10 +12048,157 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-export default function Root() {
+export default function App() {
+  const [nav, setNav] = useState('home');
+  const [sub, setSub] = useState(null);
+  const { save: memorySave } = useContentMemory();
+  const [activeClient] = useActiveClient();
+  const [onboardingDone, setOnboardingDone] = useState(() => {
+    try { return !!localStorage.getItem(ONBOARDING_DONE_KEY); } catch { return true; }
+  });
+
+  // Register memory save function globally so all tools can log to it
+  useEffect(() => { registerMemorySave(memorySave); }, [memorySave]);
+  useEffect(() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null'); document.title = wl?.agencyName ? wl.agencyName + ' | Social Media OS' : 'SIGNAL by Everyday Elevations'; } catch { document.title = 'SIGNAL by Everyday Elevations'; } }, []);
+
+  const handleNav = (id) => {
+    setNav(id);
+    if(id === 'home') { setSub(null); return; }
+    if(id === 'youtube') { setSub('yttoolkit'); return; }
+    const subs = SUB_NAV[id];
+    if(subs) setSub(subs[0].id);
+  };
+
+  const ActiveComponent = sub
+    ? (COMPONENT_MAP[sub] || Home)
+    : (nav === 'home' ? Home : null);
+
+  const subItems = SUB_NAV[nav];
+
   return (
     <ErrorBoundary>
-      <App />
+      {!onboardingDone && <OnboardingFlow onComplete={() => setOnboardingDone(true)}/>}
+      <Head>
+        <title>SIGNAL by Everyday Elevations</title>
+        <meta name="description" content="SIGNAL — Social Media OS by Everyday Elevations"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+          body {
+            background: #080D14;
+            background-image:
+              radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0,194,255,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse 40% 30% at 80% 80%, rgba(0,194,255,0.03) 0%, transparent 50%);
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            letter-spacing: -0.01em;
+          }
+          textarea, input, select { outline: none; color-scheme: dark; font-family: 'DM Sans', sans-serif; }
+          textarea:focus, input:focus { border-color: #00C2FF !important; box-shadow: 0 0 0 2px rgba(0,194,255,0.08); }
+          select:focus { border-color: #00C2FF !important; }
+          button { font-family: 'DM Sans', sans-serif; }
+          @keyframes spin { to { transform: rotate(360deg); } }
+          @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+          @keyframes slideUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+          ::-webkit-scrollbar { width: 4px; height: 4px; }
+          ::-webkit-scrollbar-track { background: transparent; }
+          ::-webkit-scrollbar-thumb { background: rgba(0,194,255,0.2); border-radius: 2px; }
+          ::-webkit-scrollbar-thumb:hover { background: rgba(0,194,255,0.4); }
+          * { scrollbar-width: thin; scrollbar-color: rgba(0,194,255,0.2) transparent; }
+        `}</style>
+      </Head>
+
+      <div style={{minHeight:'100vh',background:B.navy,color:B.white,backgroundImage:'radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,194,255,0.05) 0%, transparent 60%)'}}>
+        {/* TOP NAV */}
+        <nav style={{
+            background: 'rgba(8,13,20,0.92)',
+            borderBottom: '1px solid rgba(0,194,255,0.08)',
+            padding: '0 16px',
+            position: 'sticky',
+            top: 0,
+            zIndex: 100,
+            backdropFilter: 'blur(20px)',
+            boxShadow: '0 1px 0 rgba(0,194,255,0.06), 0 4px 24px rgba(0,0,0,0.5)',
+          }}>
+          <div style={{maxWidth:1100,margin:'0 auto',display:'flex',alignItems:'center',gap:4}}>
+            <div style={{marginRight:12,padding:'12px 0'}}>
+              <img src="/E-E-Logo.jpg" alt="EN" style={{width:32,height:32,borderRadius:'50%'}}/>
+            </div>
+            {TOP_NAV.map(n => (
+              <button key={n.id} onClick={()=>handleNav(n.id)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: nav===n.id ? '#00C2FF' : B.gray,
+                  padding: '16px 14px',
+                  cursor: 'pointer',
+                  fontSize: 12,
+                  fontWeight: nav===n.id ? 700 : 500,
+                  letterSpacing: nav===n.id ? '0.02em' : '0',
+                  borderBottom: `2px solid ${nav===n.id ? '#00C2FF' : 'transparent'}`,
+                  transition: 'all 0.15s',
+                  whiteSpace: 'nowrap',
+                }}>
+                {n.emoji} {n.label}
+              </button>
+            ))}
+            {/* Active client indicator in nav */}
+            {activeClient && !activeClient.isDefault && (
+              <div style={{marginLeft:'auto',background:'rgba(245,166,35,0.12)',border:'1px solid rgba(245,166,35,0.25)',borderRadius:6,padding:'4px 12px',fontSize:11,fontWeight:700,color:'#C9A84C',whiteSpace:'nowrap'}}>
+                👤 {activeClient.name}
+              </div>
+            )}
+          </div>
+        </nav>
+
+        {/* SUB NAV */}
+        {subItems && nav !== 'home' && (
+          <div style={{
+              background: 'rgba(12,20,32,0.6)',
+              borderBottom: '1px solid rgba(0,194,255,0.06)',
+              padding: '0 16px',
+              backdropFilter: 'blur(10px)',
+            }}>
+            <div style={{maxWidth:1100,margin:'0 auto',display:'flex',gap:4}}>
+              {subItems.map(s => (
+                <button key={s.id} onClick={()=>setSub(s.id)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: sub===s.id ? B.white : B.gray,
+                    padding: '9px 14px',
+                    cursor: 'pointer',
+                    fontSize: 11,
+                    fontWeight: sub===s.id ? 700 : 500,
+                    letterSpacing: '0.03em',
+                    borderBottom: `2px solid ${sub===s.id ? '#00C2FF' : 'transparent'}`,
+                    transition: 'all 0.15s',
+                    whiteSpace: 'nowrap',
+                  }}>
+                  {s.emoji} {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TREND ALERT BANNER */}
+        <TrendAlertBanner/>
+
+        {/* MAIN CONTENT */}
+        <NotificationBanner/>
+        <AutoVoiceUpdateBanner activeClient={activeClient}/>
+        <main style={{maxWidth:1100,margin:'0 auto',padding:'2rem 16px',animation:'slideUp 0.3s ease-out'}}>
+          {ActiveComponent
+            ? <ActiveComponent setNav={handleNav} setSub={setSub}/>
+            : (
+              <div style={{textAlign:'center',padding:'4rem 0',color:B.gray}}>
+                <p>Select a tool from the navigation above</p>
+              </div>
+            )
+          }
+        </main>
+      </div>
     </ErrorBoundary>
   );
 }
