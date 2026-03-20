@@ -274,7 +274,8 @@ const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
         <span style={{color:'rgba(255,255,255,0.88)',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^\d+\.\s/,''))}</span>
       </div>
     );
-    // Bullet items
+    
+    let items
     if (line.startsWith('- ') || line.startsWith('* ')) return (
       <div key={idx} style={{display:'flex',gap:10,marginBottom:6,paddingLeft:4}}>
         <span style={{color:B.red,fontSize:12,marginTop:3,flexShrink:0}}>▸</span>
@@ -1800,7 +1801,8 @@ function ContentMemory() {
   const perfLabels = { '':'No rating', '⭐':'Good', '':'Viral', '💀':'Flopped' };
   const typeColors = { script:'#1B4F72', calendar:'#145A32', onboard:'#6E2F8E', batch:'#7E5109', profile:'#0A66C2', magnet:'#C0392B', community:'#1A5276', instagram:'#C13584', facebook:'#1877F2', tiktok:'#010101', x:'#1DA1F2', youtube:'#FF0000', linkedin:'#0A66C2', default:'#2C3E50' };
 
-  // CSV Parser ──────────────────────────────────────────────────────────const parseCSV = (text) => {
+  // CSV Parser
+  const parseCSV = (text) => {
     const lines = text.trim().split('\n');
     if (lines.length < 2) return [];
     // Handle quoted fields
@@ -1822,7 +1824,8 @@ function ContentMemory() {
     });
   };
 
-  // Auto-rate by engagement ─────────────────────────────────────────────const autoRate = (saves, shares, reach) => {
+  // Auto-rate by engagement
+  const autoRate = (saves, shares, reach) => {
     const s = parseInt(saves)||0, sh = parseInt(shares)||0, r = parseInt(reach)||1;
     const engRate = (s + sh*2) / r;
     if (engRate > 0.05 || s > 50 || sh > 20) return '';
@@ -1831,7 +1834,8 @@ function ContentMemory() {
     return '';
   };
 
-  // Import Handler ──────────────────────────────────────────────────────const handleImport = (e) => {
+  // Import Handler
+  const handleImport = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setImporting(true); setImportResult(null);
@@ -1842,7 +1846,8 @@ function ContentMemory() {
         const text = ev.target.result;
         let imported = 0; let skipped = 0;
 
-        // Detect format ────────────────────────────────────────────────const isJSON = text.trim().startsWith('{') || text.trim().startsWith('[');
+        // Detect format
+        const isJSON = text.trim().startsWith('{') || text.trim().startsWith('[');
 
         if (isJSON) {
           // Instagram "Download Your Information" JSON format
@@ -12847,7 +12852,9 @@ export default function App() {
     return <ApprovalPage encodedPayload={approvalPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
   }
 
-  // Register memory save function globally so all tools can log to it
+  
+
+  function globally so all tools can log to it
   useEffect(() => { registerMemorySave(memorySave); }, [memorySave]);
 
   // Listen for internal navigation events (e.g. Generate Calendar from Strategy)
