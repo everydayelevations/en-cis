@@ -4227,7 +4227,6 @@ function TrendAlertBanner() {
     <div style={{
       background: '#080D14',
       borderBottom: '1px solid rgba(0,194,255,0.08)',
-      position: 'sticky', top: 52, zIndex: 90,
     }}>
       <div style={{maxWidth:1100,margin:'0 auto',padding:'0 16px'}}>
         <div style={{display:'flex',alignItems:'center',gap:12,padding:'8px 0',minHeight:38}}>
@@ -12905,13 +12904,13 @@ export default function App() {
                   transition: 'all 0.15s',
                   whiteSpace: 'nowrap',
                 }}>
-                {n.emoji} {n.label}
+                {n.label}
               </button>
             ))}
             {/* Active client indicator in nav */}
             {activeClient && !activeClient.isDefault && (
               <div style={{marginLeft:'auto',background:'rgba(245,166,35,0.12)',border:'1px solid rgba(245,166,35,0.25)',borderRadius:6,padding:'4px 12px',fontSize:11,fontWeight:700,color:'#C9A84C',whiteSpace:'nowrap'}}>
-                👤 {activeClient.name}
+                {activeClient.name}
               </div>
             )}
           </div>
@@ -12941,7 +12940,7 @@ export default function App() {
                     transition: 'all 0.15s',
                     whiteSpace: 'nowrap',
                   }}>
-                  {s.emoji} {s.label}
+                  {s.label}
                 </button>
               ))}
             </div>
