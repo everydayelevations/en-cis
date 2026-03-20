@@ -12814,7 +12814,7 @@ export default function App() {
 
   
 
-  function globally so all tools can log to it
+  // Register memory save function globally so all tools can log to it
   useEffect(() => { registerMemorySave(memorySave); }, [memorySave]);
 
   // Listen for internal navigation events (e.g. Generate Calendar from Strategy)
