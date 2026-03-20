@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Head from 'next/head';
 
-// ─BRAND ─────────────────────────────────────────────────────────────────const B = {
+// ─── BRAND ────────────────────────────────────────────────────────────────
+const B = {
   navy:   '#080D14',   // obsidian deepest background
   navy2:  '#0C1420',   // surface cards and panels
   navy3:  '#111B2B',   // elevated inputs, hover
@@ -25,7 +26,8 @@ const ANGLES = [
   { id:'spiritual', label:'Spiritual',      dimension:'Spiritual',      desc:'Purpose, values, what drives you, the reason behind the work' },
 ];
 
-// ─FRAMEWORKS (invisible infrastructure) ─────────────────────────────────const SWARBRICK = `Dr. Peggy Swarbrick's 8 Dimensions of Wellness framework. Every piece of content should serve at least one dimension. Use this as a lens, not a label. Never name the dimensions explicitly in the content itself.
+// ═════════════════════════════════════════════════════════════════════════════
+const SWARBRICK = `Dr. Peggy Swarbrick's 8 Dimensions of Wellness framework. Every piece of content should serve at least one dimension. Use this as a lens, not a label. Never name the dimensions explicitly in the content itself.
 
 Emotional: How someone relates to their inner world. Stress, self-talk, identity, boundaries, processing difficulty. This is not about toxic positivity. It's about being honest with yourself.
 
@@ -47,16 +49,19 @@ const CONTENT_SOP = `Content standards I've built my system on: No intros, no fl
 
 const VOICE = `Write in Jason Fricka's voice. He's an HR manager, mindset coach, endurance athlete, dad, and real estate agent in Colorado. He talks like he's sitting across the table from you : direct, no fluff, no corporate speak. Short sentences. Real stories. He doesn't hype things up. He doesn't use words like "transform" or "journey" or "find your potential." He says what he means. He talks about hard days, early mornings, the work nobody sees, and why showing up matters even when it doesn't feel like it. His community is the community : everyday people who refuse to stay where they are. He roots for them out loud. Today is ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}. Write like him, not like a marketer writing about him. Never use em dashes. Never use AI buzzwords like "delve", "tapestry", "comprehensive", "leverage", "utilize", "paradigm", "synergy", "robust", "holistic", "facilitate", "foster", "streamline", or "cutting-edge". No hype. No filler. Jason does not talk like a LinkedIn consultant.`;
 
-// ─PLATFORMS ─────────────────────────────────────────────────────────────const PLATFORMS = ['Instagram','YouTube','Facebook','LinkedIn','X','TikTok'];
+// ═════════════════════════════════════════════════════════════════════════════
+const PLATFORMS = ['Instagram','YouTube','Facebook','LinkedIn','X','TikTok'];
 
-// ─RESEARCH TIERS ────────────────────────────────────────────────────────const TIER_PROMPTS = [
+// ═════════════════════════════════════════════════════════════════════════════
+const TIER_PROMPTS = [
   { label:'Quick Pulse', desc:'Top 3 viral angles right now', depth:'surface' },
   { label:'Deep Dive', desc:'Trend analysis + audience psychology', depth:'medium' },
   { label:'Competitor Intel', desc:'What competitors are missing', depth:'deep' },
   { label:'Full Intel', desc:'Everything: trends, gaps, scripts, angles', depth:'full' },
 ];
 
-// ─PROMPT VAULT TABS ─────────────────────────────────────────────────────const VAULT_TABS = [
+// ═════════════════════════════════════════════════════════════════════════════
+const VAULT_TABS = [
   { id:'instagram', label:'Instagram', prompts:[
     'Write a Reel hook that stops the scroll for [topic]',
     'Give me 5 pattern-interrupt openers for [niche]',
@@ -118,7 +123,8 @@ const VOICE = `Write in Jason Fricka's voice. He's an HR manager, mindset coach,
   ]},
 ];
 
-// ─AI HELPERS ────────────────────────────────────────────────────────────async function ai(message, system='You are a helpful content strategist.') {
+// ═════════════════════════════════════════════════════════════════════════════
+async function ai(message, system='You are a helpful content strategist.') {
   const res = await fetch('/api/claude', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -143,7 +149,8 @@ async function perp(query) {
   }
 }
 
-// ─UI PRIMITIVES ──────────────────────────────────────────────────────────const Spin = () => (
+// ═════════════════════════════════════════════════════════════════════════════
+const Spin = () => (
   <div style={{display:'flex',justifyContent:'center',padding:'2rem'}}>
     <div style={{width:32,height:32,border:'2px solid rgba(0,194,255,0.15)',borderTopColor:'#00C2FF',
       borderRadius:'50%',animation:'spin 0.7s linear infinite'}}/>
@@ -233,7 +240,8 @@ const CopyBtn = ({text}) => {
   );
 };
 
-// Strategy Markdown Renderer ─────────────────────────────────────────────const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
+// ═════════════════════════════════════════════════════════════════════════════
+const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
   if (!text) return null;
 
   // Parse markdown into structured sections
@@ -329,7 +337,8 @@ const CopyBtn = ({text}) => {
   );
 };
 
-// Universal Doc Output: renders markdown + print/PDF download ───────────function DocOutput({text, title='Document', showDownload=true}) {
+// Universal Doc Output: renders markdown + print/PDF download
+function DocOutput({text, title='Document', showDownload=true}) {
   const [downloading, setDownloading] = useState(false);
 
   const download = async () => {
@@ -512,7 +521,8 @@ const Output = ({text}) => text ? (
   </div>
 ) : null;
 
-// ─AI PROMPTS ─────────────────────────────────────────────────────────────const SCRIPT_PROMPT = (topic, angle, platform) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const SCRIPT_PROMPT = (topic, angle, platform) => `
 ${VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
@@ -1714,7 +1724,8 @@ Extract:
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIER 1 : CONTENT MEMORY
-// ═════════════════════════════════════════════════════════════════════════════const MEMORY_KEY = 'encis_content_log';
+// ═════════════════════════════════════════════════════════════════════════════
+const MEMORY_KEY = 'encis_content_log';
 const CLIENTS_KEY = 'encis_clients';
 const ACTIVE_CLIENT_KEY = 'encis_active_client';
 const CUSTOM_ANGLES_KEY = 'encis_custom_angles';
@@ -2166,7 +2177,8 @@ function ContentMemory() {
 }
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIER 1: BULK CONTENT BATCHING
-// ═════════════════════════════════════════════════════════════════════════════const BULK_PROMPT = (angle, platform, topic, client) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const BULK_PROMPT = (angle, platform, topic, client) => `
 ${client ? `CLIENT: ${client.name}. Voice and brand: ${client.voice}` : VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
@@ -2289,7 +2301,8 @@ function BulkBatch() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIER 1 : CLIENT MODE
-// ═════════════════════════════════════════════════════════════════════════════const DEFAULT_CLIENT = {
+// ═════════════════════════════════════════════════════════════════════════════
+const DEFAULT_CLIENT = {
   id: 'jason',
   name: 'Jason Fricka',
   handle: '@everydayelevations',
@@ -2504,7 +2517,8 @@ function ClientMode({ setActiveClientExternal }) {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPONENTS
-// ═════════════════════════════════════════════════════════════════════════════function Home({setNav,setSub}) {
+// ═════════════════════════════════════════════════════════════════════════════
+function Home({setNav,setSub}) {
   // Check if onboarding done
   const [onboardingDone] = useState(() => {
     try { return !!localStorage.getItem(ONBOARDING_DONE_KEY); } catch { return true; }
@@ -3885,7 +3899,8 @@ function WeeklyReview() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TELEPROMPTER
-// ═════════════════════════════════════════════════════════════════════════════function Teleprompter({ text, onClose }) {
+// ═════════════════════════════════════════════════════════════════════════════
+function Teleprompter({ text, onClose }) {
   const [speed, setSpeed] = useState(30);       // px per second
   const [running, setRunning] = useState(false);
   const [fontSize, setFontSize] = useState(42);
@@ -4012,7 +4027,8 @@ function WeeklyReview() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TREND ALERTS
-// ═════════════════════════════════════════════════════════════════════════════const TREND_ALERTS_KEY  = 'encis_trend_alerts';
+// ═════════════════════════════════════════════════════════════════════════════
+const TREND_ALERTS_KEY  = 'encis_trend_alerts';
 const TREND_ALERTS_DATE = 'encis_trend_date';
 const APP_VERSION_KEY   = 'encis_version';
 const CURRENT_VERSION   = '2.1';
@@ -4525,7 +4541,8 @@ function ROIDashboard() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN APP
-// ═════════════════════════════════════════════════════════════════════════════const TOP_NAV = [
+// ═════════════════════════════════════════════════════════════════════════════
+const TOP_NAV = [
   { id:'home', label:'Dashboard' },
   { id:'strategy', label:'Strategy' },
   { id:'research', label:'Research' },
@@ -4610,7 +4627,8 @@ const SUB_NAV = {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 1: CAPTION WRITER
-// ═════════════════════════════════════════════════════════════════════════════const CAPTION_PROMPT = (topic, platform, angle, hook, cta) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const CAPTION_PROMPT = (topic, platform, angle, hook, cta) => `
 ${VOICE}
 ${CONTENT_SOP}
 
@@ -4754,7 +4772,8 @@ function CaptionWriter() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 2 : SCHEDULE OPTIMIZER
-// ═════════════════════════════════════════════════════════════════════════════function ScheduleOptimizer() {
+// ═════════════════════════════════════════════════════════════════════════════
+function ScheduleOptimizer() {
   const [weeks] = useState(() => {
     try { const s = localStorage.getItem('encis_roi_data'); return s ? JSON.parse(s) : []; } catch { return []; }
   });
@@ -4867,7 +4886,8 @@ For each day: Platform, Content Type, Best Time to Post, Why (based on data)
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 3 : CONTENT GAP ANALYZER
-// ═════════════════════════════════════════════════════════════════════════════function ContentGapAnalyzer() {
+// ═════════════════════════════════════════════════════════════════════════════
+function ContentGapAnalyzer() {
   const [log] = useState(() => {
     try { const s = localStorage.getItem('encis_content_log'); return s ? JSON.parse(s) : []; } catch { return []; }
   });
@@ -5005,7 +5025,8 @@ ${summary}
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 4 : TELEPROMPTER BUTTON ON ALL OUTPUTS
 // (injected via enhanced Output component)
-// ═════════════════════════════════════════════════════════════════════════════function OutputWithTeleprompter({text}) {
+// ═════════════════════════════════════════════════════════════════════════════
+function OutputWithTeleprompter({text}) {
   const [teleprompter, setTeleprompter] = useState(false);
   if (!text) return null;
   return (
@@ -5031,7 +5052,8 @@ ${summary}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 5 : COLLAB OUTREACH TRACKER
-// ═════════════════════════════════════════════════════════════════════════════const COLLAB_TRACKER_KEY = 'encis_collab_tracker';
+// ═════════════════════════════════════════════════════════════════════════════
+const COLLAB_TRACKER_KEY = 'encis_collab_tracker';
 
 function CollabTracker() {
   const [contacts, setContacts] = useState([]);
@@ -5267,7 +5289,8 @@ function CollabTracker() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMMENT RESPONDER
-// ═════════════════════════════════════════════════════════════════════════════const COMMENT_REPLY_PROMPT = (comments, mode, client) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const COMMENT_REPLY_PROMPT = (comments, mode, client) => `
 ${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
 
 ${mode === 'bulk'
@@ -5364,7 +5387,8 @@ function CommentResponder() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // HOOK TESTER
-// ═════════════════════════════════════════════════════════════════════════════const HOOK_TEST_PROMPT = (hooks, topic) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const HOOK_TEST_PROMPT = (hooks, topic) => `
 ${VOICE}
 
 Topic: ${topic}
@@ -5489,7 +5513,8 @@ function HookTester() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // EMAIL SEQUENCE BUILDER
-// ═════════════════════════════════════════════════════════════════════════════const EMAIL_PROMPT = (magnet, audience, offer, length, client) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const EMAIL_PROMPT = (magnet, audience, offer, length, client) => `
 ${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
 ${SWARBRICK}
 
@@ -5667,7 +5692,8 @@ function EmailSequenceBuilder() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PODCAST PRE-PRODUCTION SUITE
-// ═════════════════════════════════════════════════════════════════════════════const PODCAST_PREPROD_PROMPT = (guestName, guestBio, episode_angle, showContext) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const PODCAST_PREPROD_PROMPT = (guestName, guestBio, episode_angle, showContext) => `
 ${VOICE}
 
 Show: Everyday Elevations Podcast (Host: Jason Fricka: veteran, HR manager, mindset coach, Colorado)
@@ -5901,7 +5927,8 @@ function PodcastPreProd() {
 // YOUTUBE TOOLKIT
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// ─VIDIQ SOP ─────────────────────────────────────────────────────────────const VIDIQ_SOP = `
+// ═════════════════════════════════════════════════════════════════════════════
+const VIDIQ_SOP = `
 VIDIQ OUTLIER SCORE FRAMEWORK (follow this to the letter):
 - Outlier Score > 1.0 = video outperforms channel average study and replicate these elements
 - Outlier Score 1.0 = performing average analyze for engagement improvements
@@ -6393,7 +6420,8 @@ function YouTubeToolkit() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // DM SCRIPT LIBRARY
-// ═════════════════════════════════════════════════════════════════════════════const DM_SCRIPTS_KEY = 'encis_dm_scripts';
+// ═════════════════════════════════════════════════════════════════════════════
+const DM_SCRIPTS_KEY = 'encis_dm_scripts';
 
 const DM_GEN_PROMPT = (trigger, context, goal, client) => `
 ${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
@@ -6663,7 +6691,8 @@ function DMScriptLibrary() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 30-DAY CHALLENGE BUILDER
-// ═════════════════════════════════════════════════════════════════════════════const CHALLENGE_PROMPT = (name, transformation, audience, platform, client) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const CHALLENGE_PROMPT = (name, transformation, audience, platform, client) => `
 ${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
 ${SWARBRICK}
 ${CONTENT_SOP}
@@ -6858,7 +6887,8 @@ function ChallengeBuilder() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPETITOR CONTENT SPY
-// ═════════════════════════════════════════════════════════════════════════════const SPY_PROMPT = (handle, platform, rawData, angle) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const SPY_PROMPT = (handle, platform, rawData, angle) => `
 ${VOICE}
 
 You are analyzing a competitor's content strategy to find gaps Jason Fricka can own.
@@ -7031,7 +7061,8 @@ function CompetitorSpy() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // BRAND VOICE FINGERPRINTING
-// ═════════════════════════════════════════════════════════════════════════════const VOICE_KEY = 'encis_voice_fingerprints';
+// ═════════════════════════════════════════════════════════════════════════════
+const VOICE_KEY = 'encis_voice_fingerprints';
 
 const VOICE_FINGERPRINT_PROMPT = (samples, clientName) => `
 You are a voice analyst. Analyze these ${samples.length} content samples from ${clientName} and extract a precise voice fingerprint.
@@ -7227,7 +7258,8 @@ function BrandVoiceFingerprint() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CLIENT PORTAL / DASHBOARD
-// ═════════════════════════════════════════════════════════════════════════════const CLIENT_NOTES_KEY = 'encis_client_notes';
+// ═════════════════════════════════════════════════════════════════════════════
+const CLIENT_NOTES_KEY = 'encis_client_notes';
 const CLIENT_DELIVERABLES_KEY = 'encis_deliverables';
 
 function ClientPortal() {
@@ -7446,7 +7478,8 @@ function ClientPortal() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MONTHLY REPORTING SUITE
-// ═════════════════════════════════════════════════════════════════════════════const MONTHLY_REPORT_PROMPT = (client, roiData, contentData, month, goals, wins, challenges) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const MONTHLY_REPORT_PROMPT = (client, roiData, contentData, month, goals, wins, challenges) => `
 ${VOICE}
 
 You are writing a professional monthly performance report for a social media agency client.
@@ -7612,7 +7645,8 @@ function MonthlyReportSuite() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CLIENT DELIVERABLE BUILDER
-// ═════════════════════════════════════════════════════════════════════════════const DELIVERABLE_PROMPT = (client, type, brief, voiceFingerprint) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const DELIVERABLE_PROMPT = (client, type, brief, voiceFingerprint) => `
 ${VOICE}
 
 You are creating a professional client deliverable for a social media agency.
@@ -7735,7 +7769,8 @@ function DeliverableBuilder() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPETITOR INTELLIGENCE DASHBOARD
-// ═════════════════════════════════════════════════════════════════════════════const COMP_INTEL_KEY = 'encis_competitor_intel';
+// ═════════════════════════════════════════════════════════════════════════════
+const COMP_INTEL_KEY = 'encis_competitor_intel';
 
 const COMP_ANALYSIS_PROMPT = (competitor, rawData, clientContext) => `
 ${VOICE}
@@ -7899,7 +7934,8 @@ function CompetitorIntel() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // AI VIDEO SCRIPT DIRECTOR
-// ═════════════════════════════════════════════════════════════════════════════const VIDEO_DIRECTOR_PROMPT = (topic, angle, duration, location, equipment, style, shotStyle) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const VIDEO_DIRECTOR_PROMPT = (topic, angle, duration, location, equipment, style, shotStyle) => `
 ${VOICE}
 
 Topic: "${topic}"
@@ -8043,7 +8079,8 @@ function VideoScriptDirector() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CAMPAIGN BUILDER
-// ═════════════════════════════════════════════════════════════════════════════const CAMPAIGNS_KEY = 'encis_campaigns';
+// ═════════════════════════════════════════════════════════════════════════════
+const CAMPAIGNS_KEY = 'encis_campaigns';
 
 const CAMPAIGN_PROMPT = (name, goal, audience, duration, platforms, launchDate, offer, client) => `
 ${client ? `CLIENT: ${client.name} (${client.handle}). Voice: ${client.voice}` : VOICE}
@@ -8289,7 +8326,8 @@ function CampaignBuilder() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONTENT PERFORMANCE PREDICTOR
-// ═════════════════════════════════════════════════════════════════════════════const PREDICTOR_PROMPT = (content, platform, contentType, historicalData) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const PREDICTOR_PROMPT = (content, platform, contentType, historicalData) => `
 ${VOICE}
 Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
@@ -8435,7 +8473,8 @@ function ContentPredictor() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // WHITE LABEL MODE
-// ═════════════════════════════════════════════════════════════════════════════const WL_KEY = 'encis_whitelabel';
+// ═════════════════════════════════════════════════════════════════════════════
+const WL_KEY = 'encis_whitelabel';
 
 function useWhiteLabel() {
   const [wl, setWlState] = useState(null);
@@ -8575,7 +8614,8 @@ function WhiteLabelMode() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CUSTOM AI PERSONA PER CLIENT
-// ═════════════════════════════════════════════════════════════════════════════const PERSONA_KEY = 'encis_personas';
+// ═════════════════════════════════════════════════════════════════════════════
+const PERSONA_KEY = 'encis_personas';
 const PERSONA_RATINGS_KEY = 'encis_persona_ratings';
 
 const PERSONA_BUILD_PROMPT = (client, voiceFingerprint, contentHistory, ratings) => `
@@ -8855,7 +8895,8 @@ function CustomPersona() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CUSTOM ANGLES MANAGER
-// ═════════════════════════════════════════════════════════════════════════════function CustomAnglesManager({ client, onClose }) {
+// ═════════════════════════════════════════════════════════════════════════════
+function CustomAnglesManager({ client, onClose }) {
   const [data, setData] = useState({ mode: 'swarbrick', angles: [] });
   const [newAngle, setNewAngle] = useState({ label: '', emoji: '📌', desc: '' });
   const [saved, setSaved] = useState(false);
@@ -8976,7 +9017,8 @@ function CustomPersona() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CALL TRANSCRIPT INTEL
-// ═════════════════════════════════════════════════════════════════════════════const TRANSCRIPTS_KEY = 'encis_transcripts';
+// ═════════════════════════════════════════════════════════════════════════════
+const TRANSCRIPTS_KEY = 'encis_transcripts';
 
 const TRANSCRIPT_ANALYSIS_PROMPT = (client, transcript, type) => `
 ${VOICE}
@@ -9189,7 +9231,8 @@ function TranscriptIntel() {
 // ANALYTICS IMPORT HUB
 // Parses CSV exports from Instagram, YouTube, Facebook, LinkedIn natively
 // No API needed user exports from the platform, imports here
-// ═════════════════════════════════════════════════════════════════════════════const ANALYTICS_KEY = 'encis_analytics_data';
+// ═════════════════════════════════════════════════════════════════════════════
+const ANALYTICS_KEY = 'encis_analytics_data';
 
 const ANALYTICS_INSIGHT_PROMPT = (client, platform, data, period) => `
 ${VOICE}
@@ -9419,7 +9462,8 @@ function AnalyticsHub() {
 // VISUAL CONTENT CALENDAR (planning + scheduling layer)
 // Drag-free, click-to-assign content to dates
 // Export to Meta Business Suite / Google Calendar
-// ═════════════════════════════════════════════════════════════════════════════const VISUAL_CAL_KEY = 'encis_visual_calendar';
+// ═════════════════════════════════════════════════════════════════════════════
+const VISUAL_CAL_KEY = 'encis_visual_calendar';
 
 function VisualCalendar() {
   const [clients] = useClients();
@@ -9617,7 +9661,8 @@ function VisualCalendar() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // AI STRATEGY REVIEW (auto-generated monthly, no API needed)
-// ═════════════════════════════════════════════════════════════════════════════const STRATEGY_REVIEW_KEY = 'encis_strategy_reviews';
+// ═════════════════════════════════════════════════════════════════════════════
+const STRATEGY_REVIEW_KEY = 'encis_strategy_reviews';
 
 const STRATEGY_REVIEW_PROMPT = (client, roiData, contentData, calendarData, period) => `
 ${VOICE}
@@ -9777,7 +9822,8 @@ function AIStrategyReview() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // CLIENT ONBOARDING AUTOMATION
 // Runs all tools on new client add: audit, fingerprint, gaps, strategy draft
-// ═════════════════════════════════════════════════════════════════════════════const ONBOARDING_AUTO_PROMPT = (client) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const ONBOARDING_AUTO_PROMPT = (client) => `
 ${VOICE}
 Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
@@ -9892,7 +9938,8 @@ function OnboardingAutomation() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // BIO LINK PAGE BUILDER
-// ═════════════════════════════════════════════════════════════════════════════const BIOLINK_PROMPT = (client, links, headline, subtext, style) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const BIOLINK_PROMPT = (client, links, headline, subtext, style) => `
 ${VOICE}
 
 CLIENT: ${client.name} (${client.handle})
@@ -10046,7 +10093,8 @@ function BioLinkBuilder() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CLIENT COMMUNICATION TEMPLATES
-// ═════════════════════════════════════════════════════════════════════════════const COMM_TEMPLATES_PROMPT = (client, templateType, context, agencyName) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const COMM_TEMPLATES_PROMPT = (client, templateType, context, agencyName) => `
 ${VOICE}
 
 AGENCY: ${agencyName || 'Everyday Elevations / SIGNAL'}
@@ -10144,7 +10192,8 @@ function ClientCommsTemplates() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONTENT BRIEF GENERATOR (pre-filming session brief)
-// ═════════════════════════════════════════════════════════════════════════════const CONTENT_BRIEF_PROMPT = (client, sessionDate, location, topics, equipment, duration, intensity) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const CONTENT_BRIEF_PROMPT = (client, sessionDate, location, topics, equipment, duration, intensity) => `
 You are a world-class content strategist, creative director, and personal brand operator.
 
 You think like someone who runs a content-driven business, understands audience psychology, knows how content turns into revenue, and values clarity over fluff.
@@ -10367,7 +10416,8 @@ function HashtagResearch() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONTENT SERIES PLANNER
-// ═════════════════════════════════════════════════════════════════════════════const SERIES_PROMPT = (seriesName, theme, platform, episodeCount, client, cadence) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const SERIES_PROMPT = (seriesName, theme, platform, episodeCount, client, cadence) => `
 ${client ? `CLIENT: ${client.name} (${client.handle}). Voice: ${client.voice}` : VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
@@ -10484,7 +10534,8 @@ function ContentSeriesPlanner() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // BIO OPTIMIZER (dedicated, more thorough than profile audit)
-// ═════════════════════════════════════════════════════════════════════════════const BIO_OPTIMIZER_PROMPT = (client, platform, currentBio, goals) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const BIO_OPTIMIZER_PROMPT = (client, platform, currentBio, goals) => `
 ${VOICE}
 
 CLIENT: ${client.name} (${client.handle})
@@ -10587,7 +10638,8 @@ function BioOptimizer() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PRICING CALCULATOR
-// ═════════════════════════════════════════════════════════════════════════════const PRICING_PROMPT = (niche, platforms, followers, engagementRate, services, market) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const PRICING_PROMPT = (niche, platforms, followers, engagementRate, services, market) => `
 ${VOICE}
 Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
@@ -10717,7 +10769,8 @@ function PricingCalculator() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // STORY ARC PLANNER
-// ═════════════════════════════════════════════════════════════════════════════const STORY_ARC_PROMPT = (client, campaign, duration, goal, platforms) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const STORY_ARC_PROMPT = (client, campaign, duration, goal, platforms) => `
 ${client ? `CLIENT: ${client.name} (${client.handle}). Voice: ${client.voice}` : VOICE}
 ${CONTENT_SOP}
 
@@ -10819,7 +10872,8 @@ function StoryArcPlanner() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // GUEST PREP KIT
-// ═════════════════════════════════════════════════════════════════════════════const GUEST_PREP_PROMPT = (client, guestName, guestBio, guestHandle, episodeTopic, recordDate) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const GUEST_PREP_PROMPT = (client, guestName, guestBio, guestHandle, episodeTopic, recordDate) => `
 ${client ? `HOST: ${client.name} (${client.handle})` : VOICE}
 
 PODCAST: ${client?.name || 'Everyday Elevations'} Podcast
@@ -10962,7 +11016,8 @@ function GuestPrepKit() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // OBJECTION HANDLER
-// ═════════════════════════════════════════════════════════════════════════════const OBJECTION_PROMPT = (client, context, objections) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const OBJECTION_PROMPT = (client, context, objections) => `
 ${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
 
 CONTEXT: ${context}
@@ -11073,7 +11128,8 @@ function ObjectionHandler() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // A/B TEST TRACKER
-// ═════════════════════════════════════════════════════════════════════════════const AB_KEY = 'encis_abtests';
+// ═════════════════════════════════════════════════════════════════════════════
+const AB_KEY = 'encis_abtests';
 
 function ABTestTracker() {
   const [tests, setTests] = useState([]);
@@ -11238,7 +11294,8 @@ function ABTestTracker() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // VIRAL FORMAT LIBRARY
-// ═════════════════════════════════════════════════════════════════════════════const VIRAL_FORMAT_PROMPT = (format, topic, platform, client) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const VIRAL_FORMAT_PROMPT = (format, topic, platform, client) => `
 ${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
@@ -11367,7 +11424,8 @@ function ViralFormatLibrary() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // REVENUE ATTRIBUTION TRACKER
-// ═════════════════════════════════════════════════════════════════════════════const REVENUE_KEY = 'encis_revenue';
+// ═════════════════════════════════════════════════════════════════════════════
+const REVENUE_KEY = 'encis_revenue';
 
 function RevenueAttribution() {
   const [entries, setEntries] = useState([]);
@@ -11508,7 +11566,8 @@ function RevenueAttribution() {
 // FEATURE 4: AUTO-LEARNING VOICE FINGERPRINT
 // When content is rated in Content Memory, extract language patterns and
 // offer to update the active client's voice fingerprint automatically
-// ═════════════════════════════════════════════════════════════════════════════const AUTO_VOICE_UPDATE_PROMPT = (clientName, currentFingerprint, viralSamples) => `
+// ═════════════════════════════════════════════════════════════════════════════
+const AUTO_VOICE_UPDATE_PROMPT = (clientName, currentFingerprint, viralSamples) => `
 You are refining a brand voice fingerprint based on content that actually went viral.
 
 CLIENT: ${clientName}
@@ -11644,7 +11703,8 @@ function AutoVoiceUpdateBanner({ activeClient }) {
 // FEATURE 6: ONBOARDING FLOW
 // First-time user setup shown once, stored in localStorage
 // 4 steps: Welcome Brand Setup Voice First Strategy
-// ═════════════════════════════════════════════════════════════════════════════function OnboardingFlow({ onComplete }) {
+// ═════════════════════════════════════════════════════════════════════════════
+function OnboardingFlow({ onComplete }) {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     name: 'Jason Fricka',
@@ -11888,7 +11948,8 @@ function AutoVoiceUpdateBanner({ activeClient }) {
 // Replaces the tool-grid home with a live data dashboard.
 // Shows: key metrics, trend alerts, pending deliverables, recent content,
 // content gap score, top performer, and quick-launch recent tools.
-// ═════════════════════════════════════════════════════════════════════════════function IntelligenceDashboard({ setNav, setSub }) {
+// ═════════════════════════════════════════════════════════════════════════════
+function IntelligenceDashboard({ setNav, setSub }) {
   const [activeClient] = useActiveClient();
   const [clients] = useClients();
   const [metrics, setMetrics] = useState(null);
@@ -12205,7 +12266,8 @@ function AutoVoiceUpdateBanner({ activeClient }) {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 8: TREND ALERT NOTIFICATIONS (Web Push API free)
-// ═════════════════════════════════════════════════════════════════════════════function useTrendNotifications() {
+// ═════════════════════════════════════════════════════════════════════════════
+function useTrendNotifications() {
   const [permission, setPermission] = useState('default');
 
   useEffect(() => {
@@ -12279,7 +12341,8 @@ function NotificationBanner() {
 // FEATURE 10: AUTOMATED MONTHLY REPORT EMAIL
 // Generates report, formats it, opens mailto: deep link so user sends it
 // from their own email. No SendGrid, no API key, no cost.
-// ═════════════════════════════════════════════════════════════════════════════function useMonthlyReportEmail() {
+// ═════════════════════════════════════════════════════════════════════════════
+function useMonthlyReportEmail() {
   const sendReportEmail = (clientEmail, clientName, reportMarkdown, agencyName) => {
     // Convert markdown to plain text for email
     const plain = reportMarkdown
@@ -12340,7 +12403,8 @@ function ReportEmailButton({ reportText, clientName, clientEmail }) {
 // FEATURE: CLIENT APPROVAL LINKS
 // Generates shareable URLs for client content review no server required.
 // Content is base64-encoded in the URL hash. Client opens link, approves/rejects.
-// ═════════════════════════════════════════════════════════════════════════════function ApprovalLinkGenerator({ content: delivContent, title, clientName }) {
+// ═════════════════════════════════════════════════════════════════════════════
+function ApprovalLinkGenerator({ content: delivContent, title, clientName }) {
   const [copied, setCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [status, setStatus] = useState(null);
@@ -12423,7 +12487,8 @@ function ReportEmailButton({ reportText, clientName, clientEmail }) {
   );
 }
 
-// Standalone approval page renders when URL contains #approval= ─────────function ApprovalPage({ encodedPayload, onBack }) {
+// Standalone approval page renders when URL contains #approval=
+function ApprovalPage({ encodedPayload, onBack }) {
   const [status, setStatus] = useState(null);
   const [comment, setComment] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -12548,7 +12613,8 @@ function ReportEmailButton({ reportText, clientName, clientEmail }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONTENT BRIEF GENERATOR
 // World-class pre-filming production blueprint
-// ═════════════════════════════════════════════════════════════════════════════function ContentBriefGenerator() {
+// ═════════════════════════════════════════════════════════════════════════════
+function ContentBriefGenerator() {
   const [clients] = useClients();
   const [activeClient] = useActiveClient();
   const [selectedClient, setSelectedClient] = useState(null);
@@ -12657,7 +12723,8 @@ function ReportEmailButton({ reportText, clientName, clientEmail }) {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // WEEKLY REVIEW 6-MODULE GROWTH SYSTEM
-// ═════════════════════════════════════════════════════════════════════════════const COMPONENT_MAP = {
+// ═════════════════════════════════════════════════════════════════════════════
+const COMPONENT_MAP = {
   home: Home,
   onboard: Onboarding,
   calendar: ContentCalendar,
