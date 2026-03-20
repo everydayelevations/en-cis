@@ -1675,8 +1675,6 @@ ${uploadedDoc ? 'Match the depth, specificity, and professional tone of the uplo
 `;
 };
 
-
-
 const DESIGN_PROMPT = (topic, format, angle) => `
 ${VOICE}
 
@@ -1887,7 +1885,8 @@ function ContentMemory() {
           const isFB = keys.includes('post_message') || keys.includes('lifetime_post_total_reach');
 
           rows.forEach(row => {
-            // Instagram CSV mapping ────────────────────────────────────if (isIG) {
+            // Instagram CSV mapping
+            if (isIG) {
               let caption = row.description || row.post_caption || '';
               let postType = row.post_type || row.type || 'Post';
               let reach = row.reach || row.impressions || '0';
@@ -5290,8 +5289,6 @@ function CollabTracker() {
   );
 }
 
-
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMMENT RESPONDER
 // ═════════════════════════════════════════════════════════════════════════════
@@ -6421,8 +6418,6 @@ function YouTubeToolkit() {
   );
 }
 
-
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // DM SCRIPT LIBRARY
 // ═════════════════════════════════════════════════════════════════════════════
@@ -7062,8 +7057,6 @@ function CompetitorSpy() {
   );
 }
 
-
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // BRAND VOICE FINGERPRINTING
 // ═════════════════════════════════════════════════════════════════════════════
@@ -7258,8 +7251,6 @@ function BrandVoiceFingerprint() {
     </div>
   );
 }
-
-
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CLIENT PORTAL / DASHBOARD
@@ -7478,8 +7469,6 @@ function ClientPortal() {
     </div>
   );
 }
-
-
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MONTHLY REPORTING SUITE
@@ -7769,8 +7758,6 @@ function DeliverableBuilder() {
     </div>
   );
 }
-
-
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPETITOR INTELLIGENCE DASHBOARD
@@ -8079,9 +8066,6 @@ function VideoScriptDirector() {
   );
 }
 
-
-
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // CAMPAIGN BUILDER
 // ═════════════════════════════════════════════════════════════════════════════
@@ -8326,8 +8310,6 @@ function CampaignBuilder() {
     </div>
   );
 }
-
-
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONTENT PERFORMANCE PREDICTOR
@@ -8615,8 +8597,6 @@ function WhiteLabelMode() {
   );
 }
 
-
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // CUSTOM AI PERSONA PER CLIENT
 // ═════════════════════════════════════════════════════════════════════════════
@@ -8894,9 +8874,6 @@ function CustomPersona() {
     </div>
   );
 }
-
-
-
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CUSTOM ANGLES MANAGER
@@ -9938,9 +9915,6 @@ function OnboardingAutomation() {
   );
 }
 
-
-
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // BIO LINK PAGE BUILDER
 // ═════════════════════════════════════════════════════════════════════════════
@@ -10639,8 +10613,6 @@ function BioOptimizer() {
   );
 }
 
-
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // PRICING CALCULATOR
 // ═════════════════════════════════════════════════════════════════════════════
@@ -11016,8 +10988,6 @@ function GuestPrepKit() {
     </div>
   );
 }
-
-
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // OBJECTION HANDLER
@@ -11563,10 +11533,6 @@ function RevenueAttribution() {
   );
 }
 
-
-
-
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 4: AUTO-LEARNING VOICE FINGERPRINT
 // When content is rated in Content Memory, extract language patterns and
@@ -11945,8 +11911,6 @@ function OnboardingFlow({ onComplete }) {
     </div>
   );
 }
-
-
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 5: INTELLIGENCE DASHBOARD HOME
@@ -12401,9 +12365,6 @@ function ReportEmailButton({ reportText, clientName, clientEmail }) {
   );
 }
 
-
-
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE: CLIENT APPROVAL LINKS
 // Generates shareable URLs for client content review no server required.
@@ -12612,8 +12573,6 @@ function ApprovalPage({ encodedPayload, onBack }) {
     </div>
   );
 }
-
-
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONTENT BRIEF GENERATOR
