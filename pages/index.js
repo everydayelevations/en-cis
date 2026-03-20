@@ -160,12 +160,14 @@ const Spin = () => (
 const RedBtn = ({onClick,disabled,children,style={}}) => (
   <button onClick={onClick} disabled={disabled}
     style={{
-      background: disabled ? 'rgba(90,106,130,0.3)' : 'linear-gradient(135deg, #00C2FF, #0096CC)',
-      color: disabled ? B.gray : '#000D1A',
-      border: 'none',
-      borderRadius: 8,
-      padding: '10px 22px',
-      fontWeight: 800,
+      background: disabled ? 'rgba(255,255,255,0.04)' : '#00C2FF',
+      color: disabled ? 'rgba(255,255,255,0.25)' : '#000D1A',
+      border: disabled ? '1px solid rgba(255,255,255,0.06)' : 'none',
+      borderRadius: 6,
+      padding: '9px 20px',
+      fontWeight: 700,
+      letterSpacing: '0.02em',
+      fontSize: 13,
       cursor: disabled ? 'not-allowed' : 'pointer',
       fontSize: 13,
       letterSpacing: '0.02em',
@@ -191,9 +193,9 @@ const Card = ({children,style={}}) => (
   </div>
 );
 
-const SecLabel = ({children}) => (
-  <div style={{fontSize:10,fontWeight:700,letterSpacing:2.5,color:'rgba(0,194,255,0.7)',
-    textTransform:'uppercase',marginBottom:8}}>
+const SecLabel = ({children, style={}}) => (
+  <div style={{fontSize:9,fontWeight:700,letterSpacing:2.5,color:'rgba(0,194,255,0.55)',
+    textTransform:'uppercase',marginBottom:8,...style}}>
     {children}
   </div>
 );
@@ -632,7 +634,7 @@ const PIPELINE_EXTRACT = (rawResearch, angle) => `
 ${VOICE}
 Today is ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}. Only reference 2026 trends and data.
 
-Extract intelligence from this research for a ${angle} content angle. Be specific and fast : no padding.
+Extract intelligence from this research for a ${angle} content angle. Be specific and fast. No padding.
 
 RESEARCH:
 ${rawResearch}
@@ -640,25 +642,67 @@ ${rawResearch}
 # Intelligence Brief
 
 ## Top 3 Viral Angles Right Now
-For each: angle name, psychological trigger, why it works today
+For each: angle name, the psychological trigger, why it works today, and cite the specific source or data point that confirms it (journal, publication, platform, or credible account).
+
+## Credible Sources
+List every source referenced in the research. For each: full name, URL if available, publication date, and why it is credible. Flag anything that appears to be pre-2026 or unverified.
 
 ## Audience Pain Points
-What they are actively searching for and not finding
+What they are actively searching for and not finding. Include specific search data or platform signals where available.
 
 ## Content Gaps
-What nobody credible is saying that Jason can own
+What nobody credible is saying that Jason can own. Be specific.
 
 ## 5 Specific Hooks
-One per type: Pattern Interrupt / Question / Bold Statement / Story / Data Point
+One per type: Pattern Interrupt / Question / Bold Statement / Story / Data Point. Each grounded in the research.
 
 ## Best Format + Why
 
 ## Jason's Unique Authority
-What in his background (HR, real estate, Colorado, endurance athlete, mindset coach) gives specific credibility here
-
-## Source Check
-Flag any sources that appear to be pre-2026
+What in his background (HR, real estate, Colorado, endurance athlete, mindset coach) gives specific credibility here — with reference to the research.
 `;
+
+
+const PIPELINE_SCRIPT = (intel, platform) => `${VOICE}
+${CONTENT_SOP}
+
+You are turning research intelligence into a camera-ready script. Be fast. No padding. Write the actual script.
+
+PLATFORM: ${platform}
+INTELLIGENCE:
+${intel}
+
+Write ONE complete, platform-optimized script based on the strongest angle from this intelligence.
+
+Use this structure:
+
+# Script: [Compelling Title]
+
+## Hook (first 3 seconds)
+[Word-for-word. Must stop the scroll. Platform: ${platform}]
+
+## Opening (5-10 seconds)
+[Establish context and credibility immediately]
+
+## Core Content (main body)
+[3-5 punchy beats. Each beat is 1-3 sentences. Real, specific, earned.]
+
+## Anchor Line
+[One memorable line that could stand alone]
+
+## Close
+[Bring it back to the opening promise]
+
+## CTA
+[One clear action. Platform-native for ${platform}.]
+
+## Caption
+[Platform-optimized caption with hook line, 3-sentence body, CTA]
+
+## Tags
+[10-15 relevant hashtags for ${platform}]
+`;
+
 
 const CALENDAR_PROMPT = (pillars, platform, duration, strategyDoc='') => `
 ${VOICE}
@@ -849,30 +893,166 @@ Build an the community community system built around what is actually happening 
 6. **Growth Loop**
    (how members naturally bring other people in without being asked to)`;
 
-const REVIEW_PROMPT = (metrics, wins, struggles) => `
-${VOICE}
-${SWARBRICK}
-${CONTENT_SOP}
+const REVIEW_PROMPT = (metrics, wins, struggles, topContent, testsRan, competitorNotes, revenueData) => `
+You are an elite growth operator running a lean, execution-first content business system.
 
-Weekly Performance Review:
+Your job: turn this week's raw data into a complete 6-module review that drives clear decisions, connects actions to revenue, and improves execution speed.
 
-METRICS: ${metrics}
-WINS: ${wins}
-STRUGGLES: ${struggles}
+No fluff. No duplicate tracking. Everything minimal and high-signal.
 
-Analyze:
+OPERATING RULES:
+- Weekly Review is the central hub. All modules feed into it.
+- Every module must produce a clear, actionable output.
+- Limit weekly focus to 3 priorities, 2 tests, 1 main direction.
+- If something does not improve revenue, execution, or decisions: remove it.
 
-1. **Performance Score** (0-10 across: Reach, Engagement, Saves, Shares, Leads)
+INPUT DATA:
+METRICS THIS WEEK: ${metrics}
+WINS: ${wins || 'Not provided'}
+STRUGGLES: ${struggles || 'Not provided'}
+TOP PERFORMING CONTENT: ${topContent || 'Not tracked yet'}
+TESTS RAN: ${testsRan || 'No tests ran this week'}
+COMPETITOR NOTES: ${competitorNotes || 'No competitor activity tracked'}
+REVENUE / LEADS DATA: ${revenueData || 'No revenue data logged'}
 
-2. **What's Working** (double down on these)
+---
 
-3. **What's Not** (kill or pivot)
+Write the complete 6-module weekly review. Every section fully written. No placeholders.
 
-4. **Swarbrick Gap Analysis** (which life dimensions are underrepresented in content)
+# Weekly Review — Command Center
+## Week of ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
-5. **Next Week's Focus** (top 3 priorities with specific action)
+---
 
-6. **Content to Create This Week** (3 specific post ideas based on what performed)`;
+## Module 1: Weekly Review (Command Center)
+
+This is the hub. Everything else feeds here. Be direct.
+
+**3 Key Insights from this week:**
+(What did the data actually show? Not observations — insights. Things that change how you operate.)
+
+**3 Priorities for next week:**
+(Specific. Actionable. Connected to revenue or growth.)
+
+**2 Things to double down on:**
+(What worked? Why? What happens if you do more of it?)
+
+**2 Things to cut:**
+(What drained time or energy with no return? Be ruthless.)
+
+**2 Tests to run next week:**
+(Specific hypothesis + what you are measuring)
+
+**1 Main direction:**
+(The single thread that connects everything next week)
+
+---
+
+## Module 2: ROI Dashboard
+
+Track only what moves the business. No vanity metrics.
+
+**Top performing content this week:**
+Name it. What format. What angle. What result.
+
+**Leads generated:**
+How many. From where. Quality assessment (warm / cold / wrong fit).
+
+**Conversion rate:**
+If trackable — what percentage of engaged followers became DMs or leads.
+
+**Revenue impact:**
+Direct or indirect. What content led to a conversation, booking, or closed deal this week.
+
+**Pattern:** What does this week's ROI data say about what to create more of?
+
+---
+
+## Module 3: Schedule (Execution Engine)
+
+Review this week's execution against the plan.
+
+**What got done:** List what actually published.
+
+**What got skipped:** Name it without judgment. Identify the real reason.
+
+**Execution rate:** Rough percentage of planned content that went out.
+
+**For next week — 5 specific scheduled pieces:**
+For each:
+- Content title or angle
+- Platform
+- Goal (reach / leads / conversion / authority)
+- Test angle embedded (hook / format / CTA variation)
+
+---
+
+## Module 4: A/B Testing Lab
+
+**Tests ran this week:**
+What was tested. Variations. Which won. What the insight actually means for future content.
+
+**Running hypotheses to carry forward:**
+What questions are still open from prior tests.
+
+**2 tests to run next week:**
+Specific. What variable, what two variations, what metric determines the winner.
+
+---
+
+## Module 5: Revenue Attribution
+
+**Lead source this week:**
+Where did new DMs, inquiries, or warm conversations come from? (Instagram / YouTube / LinkedIn / referral / etc.)
+
+**Conversion source:**
+What content or touchpoint directly preceded a conversion conversation?
+
+**Revenue by source:**
+If trackable — what dollar amount or pipeline value traces to which platform or content type.
+
+**Attribution insight:**
+What does this week tell you about where to focus to drive the next dollar?
+
+---
+
+## Module 6: Competitor Intel
+
+**What worked for competitors this week:**
+Specific content types, formats, or angles that performed well in the space.
+
+**Why it worked:**
+The psychological or algorithmic reason. Not surface-level observation.
+
+**What to test based on competitor data:**
+One specific thing to test, adapted to your voice and audience. Never copy. Extract the principle.
+
+**What to watch next week:**
+2-3 signals or accounts to monitor.
+
+---
+
+## Weekly Verdict
+
+One paragraph. Plain language. What actually happened this week, what it means, and what the single most important move is going into next week.
+
+---
+
+## Daily Operating Rhythm (Run Every Day)
+
+**Morning (10 min):**
+- Check yesterday's top metric
+- Confirm today's content is scheduled or being filmed
+- One targeted DM or engagement action
+
+**Evening (5 min):**
+- Log one win from the day
+- Note one friction point
+- Adjust tomorrow's plan if needed
+
+**Weekly reset (Friday or Sunday, 30 min):**
+Run this full review. Input data. Read the output. Execute the plan.
+`
 
 const PROFILE_PROMPT = (platform, liveData, extraContext) => `
 ${VOICE}
@@ -1293,6 +1473,199 @@ Write 4-5 specific growth actions.
 
 **Month 3 — Convert:**
 Write 4-5 specific conversion actions.
+
+## Brand Positioning on Social
+
+### Inspiration Accounts — Structure, Not Style
+We study how category leaders signal authority, maintain consistency, and convert attention. We are not replicating tone. The voice belongs to this client.
+Write 4 inspiration accounts from ${fields.inspirationAccounts || 'the relevant space'}. For each: account name, what structural element to study (NOT their style), and the specific signal they send that works.
+
+### Social Identity
+Write the complete social identity table for this client:
+- Primary positioning label and what it means
+- What makes them categorically different from every other voice in this space
+- The unique lens they bring that nobody else has
+- The credibility signals that make the positioning believable
+
+### Messaging on Social — The Transformation We Deliver
+Write a clear before/after transformation table:
+
+**Where the audience starts:** List 5-6 specific states (feelings, situations, frustrations) the audience is in before finding this content.
+
+**Where they end up:** List the corresponding transformed states after engaging consistently.
+
+One-sentence transformation promise: Compress the entire journey into one precise sentence.
+
+## Unique Positioning
+
+Write the category-defining statement. Not a niche. A category.
+Follow this structure: "Most [category A] do X. Most [category B] do Y. [Client name] does Z."
+Then two sentences explaining why this is a category, not just a niche.
+Then the unique competitive moat — the specific combination of credentials, experience, and perspective that cannot be replicated.
+
+## Ideal Client Breakdown — Three Tiers
+
+### Tier 1 — Primary (Build authority here. Monetize here.)
+Full profile: age range, income/professional level, geography, mindset, what they value, what they fear, what drives them to seek out this type of content, how they find this creator.
+
+### Tier 2 — Performance Audience (Ecosystem builders. Referral drivers.)
+Full profile: age range, what they want from the content, how they engage, why they matter to the overall funnel, how they become referral sources.
+
+### Tier 3 — Top of Funnel (Capture. Nurture. Convert.)
+Full profile: what brings them in, what keeps them, what moves them toward Tier 1 over time.
+
+## Industry and Competitive Landscape
+
+Write an honest, specific market analysis. Name the categories of competitors that exist (not individual people unless public knowledge). For each category: what they do, what they do wrong, and the specific gap they leave open. End with a callout box: "The gap we exploit: [specific combination of attributes no competitor is doing]."
+
+## Previous Content Analysis
+
+Based on what you know about ${fields.businessName} and ${fields.current}:
+
+**Current State:** What exists right now — what platforms, what cadence, what format, what is inconsistent.
+
+**What Is Working:** Specific elements that have traction and why.
+
+**What Is Missing:** The 6-8 highest-impact gaps in the current content approach.
+
+## 90-Day Goals
+
+Write specific, measurable targets broken down by platform and by phase:
+
+**Instagram:** Follower growth target, engagement rate target, non-follower reach %, short-form retention target, saves/week target.
+
+**Email:** Lead magnet launch timeline, subscriber target at week 4 / week 8 / week 12, comment-to-DM conversion rate target.
+
+**YouTube (if applicable):** Episode count, CTR target, average view duration target.
+
+**Other platforms:** Specific targets for each active platform.
+
+## Tests and Experiments — First 90 Days
+
+Build a structured testing table. For each test:
+
+| Test Type | Variant A | Variant B | Metric | Adjust |
+
+Include these 5 tests minimum:
+1. Content length test (short vs medium form)
+2. CTA type test (comment-based vs DM-trigger)
+3. Authority placement test (first 5 seconds vs mid-content)
+4. Topic angle test (specific to this client's two strongest pillars)
+5. Posting time test (morning vs evening for primary platform)
+
+All variables tested weekly. Adjust based on retention curves, save rate, and non-follower reach. Default to what the data says, not what feels right.
+
+## Content Distribution Mix
+
+Build a complete monthly distribution table:
+
+**Primary platform (${fields.idealAudience ? 'Instagram' : 'Instagram'}):**
+- Short-form count per month
+- Long-form count per month
+- Stories strategy (daily/weekly, minimum 1 opt-in story per day)
+- Engagement protocol (pre-post window, post-post window, daily comment targets)
+
+**Secondary platforms:**
+For each active platform: post count, format mix, cross-post vs original, note on what this platform does that primary cannot.
+
+## Lead Magnets
+
+### Lead Magnet 1 (Launch in Phase 1)
+- Title: Write the actual title
+- Core promise: Exactly what the audience gets
+- Format: Specify the exact deliverable
+- Keyword trigger: The exact word people comment to receive it
+- Target conversion: % of qualifying post viewers who comment
+- Welcome sequence: First email subject line + opening sentence
+
+### Lead Magnet 2 (Launch in Phase 2)
+- Title, core promise, format, trigger word, welcome sequence.
+
+## Ideal Client Filtering
+
+**Attract — write 5 specific audience types with why each belongs:**
+Language matters. Every word either attracts or repels. There is no neutral content.
+
+**Repel — write 5 specific audience types with why each is wrong:**
+Being clear about who this content is NOT for sharpens the signal for who it IS for.
+
+## Content Production Pipeline
+
+| Field | Details |
+|-------|---------|
+| Filming Frequency | Sessions per month |
+| Primary Location | Specific place |
+| Secondary Location | Backup or travel locations |
+| Session Goal | Minimum pieces captured per session |
+| Travel Expenses | Policy on travel costs |
+| Logistics Owner | Who coordinates scheduling |
+
+**Topic Ideation Process:** How monthly topics get proposed, reviewed, approved.
+**Script/Outline Delivery:** Timeline from brief to camera-ready.
+**Short-Form Extraction:** Clips per long-form piece, turnaround time, approval process.
+
+## Themed Campaigns
+
+### Campaign 1 (Days 1-30)
+Name, theme, goal with specific numbers, daily content cadence, hook series, and the one metric that determines success.
+
+### Campaign 2 (Days 31-90)
+Name, theme, goal with specific numbers, lead magnet launch sequence, conversion content strategy, and success metric.
+
+## Communication Rhythm
+
+Build the operating cadence for this content system:
+
+| Touchpoint | Frequency | Owner | What It Covers |
+|------------|-----------|-------|----------------|
+| Weekly check-in | Tuesday | [Role] | Relationship, upcoming content, performance |
+| Performance report | Friday | [Role] | Top posts, growth data, next week plan |
+| Monthly strategy call | Week 1 | Full team | 30-min review, pivots, forward plan |
+| Recording coordination | Mid-month | Director | Session scheduling, topic approval |
+| Quarterly review | Every 90 days | Full team | Full audit, next 90-day plan |
+
+All calls: recorded, recap sent same day.
+
+## Monthly Reporting Structure
+
+Every report answers one question: What did it produce?
+
+| Metric | What It Measures | How It's Reported |
+|--------|-----------------|------------------|
+| Follower Growth | Net new by platform, growth rate vs prior month | Week-over-week chart |
+| Email Growth | New subscribers, lead magnet conversion, list health | Running total |
+| Engagement Rate | Saves, shares, comments (weighted toward saves and shares) | % with trend |
+| Non-Follower Reach | % of reach from non-followers — primary discovery signal | % with benchmark |
+| Heat Map | Best and worst performing content by pillar and format | Top 5 + bottom 3 |
+| Revenue Impact | Leads generated, conversations opened, deals attributed | Pipeline value |
+| Next Month Pivots | Data-driven changes to strategy, pillars, or format mix | Action items |
+
+## Success Metrics
+
+### Primary KPIs
+For each metric: current baseline, 30-day target, 60-day target, 90-day target.
+
+### Secondary KPIs
+List 6 secondary signals with specific targets.
+
+### What to Ignore
+Write the vanity metrics this client must stop tracking and the exact reason each one is misleading for their specific goals.
+
+## Implementation Timeline
+
+**Week 1 — Foundation:**
+List 5-6 specific setup actions with owners and time estimates. Bio optimization, lead magnet build, first filming session, comment-to-DM setup, pinned opt-in post.
+
+**Week 2 — Launch:**
+Daily posting begins, engagement baseline tracking, A/B tests start, first YouTube/long-form episode.
+
+**Month 2 — Scale:**
+Campaign 2 launch, second lead magnet, double down on Month 1 top performer, scale posting if production supports.
+
+**Month 3 — Convert:**
+Conversion content at 25% of mix, soft-pitch to email list, 90-day full audit, plan next 90 days based on data.
+
+---
 
 ## The Non-Negotiables
 
@@ -2341,6 +2714,14 @@ function Onboarding() {
       idealAudience, desiredTransformation, emotionalJourney, additionalContext };
     const res = await ai(ONBOARD_PROMPT(fields, uploadedDoc));
     setOut(res); setLoading(false);
+    // Auto-save strategy so ContentCalendar can pick it up
+    try {
+      localStorage.setItem('encis_last_strategy', JSON.stringify({
+        content: res,
+        name: (fields.businessName || 'Strategy') + ' — 90-Day Strategy',
+        savedAt: new Date().toISOString(),
+      }));
+    } catch {}
   };
 
   const downloadDoc = async () => {
@@ -2477,7 +2858,23 @@ function Onboarding() {
       </Card>
       {loading && <Spin/>}
       {out && (
-        <StrategyOutput text={out} onDownload={downloadDoc} downloading={downloading}/>
+        <div>
+          <StrategyOutput text={out} onDownload={downloadDoc} downloading={downloading}/>
+          <div style={{marginTop:12,background:'rgba(0,194,255,0.04)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:10,padding:'16px 18px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
+            <div>
+              <div style={{color:'#00C2FF',fontWeight:700,fontSize:13,marginBottom:3}}>Strategy saved</div>
+              <div style={{color:B.gray,fontSize:11}}>Generate your content calendar now — strategy loads automatically.</div>
+            </div>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={() => {
+                try { localStorage.setItem('encis_last_strategy', JSON.stringify({content:out,name:businessName+' — 90-Day Strategy',savedAt:new Date().toISOString()})); } catch{}
+                window.dispatchEvent(new CustomEvent('signal-nav', {detail:{nav:'strategy',sub:'calendar'}}));
+              }} style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:6,padding:'8px 18px',fontWeight:700,cursor:'pointer',fontSize:12,letterSpacing:'0.02em'}}>
+                Generate Calendar Now
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -2485,12 +2882,28 @@ function Onboarding() {
 
 function ContentCalendar() {
   const [pillars,        setPillars]        = useState('');
-  const [platform,       setPlatform]       = useState('Instagram');
+  const [platforms,      setPlatforms]      = useState(['Instagram']);
   const [duration,       setDuration]       = useState('30');
   const [strategyDoc,    setStrategyDoc]    = useState('');
   const [strategyFileName,setStrategyFileName] = useState('');
   const [out,            setOut]            = useState('');
   const [loading,        setLoading]        = useState(false);
+  const [autoGenReady,   setAutoGenReady]   = useState(false);
+
+  // Auto-load strategy document from localStorage if available
+  useEffect(() => {
+    try {
+      const savedStrategy = localStorage.getItem('encis_last_strategy');
+      if (savedStrategy) {
+        const parsed = JSON.parse(savedStrategy);
+        if (parsed.content && !strategyDoc) {
+          setStrategyDoc(parsed.content);
+          setStrategyFileName(parsed.name || 'Auto-loaded strategy');
+          setAutoGenReady(true);
+        }
+      }
+    } catch {}
+  }, []);
 
   const handleStrategyUpload = (e) => {
     const file = e.target.files[0];
@@ -2504,7 +2917,8 @@ function ContentCalendar() {
   const run = async () => {
     if(!pillars && !strategyDoc) return;
     setLoading(true); setOut('');
-    const res = await ai(CALENDAR_PROMPT(pillars, platform, duration, strategyDoc));
+    const selectedPlatforms = platforms.join(', ');
+    const res = await ai(CALENDAR_PROMPT(pillars, selectedPlatforms, duration, strategyDoc));
     setOut(res); setLoading(false);
   };
   return (
@@ -2555,13 +2969,21 @@ function ContentCalendar() {
           <div>
             <SecLabel>Platform</SecLabel>
             <div style={{display:'flex',gap:8}}>
-              {PLATFORMS.map(p => (
-                <button key={p} onClick={()=>setPlatform(p)}
-                  style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
-                    borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:platform===p?700:400}}>
-                  {p}
-                </button>
-              ))}
+              {PLATFORMS.map(p => {
+                const checked = platforms.includes(p);
+                return (
+                  <button key={p}
+                    onClick={() => setPlatforms(prev => checked ? prev.filter(x=>x!==p) : [...prev,p])}
+                    style={{background:checked?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.04)',
+                      color:checked?'#00C2FF':B.gray,
+                      border:'1px solid '+(checked?'rgba(0,194,255,0.25)':'rgba(255,255,255,0.06)'),
+                      borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:checked?700:400,
+                      display:'flex',alignItems:'center',gap:6,transition:'all 0.15s'}}>
+                    <span style={{width:8,height:8,borderRadius:2,background:checked?'#00C2FF':'rgba(255,255,255,0.2)',flexShrink:0}}/>
+                    {p}
+                  </button>
+                );
+              })}
             </div>
           </div>
           <div>
@@ -2930,8 +3352,9 @@ function Pipeline() {
               </RedBtn>
             </div>
           </div>
-          <pre style={{color:B.white,fontSize:12,whiteSpace:'pre-wrap',margin:0,lineHeight:1.6,
-            maxHeight:200,overflowY:'auto'}}>{research}</pre>
+          <div style={{color:B.light,fontSize:12,lineHeight:1.7,whiteSpace:'pre-wrap',padding:'4px 0'}}
+            dangerouslySetInnerHTML={{__html:research.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" style="color:#00C2FF">$1</a>')}}>
+          </div>
         </Card>
       )}
       {intel && (
@@ -3379,49 +3802,110 @@ function DesignStudio() {
 }
 
 function WeeklyReview() {
-  const [metrics,setMetrics] = useState('');
-  const [wins,setWins] = useState('');
-  const [struggles,setStruggles] = useState('');
-  const [out,setOut] = useState('');
-  const [loading,setLoading] = useState(false);
+  const [metrics, setMetrics] = useState('');
+  const [wins, setWins] = useState('');
+  const [struggles, setStruggles] = useState('');
+  const [topContent, setTopContent] = useState('');
+  const [testsRan, setTestsRan] = useState('');
+  const [competitorNotes, setCompetitorNotes] = useState('');
+  const [revenueData, setRevenueData] = useState('');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [activeModule, setActiveModule] = useState(0);
+
   const run = async () => {
-    if(!metrics) return;
+    if (!metrics) return;
     setLoading(true); setOut('');
-    const res = await ai(REVIEW_PROMPT(metrics, wins, struggles));
+    const res = await ai(REVIEW_PROMPT(metrics, wins, struggles, topContent, testsRan, competitorNotes, revenueData));
     setOut(res); setLoading(false);
   };
+
+  const modules = [
+    { id: 0, label: 'Core Metrics', icon: '📊' },
+    { id: 1, label: 'Content & Tests', icon: '🧪' },
+    { id: 2, label: 'Revenue & Intel', icon: '💰' },
+  ];
+
+  const taStyle = { width:'100%', background:'rgba(0,0,0,0.3)', border:'1px solid rgba(0,194,255,0.12)', borderRadius:8, padding:'10px 12px', color:B.white, fontSize:13, resize:'vertical', marginBottom:14, boxSizing:'border-box', fontFamily:'inherit' };
+
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
         <span style={{fontSize:32}}>📊</span>
-        <div><h2 style={{color:B.white,margin:0}}>Weekly Review</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Performance analysis + Swarbrick 8-dimension audit + next week's focus</p></div>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Weekly Review — Command Center</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>6-module growth system. Input your week. Get a complete execution plan.</p>
+        </div>
       </div>
+
       <Card>
-        <SecLabel>This Week's Metrics</SecLabel>
-        <textarea value={metrics} onChange={e=>setMetrics(e.target.value)} rows={3}
-          placeholder="e.g. Instagram: 3 Reels, 12K reach, 340 new followers, 2 DMs, 89 saves. Best post: veteran story reel..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
-        <SecLabel>Wins This Week</SecLabel>
-        <textarea value={wins} onChange={e=>setWins(e.target.value)} rows={2}
-          placeholder="e.g. Posted consistently 5x, first viral reel hit 50K, landed podcast guest..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
-        <SecLabel>Struggles / Challenges</SecLabel>
-        <textarea value={struggles} onChange={e=>setStruggles(e.target.value)} rows={2}
-          placeholder="e.g. Low engagement on financial content, ran out of ideas mid-week, missed 2 posting days..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
-        <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!metrics}>
-          {loading?'Analyzing Week...':'Run Weekly Review'}
-        </RedBtn></div>
+        {/* Module tabs */}
+        <div style={{display:'flex',gap:6,marginBottom:20}}>
+          {modules.map(m => (
+            <button key={m.id} onClick={() => setActiveModule(m.id)}
+              style={{background: activeModule===m.id ? 'rgba(0,194,255,0.1)' : 'rgba(255,255,255,0.04)', color: activeModule===m.id ? '#00C2FF' : B.gray, border: '1px solid ' + (activeModule===m.id ? 'rgba(0,194,255,0.2)' : 'rgba(255,255,255,0.06)'), borderRadius:7, padding:'7px 14px', cursor:'pointer', fontSize:12, fontWeight:700, display:'flex', alignItems:'center', gap:6}}>
+              <span style={{fontSize:14}}>{m.icon}</span>{m.label}
+            </button>
+          ))}
+        </div>
+
+        {activeModule === 0 && (
+          <div>
+            <SecLabel>This Week's Metrics</SecLabel>
+            <textarea value={metrics} onChange={e=>setMetrics(e.target.value)} rows={3}
+              placeholder="e.g. Instagram: 3 Reels posted, 18K reach, 420 new followers, 5 DMs, 112 saves. Best post: morning routine reel — 8K views. LinkedIn: 2 posts, 3K impressions."
+              style={taStyle}/>
+            <SecLabel>Wins This Week</SecLabel>
+            <textarea value={wins} onChange={e=>setWins(e.target.value)} rows={2}
+              placeholder="e.g. First reel broke 10K views. Closed one real estate inquiry from Instagram DM. Podcast episode released."
+              style={taStyle}/>
+            <SecLabel>Struggles / What Didn't Work</SecLabel>
+            <textarea value={struggles} onChange={e=>setStruggles(e.target.value)} rows={2}
+              placeholder="e.g. LinkedIn engagement dropped 40%. Missed 2 scheduled posts. Financial content got zero saves."
+              style={taStyle}/>
+          </div>
+        )}
+
+        {activeModule === 1 && (
+          <div>
+            <SecLabel>Top Performing Content</SecLabel>
+            <textarea value={topContent} onChange={e=>setTopContent(e.target.value)} rows={3}
+              placeholder="e.g. Best piece: 'Nobody tells you this about waking up at 4:30 AM' — Reel, 8.2K views, 89 saves, 14 shares. Second: real estate tip carousel — 3.1K reach, 34 saves."
+              style={taStyle}/>
+            <SecLabel>Tests Ran This Week</SecLabel>
+            <textarea value={testsRan} onChange={e=>setTestsRan(e.target.value)} rows={2}
+              placeholder="e.g. Tested hook style — question vs bold statement. Bold statement won (3x more saves). Tested posting at 6AM vs 7AM — 6AM outperformed by 18%."
+              style={taStyle}/>
+          </div>
+        )}
+
+        {activeModule === 2 && (
+          <div>
+            <SecLabel>Revenue / Leads Data</SecLabel>
+            <textarea value={revenueData} onChange={e=>setRevenueData(e.target.value)} rows={2}
+              placeholder="e.g. 2 real estate inquiries from Instagram. 1 coaching DM that went cold. $0 direct revenue but 1 showing booked."
+              style={taStyle}/>
+            <SecLabel>Competitor Notes</SecLabel>
+            <textarea value={competitorNotes} onChange={e=>setCompetitorNotes(e.target.value)} rows={2}
+              placeholder="e.g. Competitor X is posting daily 'day in my life as a realtor' content — performing well. Another creator shifted to YouTube Shorts and gained 2K followers this week."
+              style={taStyle}/>
+          </div>
+        )}
+
+        <div style={{marginTop:8}}>
+          <button onClick={run} disabled={loading||!metrics}
+            style={{background: !metrics ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg,#00C2FF,#0096CC)', color: !metrics ? B.gray : '#000D1A', border:'none', borderRadius:8, padding:'11px 24px', fontWeight:800, cursor: !metrics?'not-allowed':'pointer', fontSize:14, boxShadow: !metrics ? 'none' : '0 0 20px rgba(0,194,255,0.25)'}}>
+            {loading ? 'Running review...' : '📊 Run Full 6-Module Review'}
+          </button>
+          {!metrics && <span style={{color:B.gray,fontSize:11,marginLeft:12}}>Add metrics in Module 1 first</span>}
+        </div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="WeeklyReview — SIGNAL"/>
+      {out && <DocOutput text={out} title="Weekly Review — Command Center"/>}
     </div>
   );
 }
+
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TELEPROMPTER
@@ -3743,154 +4227,107 @@ function TrendAlertBanner() {
   const { alerts, loading, lastRun, checkTrends, markSeen, unseen } = useTrendAlerts();
   const [expanded, setExpanded] = useState(false);
 
-  if (!alerts.length && !loading) return null;
-
-  // Angle emoji map
-  const angleEmoji = {
-    'Emotional':     '🧠',
-    'Physical':      '🏋️',
-    'Social':        '🤝',
-    'Intellectual':  '📚',
-    'Occupational':  '💼',
-    'Financial':     '💰',
-    'Environmental': '🏔️',
-    'Spiritual':     '🔥',
-  };
-
-  // Truncate alert text cleanly
-  const preview = alerts.find(a => a.text?.length > 10)?.text?.slice(0, 90) || 'Checking your 8 content angles...';
+  // Always render — even with no alerts, show the bar so user can refresh
+  const hasAlerts = alerts.length > 0;
+  const preview = alerts.find(a => a.text?.length > 10)?.text?.slice(0, 100) || '';
 
   return (
-    <div style={{background:'rgba(0,194,255,0.04)',borderBottom:'1px solid rgba(0,194,255,0.1)',
-      position:'sticky',top:52,zIndex:90}}>
+    <div style={{
+      background: '#080D14',
+      borderBottom: '1px solid rgba(0,194,255,0.08)',
+      position: 'sticky', top: 52, zIndex: 90,
+    }}>
       <div style={{maxWidth:1100,margin:'0 auto',padding:'0 16px'}}>
-
-        {/* Collapsed bar: toggle button only, no full-row onClick so links inside always work */}
-        <div style={{display:'flex',alignItems:'center',gap:12,padding:'9px 0',minHeight:40}}>
-          <span style={{fontSize:14,flexShrink:0}}>🔥</span>
-          <span style={{color:B.red,fontWeight:700,fontSize:12,whiteSpace:'nowrap',flexShrink:0}}>Trend Alerts</span>
+        <div style={{display:'flex',alignItems:'center',gap:12,padding:'8px 0',minHeight:38}}>
+          {/* Label */}
+          <span style={{color:'rgba(0,194,255,0.5)',fontWeight:700,fontSize:10,letterSpacing:2,
+            textTransform:'uppercase',whiteSpace:'nowrap',flexShrink:0}}>
+            TREND INTEL
+          </span>
           {unseen > 0 && !expanded && (
-            <span style={{background:B.red,color:'#fff',borderRadius:10,padding:'1px 6px',fontSize:10,fontWeight:700,flexShrink:0}}>
-              {unseen} new
+            <span style={{background:'#00C2FF',color:'#000D1A',borderRadius:3,padding:'1px 6px',
+              fontSize:9,fontWeight:800,letterSpacing:1}}>
+              {unseen} NEW
             </span>
           )}
-          {loading
-            ? <span style={{color:B.gray,fontSize:12,flex:1}}>Checking all 8 content angles...</span>
-            : !expanded && <span style={{color:'rgba(255,255,255,0.55)',fontSize:12,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{preview}...</span>
-          }
-          <div style={{display:'flex',alignItems:'center',gap:8,marginLeft:'auto',flexShrink:0}}>
-            <button onClick={checkTrends}
-              style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',
-                borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer'}}>
-              {loading ? '⏳' : '↻ Refresh'}
+          {/* Preview text */}
+          <span style={{color:'rgba(255,255,255,0.45)',fontSize:11,flex:1,overflow:'hidden',
+            textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+            {loading ? 'Scanning all 8 content angles for 1M+ trends...' :
+             hasAlerts ? preview || `${alerts.length} active trend${alerts.length!==1?'s':''} across your content angles` :
+             'No active trends found. Refresh to check.'}
+          </span>
+          {/* Actions */}
+          <div style={{display:'flex',alignItems:'center',gap:6,flexShrink:0}}>
+            <button onClick={checkTrends} disabled={loading}
+              style={{background:'none',color:loading?B.gray:'rgba(0,194,255,0.5)',border:'none',
+                padding:'4px 8px',fontSize:11,cursor:loading?'default':'pointer',letterSpacing:0.5,
+                fontWeight:600}}>
+              {loading ? 'Scanning...' : 'Refresh'}
             </button>
-            <button
-              onClick={()=>{ setExpanded(e=>!e); if(unseen>0) markSeen(); }}
-              style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',
-                borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer',fontWeight:700}}>
-              {expanded ? '▲ Hide' : '▼ Show All'}
-            </button>
+            {hasAlerts && (
+              <button onClick={()=>{ setExpanded(e=>!e); if(unseen>0) markSeen(); }}
+                style={{background:'none',color:'rgba(255,255,255,0.35)',border:'none',
+                  padding:'4px 8px',fontSize:11,cursor:'pointer',fontWeight:600,letterSpacing:0.5}}>
+                {expanded ? 'Collapse' : 'Expand'}
+              </button>
+            )}
           </div>
         </div>
 
         {/* Expanded grid */}
-        {expanded && (
+        {expanded && hasAlerts && (
           <div style={{paddingBottom:16}}>
             {lastRun && (
-              <div style={{color:B.gray,fontSize:11,marginBottom:10,display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
-                <span>Last checked: {lastRun}</span>
-                <span style={{color:B.red,fontWeight:700}}>{alerts.length} verified 1M+ trends found</span>
-                {alerts.length < 8 && (
-                  <span style={{color:'rgba(255,255,255,0.35)'}}>· {8 - alerts.length} angles had no verified 1M+ content this week</span>
-                )}
+              <div style={{color:B.gray,fontSize:10,marginBottom:10,letterSpacing:0.5}}>
+                Last checked: {lastRun} &nbsp;·&nbsp; {alerts.length} trend{alerts.length!==1?'s':''} verified
               </div>
             )}
-            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:10}}>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:8}}>
               {alerts.map(alert => (
                 <div key={alert.id} style={{
-                  background:'rgba(0,0,0,0.25)',
-                  border:`1px solid ${alert.seen?'rgba(255,255,255,0.07)':'rgba(233,69,96,0.3)'}`,
-                  borderRadius:12,padding:'14px 16px',
-                  display:'flex',flexDirection:'column',gap:8,
+                  background: alert.seen ? 'rgba(255,255,255,0.02)' : 'rgba(0,194,255,0.04)',
+                  border: `1px solid ${alert.seen?'rgba(255,255,255,0.05)':'rgba(0,194,255,0.12)'}`,
+                  borderRadius:8, padding:'12px 14px',
                 }}>
-                  {/* Angle label + badge */}
-                  <div style={{display:'flex',alignItems:'center',gap:6}}>
-                    <span style={{fontSize:15}}>{angleEmoji[alert.angle] || '📌'}</span>
-                    <span style={{color:B.red,fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:1,flex:1}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+                    <span style={{color:'rgba(0,194,255,0.6)',fontSize:9,fontWeight:700,
+                      letterSpacing:2,textTransform:'uppercase'}}>
                       {alert.angle}
                     </span>
                     {!alert.seen && (
-                      <span style={{background:B.red,color:'#fff',borderRadius:8,padding:'1px 6px',fontSize:9,fontWeight:700}}>NEW</span>
+                      <span style={{background:'#00C2FF',color:'#000D1A',borderRadius:2,
+                        padding:'1px 5px',fontSize:8,fontWeight:800,letterSpacing:0.5}}>NEW</span>
                     )}
                   </div>
-
-                  {/* Views + Account + Posted row */}
-                  <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
-                    {alert.views && (
-                      <span style={{background:'rgba(233,69,96,0.2)',color:B.red,borderRadius:6,padding:'3px 9px',fontSize:11,fontWeight:800}}>
-                        🔥 {alert.views}
-                      </span>
-                    )}
-                    {alert.account && (
-                      <span style={{background:'rgba(255,255,255,0.08)',color:'rgba(255,255,255,0.85)',borderRadius:6,padding:'3px 9px',fontSize:11,fontWeight:700}}>
-                        {alert.account}
-                      </span>
-                    )}
-                    {alert.platform && (
-                      <span style={{color:B.gray,fontSize:10,textTransform:'uppercase',letterSpacing:1}}>
-                        {alert.platform}
-                      </span>
-                    )}
-                    {alert.posted && (
-                      <span style={{color:'rgba(0,212,255,0.7)',fontSize:10,marginLeft:'auto'}}>
-                        📅 {alert.posted}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Video title */}
+                  {alert.account && (
+                    <div style={{color:B.white,fontWeight:700,fontSize:12,marginBottom:3}}>
+                      {alert.account}
+                    </div>
+                  )}
                   {alert.title && (
-                    <div style={{color:B.white,fontWeight:700,fontSize:13,lineHeight:1.5}}>
-                      "{alert.title}"
+                    <div style={{color:B.light,fontSize:11,marginBottom:6,lineHeight:1.5}}>
+                      {alert.title}
                     </div>
                   )}
-
-                  {/* Why it blew up */}
-                  <div style={{color:alert.seen?'rgba(255,255,255,0.45)':'rgba(255,255,255,0.78)',fontSize:12,lineHeight:1.7}}>
-                    {alert.text}
-                  </div>
-
-                  {/* Hook to steal */}
-                  {alert.hook && (
-                    <div style={{background:'rgba(0,212,255,0.07)',border:'1px solid rgba(0,212,255,0.2)',borderRadius:8,padding:'9px 12px'}}>
-                      <div style={{color:'#00C2FF',fontSize:10,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:4}}>Hook to Steal</div>
-                      <div style={{color:'rgba(255,255,255,0.85)',fontSize:12,lineHeight:1.65,fontStyle:'italic'}}>"{alert.hook}"</div>
+                  {alert.views && (
+                    <div style={{color:'rgba(0,194,255,0.7)',fontSize:10,fontWeight:700,marginBottom:4}}>
+                      {alert.views}
                     </div>
                   )}
-
-                  {/* Action links: stop propagation so clicks work inside the banner */}
-                  <div style={{display:'flex',gap:6,marginTop:'auto',flexWrap:'wrap'}} onClick={e=>e.stopPropagation()}>
-                    {alert.account && (
-                      <a href={alert.profileUrl} target="_blank" rel="noopener noreferrer"
-                        style={{flex:2,display:'flex',alignItems:'center',justifyContent:'center',gap:5,
-                          background:B.red,color:'#fff',borderRadius:8,padding:'9px 12px',
-                          fontSize:12,fontWeight:700,textDecoration:'none'}}>
-                        👤 View {alert.account}
-                      </a>
-                    )}
-                    <a href={alert.searchUrl} target="_blank" rel="noopener noreferrer"
-                      style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,
-                        background:'rgba(255,255,255,0.07)',color:B.white,border:'1px solid rgba(255,255,255,0.12)',
-                        borderRadius:8,padding:'9px 10px',fontSize:12,fontWeight:600,textDecoration:'none'}}>
-                      🔎 Search
+                  {alert.text && (
+                    <div style={{color:B.gray,fontSize:10,lineHeight:1.5,marginBottom:6}}>
+                      {alert.text.slice(0,120)}{alert.text.length>120?'...':''}
+                    </div>
+                  )}
+                  {alert.profileUrl && (
+                    <a href={alert.profileUrl} target="_blank" rel="noopener noreferrer"
+                      onClick={e=>e.stopPropagation()}
+                      style={{color:'rgba(0,194,255,0.6)',fontSize:10,textDecoration:'none',
+                        fontWeight:600,letterSpacing:0.3}}>
+                      View account
                     </a>
-                    <a href={alert.perpLink} target="_blank" rel="noopener noreferrer"
-                      style={{display:'flex',alignItems:'center',justifyContent:'center',
-                        background:'rgba(255,255,255,0.04)',color:B.gray,border:'1px solid rgba(255,255,255,0.08)',
-                        borderRadius:8,padding:'9px 10px',fontSize:11,textDecoration:'none',whiteSpace:'nowrap'}}>
-                      🔍 Deep Dive
-                    </a>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -3901,11 +4338,6 @@ function TrendAlertBanner() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// ROI DASHBOARD
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const ROI_KEY = 'encis_roi_data';
 
 function ROIDashboard() {
   const [weeks,    setWeeks]    = useState([]);
@@ -6350,7 +6782,7 @@ function ChallengeBuilder() {
   const [name, setName] = useState('');
   const [transformation, setTransformation] = useState('');
   const [audience, setAudience] = useState('Everyday people who want to build a daily discipline practice: veterans, parents, professionals who feel stuck');
-  const [platform, setPlatform] = useState('Instagram');
+  const [platforms, setPlatforms] = useState(['Instagram']);
   const [out, setOut] = useState('');
   const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -6366,7 +6798,7 @@ function ChallengeBuilder() {
   const run = async () => {
     if (!name || !transformation) return;
     setLoading(true); setOut('');
-    const res = await ai(CHALLENGE_PROMPT(name, transformation, audience, platform, activeClient));
+    const res = await ai(CHALLENGE_PROMPT(name, transformation, audience, platforms.join(", "), activeClient));
     setOut(res);
     logToMemory({ type:'challenge', title:`Challenge: ${name}`, preview:res.slice(0,200), client:activeClient?.name });
     setLoading(false);
@@ -6444,7 +6876,7 @@ function ChallengeBuilder() {
         <SecLabel>Primary Platform</SecLabel>
         <div style={{display:'flex',gap:8,marginBottom:20}}>
           {PLATFORMS.map(p => (
-            <button key={p} onClick={() => setPlatform(p)}
+            <button key={p} onClick={() => setPlatforms(p)}
               style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
                 borderRadius:6,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:platform===p?700:400}}>
               {p}
@@ -6481,7 +6913,7 @@ function ChallengeBuilder() {
 // COMPETITOR CONTENT SPY
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const SPY_PROMPT = (handle, platform, rawData, angle) => `
+const SPY_PROMPT = (handle, platforms.join(", "), rawData, angle) => `
 ${VOICE}
 
 You are analyzing a competitor's content strategy to find gaps Jason Fricka can own.
@@ -7759,6 +8191,7 @@ function CampaignBuilder() {
   const [campaigns, setCampaigns] = useState([]);
   const [view, setView] = useState('list');
   const [name, setName] = useState('');
+  const [selectedPlatforms, setSelectedPlatforms] = useState(['Instagram']);
   const [goal, setGoal] = useState('');
   const [audience, setAudience] = useState('');
   const [duration, setDuration] = useState('2');
@@ -7851,6 +8284,24 @@ function CampaignBuilder() {
               {g}
             </button>
           ))}
+        </div>
+        <SecLabel>Target Platforms</SecLabel>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
+          {PLATFORMS.map(p => {
+            const checked = selectedPlatforms.includes(p);
+            return (
+              <button key={p}
+                onClick={() => setSelectedPlatforms(prev => checked ? prev.filter(x=>x!==p) : [...prev,p])}
+                style={{background:checked?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.04)',
+                  color:checked?'#00C2FF':B.gray,
+                  border:'1px solid '+(checked?'rgba(0,194,255,0.25)':'rgba(255,255,255,0.06)'),
+                  borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:checked?700:400,
+                  display:'flex',alignItems:'center',gap:6}}>
+                <span style={{width:8,height:8,borderRadius:2,background:checked?'#00C2FF':'rgba(255,255,255,0.2)',flexShrink:0}}/>
+                {p}
+              </button>
+            );
+          })}
         </div>
         <input value={goal} onChange={e=>setGoal(e.target.value)} placeholder="Or type a custom goal..."
           style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:14,boxSizing:'border-box'}}/>
@@ -9786,123 +10237,109 @@ function ClientCommsTemplates() {
 // CONTENT BRIEF GENERATOR (pre-filming session brief)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const CONTENT_BRIEF_PROMPT = (client, sessionDate, location, topics, equipment, duration) => `
-${VOICE}
+const CONTENT_BRIEF_PROMPT = (client, sessionDate, location, topics, equipment, duration, intensity) => `
+You are a world-class content strategist, creative director, and personal brand operator.
+
+You think like someone who runs a content-driven business, understands audience psychology, knows how content turns into revenue, and values clarity over fluff.
+
+This is a production blueprint. Not a content plan.
 
 CLIENT: ${client.name} (${client.handle})
-SESSION DATE: ${sessionDate || 'TBD'}
-PRIMARY LOCATION: ${location || "Client's choice"}
+PLATFORMS: ${client.platforms}
+BRAND VOICE: ${client.voice || 'Direct, real, no corporate speak.'}
+SESSION DATE: ${sessionDate || 'Upcoming session'}
+PRIMARY LOCATION: ${location || "Home or office"}
 TOPICS TO COVER: ${topics}
 EQUIPMENT AVAILABLE: ${equipment || 'Phone + basic setup'}
 SESSION DURATION: ${duration || '2-3 hours'}
-PLATFORMS: ${client.platforms}
+CONTENT INTENSITY: ${intensity || 'MEDIUM'} — LOW: approachable, simple, soft edges. MEDIUM: balanced insight, clear structure. HIGH: direct, strong opinions, slightly confrontational.
 
-Generate a complete pre-filming production brief the client can read the night before and walk in ready to execute.
+STYLE RULES: No emojis. No hype language. No algorithm talk. No corporate tone. No long paragraphs. Everything must feel natural to say out loud.
+
+---
+
+Follow this exact structure. Write everything fully. No placeholders.
 
 # Pre-Filming Brief: ${client.name}
-## Session: ${sessionDate || 'Upcoming'}
+## ${sessionDate || 'Upcoming Session'} | ${location || 'Home base'} | ${duration || '2-3 hours'}
 
-## What We Are Filming Today
-Specific pieces to capture in this session. Numbered, with time estimates.
+## 1. What We Are Filming Today
 
-## Talking Points Per Piece
-For each piece: the key message, what to say, what NOT to say, and the natural CTA.
+List 4-6 content pieces. For each: Title, estimated filming time, format (walking/sit-down/quick hits/direct to camera), purpose (connect/teach/convert/build authority). Each piece serves a different role. No two with the same purpose.
 
-## What to Wear
-Specific direction for each setup/location change.
+## 2. Talking Points Per Piece
 
-## Environment Setup
-Each filming location with exact notes on lighting, background, and framing.
+For EACH piece, write this exact structure:
 
-## Stories to Tell
-3-5 specific personal stories or moments to weave into the content naturally.
+### [Content Title]
 
-## Hooks to Open With
-One ready-to-use opening line per piece. No improv needed.
+**Role:** What this piece does
 
-## Things to Avoid Today
-Words, topics, or angles that are off-brand for this client.
+**Key message:** One clear idea. One sentence.
 
-## Post-Session Checklist
-What to confirm before leaving the filming location.
+**Open with:** Strong first line. Interrupts attention. Feels real, not rehearsed.
 
-## Content Breakdown
-Platform-by-platform breakdown of which pieces will be used where.
-`;
+**Build:**
+- Beat 1: specific moment, observation, or real situation from their life
+- Beat 2: the tension, friction, or problem underneath it
+- Beat 3: the deeper insight, pattern, or realization
 
-function ContentBriefGenerator() {
-  const [clients] = useClients();
-  const [activeClient] = useActiveClient();
-  const [selectedClient, setSelectedClient] = useState(null);
-  const [sessionDate, setSessionDate] = useState('');
-  const [location, setLocation] = useState('');
-  const [topics, setTopics] = useState('');
-  const [equipment, setEquipment] = useState('');
-  const [duration, setDuration] = useState('2-3 hours');
-  const [out, setOut] = useState('');
-  const [loading, setLoading] = useState(false);
+**Anchor line:** One sharp, memorable line that could stand alone as a quote.
 
-  useEffect(() => { setSelectedClient(activeClient); }, []);
+**Close:** Back to the key message. Grounded. No dramatic wrap-up.
 
-  return (
-    <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🎬</span>
-        <div>
-          <h2 style={{color:B.white,margin:0}}>Content Brief Generator</h2>
-          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Pre-filming brief for the client. What to wear, where to film, what to say, stories to tell. Read it the night before and walk in ready.</p>
-        </div>
-      </div>
-      {activeClient && !activeClient.isDefault && <ClientBanner client={activeClient}/>}
-      <Card>
-        <SecLabel>Client</SecLabel>
-        <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
-          {clients.map(c=><button key={c.id} onClick={()=>setSelectedClient(c)} style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:selectedClient?.id===c.id?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.name}</button>)}
-        </div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
-          <div>
-            <SecLabel>Session Date</SecLabel>
-            <input value={sessionDate} onChange={e=>setSessionDate(e.target.value)} placeholder="e.g. April 5, 2026"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
-          </div>
-          <div>
-            <SecLabel>Primary Location</SecLabel>
-            <input value={location} onChange={e=>setLocation(e.target.value)} placeholder="e.g. Home office, gym, outdoor trail"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
-          </div>
-          <div>
-            <SecLabel>Equipment Available</SecLabel>
-            <input value={equipment} onChange={e=>setEquipment(e.target.value)} placeholder="e.g. iPhone 15 Pro, ring light, tripod, lapel mic"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
-          </div>
-          <div>
-            <SecLabel>Session Duration</SecLabel>
-            <div style={{display:'flex',gap:6}}>
-              {['1 hour','2-3 hours','4-5 hours','Full day'].map(d=>(
-                <button key={d} onClick={()=>setDuration(d)} style={{background:duration===d?B.red:'rgba(255,255,255,0.06)',color:duration===d?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{d}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-        <SecLabel>Topics to Cover This Session</SecLabel>
-        <textarea value={topics} onChange={e=>setTopics(e.target.value)} rows={3}
-          placeholder="e.g. Morning routine reel, real estate market update, mindset post about showing up when it's hard, podcast promo clip"
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
-        <RedBtn onClick={async()=>{if(!selectedClient||!topics)return;setLoading(true);setOut('');const r=await ai(CONTENT_BRIEF_PROMPT(selectedClient,sessionDate,location,topics,equipment,duration));setOut(r);setLoading(false);}} disabled={loading||!selectedClient||!topics}>
-          {loading?'Building brief...':'🎬 Generate Pre-Filming Brief'}
-        </RedBtn>
-      </Card>
-      {loading&&<Spin/>}
-      {out&&<DocOutput text={out} title={`Filming Brief: ${selectedClient?.name} — ${sessionDate|| 'Upcoming Session'}`}/>}
-    </div>
-  );
-}
+**CTA:** Simple and direct. No hype.
 
+**Do not say:** 3-4 specific phrases or angles that weaken tone for ${client.name}
 
+## 3. What This Content Should Feel Like
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// HASHTAG RESEARCH TOOL
-// ═══════════════════════════════════════════════════════════════════════════════
+4-6 specific descriptors defining the emotional register of today's session. Make them specific to ${client.name} and their audience, not generic creator descriptors.
+
+## 4. What to Wear
+
+Break down by content type and location. Realistic. Aligned with environment. No over-styling. Specific direction for each setup.
+
+## 5. Environment Setup
+
+For each filming location or content type: exact location, lighting setup, camera angle, background details. Real environments beat fake sets.
+
+## 6. Stories to Pull From
+
+4-6 SPECIFIC stories from ${client.name}'s real life tied to today's topics. Each needs a 2-3 sentence setup so they remember the context. Must be real moments, not generic advice. Must be reusable across multiple pieces.
+
+## 7. Hooks to Open With
+
+One strong hook per piece. Short, direct, scroll-stopping, completely natural. No yes/no questions. No cliches.
+
+## 8. Things to Avoid Today
+
+5-7 specific things that will weaken this content. Specific to ${client.name}, not generic advice.
+
+## 9. Post-Session Checklist
+
+- Audio quality checked on playback before leaving
+- Minimum 2 takes per piece
+- B-roll and environment shots captured
+- Standout moments flagged with timestamp
+- Repurposing notes: which pieces become which platform versions
+
+## 10. Content Breakdown by Platform
+
+For each platform in ${client.platforms}: how each piece gets used, format, length, tone adjustment. One line per platform per piece. Same message, different delivery.
+
+## 11. Monetization Angle
+
+**What this content warms people up for:** The specific service, offer, or next step for ${client.name}
+
+**Where soft conversion happens:** DMs / link in bio / comments / email — specific per piece
+
+**What type of lead this attracts:** Name the exact person and their specific situation. Not a broad demographic.
+
+---
+
+Write like a high-level creative director who planned this entire session. Remove hesitation. Make filming feel obvious and executable.
+`
 
 const HASHTAG_PROMPT = (niche, platform, angle, currentFollowers) => `
 ${VOICE}
@@ -12232,6 +12669,123 @@ function ApprovalPage({ encodedPayload, onBack }) {
 }
 
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONTENT BRIEF GENERATOR
+// World-class pre-filming production blueprint
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function ContentBriefGenerator() {
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [sessionDate, setSessionDate] = useState('');
+  const [location, setLocation] = useState('');
+  const [topics, setTopics] = useState('');
+  const [equipment, setEquipment] = useState('');
+  const [duration, setDuration] = useState('2-3 hours');
+  const [intensity, setIntensity] = useState('MEDIUM');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => { setSelectedClient(activeClient); }, []);
+
+  const run = async () => {
+    if (!selectedClient || !topics) return;
+    setLoading(true); setOut('');
+    const res = await ai(CONTENT_BRIEF_PROMPT(selectedClient, sessionDate, location, topics, equipment, duration, intensity));
+    setOut(res);
+    logToMemory({ type: 'contentbrief', title: 'Content Brief: ' + (sessionDate || 'Session'), topic: topics, platform: selectedClient.platforms });
+    setLoading(false);
+  };
+
+  const intensityColors = { LOW: { bg: 'rgba(39,174,96,0.15)', text: '#27ae60', border: 'rgba(39,174,96,0.25)' }, MEDIUM: { bg: 'rgba(0,194,255,0.1)', text: '#00C2FF', border: 'rgba(0,194,255,0.2)' }, HIGH: { bg: 'rgba(233,69,96,0.15)', text: '#e94560', border: 'rgba(233,69,96,0.3)' } };
+  const intensityDesc = { LOW: 'Approachable, relatable, soft edges', MEDIUM: 'Balanced insight + clear structure', HIGH: 'Direct, strong opinions, confrontational' };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <span style={{fontSize:32}}>🎬</span>
+        <div>
+          <h2 style={{color:B.white,margin:0}}>Content Brief Generator</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>A production blueprint. Not a content plan. Read it the night before. Walk in ready.</p>
+        </div>
+      </div>
+      {activeClient && !activeClient.isDefault && <ClientBanner client={activeClient}/>}
+      <Card>
+        <SecLabel>Client</SecLabel>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+          {clients.map(c => (
+            <button key={c.id} onClick={() => setSelectedClient(c)}
+              style={{background: selectedClient?.id===c.id ? B.red : 'rgba(255,255,255,0.06)', color: selectedClient?.id===c.id ? '#000D1A' : B.white, border:'none', borderRadius:7, padding:'6px 14px', cursor:'pointer', fontSize:12, fontWeight:700}}>
+              {c.name}
+            </button>
+          ))}
+        </div>
+
+        <SecLabel>Content Intensity Level</SecLabel>
+        <div style={{display:'flex',gap:6,marginBottom:16,flexWrap:'wrap'}}>
+          {['LOW','MEDIUM','HIGH'].map(lvl => {
+            const ic = intensityColors[lvl];
+            return (
+              <button key={lvl} onClick={() => setIntensity(lvl)}
+                style={{background: intensity===lvl ? ic.bg : 'rgba(255,255,255,0.04)', color: intensity===lvl ? ic.text : B.gray, border: '1px solid ' + (intensity===lvl ? ic.border : 'rgba(255,255,255,0.06)'), borderRadius:7, padding:'6px 18px', cursor:'pointer', fontSize:11, fontWeight:800, letterSpacing:1, transition:'all 0.15s'}}>
+                {lvl}
+              </button>
+            );
+          })}
+          <span style={{color:B.gray,fontSize:11,alignSelf:'center',marginLeft:4}}>{intensityDesc[intensity]}</span>
+        </div>
+
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+          <div>
+            <SecLabel>Session Date</SecLabel>
+            <input value={sessionDate} onChange={e=>setSessionDate(e.target.value)} placeholder="e.g. Saturday March 22"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Primary Location</SecLabel>
+            <input value={location} onChange={e=>setLocation(e.target.value)} placeholder="e.g. Home office, outdoor trail, gym"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Equipment Available</SecLabel>
+            <input value={equipment} onChange={e=>setEquipment(e.target.value)} placeholder="e.g. iPhone 15 Pro, ring light, tripod"
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Session Duration</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {['1 hour','2-3 hours','4-5 hours','Full day'].map(d => (
+                <button key={d} onClick={() => setDuration(d)}
+                  style={{background: duration===d ? B.red : 'rgba(255,255,255,0.06)', color: duration===d ? '#000D1A' : B.white, border:'none', borderRadius:7, padding:'5px 10px', cursor:'pointer', fontSize:11, fontWeight:700}}>
+                  {d}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <SecLabel>Topics / Content Ideas for This Session</SecLabel>
+        <textarea value={topics} onChange={e=>setTopics(e.target.value)} rows={4}
+          placeholder="List the pieces you want to film. e.g. Morning routine reel, real estate market update, mindset post about showing up when you don't feel like it, quick hit about what nobody tells you about building a side business..."
+          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+
+        <button onClick={run} disabled={loading||!selectedClient||!topics}
+          style={{background: (!selectedClient||!topics) ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg,#00C2FF,#0096CC)', color: (!selectedClient||!topics) ? B.gray : '#000D1A', border:'none', borderRadius:8, padding:'11px 24px', fontWeight:800, cursor: (!selectedClient||!topics)?'not-allowed':'pointer', fontSize:14, boxShadow: (!selectedClient||!topics) ? 'none' : '0 0 20px rgba(0,194,255,0.25)'}}>
+          {loading ? 'Building brief...' : '🎬 Generate Production Brief'}
+        </button>
+      </Card>
+      {loading && <Spin/>}
+      {out && <DocOutput text={out} title={"Filming Brief: " + (selectedClient?.name || 'Session') + " — " + (sessionDate || 'Upcoming')}/>}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// WEEKLY REVIEW — 6-MODULE GROWTH SYSTEM
+// ═══════════════════════════════════════════════════════════════════════════════
+
 const COMPONENT_MAP = {
   home: Home,
   onboard: Onboarding,
@@ -12358,6 +12912,15 @@ export default function App() {
 
   // Register memory save function globally so all tools can log to it
   useEffect(() => { registerMemorySave(memorySave); }, [memorySave]);
+
+  // Listen for internal navigation events (e.g. Generate Calendar from Strategy)
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.detail?.nav) { setNav(e.detail.nav); setSub(e.detail.sub || null); }
+    };
+    window.addEventListener('signal-nav', handler);
+    return () => window.removeEventListener('signal-nav', handler);
+  }, []);
   useEffect(() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null'); document.title = wl?.agencyName ? wl.agencyName + ' | Social Media OS' : 'SIGNAL by Everyday Elevations'; } catch { document.title = 'SIGNAL by Everyday Elevations'; } }, []);
 
   const handleNav = (id) => {
