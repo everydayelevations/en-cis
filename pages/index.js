@@ -12752,7 +12752,8 @@ const COMPONENT_MAP = {
 };
 
 
-// Global Error Boundary prevents white screen crashes ─────────────────class ErrorBoundary extends React.Component {
+// ── Global Error Boundary — prevents white screen crashes ───────────────────
+class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null };
