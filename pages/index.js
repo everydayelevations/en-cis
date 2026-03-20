@@ -1,33 +1,31 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Head from 'next/head';
 
-// ─── BRAND ───────────────────────────────────────────────────────────────────
-const B = {
-  navy:   '#080D14',   // obsidian — deepest background
-  navy2:  '#0C1420',   // surface — cards and panels
-  navy3:  '#111B2B',   // elevated — inputs, hover
-  red:    '#00C2FF',   // signal cyan — primary accent (replaces red throughout)
-  white:  '#F1F5F9',   // off-white — cooler, more premium than pure white
-  gray:   '#5A6A82',   // muted — secondary text
-  light:  '#8B9AB4',   // light gray — tertiary text
-  gold:   '#C9A84C',   // gold — premium badges only, use sparingly
+// ─BRAND ─────────────────────────────────────────────────────────────────const B = {
+  navy:   '#080D14',   // obsidian deepest background
+  navy2:  '#0C1420',   // surface cards and panels
+  navy3:  '#111B2B',   // elevated inputs, hover
+  red:    '#00C2FF',   // signal cyan primary accent (replaces red throughout)
+  white:  '#F1F5F9',   // off-white cooler, more premium than pure white
+  gray:   '#5A6A82',   // muted secondary text
+  light:  '#8B9AB4',   // light gray tertiary text
+  gold:   '#C9A84C',   // gold premium badges only, use sparingly
 };
 
-// ─── CONTENT ANGLES ──────────────────────────────────────────────────────────
+// ─CONTENT ANGLES ──────────────────────────────────────────────────────────
 // Content angles mapped to Dr. Peggy Swarbrick's 8 Dimensions of Wellness
 const ANGLES = [
-  { id:'emotional',      emoji:'🧠', label:'Emotional',      dimension:'Emotional',      desc:'Self-awareness, stress, identity, how you talk to yourself' },
-  { id:'physical',       emoji:'🏋️', label:'Physical',       dimension:'Physical',       desc:'Training, sleep, recovery, nutrition, daily movement' },
-  { id:'social',         emoji:'🤝', label:'Social',         dimension:'Social',         desc:'Relationships, community, parenting, connection, belonging' },
-  { id:'intellectual',   emoji:'📚', label:'Intellectual',   dimension:'Intellectual',   desc:'Learning, problem-solving, curiosity, skills, sharp thinking' },
-  { id:'occupational',   emoji:'💼', label:'Occupational',   dimension:'Occupational',   desc:'Work ethic, career, HR, real estate, purpose in what you do' },
-  { id:'financial',      emoji:'💰', label:'Financial',      dimension:'Financial',      desc:'Real estate, money habits, building wealth, smart decisions' },
-  { id:'environmental',  emoji:'🏔️', label:'Environmental',  dimension:'Environmental',  desc:'Colorado, outdoor life, your physical space, the world around you' },
-  { id:'spiritual',      emoji:'🔥', label:'Spiritual',      dimension:'Spiritual',      desc:'Purpose, values, what drives you, the reason behind the work' },
+  { id:'emotional', label:'Emotional',      dimension:'Emotional',      desc:'Self-awareness, stress, identity, how you talk to yourself' },
+  { id:'physical', label:'Physical',       dimension:'Physical',       desc:'Training, sleep, recovery, nutrition, daily movement' },
+  { id:'social', label:'Social',         dimension:'Social',         desc:'Relationships, community, parenting, connection, belonging' },
+  { id:'intellectual', label:'Intellectual',   dimension:'Intellectual',   desc:'Learning, problem-solving, curiosity, skills, sharp thinking' },
+  { id:'occupational', label:'Occupational',   dimension:'Occupational',   desc:'Work ethic, career, HR, real estate, purpose in what you do' },
+  { id:'financial', label:'Financial',      dimension:'Financial',      desc:'Real estate, money habits, building wealth, smart decisions' },
+  { id:'environmental', label:'Environmental',  dimension:'Environmental',  desc:'Colorado, outdoor life, your physical space, the world around you' },
+  { id:'spiritual', label:'Spiritual',      dimension:'Spiritual',      desc:'Purpose, values, what drives you, the reason behind the work' },
 ];
 
-// ─── FRAMEWORKS (invisible infrastructure) ───────────────────────────────────
-const SWARBRICK = `Dr. Peggy Swarbrick's 8 Dimensions of Wellness framework. Every piece of content should serve at least one dimension. Use this as a lens, not a label. Never name the dimensions explicitly in the content itself.
+// ─FRAMEWORKS (invisible infrastructure) ─────────────────────────────────const SWARBRICK = `Dr. Peggy Swarbrick's 8 Dimensions of Wellness framework. Every piece of content should serve at least one dimension. Use this as a lens, not a label. Never name the dimensions explicitly in the content itself.
 
 Emotional: How someone relates to their inner world. Stress, self-talk, identity, boundaries, processing difficulty. This is not about toxic positivity. It's about being honest with yourself.
 
@@ -49,19 +47,16 @@ const CONTENT_SOP = `Content standards I've built my system on: No intros, no fl
 
 const VOICE = `Write in Jason Fricka's voice. He's an HR manager, mindset coach, endurance athlete, dad, and real estate agent in Colorado. He talks like he's sitting across the table from you : direct, no fluff, no corporate speak. Short sentences. Real stories. He doesn't hype things up. He doesn't use words like "transform" or "journey" or "find your potential." He says what he means. He talks about hard days, early mornings, the work nobody sees, and why showing up matters even when it doesn't feel like it. His community is the community : everyday people who refuse to stay where they are. He roots for them out loud. Today is ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}. Write like him, not like a marketer writing about him. Never use em dashes. Never use AI buzzwords like "delve", "tapestry", "comprehensive", "leverage", "utilize", "paradigm", "synergy", "robust", "holistic", "facilitate", "foster", "streamline", or "cutting-edge". No hype. No filler. Jason does not talk like a LinkedIn consultant.`;
 
-// ─── PLATFORMS ───────────────────────────────────────────────────────────────
-const PLATFORMS = ['Instagram','YouTube','Facebook','LinkedIn','X','TikTok'];
+// ─PLATFORMS ─────────────────────────────────────────────────────────────const PLATFORMS = ['Instagram','YouTube','Facebook','LinkedIn','X','TikTok'];
 
-// ─── RESEARCH TIERS ──────────────────────────────────────────────────────────
-const TIER_PROMPTS = [
+// ─RESEARCH TIERS ────────────────────────────────────────────────────────const TIER_PROMPTS = [
   { label:'Quick Pulse', desc:'Top 3 viral angles right now', depth:'surface' },
   { label:'Deep Dive', desc:'Trend analysis + audience psychology', depth:'medium' },
   { label:'Competitor Intel', desc:'What competitors are missing', depth:'deep' },
   { label:'Full Intel', desc:'Everything: trends, gaps, scripts, angles', depth:'full' },
 ];
 
-// ─── PROMPT VAULT TABS ───────────────────────────────────────────────────────
-const VAULT_TABS = [
+// ─PROMPT VAULT TABS ─────────────────────────────────────────────────────const VAULT_TABS = [
   { id:'instagram', label:'Instagram', prompts:[
     'Write a Reel hook that stops the scroll for [topic]',
     'Give me 5 pattern-interrupt openers for [niche]',
@@ -98,7 +93,7 @@ const VAULT_TABS = [
     'Give me data-driven hooks with surprising stats about [topic]',
   ]},
   { id:'x', label:'X / Twitter', prompts:[
-    'Write a viral X thread on [topic] — hook tweet + 8 supporting tweets + CTA',
+    'Write a viral X thread on [topic] hook tweet + 8 supporting tweets + CTA',
     'Write a single high-engagement tweet on [topic] under 280 characters',
     'Turn this long-form content into a 10-tweet thread: [paste]',
     'Write 5 reply-bait tweets that spark conversation on [topic]',
@@ -123,8 +118,7 @@ const VAULT_TABS = [
   ]},
 ];
 
-// ─── AI HELPERS ──────────────────────────────────────────────────────────────
-async function ai(message, system='You are a helpful content strategist.') {
+// ─AI HELPERS ────────────────────────────────────────────────────────────async function ai(message, system='You are a helpful content strategist.') {
   const res = await fetch('/api/claude', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -149,8 +143,7 @@ async function perp(query) {
   }
 }
 
-// ─── UI PRIMITIVES ────────────────────────────────────────────────────────────
-const Spin = () => (
+// ─UI PRIMITIVES ──────────────────────────────────────────────────────────const Spin = () => (
   <div style={{display:'flex',justifyContent:'center',padding:'2rem'}}>
     <div style={{width:32,height:32,border:'2px solid rgba(0,194,255,0.15)',borderTopColor:'#00C2FF',
       borderRadius:'50%',animation:'spin 0.7s linear infinite'}}/>
@@ -235,13 +228,12 @@ const CopyBtn = ({text}) => {
     <button onClick={()=>{navigator.clipboard.writeText(text);setCopied(true);setTimeout(()=>setCopied(false),2000);}}
       style={{background:copied?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.05)',color:copied?'#00C2FF':B.light,border:`1px solid ${copied?'rgba(0,194,255,0.3)':'rgba(255,255,255,0.08)'}`,
         borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:600,transition:'all 0.15s'}}>
-      {copied?'✓ Copied':'Copy'}
+      {copied?'Copied':'Copy'}
     </button>
   );
 };
 
-// ── Strategy Markdown Renderer ───────────────────────────────────────────────
-const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
+// Strategy Markdown Renderer ─────────────────────────────────────────────const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
   if (!text) return null;
 
   // Parse markdown into structured sections
@@ -324,7 +316,7 @@ const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
             style={{background:downloading?B.gray:B.red,color:'#fff',border:'none',
               borderRadius:8,padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',
               fontSize:13,display:'flex',alignItems:'center',gap:6}}>
-            {downloading ? 'Preparing...' : '⬇ Download Doc'}
+            {downloading ? 'Preparing...' : 'Download Doc'}
           </button>
         </div>
       </div>
@@ -337,8 +329,7 @@ const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
   );
 };
 
-// ── Universal Doc Output: renders markdown + print/PDF download ─────────────
-function DocOutput({text, title='Document', showDownload=true}) {
+// Universal Doc Output: renders markdown + print/PDF download ───────────function DocOutput({text, title='Document', showDownload=true}) {
   const [downloading, setDownloading] = useState(false);
 
   const download = async () => {
@@ -400,7 +391,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
       });
       const styledBody = styledLines.join('\n');
 
-      // CSS (no template expressions — accent color injected via style attribute workaround)
+      // CSS (no template expressions accent color injected via style attribute workaround)
       const css = [
         '@page { margin: 0.75in; size: letter; }',
         '* { box-sizing: border-box; margin: 0; padding: 0; }',
@@ -501,7 +492,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
             style={{background:downloading?B.gray:B.red,color:'#fff',border:'none',
               borderRadius:8,padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',
               fontSize:13,display:'flex',alignItems:'center',gap:6}}>
-            {downloading ? 'Preparing...' : '⬇ Download PDF / Print'}
+            {downloading ? 'Preparing...' : 'Download PDF / Print'}
           </button>
         </div>
       )}
@@ -521,9 +512,7 @@ const Output = ({text}) => text ? (
   </div>
 ) : null;
 
-// ─── AI PROMPTS ───────────────────────────────────────────────────────────────
-
-const SCRIPT_PROMPT = (topic, angle, platform) => `
+// ─AI PROMPTS ─────────────────────────────────────────────────────────────const SCRIPT_PROMPT = (topic, angle, platform) => `
 ${VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
@@ -536,11 +525,11 @@ Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:
 HOOK SOP (apply to every variation):
 Every hook must use one of these 5 types. First 2-3 words must stop the scroll.
 No "Hey guys." No "In this video." No intros. Value or conflict from frame 1.
-🔥 PATTERN INTERRUPT : challenges an assumption the audience holds right now
-❓ CURIOSITY QUESTION : creates a gap they must fill by watching
-💣 BOLD STATEMENT : counterintuitive or surprising claim
-📖 STORY MOMENT : specific scene: "The day I..." or "I was sitting in my truck when..."
-📊 DATA POINT : a number that stops them cold
+PATTERN INTERRUPT : challenges an assumption the audience holds right now
+CURIOSITY QUESTION : creates a gap they must fill by watching
+BOLD STATEMENT : counterintuitive or surprising claim
+STORY MOMENT : specific scene: "The day I..." or "I was sitting in my truck when..."
+DATA POINT : a number that stops them cold
 
 Write 3 complete camera-ready ${platform} script variations. Each must feel different in hook type, energy, and structure.
 
@@ -587,7 +576,7 @@ Runtime target: 45-75 seconds spoken. No intros. No "like and subscribe." Hook f
 ${platform === 'TikTok' ? `
 TIKTOK-SPECIFIC RULES:
 - First 2 words carry everything. The scroll decision is made before the third word.
-- "POV:", "The thing about", "Nobody talks about", "Day X of" — these formats work.
+- "POV:", "The thing about", "Nobody talks about", "Day X of" these formats work.
 - Shorter is almost always better on TikTok. 15-30 seconds outperforms 60+ unless the hook is elite.
 - Sound matters. Note whether this works better with trending audio or talking head.
 - End with a reason to follow, not just a like CTA.` : ''}
@@ -659,7 +648,7 @@ One per type: Pattern Interrupt / Question / Bold Statement / Story / Data Point
 ## Best Format + Why
 
 ## Jason's Unique Authority
-What in his background (HR, real estate, Colorado, endurance athlete, mindset coach) gives specific credibility here — with reference to the research.
+What in his background (HR, real estate, Colorado, endurance athlete, mindset coach) gives specific credibility here with reference to the research.
 `;
 
 
@@ -782,11 +771,11 @@ Write ${quantity} hooks for the topic: "${topic}"
 
 Deliver in 5 categories (${Math.ceil(quantity/5)} each):
 
-🔥 PATTERN INTERRUPT (challenges assumptions, surprises)
-❓ QUESTION (creates irresistible curiosity)
-💣 BOLD STATEMENT (controversial or counterintuitive)
-📖 PERSONAL STORY (specific moment, "The day I...")
-📊 DATA & STATS (surprising number or fact)
+PATTERN INTERRUPT (challenges assumptions, surprises)
+QUESTION (creates irresistible curiosity)
+BOLD STATEMENT (controversial or counterintuitive)
+PERSONAL STORY (specific moment, "The day I...")
+DATA & STATS (surprising number or fact)
 
 Rules:
 - First 2-3 words must grab : think thumb-stop
@@ -919,7 +908,7 @@ REVENUE / LEADS DATA: ${revenueData || 'No revenue data logged'}
 
 Write the complete 6-module weekly review. Every section fully written. No placeholders.
 
-# Weekly Review — Command Center
+# Weekly Review Command Center
 ## Week of ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
 ---
@@ -929,7 +918,7 @@ Write the complete 6-module weekly review. Every section fully written. No place
 This is the hub. Everything else feeds here. Be direct.
 
 **3 Key Insights from this week:**
-(What did the data actually show? Not observations — insights. Things that change how you operate.)
+(What did the data actually show? Not observations insights. Things that change how you operate.)
 
 **3 Priorities for next week:**
 (Specific. Actionable. Connected to revenue or growth.)
@@ -959,7 +948,7 @@ Name it. What format. What angle. What result.
 How many. From where. Quality assessment (warm / cold / wrong fit).
 
 **Conversion rate:**
-If trackable — what percentage of engaged followers became DMs or leads.
+If trackable what percentage of engaged followers became DMs or leads.
 
 **Revenue impact:**
 Direct or indirect. What content led to a conversation, booking, or closed deal this week.
@@ -978,7 +967,7 @@ Review this week's execution against the plan.
 
 **Execution rate:** Rough percentage of planned content that went out.
 
-**For next week — 5 specific scheduled pieces:**
+**For next week 5 specific scheduled pieces:**
 For each:
 - Content title or angle
 - Platform
@@ -1009,7 +998,7 @@ Where did new DMs, inquiries, or warm conversations come from? (Instagram / YouT
 What content or touchpoint directly preceded a conversion conversation?
 
 **Revenue by source:**
-If trackable — what dollar amount or pipeline value traces to which platform or content type.
+If trackable what dollar amount or pipeline value traces to which platform or content type.
 
 **Attribution insight:**
 What does this week tell you about where to focus to drive the next dollar?
@@ -1127,13 +1116,13 @@ Emotional Journey: ${fields.emotionalJourney}
 Additional Context: ${fields.additionalContext}
 
 === YOUR TASK ===
-You are a senior social media strategist at a premium agency. Write a complete, finished 90-day content strategy document for this client. This goes directly to the client tomorrow. Every section must be fully written — not described, not outlined, not templated. Actual content. Real specifics. Named pillars, written hooks, actual hashtags, specific day-by-day plans with real tasks and time estimates.
+You are a senior social media strategist at a premium agency. Write a complete, finished 90-day content strategy document for this client. This goes directly to the client tomorrow. Every section must be fully written not described, not outlined, not templated. Actual content. Real specifics. Named pillars, written hooks, actual hashtags, specific day-by-day plans with real tasks and time estimates.
 
 Do not write instructions. Do not write placeholders. Do not write [brackets]. Do not describe what you will write. Write it.
 
 Mandatory frameworks woven throughout (never name them explicitly):
 - Swarbrick 8 Dimensions: each content pillar serves specific life dimensions
-- 4-Layer Viewer Journey: See It (pattern interrupt, first 3 seconds) → Click It (avatar callout + credibility marker) → Watch It (value, no filler) → Go Deeper (action-driving CTA)
+- 4-Layer Viewer Journey: See It (pattern interrupt, first 3 seconds) Click It (avatar callout + credibility marker) Watch It (value, no filler) Go Deeper (action-driving CTA)
 - CTA split: 60% comment-based, 20% DM-trigger, 20% link-in-bio
 - Primary success signal: saves and shares, not likes
 
@@ -1151,7 +1140,7 @@ Format rules:
 
 ## Executive Summary
 
-Write 4 sharp sentences: (1) Who this client is and what they stand for. (2) What these 90 days will accomplish with specific numbers. (3) The single strategic bet — the one thing that makes this plan work. (4) Why this approach over every other approach.
+Write 4 sharp sentences: (1) Who this client is and what they stand for. (2) What these 90 days will accomplish with specific numbers. (3) The single strategic bet the one thing that makes this plan work. (4) Why this approach over every other approach.
 
 ## Brand Positioning
 
@@ -1162,10 +1151,10 @@ Write one sharp paragraph that defines exactly who this person is in the online 
 ### Voice and Tone Guardrails
 
 **DO:**
-Write 8 specific, actionable voice rules with real examples drawn from this client's life and work. Not generic rules — rules specific to this person, their industry, their audience, their story.
+Write 8 specific, actionable voice rules with real examples drawn from this client's life and work. Not generic rules rules specific to this person, their industry, their audience, their story.
 
 **NEVER:**
-Write 8 specific things this person must never say, post, or imply. Again, specific to this client — not generic creator advice.
+Write 8 specific things this person must never say, post, or imply. Again, specific to this client not generic creator advice.
 
 ### Ideal Client Profile
 
@@ -1177,29 +1166,29 @@ Write 5 specific audience types with a full sentence on why each is wrong for th
 
 ### Competitive Edge
 
-Write a specific paragraph naming the actual gap in this market — who the competitors are (by type if not name), what they all do wrong, and exactly how this client fills that gap in a way nobody else currently does.
+Write a specific paragraph naming the actual gap in this market who the competitors are (by type if not name), what they all do wrong, and exactly how this client fills that gap in a way nobody else currently does.
 
 ### The Transformation Promise
 
-**Before:** Write exactly how the audience feels, thinks, and operates before they find this creator. Be specific — name the frustrations, the stuck points, the daily reality.
+**Before:** Write exactly how the audience feels, thinks, and operates before they find this creator. Be specific name the frustrations, the stuck points, the daily reality.
 **After:** Write exactly how they feel, think, and operate after engaging with this content consistently for 90 days.
 **One sentence:** Compress the entire transformation into one powerful sentence.
 
 ## Unique Positioning Statement
 
-Write the category-defining statement for this brand. The version of "Most physicians treat disease. Most biohackers chase trends. Dr. O'Neil restores physiology." — specific to this client. Then write two sentences explaining why this is a category, not just a niche.
+Write the category-defining statement for this brand. The version of "Most physicians treat disease. Most biohackers chase trends. Dr. O'Neil restores physiology." specific to this client. Then write two sentences explaining why this is a category, not just a niche.
 
 ## Ideal Client Breakdown
 
 Build a 3-tier client breakdown:
 
-### Tier 1 — Primary (Build authority here. Monetize here.)
+### Tier 1 Primary (Build authority here. Monetize here.)
 Write the full profile: age range, income/professional level, geography, mindset, what they value, what they fear, how they find this creator.
 
-### Tier 2 — Growth Audience (Ecosystem builders. Referral drivers.)
+### Tier 2 Growth Audience (Ecosystem builders. Referral drivers.)
 Write the full profile: age range, what they want, how they engage, why they matter to the funnel.
 
-### Tier 3 — Top of Funnel (Capture. Nurture. Convert.)
+### Tier 3 Top of Funnel (Capture. Nurture. Convert.)
 Write the full profile: what brings them in, how to capture them, what moves them toward Tier 1.
 
 ## Industry and Competitive Landscape
@@ -1208,18 +1197,18 @@ Write an honest analysis of this market right now. Name the categories of compet
 
 ## Content Pillars
 
-Build 4 complete content pillars. For each one, write everything — not describe it, write it.
+Build 4 complete content pillars. For each one, write everything not describe it, write it.
 
 ### Pillar 1: [Write the actual pillar name]
 
-**Core Idea:** Write the one-sentence angle this pillar owns — specific enough to reject content that doesn't belong.
+**Core Idea:** Write the one-sentence angle this pillar owns specific enough to reject content that doesn't belong.
 
 **Why It Works:** Write the psychological reason this resonates. Name the specific emotion, fear, desire, or belief it activates in the target audience.
 
 **Swarbrick Dimensions:** Name which of the 8 wellness dimensions this serves and how.
 
 **5 Specific Filmable Ideas:**
-Write 5 actual content titles/hooks specific enough to film tomorrow. Not topic areas — actual hooks with specific details from this client's life.
+Write 5 actual content titles/hooks specific enough to film tomorrow. Not topic areas actual hooks with specific details from this client's life.
 1.
 2.
 3.
@@ -1230,7 +1219,7 @@ Write 5 actual content titles/hooks specific enough to film tomorrow. Not topic 
 
 **Ideal Length:** State the exact duration and why.
 
-**CTA:** Write the exact CTA language to use — actual words, not a description of the CTA type.
+**CTA:** Write the exact CTA language to use actual words, not a description of the CTA type.
 
 **Hashtag Strategy:**
 Niche (under 100K): List 5 specific hashtags
@@ -1250,7 +1239,7 @@ Broad (1M+): List 5 specific hashtags
 
 ### Instagram
 
-**Role in Ecosystem:** One sentence — what Instagram does for this business that no other platform does.
+**Role in Ecosystem:** One sentence what Instagram does for this business that no other platform does.
 
 **Posting Frequency:** State exact days and times (timezone included).
 
@@ -1271,13 +1260,13 @@ Broad (1M+): List 5 specific hashtags
 
 **Never Post Here:** Write 3 specific content types that will kill this account's reach and why.
 
-### [Second active platform — repeat full structure]
+### [Second active platform repeat full structure]
 
-### [Third active platform if applicable — repeat full structure]
+### [Third active platform if applicable repeat full structure]
 
 ## Previous Content Analysis
 
-**Current State:** List what exists right now — what is working, what is missing, what is inconsistent.
+**Current State:** List what exists right now what is working, what is missing, what is inconsistent.
 
 **What Is Working:** Name the specific elements that have traction and why.
 
@@ -1300,7 +1289,7 @@ Write specific, measurable targets for each active platform:
 **Goal:** Write the specific, measurable goal for this phase.
 **Theme:** Write the one idea that every piece of content in this phase ladders up to.
 
-**Week 1 — Day by Day:**
+**Week 1 Day by Day:**
 Day 1 (write the day): [Specific task] — [time required] — [platform] — [expected output or result]
 Day 2: [Same structure]
 Day 3: [Same structure]
@@ -1318,7 +1307,7 @@ Write 4 specific focus areas with the exact actions required for each.
 **Week 4:**
 Write 4 specific focus areas with the exact actions required for each.
 
-**Content to Batch — Phase 1:**
+**Content to Batch Phase 1:**
 List 15 specific content pieces with: title/hook, format, platform, and the pillar it belongs to.
 
 **Phase 1 Complete When:**
@@ -1355,14 +1344,14 @@ Write 3 specific, measurable conditions.
 **Theme:** Write the one idea this phase drives toward.
 
 **Repurposing Workflow:**
-Step 1: [Source — what gets created and where]
-Step 2: [First derivative — what it becomes]
+Step 1: [Source what gets created and where]
+Step 2: [First derivative what it becomes]
 Step 3: [Second derivative]
 Step 4: [Third derivative]
-Step 5: [Distribution — where everything lands]
+Step 5: [Distribution where everything lands]
 
 **Revenue Pathway:**
-Write the exact funnel: content → action → conversion → revenue. Name each step, the mechanism, and the expected conversion at each stage.
+Write the exact funnel: content action conversion revenue. Name each step, the mechanism, and the expected conversion at each stage.
 
 **Analytics Review Process:**
 Write exactly what to check, when to check it, and what decision each data point drives.
@@ -1381,13 +1370,13 @@ Write the campaign name, goal with specific numbers, the lead magnet launch sequ
 ## Content Production Standards
 
 ### Opening Rules
-Write 5 specific rules for the first 3 seconds of every piece of content — with examples drawn from this client's actual life and topics.
+Write 5 specific rules for the first 3 seconds of every piece of content with examples drawn from this client's actual life and topics.
 
 ### Editing Standards
 Write the specific editing rules: cut timing, caption style, pacing, overlays, visual variation frequency.
 
 ### Retention Rules
-Write how the 4-layer journey applies to editing — specific instructions for keeping people watching through to the CTA.
+Write how the 4-layer journey applies to editing specific instructions for keeping people watching through to the CTA.
 
 ### Content Production Pipeline
 
@@ -1401,7 +1390,7 @@ Write the specific process for generating monthly topics aligned to pillars and 
 Write how many clips to extract from each long-form piece, what to look for, how to re-edit for each platform.
 
 ### What Kills This Content
-Write 8 specific things that will tank performance on this account — specific to this client, not generic creator advice.
+Write 8 specific things that will tank performance on this account specific to this client, not generic creator advice.
 
 ## Posting and Engagement SOP
 
@@ -1412,7 +1401,7 @@ Write the exact actions to prime the algorithm for this specific account.
 Write the exact actions to maximize early engagement signal.
 
 **Daily Engagement Targets:**
-- Meaningful comments on aligned accounts: [specific number] — write exactly what "meaningful" means for this niche
+- Meaningful comments on aligned accounts: [specific number] write exactly what "meaningful" means for this niche
 - DM conversations: [specific number] with specific targeting criteria
 - Story engagement: [specific daily actions]
 - Comment response time: [specific hours]
@@ -1447,7 +1436,7 @@ Write the specific check-in and reporting cadence: weekly touchpoints, monthly c
 
 ## Monthly Reporting Structure
 
-Write what gets measured, how it gets reported, and what decisions each metric drives. The question is never how much was posted — it is what did it produce.
+Write what gets measured, how it gets reported, and what decisions each metric drives. The question is never how much was posted it is what did it produce.
 
 ## Success Metrics
 
@@ -1462,21 +1451,21 @@ Write the vanity metrics this client must stop tracking and the specific reason 
 
 ## Implementation Timeline
 
-**Week 1 — Foundation:**
+**Week 1 Foundation:**
 Write 5-6 specific setup actions with owners and time estimates.
 
-**Week 2 — Launch:**
+**Week 2 Launch:**
 Write 4-5 specific launch actions.
 
-**Month 2 — Scale:**
+**Month 2 Scale:**
 Write 4-5 specific growth actions.
 
-**Month 3 — Convert:**
+**Month 3 Convert:**
 Write 4-5 specific conversion actions.
 
 ## Brand Positioning on Social
 
-### Inspiration Accounts — Structure, Not Style
+### Inspiration Accounts Structure, Not Style
 We study how category leaders signal authority, maintain consistency, and convert attention. We are not replicating tone. The voice belongs to this client.
 Write 4 inspiration accounts from ${fields.inspirationAccounts || 'the relevant space'}. For each: account name, what structural element to study (NOT their style), and the specific signal they send that works.
 
@@ -1487,7 +1476,7 @@ Write the complete social identity table for this client:
 - The unique lens they bring that nobody else has
 - The credibility signals that make the positioning believable
 
-### Messaging on Social — The Transformation We Deliver
+### Messaging on Social The Transformation We Deliver
 Write a clear before/after transformation table:
 
 **Where the audience starts:** List 5-6 specific states (feelings, situations, frustrations) the audience is in before finding this content.
@@ -1501,17 +1490,17 @@ One-sentence transformation promise: Compress the entire journey into one precis
 Write the category-defining statement. Not a niche. A category.
 Follow this structure: "Most [category A] do X. Most [category B] do Y. [Client name] does Z."
 Then two sentences explaining why this is a category, not just a niche.
-Then the unique competitive moat — the specific combination of credentials, experience, and perspective that cannot be replicated.
+Then the unique competitive moat the specific combination of credentials, experience, and perspective that cannot be replicated.
 
-## Ideal Client Breakdown — Three Tiers
+## Ideal Client Breakdown Three Tiers
 
-### Tier 1 — Primary (Build authority here. Monetize here.)
+### Tier 1 Primary (Build authority here. Monetize here.)
 Full profile: age range, income/professional level, geography, mindset, what they value, what they fear, what drives them to seek out this type of content, how they find this creator.
 
-### Tier 2 — Performance Audience (Ecosystem builders. Referral drivers.)
+### Tier 2 Performance Audience (Ecosystem builders. Referral drivers.)
 Full profile: age range, what they want from the content, how they engage, why they matter to the overall funnel, how they become referral sources.
 
-### Tier 3 — Top of Funnel (Capture. Nurture. Convert.)
+### Tier 3 Top of Funnel (Capture. Nurture. Convert.)
 Full profile: what brings them in, what keeps them, what moves them toward Tier 1 over time.
 
 ## Industry and Competitive Landscape
@@ -1522,7 +1511,7 @@ Write an honest, specific market analysis. Name the categories of competitors th
 
 Based on what you know about ${fields.businessName} and ${fields.current}:
 
-**Current State:** What exists right now — what platforms, what cadence, what format, what is inconsistent.
+**Current State:** What exists right now what platforms, what cadence, what format, what is inconsistent.
 
 **What Is Working:** Specific elements that have traction and why.
 
@@ -1540,7 +1529,7 @@ Write specific, measurable targets broken down by platform and by phase:
 
 **Other platforms:** Specific targets for each active platform.
 
-## Tests and Experiments — First 90 Days
+## Tests and Experiments First 90 Days
 
 Build a structured testing table. For each test:
 
@@ -1583,10 +1572,10 @@ For each active platform: post count, format mix, cross-post vs original, note o
 
 ## Ideal Client Filtering
 
-**Attract — write 5 specific audience types with why each belongs:**
+**Attract write 5 specific audience types with why each belongs:**
 Language matters. Every word either attracts or repels. There is no neutral content.
 
-**Repel — write 5 specific audience types with why each is wrong:**
+**Repel write 5 specific audience types with why each is wrong:**
 Being clear about who this content is NOT for sharpens the signal for who it IS for.
 
 ## Content Production Pipeline
@@ -1635,7 +1624,7 @@ Every report answers one question: What did it produce?
 | Follower Growth | Net new by platform, growth rate vs prior month | Week-over-week chart |
 | Email Growth | New subscribers, lead magnet conversion, list health | Running total |
 | Engagement Rate | Saves, shares, comments (weighted toward saves and shares) | % with trend |
-| Non-Follower Reach | % of reach from non-followers — primary discovery signal | % with benchmark |
+| Non-Follower Reach | % of reach from non-followers primary discovery signal | % with benchmark |
 | Heat Map | Best and worst performing content by pillar and format | Top 5 + bottom 3 |
 | Revenue Impact | Leads generated, conversations opened, deals attributed | Pipeline value |
 | Next Month Pivots | Data-driven changes to strategy, pillars, or format mix | Action items |
@@ -1653,23 +1642,23 @@ Write the vanity metrics this client must stop tracking and the exact reason eac
 
 ## Implementation Timeline
 
-**Week 1 — Foundation:**
+**Week 1 Foundation:**
 List 5-6 specific setup actions with owners and time estimates. Bio optimization, lead magnet build, first filming session, comment-to-DM setup, pinned opt-in post.
 
-**Week 2 — Launch:**
+**Week 2 Launch:**
 Daily posting begins, engagement baseline tracking, A/B tests start, first YouTube/long-form episode.
 
-**Month 2 — Scale:**
+**Month 2 Scale:**
 Campaign 2 launch, second lead magnet, double down on Month 1 top performer, scale posting if production supports.
 
-**Month 3 — Convert:**
+**Month 3 Convert:**
 Conversion content at 25% of mix, soft-pitch to email list, 90-day full audit, plan next 90 days based on data.
 
 ---
 
 ## The Non-Negotiables
 
-Write 5 rules that cannot be broken regardless of what is happening — these are the foundation. Make them specific to this client, not generic creator advice. Frame them as commitments, not suggestions.
+Write 5 rules that cannot be broken regardless of what is happening these are the foundation. Make them specific to this client, not generic creator advice. Frame them as commitments, not suggestions.
 
 ${uploadedDoc ? 'Match the depth, specificity, and professional tone of the uploaded document. Every section fully written. No placeholders.' : 'Write everything in this client voice. Direct. Specific. No corporate speak. Every recommendation feels like it came from someone who knows this person and their business deeply.'}
 `;
@@ -1725,9 +1714,7 @@ Extract:
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIER 1 : CONTENT MEMORY
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const MEMORY_KEY = 'encis_content_log';
+// ═════════════════════════════════════════════════════════════════════════════const MEMORY_KEY = 'encis_content_log';
 const CLIENTS_KEY = 'encis_clients';
 const ACTIVE_CLIENT_KEY = 'encis_active_client';
 const CUSTOM_ANGLES_KEY = 'encis_custom_angles';
@@ -1798,12 +1785,11 @@ function ContentMemory() {
   const [importResult, setImportResult] = useState(null);
   const [showImport, setShowImport] = useState(false);
 
-  const perfColors = { '':'rgba(255,255,255,0.06)', '⭐':'rgba(245,166,35,0.15)', '🔥':'rgba(233,69,96,0.15)', '💀':'rgba(100,100,100,0.15)' };
-  const perfLabels = { '':'No rating', '⭐':'Good', '🔥':'Viral', '💀':'Flopped' };
+  const perfColors = { '':'rgba(255,255,255,0.06)', '⭐':'rgba(245,166,35,0.15)', '':'rgba(233,69,96,0.15)', '💀':'rgba(100,100,100,0.15)' };
+  const perfLabels = { '':'No rating', '⭐':'Good', '':'Viral', '💀':'Flopped' };
   const typeColors = { script:'#1B4F72', calendar:'#145A32', onboard:'#6E2F8E', batch:'#7E5109', profile:'#0A66C2', magnet:'#C0392B', community:'#1A5276', instagram:'#C13584', facebook:'#1877F2', tiktok:'#010101', x:'#1DA1F2', youtube:'#FF0000', linkedin:'#0A66C2', default:'#2C3E50' };
 
-  // ── CSV Parser ────────────────────────────────────────────────────────────
-  const parseCSV = (text) => {
+  // CSV Parser ──────────────────────────────────────────────────────────const parseCSV = (text) => {
     const lines = text.trim().split('\n');
     if (lines.length < 2) return [];
     // Handle quoted fields
@@ -1825,18 +1811,16 @@ function ContentMemory() {
     });
   };
 
-  // ── Auto-rate by engagement ───────────────────────────────────────────────
-  const autoRate = (saves, shares, reach) => {
+  // Auto-rate by engagement ─────────────────────────────────────────────const autoRate = (saves, shares, reach) => {
     const s = parseInt(saves)||0, sh = parseInt(shares)||0, r = parseInt(reach)||1;
     const engRate = (s + sh*2) / r;
-    if (engRate > 0.05 || s > 50 || sh > 20) return '🔥';
+    if (engRate > 0.05 || s > 50 || sh > 20) return '';
     if (engRate > 0.01 || s > 10) return '⭐';
     if (r > 100 && s === 0 && sh === 0) return '💀';
     return '';
   };
 
-  // ── Import Handler ────────────────────────────────────────────────────────
-  const handleImport = (e) => {
+  // Import Handler ──────────────────────────────────────────────────────const handleImport = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setImporting(true); setImportResult(null);
@@ -1847,8 +1831,7 @@ function ContentMemory() {
         const text = ev.target.result;
         let imported = 0; let skipped = 0;
 
-        // ── Detect format ──────────────────────────────────────────────────
-        const isJSON = text.trim().startsWith('{') || text.trim().startsWith('[');
+        // Detect format ────────────────────────────────────────────────const isJSON = text.trim().startsWith('{') || text.trim().startsWith('[');
 
         if (isJSON) {
           // Instagram "Download Your Information" JSON format
@@ -1888,8 +1871,7 @@ function ContentMemory() {
           const isFB = keys.includes('post_message') || keys.includes('lifetime_post_total_reach');
 
           rows.forEach(row => {
-            // ── Instagram CSV mapping ──────────────────────────────────────
-            if (isIG) {
+            // Instagram CSV mapping ────────────────────────────────────if (isIG) {
               let caption = row.description || row.post_caption || '';
               let postType = row.post_type || row.type || 'Post';
               let reach = row.reach || row.impressions || '0';
@@ -1909,14 +1891,14 @@ function ContentMemory() {
                 date: dateStr,
                 timestamp: published ? new Date(published).getTime() : Date.now(),
                 perf: autoRate(saves, shares, reach),
-                notes: `Reach: ${reach} · Likes: ${likes} · Comments: ${comments} · Saves: ${saves} · Shares: ${shares}`,
+                notes: `Reach: ${reach} Likes: ${likes} Comments: ${comments} Saves: ${saves} Shares: ${shares}`,
                 stats: { reach, saves, shares, likes, comments },
                 permalink: row.permalink || '',
                 source: 'instagram-csv',
               });
               imported++;
 
-            // ── Facebook CSV mapping ───────────────────────────────────────
+            // Facebook CSV mapping ───────────────────────────────────────
             } else if (isFB) {
               let caption = row.post_message || row.description || '';
               let reach = row.lifetime_post_total_reach || row.reach || '0';
@@ -1934,7 +1916,7 @@ function ContentMemory() {
                 date: dateStr,
                 timestamp: published ? new Date(published).getTime() : Date.now(),
                 perf: autoRate('0', shares, reach),
-                notes: `Reach: ${reach} · Reactions: ${reactions} · Comments: ${comments} · Shares: ${shares}`,
+                notes: `Reach: ${reach} Reactions: ${reactions} Comments: ${comments} Shares: ${shares}`,
                 stats: { reach, shares, reactions, comments },
                 source: 'facebook-csv',
               });
@@ -1980,13 +1962,13 @@ function ContentMemory() {
   });
 
   const igSteps = [
-    '1. Open Instagram app → Profile → ☰ Menu',
-    '2. Settings → Account → Download Your Information',
+    '1. Open Instagram app Profile → Menu',
+    '2. Settings Account Download Your Information',
     '3. Select "Posts" and format: JSON',
     '4. Download and upload the posts_1.json file here',
-    '── OR for stats (requires Business/Creator account) ──',
-    '5. Go to Meta Business Suite → Insights → Export',
-    '6. Choose date range → Export as CSV',
+    'OR for stats (requires Business/Creator account) ──',
+    '5. Go to Meta Business Suite Insights Export',
+    '6. Choose date range Export as CSV',
     '7. Upload that CSV here instead',
   ];
 
@@ -1995,8 +1977,8 @@ function ContentMemory() {
       {/* Header */}
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <span style={{fontSize:32}}>🧠</span>
-          <div><h2 style={{color:B.white,margin:0}}>Content Memory</h2>
+          <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
+          <div><h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Content Memory</h2>
             <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>
               {log.length > 0 ? `${log.length} pieces saved: rate, note, and track what works` : 'Auto-saves every generated piece. Import your social posts below.'}
             </p>
@@ -2005,7 +1987,7 @@ function ContentMemory() {
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
           <button onClick={() => setShowImport(p=>!p)}
             style={{background:showImport?B.red:'rgba(255,255,255,0.08)',color:B.white,border:`1px solid ${showImport?B.red:'rgba(255,255,255,0.15)'}`,borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
-            📥 Import Social Posts
+            Import Social Posts
           </button>
           {log.length > 0 && (
             <button onClick={() => { if(window.confirm('Clear all content history?')) clear(); }}
@@ -2019,7 +2001,7 @@ function ContentMemory() {
       {/* Import Panel */}
       {showImport && (
         <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:14,padding:'20px',marginBottom:20}}>
-          <div style={{fontWeight:700,color:B.white,fontSize:15,marginBottom:4}}>📥 Import Instagram / Facebook Posts</div>
+          <div style={{fontWeight:700,color:B.white,fontSize:15,marginBottom:4}}>Import Instagram / Facebook Posts</div>
           <div style={{color:B.gray,fontSize:12,lineHeight:1.8,marginBottom:16}}>
             Upload your Instagram export (JSON) or Meta Business Suite insights export (CSV).<br/>
             Posts auto-import with engagement stats. Performance is rated automatically based on saves and shares.
@@ -2043,7 +2025,7 @@ function ContentMemory() {
                 <><div style={{fontSize:28,marginBottom:8}}>⏳</div>
                   <div style={{color:B.white,fontWeight:600,fontSize:14}}>Importing...</div></>
               ) : (
-                <><div style={{fontSize:32,marginBottom:8}}>📂</div>
+                <>
                   <div style={{color:B.white,fontWeight:600,fontSize:14}}>Click to upload Instagram JSON or Meta CSV</div>
                   <div style={{color:B.gray,fontSize:12,marginTop:4}}>.json or .csv files accepted</div></>
               )}
@@ -2059,15 +2041,15 @@ function ContentMemory() {
               border:`1px solid ${importResult.success?'rgba(39,174,96,0.3)':'rgba(233,69,96,0.3)'}`}}>
               {importResult.success ? (
                 <div style={{color:'rgba(39,174,96,0.9)',fontWeight:700,fontSize:13}}>
-                  ✅ Imported {importResult.imported} post{importResult.imported!==1?'s':''} successfully
+                  Imported {importResult.imported} post{importResult.imported!==1?'s':''} successfully
                   {importResult.skipped > 0 && <span style={{color:B.gray,fontWeight:400}}> · {importResult.skipped} skipped (no caption)</span>}
                   <div style={{color:B.gray,fontWeight:400,fontSize:12,marginTop:4}}>
-                    Posts with high saves/shares were auto-rated 🔥. Scroll down to review and adjust.
+                    Posts with high saves/shares were auto-rated . Scroll down to review and adjust.
                   </div>
                 </div>
               ) : (
                 <div style={{color:B.red,fontWeight:700,fontSize:13}}>
-                  ❌ Import failed: {importResult.error}
+                  Import failed: {importResult.error}
                   <div style={{color:B.gray,fontWeight:400,fontSize:12,marginTop:4}}>
                     Make sure you uploaded the correct file format (Instagram JSON or Meta Business Suite CSV).
                   </div>
@@ -2081,14 +2063,14 @@ function ContentMemory() {
       {/* Empty state */}
       {log.length === 0 && !showImport && (
         <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.03)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
-          <div style={{fontSize:48,marginBottom:16}}>📭</div>
+          
           <div style={{color:B.white,fontWeight:700,fontSize:18,marginBottom:8}}>Nothing here yet</div>
           <div style={{color:B.gray,fontSize:14,lineHeight:1.7,marginBottom:20}}>
             Content you generate auto-saves here. Or import your existing posts above.
           </div>
           <button onClick={() => setShowImport(true)}
             style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
-            📥 Import Instagram / Facebook Posts
+            Import Instagram / Facebook Posts
           </button>
         </div>
       )}
@@ -2115,9 +2097,9 @@ function ContentMemory() {
           <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:20}}>
             {[
               ['Total','📝',log.length,''],
-              ['Viral 🔥','🔥',log.filter(e=>e.perf==='🔥').length,'rgba(233,69,96,0.15)'],
-              ['Good ⭐','⭐',log.filter(e=>e.perf==='⭐').length,'rgba(245,166,35,0.1)'],
-              ['Flopped 💀','💀',log.filter(e=>e.perf==='💀').length,'rgba(100,100,100,0.1)'],
+              ['Viral','',log.filter(e=>e.perf==='').length,'rgba(233,69,96,0.15)'],
+              ['Good','⭐',log.filter(e=>e.perf==='⭐').length,'rgba(245,166,35,0.1)'],
+              ['Flopped','💀',log.filter(e=>e.perf==='💀').length,'rgba(100,100,100,0.1)'],
             ].map(([label,icon,count,bg]) => (
               <div key={label} style={{background:bg|| 'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:10,padding:'12px',textAlign:'center'}}>
                 <div style={{fontSize:22,fontWeight:800,color:B.white}}>{count}</div>
@@ -2137,7 +2119,7 @@ function ContentMemory() {
                       <span style={{color:B.gray,fontSize:11}}>{entry.date}</span>
                       {entry.client && <span style={{background:'rgba(255,255,255,0.08)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>👤 {entry.client}</span>}
                       {entry.platform && <span style={{background:'rgba(255,255,255,0.05)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>{entry.platform}</span>}
-                      {entry.permalink && <a href={entry.permalink} target="_blank" rel="noopener noreferrer" style={{color:B.red,fontSize:10,textDecoration:'none'}}>↗ View</a>}
+                      {entry.permalink && <a href={entry.permalink} target="_blank" rel="noopener noreferrer" style={{color:B.red,fontSize:10,textDecoration:'none'}}>View</a>}
                     </div>
                     <div style={{color:B.white,fontWeight:600,fontSize:13,marginBottom:4,wordBreak:'break-word'}}>{entry.title || entry.topic || 'Untitled'}</div>
                     {entry.notes && editingId !== entry.id && <div style={{color:B.gray,fontSize:12,lineHeight:1.6,marginTop:4}}>{entry.notes}</div>}
@@ -2156,7 +2138,7 @@ function ContentMemory() {
                     )}
                   </div>
                   <div style={{display:'flex',alignItems:'center',gap:6,flexShrink:0}}>
-                    {['⭐','🔥','💀'].map(p => (
+                    {['⭐','','💀'].map(p => (
                       <button key={p} onClick={() => update(entry.id, {perf: entry.perf===p?'':p})}
                         title={perfLabels[p]}
                         style={{background:entry.perf===p?'rgba(255,255,255,0.15)':'transparent',border:`1px solid ${entry.perf===p?'rgba(255,255,255,0.3)':'rgba(255,255,255,0.08)'}`,borderRadius:6,padding:'4px 7px',fontSize:14,cursor:'pointer',opacity:entry.perf&&entry.perf!==p?0.4:1}}>
@@ -2168,7 +2150,7 @@ function ContentMemory() {
                       {entry.notes ? 'Edit' : '+ Note'}
                     </button>
                     <button onClick={() => remove(entry.id)}
-                      style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',borderRadius:6,padding:'4px 7px',fontSize:14,cursor:'pointer'}}>✕</button>
+                      style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',borderRadius:6,padding:'4px 7px',fontSize:14,cursor:'pointer'}}>×</button>
                   </div>
                 </div>
               </div>
@@ -2184,9 +2166,7 @@ function ContentMemory() {
 }
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIER 1: BULK CONTENT BATCHING
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const BULK_PROMPT = (angle, platform, topic, client) => `
+// ═════════════════════════════════════════════════════════════════════════════const BULK_PROMPT = (angle, platform, topic, client) => `
 ${client ? `CLIENT: ${client.name}. Voice and brand: ${client.voice}` : VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
@@ -2265,9 +2245,9 @@ function BulkBatch() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>⚡</span>
-        <div><h2 style={{color:B.white,margin:0}}>Bulk Content Batch</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>One topic → 5 posts + carousel + story sequence. Full week of content in one shot.</p></div>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
+        <div><h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Bulk Content Batch</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>One topic 5 posts + carousel + story sequence. Full week of content in one shot.</p></div>
       </div>
       {activeClient && <ClientBanner client={activeClient}/>}
       <div style={{background:'rgba(233,69,96,0.06)',border:'1px solid rgba(233,69,96,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
@@ -2279,7 +2259,7 @@ function BulkBatch() {
           <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
             {PLATFORMS.map(p => (
               <button key={p} onClick={()=>setPlatform(p)}
-                style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:B.white,border:'none',
                   borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
                 {p}
               </button>
@@ -2299,7 +2279,7 @@ function BulkBatch() {
             borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
       </div>
       <RedBtn onClick={run} disabled={loading||!topic}>
-        {loading ? 'Generating full batch...' : '⚡ Generate Full Content Batch'}
+        {loading ? 'Generating full batch...' : 'Generate Full Content Batch'}
       </RedBtn>
       {loading && <Spin/>}
       <DocOutput text={out} title={`${topic || angle || "Content"} : SIGNAL`}/>
@@ -2309,9 +2289,7 @@ function BulkBatch() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIER 1 : CLIENT MODE
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const DEFAULT_CLIENT = {
+// ═════════════════════════════════════════════════════════════════════════════const DEFAULT_CLIENT = {
   id: 'jason',
   name: 'Jason Fricka',
   handle: '@everydayelevations',
@@ -2379,7 +2357,7 @@ function ClientBanner({ client }) {
   if (!client || client.isDefault) return null;
   return (
     <div style={{background:'rgba(201,168,76,0.08)',border:'1px solid rgba(201,168,76,0.2)',borderRadius:8,padding:'8px 14px',marginBottom:16,display:'flex',alignItems:'center',gap:10}}>
-      <span style={{fontSize:16}}>👤</span>
+      
       <span style={{color:'#C9A84C',fontSize:12,fontWeight:700}}>CLIENT MODE — {client.name}</span>
       <span style={{color:B.gray,fontSize:12}}>{client.handle} · {client.platforms}</span>
     </div>
@@ -2432,8 +2410,8 @@ function ClientMode({ setActiveClientExternal }) {
       {managingAngles && <CustomAnglesManager client={managingAngles} onClose={() => setManagingAngles(null)}/>}
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <span style={{fontSize:32}}>👥</span>
-          <div><h2 style={{color:B.white,margin:0}}>Client Mode</h2>
+          <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
+          <div><h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Client Mode</h2>
             <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Switch clients and every tool rewires to their voice, angles, and brand.</p></div>
         </div>
         <button onClick={() => { setForm(blank); setEditing(null); setShowForm(true); }}
@@ -2470,18 +2448,18 @@ function ClientMode({ setActiveClientExternal }) {
               <button onClick={() => activate(client)}
                 style={{flex:1,background:activeClient?.id===client.id?B.red:'rgba(255,255,255,0.08)',color:'#fff',border:'none',
                   borderRadius:7,padding:'7px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
-                {activeClient?.id===client.id ? '✓ Active' : 'Activate'}
+                {activeClient?.id===client.id ? 'Active' : 'Activate'}
               </button>
               <button onClick={() => setManagingAngles(client)}
                 style={{background:'rgba(0,212,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,212,255,0.2)',borderRadius:7,padding:'7px 10px',fontSize:11,cursor:'pointer',fontWeight:700}}>
-                {(() => { try { const s = JSON.parse(localStorage.getItem(CUSTOM_ANGLES_KEY)|| '{}'); return s[client.id]?.mode && s[client.id].mode !== 'swarbrick' ? '🎯 Angles*' : '🎯 Angles'; } catch { return '🎯 Angles'; } })()}
+                {(() => { try { const s = JSON.parse(localStorage.getItem(CUSTOM_ANGLES_KEY)|| '{}'); return s[client.id]?.mode && s[client.id].mode !== 'swarbrick' ? 'Angles*' : 'Angles'; } catch { return 'Angles'; } })()}
               </button>
               {!client.isDefault && (
                 <>
                   <button onClick={() => { setForm({...client}); setEditing(client.id); setShowForm(true); }}
                     style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:7,padding:'7px 10px',fontSize:12,cursor:'pointer'}}>Edit</button>
                   <button onClick={() => deleteClient(client.id)}
-                    style={{background:'rgba(233,69,96,0.08)',color:B.red,border:'none',borderRadius:7,padding:'7px 10px',fontSize:12,cursor:'pointer'}}>✕</button>
+                    style={{background:'rgba(233,69,96,0.08)',color:B.red,border:'none',borderRadius:7,padding:'7px 10px',fontSize:12,cursor:'pointer'}}>×</button>
                 </>
               )}
             </div>
@@ -2517,7 +2495,7 @@ function ClientMode({ setActiveClientExternal }) {
 
       <div style={{background:'rgba(255,255,255,0.02)',borderRadius:10,padding:'16px',border:'1px solid rgba(255,255,255,0.05)'}}>
         <div style={{color:B.gray,fontSize:12,lineHeight:1.8}}>
-          <strong style={{color:B.white}}>How Client Mode works:</strong> When a client is active, every tool — scripts, calendars, profiles, lead magnets — automatically uses their voice, angles, and brand context. Switch back to Jason anytime. Client data stays on your device.
+          <strong style={{color:B.white}}>How Client Mode works:</strong> When a client is active, every tool scripts, calendars, profiles, lead magnets automatically uses their voice, angles, and brand context. Switch back to Jason anytime. Client data stays on your device.
         </div>
       </div>
     </div>
@@ -2526,9 +2504,7 @@ function ClientMode({ setActiveClientExternal }) {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPONENTS
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function Home({setNav,setSub}) {
+// ═════════════════════════════════════════════════════════════════════════════function Home({setNav,setSub}) {
   // Check if onboarding done
   const [onboardingDone] = useState(() => {
     try { return !!localStorage.getItem(ONBOARDING_DONE_KEY); } catch { return true; }
@@ -2540,69 +2516,69 @@ function Home({setNav,setSub}) {
 function _OldHome({setNav,setSub}) {
   const tools = [
     // STRATEGY
-    {nav:'strategy',sub:'onboard',   emoji:'🚀', label:'STRATEGY', title:'90-Day Strategy Builder',     desc:'Generates a complete 90-day content strategy document. Brand positioning, content pillars, platform plan, phase-by-phase execution, engagement SOP, and success metrics. Download as PDF.'},
-    {nav:'strategy',sub:'calendar',  emoji:'📅', label:'STRATEGY', title:'Content Calendar',            desc:'Builds a 30, 60, 90, or 180-day posting calendar with specific filmable topics, formats, and CTAs for each day. Structured around your content pillars.'},
-    {nav:'strategy',sub:'profile',   emoji:'👤', label:'STRATEGY', title:'Profile Audit',               desc:'Pulls your live profile from Perplexity, then audits bio, name field, link strategy, highlights, and pinned posts. Rewrites everything ready to copy-paste.'},
-    {nav:'strategy',sub:'magnet',    emoji:'🧲', label:'STRATEGY', title:'Lead Magnet Builder',         desc:'Writes the actual finished lead magnet. Every section, the delivery reel script, all 3 nurture emails, and a 5-slide story sequence. Not a plan. The real thing.'},
-    {nav:'strategy',sub:'community', emoji:'🏔️', label:'STRATEGY', title:'Community Builder',           desc:'Builds a community system around your actual audience. Identity statement, core ritual, engagement architecture, onboarding flow, and 5 recurring content series.'},
-    {nav:'strategy',sub:'email',     emoji:'📧', label:'STRATEGY', title:'Email Sequence Builder',      desc:'Writes complete 5-email nurture sequences. Welcome, value, story, soft pitch, and conversion. Written in your voice, matched to your specific lead magnet.'},
-    {nav:'strategy',sub:'challenge', emoji:'🔥', label:'STRATEGY', title:'30-Day Challenge Builder',    desc:'Plans a full 30-day challenge with daily prompts, accountability hooks, and the content series that runs alongside it. High-retention format that builds email lists fast.'},
+    {nav:'strategy',sub:'onboard', label:'STRATEGY', title:'90-Day Strategy Builder',     desc:'Generates a complete 90-day content strategy document. Brand positioning, content pillars, platform plan, phase-by-phase execution, engagement SOP, and success metrics. Download as PDF.'},
+    {nav:'strategy',sub:'calendar', label:'STRATEGY', title:'Content Calendar',            desc:'Builds a 30, 60, 90, or 180-day posting calendar with specific filmable topics, formats, and CTAs for each day. Structured around your content pillars.'},
+    {nav:'strategy',sub:'profile', label:'STRATEGY', title:'Profile Audit',               desc:'Pulls your live profile from Perplexity, then audits bio, name field, link strategy, highlights, and pinned posts. Rewrites everything ready to copy-paste.'},
+    {nav:'strategy',sub:'magnet', label:'STRATEGY', title:'Lead Magnet Builder',         desc:'Writes the actual finished lead magnet. Every section, the delivery reel script, all 3 nurture emails, and a 5-slide story sequence. Not a plan. The real thing.'},
+    {nav:'strategy',sub:'community', label:'STRATEGY', title:'Community Builder',           desc:'Builds a community system around your actual audience. Identity statement, core ritual, engagement architecture, onboarding flow, and 5 recurring content series.'},
+    {nav:'strategy',sub:'email', label:'STRATEGY', title:'Email Sequence Builder',      desc:'Writes complete 5-email nurture sequences. Welcome, value, story, soft pitch, and conversion. Written in your voice, matched to your specific lead magnet.'},
+    {nav:'strategy',sub:'challenge', label:'STRATEGY', title:'30-Day Challenge Builder',    desc:'Plans a full 30-day challenge with daily prompts, accountability hooks, and the content series that runs alongside it. High-retention format that builds email lists fast.'},
     // RESEARCH
-    {nav:'research',sub:'pipeline',  emoji:'🔬', label:'RESEARCH',  title:'Research Pipeline',           desc:'3-step system: Perplexity pulls live 2026 data, Claude extracts intelligence and content gaps, then writes a camera-ready script. Includes source links.'},
-    {nav:'strategy',sub:'campaign',  emoji:'🎯', label:'STRATEGY', title:'Campaign Builder',          desc:'Multi-week coordinated campaigns with pre-launch, launch, sustain, and convert phases. Every post connected to the arc. Includes email sequence and story plan.'},
-    {nav:'research',sub:'spy',       emoji:'🕵️', label:'RESEARCH',  title:'Competitor Intelligence',     desc:'Add up to 10 competitors. Pulls live data on what they post, what performs, what they miss, and gives you 5 specific moves to take their audience.'},
-    {nav:'research',sub:'vault',     emoji:'🗄️', label:'RESEARCH',  title:'Prompt Vault',                desc:'30+ battle-tested prompts organized by platform. Covers Instagram, YouTube, Facebook, LinkedIn, X/Twitter threads, and TikTok. Copy and run in any AI tool.'},
-    {nav:'research',sub:'collab',    emoji:'🤝', label:'RESEARCH',  title:'Collab Finder',               desc:'Researches guest and collaboration targets in your niche. Returns 5 podcast targets, 5 stitch targets, 3 community partners, and a ready-to-send pitch template.'},
-    {nav:'research',sub:'extract',   emoji:'💡', label:'RESEARCH',  title:'Insight Extractor',           desc:'Paste any content: article, interview, book excerpt. Returns core insight, supporting evidence, contrarian take, actionable takeaway, and 5 content angles.'},
+    {nav:'research',sub:'pipeline', label:'RESEARCH',  title:'Research Pipeline',           desc:'3-step system: Perplexity pulls live 2026 data, Claude extracts intelligence and content gaps, then writes a camera-ready script. Includes source links.'},
+    {nav:'strategy',sub:'campaign', label:'STRATEGY', title:'Campaign Builder',          desc:'Multi-week coordinated campaigns with pre-launch, launch, sustain, and convert phases. Every post connected to the arc. Includes email sequence and story plan.'},
+    {nav:'research',sub:'spy', label:'RESEARCH',  title:'Competitor Intelligence',     desc:'Add up to 10 competitors. Pulls live data on what they post, what performs, what they miss, and gives you 5 specific moves to take their audience.'},
+    {nav:'research',sub:'vault', label:'RESEARCH',  title:'Prompt Vault',                desc:'30+ battle-tested prompts organized by platform. Covers Instagram, YouTube, Facebook, LinkedIn, X/Twitter threads, and TikTok. Copy and run in any AI tool.'},
+    {nav:'research',sub:'collab', label:'RESEARCH',  title:'Collab Finder',               desc:'Researches guest and collaboration targets in your niche. Returns 5 podcast targets, 5 stitch targets, 3 community partners, and a ready-to-send pitch template.'},
+    {nav:'research',sub:'extract', label:'RESEARCH',  title:'Insight Extractor',           desc:'Paste any content: article, interview, book excerpt. Returns core insight, supporting evidence, contrarian take, actionable takeaway, and 5 content angles.'},
     // CREATE
-    {nav:'create',sub:'script',      emoji:'✍️',  label:'CREATE',   title:'Script Engine',               desc:'Writes 3 camera-ready script variations using the Hook SOP: Educational (saves), Personal Story (follows), and Bold Take (shares). Includes captions and hashtags.'},
-    {nav:'create',sub:'caption',     emoji:'💬', label:'CREATE',   title:'Caption Writer',               desc:'3 caption variations for any post: short and punchy, story-driven, and educational. Platform-native formatting, tiered hashtags, and CTA matched to the platform.'},
-    {nav:'create',sub:'videodirector',emoji:'🎬',label:'CREATE',   title:'Video Script Director',       desc:'Full production brief: numbered shot list, word-for-word script, 10 b-roll shots, on-screen text, music direction, thumbnail shot, editing notes, and equipment checklist.'},
-    {nav:'create',sub:'batch',       emoji:'⚡',  label:'CREATE',   title:'Bulk Content Batch',          desc:'One topic generates a full week: 5 platform-native posts, a carousel outline, and a 5-slide story sequence. Each post optimized for a different engagement goal.'},
-    {nav:'create',sub:'episode',     emoji:'🎙️', label:'CREATE',   title:'Episode to Clips',            desc:'Break a podcast episode into 5-7 platform clips, a carousel, a LinkedIn post, 5 quote graphics, and an email newsletter teaser. All from one episode.'},
-    {nav:'create',sub:'repurpose',   emoji:'♻️',  label:'CREATE',   title:'Repurpose Engine',            desc:'Paste one script. Get 6 platform-native versions: Instagram Reel, TikTok, X/Twitter Thread, YouTube Short, Facebook, and LinkedIn. Each one feels native to the platform.'},
-    {nav:'create',sub:'hooks',       emoji:'🪝',  label:'CREATE',   title:'Hook Library',                desc:'Generates 10-40 hooks across 5 types: Pattern Interrupt, Question, Bold Statement, Personal Story, and Data Point. First 2-3 words engineered to stop the scroll.'},
-    {nav:'create',sub:'design',      emoji:'🎨',  label:'CREATE',   title:'Design Studio',               desc:'Carousel and static post concepts with slide-by-slide copy, visual direction, typography notes, captions, and a 15-tag hashtag strategy by tier.'},
-    {nav:'create',sub:'comment',     emoji:'💬', label:'CREATE',   title:'Comment Responder',           desc:'Paste one comment or up to 10 at once. Get 3 reply options per comment: warm, direct, and community-building. Keeps your voice, never sounds like a bot.'},
-    {nav:'create',sub:'podcast',     emoji:'🎙️', label:'CREATE',   title:'Podcast Pre-Production',      desc:'Full episode prep kit: guest research brief, episode outline, intro and outro scripts, 10 questions, show notes, and all repurposed clips planned before you record.'},
-    {nav:'create',sub:'dmscripts',   emoji:'📩', label:'CREATE',   title:'DM Script Library',           desc:'Builds a library of DM templates by trigger: lead magnet delivery, podcast pitch response, real estate inquiry, coaching interest. Copy, paste, and close.'},
+    {nav:'create',sub:'script', label:'CREATE',   title:'Script Engine',               desc:'Writes 3 camera-ready script variations using the Hook SOP: Educational (saves), Personal Story (follows), and Bold Take (shares). Includes captions and hashtags.'},
+    {nav:'create',sub:'caption', label:'CREATE',   title:'Caption Writer',               desc:'3 caption variations for any post: short and punchy, story-driven, and educational. Platform-native formatting, tiered hashtags, and CTA matched to the platform.'},
+    {nav:'create',sub:'videodirector', label:'CREATE',   title:'Video Script Director',       desc:'Full production brief: numbered shot list, word-for-word script, 10 b-roll shots, on-screen text, music direction, thumbnail shot, editing notes, and equipment checklist.'},
+    {nav:'create',sub:'batch', label:'CREATE',   title:'Bulk Content Batch',          desc:'One topic generates a full week: 5 platform-native posts, a carousel outline, and a 5-slide story sequence. Each post optimized for a different engagement goal.'},
+    {nav:'create',sub:'episode', label:'CREATE',   title:'Episode to Clips',            desc:'Break a podcast episode into 5-7 platform clips, a carousel, a LinkedIn post, 5 quote graphics, and an email newsletter teaser. All from one episode.'},
+    {nav:'create',sub:'repurpose', label:'CREATE',   title:'Repurpose Engine',            desc:'Paste one script. Get 6 platform-native versions: Instagram Reel, TikTok, X/Twitter Thread, YouTube Short, Facebook, and LinkedIn. Each one feels native to the platform.'},
+    {nav:'create',sub:'hooks', label:'CREATE',   title:'Hook Library',                desc:'Generates 10-40 hooks across 5 types: Pattern Interrupt, Question, Bold Statement, Personal Story, and Data Point. First 2-3 words engineered to stop the scroll.'},
+    {nav:'create',sub:'design', label:'CREATE',   title:'Design Studio',               desc:'Carousel and static post concepts with slide-by-slide copy, visual direction, typography notes, captions, and a 15-tag hashtag strategy by tier.'},
+    {nav:'create',sub:'comment', label:'CREATE',   title:'Comment Responder',           desc:'Paste one comment or up to 10 at once. Get 3 reply options per comment: warm, direct, and community-building. Keeps your voice, never sounds like a bot.'},
+    {nav:'create',sub:'podcast', label:'CREATE',   title:'Podcast Pre-Production',      desc:'Full episode prep kit: guest research brief, episode outline, intro and outro scripts, 10 questions, show notes, and all repurposed clips planned before you record.'},
+    {nav:'create',sub:'dmscripts', label:'CREATE',   title:'DM Script Library',           desc:'Builds a library of DM templates by trigger: lead magnet delivery, podcast pitch response, real estate inquiry, coaching interest. Copy, paste, and close.'},
     // OPTIMIZE
-    {nav:'optimize',sub:'review',    emoji:'📊', label:'OPTIMIZE', title:'Weekly Review',               desc:'Scores your week across reach, engagement, saves, shares, and leads. Runs a Swarbrick gap analysis on which life dimensions are missing from your content.'},
-    {nav:'optimize',sub:'roi',       emoji:'📈', label:'OPTIMIZE', title:'ROI Dashboard',               desc:'Weekly metrics tracker with sparkline charts, week-over-week growth percentages, top content log, and a data table. Feeds the Schedule Optimizer and Monthly Report.'},
-    {nav:'optimize',sub:'memory',    emoji:'🧠', label:'OPTIMIZE', title:'Content Memory',              desc:'Auto-saves every generated piece. Import Instagram or Facebook exports. Rate content with star, fire, or skull. Search, filter, and find patterns in what works.'},
-    {nav:'optimize',sub:'schedule',  emoji:'🗓️', label:'OPTIMIZE', title:'Schedule Optimizer',         desc:'Reads your ROI data and content history. Tells you specifically when to post, what content mix to use, and what to stop doing. Gets smarter as you log more data.'},
-    {nav:'optimize',sub:'predictor', emoji:'🔮', label:'OPTIMIZE', title:'Performance Predictor',      desc:'Paste any hook, caption, or script before posting. Scores hook strength, save potential, share potential, and retention. Rewrites the weakest version. Uses your historical data.'},
-    {nav:'optimize',sub:'gaps',      emoji:'🔍', label:'OPTIMIZE', title:'Content Gap Analyzer',        desc:'Visual bar chart of all 8 Swarbrick dimensions showing what you over-post and ignore. Flags dead angles and outputs 10 specific filmable pieces to create this week.'},
-    {nav:'optimize',sub:'hooktester',emoji:'🧪', label:'OPTIMIZE', title:'Hook Tester',                 desc:'Write 3 to 5 hook variations. Each gets scored on scroll-stop probability, curiosity gap strength, and specificity. The weakest ones get rewritten.'},
+    {nav:'optimize',sub:'review', label:'OPTIMIZE', title:'Weekly Review',               desc:'Scores your week across reach, engagement, saves, shares, and leads. Runs a Swarbrick gap analysis on which life dimensions are missing from your content.'},
+    {nav:'optimize',sub:'roi', label:'OPTIMIZE', title:'ROI Dashboard',               desc:'Weekly metrics tracker with sparkline charts, week-over-week growth percentages, top content log, and a data table. Feeds the Schedule Optimizer and Monthly Report.'},
+    {nav:'optimize',sub:'memory', label:'OPTIMIZE', title:'Content Memory',              desc:'Auto-saves every generated piece. Import Instagram or Facebook exports. Rate content with star, fire, or skull. Search, filter, and find patterns in what works.'},
+    {nav:'optimize',sub:'schedule', label:'OPTIMIZE', title:'Schedule Optimizer',         desc:'Reads your ROI data and content history. Tells you specifically when to post, what content mix to use, and what to stop doing. Gets smarter as you log more data.'},
+    {nav:'optimize',sub:'predictor', label:'OPTIMIZE', title:'Performance Predictor',      desc:'Paste any hook, caption, or script before posting. Scores hook strength, save potential, share potential, and retention. Rewrites the weakest version. Uses your historical data.'},
+    {nav:'optimize',sub:'gaps', label:'OPTIMIZE', title:'Content Gap Analyzer',        desc:'Visual bar chart of all 8 Swarbrick dimensions showing what you over-post and ignore. Flags dead angles and outputs 10 specific filmable pieces to create this week.'},
+    {nav:'optimize',sub:'hooktester', label:'OPTIMIZE', title:'Hook Tester',                 desc:'Write 3 to 5 hook variations. Each gets scored on scroll-stop probability, curiosity gap strength, and specificity. The weakest ones get rewritten.'},
     // AGENCY
-    {nav:'agency',sub:'portal',      emoji:'🏢', label:'AGENCY',   title:'Client Portal',               desc:'Full dashboard per client. Deliverable pipeline with status tracking, timestamped notes, voice fingerprint status, and performance at a glance. Manage 10 clients from one screen.'},
-    {nav:'agency',sub:'deliverable', emoji:'📦', label:'AGENCY',   title:'Deliverable Builder',         desc:'Choose a client and deliverable type. Generates polished, client-ready output using their voice fingerprint automatically. Downloads as a formatted PDF.'},
-    {nav:'optimize',sub:'stratreview', emoji:'🧠', label:'OPTIMIZE', title:'AI Strategy Review',          desc:'Monthly strategic review generated automatically from ROI data, content ratings, and calendar execution. Replaces the monthly strategy call. Stored per client.'},
-    {nav:'agency',sub:'analytics',    emoji:'📊', label:'AGENCY',   title:'Analytics Import Hub',        desc:'Export CSV from Instagram, YouTube, Facebook, or LinkedIn for free. Import here. SIGNAL parses the data and generates platform-specific insights. No API subscription needed.'},
-    {nav:'agency',sub:'onboardauto',  emoji:'⚡', label:'AGENCY',   title:'Onboarding Automation',       desc:'Add a new client and run this. Generates a full onboarding package before the first call: platform assessment, content angles, 30-day plan, first 10 posts, and key discovery questions.'},
-    {nav:'strategy',sub:'visualcal',  emoji:'🗓️', label:'STRATEGY', title:'Visual Content Calendar',      desc:'Click-to-assign content calendar. Plan posts by date, platform, and format. Track approval status. Export as CSV for Meta Business Suite or any free scheduler.'},
-    {nav:'agency',sub:'report',       emoji:'📊', label:'AGENCY',   title:'Monthly Reporting Suite',     desc:'One-click monthly client reports. Pulls ROI data and top content automatically. Add wins and challenges. Outputs a professional PDF report ready to send.'},
-    {nav:'agency',sub:'voice',       emoji:'🧬', label:'AGENCY',   title:'Voice Fingerprinting',        desc:'Paste 2 to 5 real content samples. Extracts tone, vocabulary, sentence patterns, writing rules, and themes. Stored per client and injected into every deliverable automatically.'},
-    {nav:'agency',sub:'clients',     emoji:'👥', label:'AGENCY',   title:'Client Profiles',             desc:'Create and manage client accounts. Each client has their own voice, angles, platforms, and brand colors. Activating a client rewires every tool to their context.'},
-    {nav:'agency',sub:'whitelabel',  emoji:'🏷️', label:'AGENCY',   title:'White Label Mode',           desc:'Rebrand the app with your agency name, logo, and colors. Every document, report, and header shows your brand. Clients see your agency, not SIGNAL.'},
-    {nav:'agency',sub:'transcript',  emoji:'📞', label:'AGENCY',   title:'Call Transcript Intel',      desc:'Upload or paste any call transcript. Extracts 10 content ideas, key quotes, action items, client language patterns, and voice intel. No Fireflies or Otter subscription needed.'},
-    {nav:'agency',sub:'persona',     emoji:'🤖', label:'AGENCY',   title:'Custom AI Persona',          desc:'Builds a trained AI persona per client from voice fingerprint, content history, and performance ratings. Gets smarter as you rate more content. Injected into all tools.'},
-    {nav:'strategy',sub:'biolink',      emoji:'🔗', label:'STRATEGY', title:'Bio Link Page Builder',    desc:'Generates a complete link-in-bio landing page with profile section, platform buttons, email capture, and lead magnet CTA. Download HTML and host free on GitHub Pages, Netlify, or Carrd.'},
-    {nav:'strategy',sub:'biooptimizer', emoji:'✏️', label:'STRATEGY', title:'Bio Optimizer',            desc:'3 bio variations per platform: authority-first, outcome-first, and personality-first. Covers all 6 platforms. Name field SEO, link strategy, and A/B test recommendation included.'},
-    {nav:'strategy',sub:'series',       emoji:'📺', label:'STRATEGY', title:'Content Series Planner',    desc:'Plan a named recurring series like a show. Every episode mapped with title, hook, key point, and CTA. Includes series branding, growth arc, and repurposing plan.'},
-    {nav:'strategy',sub:'storyarc',     emoji:'📖', label:'STRATEGY', title:'Story Arc Planner',         desc:'Day-by-day story plan for campaigns. Each slide mapped with purpose, CTA, and emotional target. Runs alongside any campaign to move the funnel through Stories.'},
+    {nav:'agency',sub:'portal', label:'AGENCY',   title:'Client Portal',               desc:'Full dashboard per client. Deliverable pipeline with status tracking, timestamped notes, voice fingerprint status, and performance at a glance. Manage 10 clients from one screen.'},
+    {nav:'agency',sub:'deliverable', label:'AGENCY',   title:'Deliverable Builder',         desc:'Choose a client and deliverable type. Generates polished, client-ready output using their voice fingerprint automatically. Downloads as a formatted PDF.'},
+    {nav:'optimize',sub:'stratreview', label:'OPTIMIZE', title:'AI Strategy Review',          desc:'Monthly strategic review generated automatically from ROI data, content ratings, and calendar execution. Replaces the monthly strategy call. Stored per client.'},
+    {nav:'agency',sub:'analytics', label:'AGENCY',   title:'Analytics Import Hub',        desc:'Export CSV from Instagram, YouTube, Facebook, or LinkedIn for free. Import here. SIGNAL parses the data and generates platform-specific insights. No API subscription needed.'},
+    {nav:'agency',sub:'onboardauto', label:'AGENCY',   title:'Onboarding Automation',       desc:'Add a new client and run this. Generates a full onboarding package before the first call: platform assessment, content angles, 30-day plan, first 10 posts, and key discovery questions.'},
+    {nav:'strategy',sub:'visualcal', label:'STRATEGY', title:'Visual Content Calendar',      desc:'Click-to-assign content calendar. Plan posts by date, platform, and format. Track approval status. Export as CSV for Meta Business Suite or any free scheduler.'},
+    {nav:'agency',sub:'report', label:'AGENCY',   title:'Monthly Reporting Suite',     desc:'One-click monthly client reports. Pulls ROI data and top content automatically. Add wins and challenges. Outputs a professional PDF report ready to send.'},
+    {nav:'agency',sub:'voice', label:'AGENCY',   title:'Voice Fingerprinting',        desc:'Paste 2 to 5 real content samples. Extracts tone, vocabulary, sentence patterns, writing rules, and themes. Stored per client and injected into every deliverable automatically.'},
+    {nav:'agency',sub:'clients', label:'AGENCY',   title:'Client Profiles',             desc:'Create and manage client accounts. Each client has their own voice, angles, platforms, and brand colors. Activating a client rewires every tool to their context.'},
+    {nav:'agency',sub:'whitelabel', label:'AGENCY',   title:'White Label Mode',           desc:'Rebrand the app with your agency name, logo, and colors. Every document, report, and header shows your brand. Clients see your agency, not SIGNAL.'},
+    {nav:'agency',sub:'transcript', label:'AGENCY',   title:'Call Transcript Intel',      desc:'Upload or paste any call transcript. Extracts 10 content ideas, key quotes, action items, client language patterns, and voice intel. No Fireflies or Otter subscription needed.'},
+    {nav:'agency',sub:'persona', label:'AGENCY',   title:'Custom AI Persona',          desc:'Builds a trained AI persona per client from voice fingerprint, content history, and performance ratings. Gets smarter as you rate more content. Injected into all tools.'},
+    {nav:'strategy',sub:'biolink', label:'STRATEGY', title:'Bio Link Page Builder',    desc:'Generates a complete link-in-bio landing page with profile section, platform buttons, email capture, and lead magnet CTA. Download HTML and host free on GitHub Pages, Netlify, or Carrd.'},
+    {nav:'strategy',sub:'biooptimizer', label:'STRATEGY', title:'Bio Optimizer',            desc:'3 bio variations per platform: authority-first, outcome-first, and personality-first. Covers all 6 platforms. Name field SEO, link strategy, and A/B test recommendation included.'},
+    {nav:'strategy',sub:'series', label:'STRATEGY', title:'Content Series Planner',    desc:'Plan a named recurring series like a show. Every episode mapped with title, hook, key point, and CTA. Includes series branding, growth arc, and repurposing plan.'},
+    {nav:'strategy',sub:'storyarc', label:'STRATEGY', title:'Story Arc Planner',         desc:'Day-by-day story plan for campaigns. Each slide mapped with purpose, CTA, and emotional target. Runs alongside any campaign to move the funnel through Stories.'},
     {nav:'research',sub:'hashtags',     emoji:'##', label:'RESEARCH',  title:'Hashtag Research',          desc:'Live Perplexity pull of active hashtags. Tiered strategy: niche, mid-range, and broad. Copy-paste ready stack, rotation plan, and list of hashtags to avoid.'},
-    {nav:'research',sub:'viral',        emoji:'🔥', label:'RESEARCH',  title:'Viral Format Library',      desc:'18 proven content formats with the psychology behind why they work. Pick a format, enter your topic, get a complete camera-ready script with caption and variations.'},
-    {nav:'create',sub:'contentbrief',   emoji:'📋', label:'CREATE',   title:'Content Brief Generator',   desc:'Pre-filming brief for the client. What to wear, where to film, talking points, stories to tell, hooks to open with, and a post-session checklist. Read the night before and execute.'},
-    {nav:'create',sub:'guestprep',      emoji:'🎤', label:'CREATE',   title:'Guest Prep Kit',             desc:'Complete host and guest prep. 10 ordered interview questions, guest intel, topics to avoid, welcome email, tech requirements, and a 3-part post-episode follow-up sequence.'},
-    {nav:'create',sub:'objections',     emoji:'💬', label:'CREATE',   title:'Objection Handler',          desc:'Scripts for every objection in real estate, coaching, podcast pitching, brand deals, and agency sales. DM, email, and in-person versions for each. Includes what not to say.'},
-    {nav:'optimize',sub:'abtests',      emoji:'🧪', label:'OPTIMIZE', title:'A/B Test Tracker',           desc:'Log content variations, mark winners, and let SIGNAL find the patterns. After 3+ tests it analyzes what is consistently winning across platforms and formats.'},
-    {nav:'optimize',sub:'revenue',      emoji:'💵', label:'OPTIMIZE', title:'Revenue Attribution',        desc:'Tag content to real outcomes: inquiries, booked calls, closed deals, email signups. Tracks attributed revenue by platform and format. Proves content ROI with real numbers.'},
-    {nav:'optimize',sub:'pricing',      emoji:'💰', label:'OPTIMIZE', title:'Pricing Calculator',         desc:'Real 2026 market rates for brand deals, UGC, coaching, consulting, and agency retainers. Based on your follower count, engagement rate, and niche. Includes negotiation guide.'},
-    {nav:'agency',sub:'clientcomms',    emoji:'📨', label:'AGENCY',   title:'Client Communication Templates', desc:'12 agency email templates: onboarding welcome, weekly check-in, report delivery, scope expansion, missed deadline, rate increase, renewal, and offboarding. Written in your voice.'},
-    {nav:'agency',sub:'tracker',        emoji:'📋', label:'AGENCY',   title:'Collab Tracker',              desc:'CRM for outreach. Track every podcast guest, brand partner, and collab target through Not Contacted, Pitched, In Conversation, Confirmed, and Passed.'},
+    {nav:'research',sub:'viral', label:'RESEARCH',  title:'Viral Format Library',      desc:'18 proven content formats with the psychology behind why they work. Pick a format, enter your topic, get a complete camera-ready script with caption and variations.'},
+    {nav:'create',sub:'contentbrief', label:'CREATE',   title:'Content Brief Generator',   desc:'Pre-filming brief for the client. What to wear, where to film, talking points, stories to tell, hooks to open with, and a post-session checklist. Read the night before and execute.'},
+    {nav:'create',sub:'guestprep', label:'CREATE',   title:'Guest Prep Kit',             desc:'Complete host and guest prep. 10 ordered interview questions, guest intel, topics to avoid, welcome email, tech requirements, and a 3-part post-episode follow-up sequence.'},
+    {nav:'create',sub:'objections', label:'CREATE',   title:'Objection Handler',          desc:'Scripts for every objection in real estate, coaching, podcast pitching, brand deals, and agency sales. DM, email, and in-person versions for each. Includes what not to say.'},
+    {nav:'optimize',sub:'abtests', label:'OPTIMIZE', title:'A/B Test Tracker',           desc:'Log content variations, mark winners, and let SIGNAL find the patterns. After 3+ tests it analyzes what is consistently winning across platforms and formats.'},
+    {nav:'optimize',sub:'revenue', label:'OPTIMIZE', title:'Revenue Attribution',        desc:'Tag content to real outcomes: inquiries, booked calls, closed deals, email signups. Tracks attributed revenue by platform and format. Proves content ROI with real numbers.'},
+    {nav:'optimize',sub:'pricing', label:'OPTIMIZE', title:'Pricing Calculator',         desc:'Real 2026 market rates for brand deals, UGC, coaching, consulting, and agency retainers. Based on your follower count, engagement rate, and niche. Includes negotiation guide.'},
+    {nav:'agency',sub:'clientcomms', label:'AGENCY',   title:'Client Communication Templates', desc:'12 agency email templates: onboarding welcome, weekly check-in, report delivery, scope expansion, missed deadline, rate increase, renewal, and offboarding. Written in your voice.'},
+    {nav:'agency',sub:'tracker', label:'AGENCY',   title:'Collab Tracker',              desc:'CRM for outreach. Track every podcast guest, brand partner, and collab target through Not Contacted, Pitched, In Conversation, Confirmed, and Passed.'},
     // YOUTUBE
-    {nav:'youtube',sub:'yttoolkit',  emoji:'▶️', label:'YOUTUBE',  title:'YouTube Script Writer',       desc:'VIDIQ-optimized scripts with upload timing, outlier score targets, 3 title options for A/B testing, full word-for-word script, chapter markers, SEO package, and performance forecast.'},
+    {nav:'youtube',sub:'yttoolkit', label:'YOUTUBE',  title:'YouTube Script Writer',       desc:'VIDIQ-optimized scripts with upload timing, outlier score targets, 3 title options for A/B testing, full word-for-word script, chapter markers, SEO package, and performance forecast.'},
   ];
   return (
     <div>
@@ -2718,7 +2694,7 @@ function Onboarding() {
     try {
       localStorage.setItem('encis_last_strategy', JSON.stringify({
         content: res,
-        name: (fields.businessName || 'Strategy') + ' — 90-Day Strategy',
+        name: (fields.businessName || 'Strategy') + ' 90-Day Strategy',
         savedAt: new Date().toISOString(),
       }));
     } catch {}
@@ -2738,7 +2714,7 @@ function Onboarding() {
       });
       const d = await res.json();
       const html = d.text || d.result || '';
-      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Everyday Elevations — 90-Day Strategy</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#111;line-height:1.7}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#0A1628;margin-top:32px}h3{color:#E94560}strong{color:#0A1628}li{margin-bottom:6px}@media print{body{margin:24px}}</style></head><body><h1>Everyday Elevations — 90-Day Content Strategy</h1>${html}</body></html>`;
+      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Everyday Elevations 90-Day Strategy</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#111;line-height:1.7}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#0A1628;margin-top:32px}h3{color:#E94560}strong{color:#0A1628}li{margin-bottom:6px}@media print{body{margin:24px}}</style></head><body><h1>Everyday Elevations 90-Day Content Strategy</h1>${html}</body></html>`;
       const blob = new Blob([fullHtml], {type:'text/html'});
       const url = URL.createObjectURL(blob);
       const printWin = window.open(url, '_blank');
@@ -2757,7 +2733,7 @@ function Onboarding() {
 
   const fldStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'};
   const taStyle = {...fldStyle,resize:'vertical',lineHeight:1.6};
-  const sectionHead = (emoji, label) => (
+  const sectionHead = (label) => (
     <div style={{fontSize:10,fontWeight:700,letterSpacing:2,color:B.red,textTransform:'uppercase',
       marginBottom:12,marginTop:20,paddingBottom:6,borderBottom:'1px solid rgba(233,69,96,0.25)'}}>
       {emoji} {label}
@@ -2767,18 +2743,18 @@ function Onboarding() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🚀</span>
-        <div><h2 style={{color:B.white,margin:0}}>90-Day Strategy Builder</h2>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
+        <div><h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>90-Day Strategy Builder</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pre-filled with your numbers. Edit anything, then generate a complete strategy document.</p></div>
       </div>
       <Card>
-        {sectionHead('📍','Goals & Current State')}
+        {sectionHead('Goals & Current State')}
         <SecLabel>Your Goals</SecLabel>
         <textarea value={goals} onChange={e=>setGoals(e.target.value)} rows={4} style={taStyle}/>
         <SecLabel style={{marginTop:14}}>Current State</SecLabel>
         <textarea value={current} onChange={e=>setCurrent(e.target.value)} rows={4} style={taStyle}/>
 
-        {sectionHead('🎯','Brand Identity')}
+        {sectionHead('Brand Identity')}
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
           <div>
             <SecLabel>Brand Personality (3-5 adjectives)</SecLabel>
@@ -2794,7 +2770,7 @@ function Onboarding() {
           placeholder="List any active affiliate partnerships or brand deals..."
           style={taStyle}/>
 
-        {sectionHead('🎬','Content Details')}
+        {sectionHead('Content Details')}
         <SecLabel>Filming Schedule & Batch Capacity</SecLabel>
         <textarea value={filmingSchedule} onChange={e=>setFilmingSchedule(e.target.value)} rows={2} style={taStyle}/>
         <SecLabel style={{marginTop:14}}>Inspiration Accounts</SecLabel>
@@ -2812,26 +2788,26 @@ function Onboarding() {
           </div>
         </div>
 
-        {sectionHead('👥','Ideal Audience & Transformation')}
+        {sectionHead('Ideal Audience & Transformation')}
         <SecLabel>Ideal Audience Profile</SecLabel>
         <textarea value={idealAudience} onChange={e=>setIdealAudience(e.target.value)} rows={3}
           placeholder="Age, demographics, pain points, beliefs, lifestyle..." style={taStyle}/>
         <SecLabel style={{marginTop:14}}>Desired Transformation</SecLabel>
         <textarea value={desiredTransformation} onChange={e=>setDesiredTransformation(e.target.value)} rows={2} style={taStyle}/>
-        <SecLabel style={{marginTop:14}}>Emotional Journey (Before → After)</SecLabel>
+        <SecLabel style={{marginTop:14}}>Emotional Journey (Before After)</SecLabel>
         <textarea value={emotionalJourney} onChange={e=>setEmotionalJourney(e.target.value)} rows={2}
           placeholder="How they feel before finding you, how they feel after, one-sentence summary..." style={taStyle}/>
 
-        {sectionHead('📎','Optional Upload & Additional Context')}
+        {sectionHead('','Optional Upload & Additional Context')}
         <label style={{cursor:'pointer',display:'block',marginBottom:12}}>
           <div style={{border:`2px dashed ${uploadedDoc?'rgba(39,174,96,0.5)':'rgba(233,69,96,0.3)'}`,borderRadius:8,
             padding:'12px 16px',display:'flex',alignItems:'center',gap:12,
             background:uploadedDoc?'rgba(39,174,96,0.07)':'rgba(255,255,255,0.02)'}}>
-            <span style={{fontSize:20}}>{uploadedDoc?'✅':'📎'}</span>
+            <span style={{fontSize:20}}>{uploadedDoc?'':''}</span>
             <div>
               {uploadedDoc
                 ? <><div style={{color:B.white,fontWeight:700,fontSize:13}}>{uploadFileName}</div>
-                    <div style={{color:'rgba(39,174,96,0.9)',fontSize:11,marginTop:2}}>Doc loaded — will be included in strategy</div></>
+                    <div style={{color:'rgba(39,174,96,0.9)',fontSize:11,marginTop:2}}>Doc loaded will be included in strategy</div></>
                 : <><div style={{color:B.white,fontWeight:600,fontSize:13}}>Upload existing doc or notes (optional)</div>
                     <div style={{color:B.gray,fontSize:11,marginTop:2}}>.txt or .md</div></>}
             </div>
@@ -2853,7 +2829,7 @@ function Onboarding() {
           ))}
         </div>
         <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading}>
-          {loading?'Building Strategy...':'🚀 Build 90-Day Strategy'}
+          {loading?'Building Strategy...':'Build 90-Day Strategy'}
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
@@ -2863,11 +2839,11 @@ function Onboarding() {
           <div style={{marginTop:12,background:'rgba(0,194,255,0.04)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:10,padding:'16px 18px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
             <div>
               <div style={{color:'#00C2FF',fontWeight:700,fontSize:13,marginBottom:3}}>Strategy saved</div>
-              <div style={{color:B.gray,fontSize:11}}>Generate your content calendar now — strategy loads automatically.</div>
+              <div style={{color:B.gray,fontSize:11}}>Generate your content calendar now strategy loads automatically.</div>
             </div>
             <div style={{display:'flex',gap:8}}>
               <button onClick={() => {
-                try { localStorage.setItem('encis_last_strategy', JSON.stringify({content:out,name:businessName+' — 90-Day Strategy',savedAt:new Date().toISOString()})); } catch{}
+                try { localStorage.setItem('encis_last_strategy', JSON.stringify({content:out,name:businessName+' 90-Day Strategy',savedAt:new Date().toISOString()})); } catch{}
                 window.dispatchEvent(new CustomEvent('signal-nav', {detail:{nav:'strategy',sub:'calendar'}}));
               }} style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:6,padding:'8px 18px',fontWeight:700,cursor:'pointer',fontSize:12,letterSpacing:'0.02em'}}>
                 Generate Calendar Now
@@ -2924,15 +2900,15 @@ function ContentCalendar() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>📅</span>
-        <div><h2 style={{color:B.white,margin:0}}>Content Calendar Engine</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>4-week content framework — every topic filmable tomorrow <SOPBadge/></p></div>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
+        <div><h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Content Calendar Engine</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>4-week content framework every topic filmable tomorrow <SOPBadge/></p></div>
       </div>
       <Card>
         {/* Strategy Doc Upload */}
         <div style={{marginBottom:16}}>
           <SecLabel>
-            📄 Upload Strategy Doc{' '}
+            Upload Strategy Doc{' '}
             <span style={{fontWeight:400,textTransform:'none',letterSpacing:0,fontSize:11,color:B.gray}}>
               (optional: upload your 90-Day Strategy for calendar continuity)
             </span>
@@ -2941,18 +2917,18 @@ function ContentCalendar() {
             <div style={{border:`2px dashed ${strategyDoc?'rgba(39,174,96,0.5)':'rgba(233,69,96,0.3)'}`,borderRadius:8,
               padding:'12px 16px',display:'flex',alignItems:'center',gap:12,
               background:strategyDoc?'rgba(39,174,96,0.07)':'rgba(255,255,255,0.02)'}}>
-              <span style={{fontSize:20}}>{strategyDoc?'✅':'📎'}</span>
+              <span style={{fontSize:20}}>{strategyDoc?'':''}</span>
               <div style={{flex:1}}>
                 {strategyDoc
                   ? <><div style={{color:B.white,fontWeight:700,fontSize:13}}>{strategyFileName}</div>
-                      <div style={{color:'rgba(39,174,96,0.9)',fontSize:11,marginTop:2}}>Strategy loaded — calendar will align with your goals and brand voice</div></>
+                      <div style={{color:'rgba(39,174,96,0.9)',fontSize:11,marginTop:2}}>Strategy loaded calendar will align with your goals and brand voice</div></>
                   : <><div style={{color:B.white,fontWeight:600,fontSize:13}}>Upload your 90-Day Strategy Doc</div>
-                      <div style={{color:B.gray,fontSize:11,marginTop:2}}>Download from Strategy Builder then upload here — gives the calendar full context</div></>}
+                      <div style={{color:B.gray,fontSize:11,marginTop:2}}>Download from Strategy Builder then upload here gives the calendar full context</div></>}
               </div>
               {strategyDoc && (
                 <button onClick={e=>{e.preventDefault();setStrategyDoc('');setStrategyFileName('');}}
                   style={{background:'rgba(255,255,255,0.08)',border:'none',color:B.gray,borderRadius:6,padding:'4px 10px',cursor:'pointer',fontSize:12}}>
-                  ✕ Remove
+                  Remove
                 </button>
               )}
             </div>
@@ -3000,11 +2976,11 @@ function ContentCalendar() {
           </div>
         </div>
         <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||(!pillars&&!strategyDoc)}>
-          {loading ? 'Building Calendar...' : '📅 Build Calendar'}
+          {loading ? 'Building Calendar...' : 'Build Calendar'}
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="ContentCalendar — SIGNAL"/>
+      <DocOutput text={out} title="ContentCalendar SIGNAL"/>
     </div>
   );
 }
@@ -3042,9 +3018,9 @@ function ProfileAudit() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>👤</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Profile Audit</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Profile Audit</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Perplexity pulls your live profile first. Then Claude audits what's actually there.</p>
         </div>
       </div>
@@ -3054,7 +3030,7 @@ function ProfileAudit() {
         <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
           {PLATFORMS.map(p => (
             <button key={p} onClick={() => { setPlatform(p); setLiveData(''); setOut(''); }}
-              style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+              style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:B.white,border:'none',
                 borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:platform===p?700:400}}>
               {p}{p==='LinkedIn'?' (Dual-Lane)':''}
             </button>
@@ -3062,12 +3038,12 @@ function ProfileAudit() {
         </div>
 
         <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:8,padding:'10px 14px',marginBottom:16,fontSize:12,color:'rgba(255,255,255,0.7)'}}>
-          <strong style={{color:B.red}}>Step 1</strong> — Perplexity looks up your live {platform} profile right now. Hit the button below.
+          <strong style={{color:B.red}}>Step 1</strong> Perplexity looks up your live {platform} profile right now. Hit the button below.
         </div>
         <button onClick={fetchLive} disabled={fetching}
           style={{background:fetching?B.gray:'rgba(255,255,255,0.08)',color:B.white,border:'1px solid rgba(255,255,255,0.2)',
             borderRadius:8,padding:'9px 20px',fontWeight:700,cursor:fetching?'not-allowed':'pointer',fontSize:13,marginBottom:16}}>
-          {fetching ? 'Pulling live profile...' : `🔍 Pull Live ${platform} Profile`}
+          {fetching ? 'Pulling live profile...' : `Pull Live ${platform} Profile`}
         </button>
 
         {liveData && (
@@ -3093,7 +3069,7 @@ function ProfileAudit() {
         </div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="ProfileAudit — SIGNAL"/>
+      <DocOutput text={out} title="ProfileAudit SIGNAL"/>
     </div>
   );
 }
@@ -3116,9 +3092,9 @@ function LeadMagnet() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🧲</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Lead Magnet Builder</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Lead Magnet Builder</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pre-filled with your context. Add what's actually working, then generate.</p>
         </div>
       </div>
@@ -3156,7 +3132,7 @@ function LeadMagnet() {
         </div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="LeadMagnet — SIGNAL"/>
+      <DocOutput text={out} title="LeadMagnet SIGNAL"/>
     </div>
   );
 }
@@ -3178,10 +3154,10 @@ function CommunityBuilder() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🏔️</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Community Builder</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Built from what's actually happening in your audience — not a template.</p>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Community Builder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Built from what's actually happening in your audience not a template.</p>
         </div>
       </div>
       <Card>
@@ -3214,7 +3190,7 @@ function CommunityBuilder() {
         </div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="CommunityBuilder — SIGNAL"/>
+      <DocOutput text={out} title="CommunityBuilder SIGNAL"/>
     </div>
   );
 }
@@ -3257,7 +3233,7 @@ function Pipeline() {
     setStep('researching'); setResearch(''); setIntel(''); setScript('');
     const t = TIER_PROMPTS[tier];
     const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-    const res = await perp(`Today is ${today}. ${t.desc}: ${query} — focus on ${ANGLES.find(a=>a.id===angle)?.label} angle. Only use sources from 2026. Include source URLs where possible.`);
+    const res = await perp(`Today is ${today}. ${t.desc}: ${query} focus on ${ANGLES.find(a=>a.id===angle)?.label} angle. Only use sources from 2026. Include source URLs where possible.`);
     setResearch(res); setStep('idle');
   };
   const runExtract = async () => {
@@ -3276,9 +3252,9 @@ function Pipeline() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🔬</span>
-        <div><h2 style={{color:B.white,margin:0}}>Research Pipeline</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Perplexity research → Intelligence extraction → Camera-ready script</p></div>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
+        <div><h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Research Pipeline</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Perplexity research Intelligence extraction Camera-ready script</p></div>
       </div>
       <Card style={{marginBottom:16}}>
         <SecLabel>Research Topic</SecLabel>
@@ -3288,7 +3264,7 @@ function Pipeline() {
           <div style={{marginBottom:12}}>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:1.5,color:'rgba(0,212,255,0.7)',
               textTransform:'uppercase',marginBottom:8,display:'flex',alignItems:'center',gap:6}}>
-              <span>🔥</span> Trending Right Now: tap to research
+              <span></span> Trending Right Now: tap to research
             </div>
             <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
               {trendingChips.map((chip, i) => (
@@ -3368,7 +3344,7 @@ function Pipeline() {
                 <div style={{display:'flex',gap:6}}>
                   {PLATFORMS.map(p => (
                     <button key={p} onClick={()=>setPlatform(p)}
-                      style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                      style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:B.white,border:'none',
                         borderRadius:5,padding:'4px 10px',cursor:'pointer',fontSize:12}}>
                       {p}
                     </button>
@@ -3402,9 +3378,9 @@ function Vault() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🗄️</span>
-        <div><h2 style={{color:B.white,margin:0}}>Prompt Vault</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>25+ battle-tested prompts — copy and run anywhere</p></div>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
+        <div><h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Prompt Vault</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>25+ battle-tested prompts copy and run anywhere</p></div>
       </div>
       <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
         {VAULT_TABS.map(t => (
@@ -3423,7 +3399,7 @@ function Vault() {
               style={{background:copied===i?'rgba(46,204,113,0.2)':B.red,color:B.white,border:'none',
                 borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:700,
                 marginLeft:12,whiteSpace:'nowrap'}}>
-              {copied===i?'✓ Copied':'Copy'}
+              {copied===i?'Copied':'Copy'}
             </button>
           </Card>
         ))}
@@ -3448,8 +3424,8 @@ function CollabFinder() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🤝</span>
-        <div><h2 style={{color:B.white,margin:0}}>Collab Finder</h2>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
+        <div><h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Collab Finder</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Perplexity-powered guest targets + pitch templates</p></div>
       </div>
       <Card>
@@ -3474,7 +3450,7 @@ function CollabFinder() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="CollabFinder — SIGNAL"/>
+      <DocOutput text={out} title="CollabFinder SIGNAL"/>
     </div>
   );
 }
@@ -3493,9 +3469,9 @@ function Extract() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>💡</span>
-        <div><h2 style={{color:B.white,margin:0}}>Insight Extractor</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pull gold from any content — articles, interviews, books, transcripts</p></div>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
+        <div><h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Insight Extractor</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pull gold from any content articles, interviews, books, transcripts</p></div>
       </div>
       <Card>
         <SecLabel>Content to Analyze</SecLabel>
@@ -3513,7 +3489,7 @@ function Extract() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="Extract — SIGNAL"/>
+      <DocOutput text={out} title="Extract SIGNAL"/>
     </div>
   );
 }
@@ -3548,12 +3524,12 @@ function ScriptEngine() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>✍️</span>
-        <div><h2 style={{color:B.white,margin:0}}>Script Engine</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>3 script variations — Write original or Stitch response <SOPBadge/></p></div>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
+        <div><h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Script Engine</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>3 script variations Write original or Stitch response <SOPBadge/></p></div>
       </div>
       <div style={{display:'flex',gap:8,marginBottom:20}}>
-        {[{id:'write',label:'✍️ Write Script'},{id:'stitch',label:'🔗 Stitch Response'}].map(m => (
+        {[{id:'write',label:'Write Script'},{id:'stitch',label:'Stitch Response'}].map(m => (
           <button key={m.id} onClick={()=>setMode(m.id)}
             style={{background:mode===m.id?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
               borderRadius:8,padding:'10px 20px',cursor:'pointer',fontSize:14,fontWeight:mode===m.id?700:400}}>
@@ -3575,7 +3551,7 @@ function ScriptEngine() {
             <div style={{display:'flex',gap:8,marginBottom:16}}>
               {PLATFORMS.map(p => (
                 <button key={p} onClick={()=>setPlatform(p)}
-                  style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                  style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:B.white,border:'none',
                     borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:platform===p?700:400}}>
                   {p}
                 </button>
@@ -3610,7 +3586,7 @@ function ScriptEngine() {
                 style={{background:'linear-gradient(135deg,#1a1a2e,#16213e)',color:'#00C2FF',
                   border:'1px solid rgba(0,212,255,0.4)',borderRadius:8,padding:'7px 16px',
                   fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:6}}>
-                📺 Teleprompter Mode
+                Teleprompter Mode
               </button>
             </div>
           </div>
@@ -3640,9 +3616,9 @@ function EpisodeClips() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🎙️</span>
-        <div><h2 style={{color:B.white,margin:0}}>Episode to Clips</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>One podcast episode → 5-7 clips + carousel + LinkedIn + quotes + email</p></div>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
+        <div><h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Episode to Clips</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>One podcast episode 5-7 clips + carousel + LinkedIn + quotes + email</p></div>
       </div>
       <Card>
         <SecLabel>Episode Title</SecLabel>
@@ -3660,7 +3636,7 @@ function EpisodeClips() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="EpisodeClips — SIGNAL"/>
+      <DocOutput text={out} title="EpisodeClips SIGNAL"/>
     </div>
   );
 }
@@ -3679,9 +3655,9 @@ function RepurposeEngine() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>♻️</span>
-        <div><h2 style={{color:B.white,margin:0}}>Repurpose Engine</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>One script → 4 platform-native versions <SOPBadge/></p></div>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
+        <div><h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Repurpose Engine</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>One script 4 platform-native versions <SOPBadge/></p></div>
       </div>
       <Card>
         <SecLabel>Original Platform</SecLabel>
@@ -3704,7 +3680,7 @@ function RepurposeEngine() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="RepurposeEngine — SIGNAL"/>
+      <DocOutput text={out} title="RepurposeEngine SIGNAL"/>
     </div>
   );
 }
@@ -3723,9 +3699,9 @@ function HookLibrary() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🪝</span>
-        <div><h2 style={{color:B.white,margin:0}}>Hook Library</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>5 hook types — Pattern Interrupt, Question, Bold Statement, Story, Data</p></div>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
+        <div><h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Hook Library</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>5 hook types Pattern Interrupt, Question, Bold Statement, Story, Data</p></div>
       </div>
       <Card>
         <SecLabel>Topic</SecLabel>
@@ -3769,8 +3745,8 @@ function DesignStudio() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🎨</span>
-        <div><h2 style={{color:B.white,margin:0}}>Design Studio</h2>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
+        <div><h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Design Studio</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Carousel + static post concepts with visual direction + captions</p></div>
       </div>
       <Card>
@@ -3821,9 +3797,9 @@ function WeeklyReview() {
   };
 
   const modules = [
-    { id: 0, label: 'Core Metrics', icon: '📊' },
-    { id: 1, label: 'Content & Tests', icon: '🧪' },
-    { id: 2, label: 'Revenue & Intel', icon: '💰' },
+    { id: 0, label: 'Core Metrics' },
+    { id: 1, label: 'Content & Tests' },
+    { id: 2, label: 'Revenue & Intel' },
   ];
 
   const taStyle = { width:'100%', background:'rgba(0,0,0,0.3)', border:'1px solid rgba(0,194,255,0.12)', borderRadius:8, padding:'10px 12px', color:B.white, fontSize:13, resize:'vertical', marginBottom:14, boxSizing:'border-box', fontFamily:'inherit' };
@@ -3831,9 +3807,9 @@ function WeeklyReview() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>📊</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Weekly Review — Command Center</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Weekly Review Command Center</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>6-module growth system. Input your week. Get a complete execution plan.</p>
         </div>
       </div>
@@ -3844,7 +3820,7 @@ function WeeklyReview() {
           {modules.map(m => (
             <button key={m.id} onClick={() => setActiveModule(m.id)}
               style={{background: activeModule===m.id ? 'rgba(0,194,255,0.1)' : 'rgba(255,255,255,0.04)', color: activeModule===m.id ? '#00C2FF' : B.gray, border: '1px solid ' + (activeModule===m.id ? 'rgba(0,194,255,0.2)' : 'rgba(255,255,255,0.06)'), borderRadius:7, padding:'7px 14px', cursor:'pointer', fontSize:12, fontWeight:700, display:'flex', alignItems:'center', gap:6}}>
-              <span style={{fontSize:14}}>{m.icon}</span>{m.label}
+              {m.label}
             </button>
           ))}
         </div>
@@ -3853,7 +3829,7 @@ function WeeklyReview() {
           <div>
             <SecLabel>This Week's Metrics</SecLabel>
             <textarea value={metrics} onChange={e=>setMetrics(e.target.value)} rows={3}
-              placeholder="e.g. Instagram: 3 Reels posted, 18K reach, 420 new followers, 5 DMs, 112 saves. Best post: morning routine reel — 8K views. LinkedIn: 2 posts, 3K impressions."
+              placeholder="e.g. Instagram: 3 Reels posted, 18K reach, 420 new followers, 5 DMs, 112 saves. Best post: morning routine reel 8K views. LinkedIn: 2 posts, 3K impressions."
               style={taStyle}/>
             <SecLabel>Wins This Week</SecLabel>
             <textarea value={wins} onChange={e=>setWins(e.target.value)} rows={2}
@@ -3870,11 +3846,11 @@ function WeeklyReview() {
           <div>
             <SecLabel>Top Performing Content</SecLabel>
             <textarea value={topContent} onChange={e=>setTopContent(e.target.value)} rows={3}
-              placeholder="e.g. Best piece: 'Nobody tells you this about waking up at 4:30 AM' — Reel, 8.2K views, 89 saves, 14 shares. Second: real estate tip carousel — 3.1K reach, 34 saves."
+              placeholder="e.g. Best piece: 'Nobody tells you this about waking up at 4:30 AM' Reel, 8.2K views, 89 saves, 14 shares. Second: real estate tip carousel 3.1K reach, 34 saves."
               style={taStyle}/>
             <SecLabel>Tests Ran This Week</SecLabel>
             <textarea value={testsRan} onChange={e=>setTestsRan(e.target.value)} rows={2}
-              placeholder="e.g. Tested hook style — question vs bold statement. Bold statement won (3x more saves). Tested posting at 6AM vs 7AM — 6AM outperformed by 18%."
+              placeholder="e.g. Tested hook style question vs bold statement. Bold statement won (3x more saves). Tested posting at 6AM vs 7AM 6AM outperformed by 18%."
               style={taStyle}/>
           </div>
         )}
@@ -3887,7 +3863,7 @@ function WeeklyReview() {
               style={taStyle}/>
             <SecLabel>Competitor Notes</SecLabel>
             <textarea value={competitorNotes} onChange={e=>setCompetitorNotes(e.target.value)} rows={2}
-              placeholder="e.g. Competitor X is posting daily 'day in my life as a realtor' content — performing well. Another creator shifted to YouTube Shorts and gained 2K followers this week."
+              placeholder="e.g. Competitor X is posting daily 'day in my life as a realtor' content performing well. Another creator shifted to YouTube Shorts and gained 2K followers this week."
               style={taStyle}/>
           </div>
         )}
@@ -3895,13 +3871,13 @@ function WeeklyReview() {
         <div style={{marginTop:8}}>
           <button onClick={run} disabled={loading||!metrics}
             style={{background: !metrics ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg,#00C2FF,#0096CC)', color: !metrics ? B.gray : '#000D1A', border:'none', borderRadius:8, padding:'11px 24px', fontWeight:800, cursor: !metrics?'not-allowed':'pointer', fontSize:14, boxShadow: !metrics ? 'none' : '0 0 20px rgba(0,194,255,0.25)'}}>
-            {loading ? 'Running review...' : '📊 Run Full 6-Module Review'}
+            {loading ? 'Running review...' : 'Run Full 6-Module Review'}
           </button>
           {!metrics && <span style={{color:B.gray,fontSize:11,marginLeft:12}}>Add metrics in Module 1 first</span>}
         </div>
       </Card>
       {loading && <Spin/>}
-      {out && <DocOutput text={out} title="Weekly Review — Command Center"/>}
+      {out && <DocOutput text={out} title="Weekly Review Command Center"/>}
     </div>
   );
 }
@@ -3909,9 +3885,7 @@ function WeeklyReview() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TELEPROMPTER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function Teleprompter({ text, onClose }) {
+// ═════════════════════════════════════════════════════════════════════════════function Teleprompter({ text, onClose }) {
   const [speed, setSpeed] = useState(30);       // px per second
   const [running, setRunning] = useState(false);
   const [fontSize, setFontSize] = useState(42);
@@ -3967,7 +3941,7 @@ function Teleprompter({ text, onClose }) {
         <button onClick={() => setRunning(r => !r)}
           style={{background:running?B.red:'#00C2FF',color:'#000',border:'none',borderRadius:8,
             padding:'8px 22px',fontWeight:900,fontSize:14,cursor:'pointer',minWidth:90}}>
-          {running ? '⏸ Pause' : '▶ Start'}
+          {running ? 'Pause' : 'Start'}
         </button>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
           <span style={{color:B.gray,fontSize:12}}>Speed</span>
@@ -3988,7 +3962,7 @@ function Teleprompter({ text, onClose }) {
           style={{background:mirror?'rgba(0,212,255,0.15)':'rgba(255,255,255,0.07)',
             color:mirror?'#00C2FF':B.gray,border:`1px solid ${mirror?'rgba(0,212,255,0.4)':'transparent'}`,
             borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>
-          ↔ Mirror
+          Mirror
         </button>
         <div style={{marginLeft:'auto',color:B.gray,fontSize:11,lineHeight:1.6,textAlign:'right'}}>
           Space/Enter: play/pause<br/>↑↓: speed &nbsp;·&nbsp; Esc: exit
@@ -3996,7 +3970,7 @@ function Teleprompter({ text, onClose }) {
         <button onClick={onClose}
           style={{background:'rgba(233,69,96,0.15)',color:B.red,border:'1px solid rgba(233,69,96,0.3)',
             borderRadius:8,padding:'7px 16px',cursor:'pointer',fontSize:13,fontWeight:700}}>
-          ✕ Exit
+          Exit
         </button>
       </div>
 
@@ -4038,9 +4012,7 @@ function Teleprompter({ text, onClose }) {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TREND ALERTS
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const TREND_ALERTS_KEY  = 'encis_trend_alerts';
+// ═════════════════════════════════════════════════════════════════════════════const TREND_ALERTS_KEY  = 'encis_trend_alerts';
 const TREND_ALERTS_DATE = 'encis_trend_date';
 const APP_VERSION_KEY   = 'encis_version';
 const CURRENT_VERSION   = '2.1';
@@ -4191,7 +4163,7 @@ function useTrendAlerts() {
       try {
         if ('Notification' in window && Notification.permission === 'granted' && parsed.length > 0) {
           const topAngle = parsed[0]?.angle || 'Multiple angles';
-          new Notification(`🔥 ${parsed.length} trend alert${parsed.length !== 1 ? 's' : ''} — SIGNAL`, {
+          new Notification(` ${parsed.length} trend alert${parsed.length !== 1 ? 's' : ''} SIGNAL`, {
             body: `${topAngle} trending right now. Check before it peaks.`,
             icon: '/E-E-Logo.jpg',
             tag: 'signal-trend-alert',
@@ -4227,7 +4199,7 @@ function TrendAlertBanner() {
   const { alerts, loading, lastRun, checkTrends, markSeen, unseen } = useTrendAlerts();
   const [expanded, setExpanded] = useState(false);
 
-  // Always render — even with no alerts, show the bar so user can refresh
+  // Always render even with no alerts, show the bar so user can refresh
   const hasAlerts = alerts.length > 0;
   const preview = alerts.find(a => a.text?.length > 10)?.text?.slice(0, 100) || '';
 
@@ -4425,10 +4397,10 @@ function ROIDashboard() {
     <div>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <span style={{fontSize:32}}>📈</span>
+          <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
           <div>
-            <h2 style={{color:B.white,margin:0}}>ROI Dashboard</h2>
-            <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Weekly scorecard — track growth, identify what drives real results</p>
+            <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>ROI Dashboard</h2>
+            <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Weekly scorecard track growth, identify what drives real results</p>
           </div>
         </div>
         <button onClick={()=>{ setForm({ week:'', followers:'', reach:'', saves:'', shares:'', leads:'', topContent:'', notes:'' }); setEditIdx(null); setShowForm(true); }}
@@ -4440,7 +4412,7 @@ function ROIDashboard() {
       {/* Empty state */}
       {weeks.length === 0 && !showForm && (
         <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.03)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
-          <div style={{fontSize:48,marginBottom:16}}>📊</div>
+          
           <div style={{color:B.white,fontWeight:700,fontSize:18,marginBottom:8}}>No data yet</div>
           <div style={{color:B.gray,fontSize:14,lineHeight:1.7,marginBottom:20}}>Log your first week of metrics and the dashboard builds automatically.<br/>Takes 60 seconds. Pays off every week after.</div>
           <button onClick={()=>setShowForm(true)}
@@ -4511,7 +4483,7 @@ function ROIDashboard() {
                           <button onClick={()=>{ setForm({...w}); setEditIdx(weeks.length-1-i); setShowForm(true); }}
                             style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',borderRadius:5,padding:'3px 8px',fontSize:11,cursor:'pointer'}}>Edit</button>
                           <button onClick={()=>deleteWeek(weeks.length-1-i)}
-                            style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',borderRadius:5,padding:'3px 6px',fontSize:12,cursor:'pointer'}}>✕</button>
+                            style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',borderRadius:5,padding:'3px 6px',fontSize:12,cursor:'pointer'}}>×</button>
                         </div>
                       </td>
                     </tr>
@@ -4553,96 +4525,92 @@ function ROIDashboard() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN APP
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const TOP_NAV = [
-  { id:'home',     emoji:'⚡', label:'Dashboard' },
-  { id:'strategy', emoji:'📋', label:'Strategy' },
-  { id:'research', emoji:'🔬', label:'Research' },
-  { id:'create',   emoji:'🎬', label:'Create' },
-  { id:'optimize', emoji:'📊', label:'Optimize' },
-  { id:'agency',   emoji:'🏢', label:'Agency' },
-  { id:'youtube',  emoji:'▶️',  label:'YouTube' },
+// ═════════════════════════════════════════════════════════════════════════════const TOP_NAV = [
+  { id:'home', label:'Dashboard' },
+  { id:'strategy', label:'Strategy' },
+  { id:'research', label:'Research' },
+  { id:'create', label:'Create' },
+  { id:'optimize', label:'Optimize' },
+  { id:'agency', label:'Agency' },
+  { id:'youtube', label:'YouTube' },
 ];
 
 const SUB_NAV = {
   strategy: [
-    { id:'onboard',   emoji:'🚀', label:'Onboarding' },
-    { id:'calendar',  emoji:'📅', label:'Calendar' },
-    { id:'profile',   emoji:'👤', label:'Profile Audit' },
-    { id:'magnet',    emoji:'🧲', label:'Lead Magnet' },
-    { id:'community', emoji:'🏔️', label:'Community' },
-    { id:'email',     emoji:'📧',  label:'Email Sequences' },
-    { id:'challenge',  emoji:'🔥',  label:'Challenge Builder' },
-    { id:'campaign',    emoji:'🎯',  label:'Campaign Builder' },
-    { id:'visualcal',    emoji:'🗓️',  label:'Visual Calendar' },
-    { id:'series',       emoji:'📺',  label:'Series Planner' },
-    { id:'storyarc',     emoji:'📖',  label:'Story Arc' },
-    { id:'biolink',      emoji:'🔗',  label:'Bio Link Builder' },
-    { id:'biooptimizer', emoji:'✏️',  label:'Bio Optimizer' },
+    { id:'onboard', label:'Onboarding' },
+    { id:'calendar', label:'Calendar' },
+    { id:'profile', label:'Profile Audit' },
+    { id:'magnet', label:'Lead Magnet' },
+    { id:'community', label:'Community' },
+    { id:'email', label:'Email Sequences' },
+    { id:'challenge', label:'Challenge Builder' },
+    { id:'campaign', label:'Campaign Builder' },
+    { id:'visualcal', label:'Visual Calendar' },
+    { id:'series', label:'Series Planner' },
+    { id:'storyarc', label:'Story Arc' },
+    { id:'biolink', label:'Bio Link Builder' },
+    { id:'biooptimizer', label:'Bio Optimizer' },
   ],
   research: [
-    { id:'pipeline',  emoji:'🔬', label:'Pipeline' },
-    { id:'spy',       emoji:'🕵️', label:'Competitor Intel' },
-    { id:'vault',     emoji:'🗄️', label:'Prompt Vault' },
-    { id:'collab',    emoji:'🤝', label:'Collab Finder' },
-    { id:'extract',   emoji:'💡', label:'Insight Extractor' },
-    { id:'spy',      emoji:'🕵️', label:'Competitor Spy' },
+    { id:'pipeline', label:'Pipeline' },
+    { id:'spy', label:'Competitor Intel' },
+    { id:'vault', label:'Prompt Vault' },
+    { id:'collab', label:'Collab Finder' },
+    { id:'extract', label:'Insight Extractor' },
+    { id:'spy', label:'Competitor Spy' },
   ],
   create: [
-    { id:'script',    emoji:'✍️',  label:'Script Engine' },
-    { id:'caption',   emoji:'💬',  label:'Caption Writer' },
-    { id:'batch',     emoji:'⚡',  label:'Bulk Batch' },
-    { id:'episode',   emoji:'🎙️',  label:'Episode Clips' },
-    { id:'repurpose', emoji:'♻️',  label:'Repurpose' },
-    { id:'hooks',     emoji:'🪝',  label:'Hook Library' },
-    { id:'design',    emoji:'🎨',  label:'Design Studio' },
-    { id:'comment',   emoji:'💬',  label:'Comment Responder' },
-    { id:'hooktester',emoji:'🧪',  label:'Hook Tester' },
-    { id:'podcast',   emoji:'🎙️',  label:'Podcast Prep' },
-    { id:'dmscripts',  emoji:'📩',  label:'DM Scripts' },
-    { id:'videodirector',  emoji:'🎬', label:'Video Director' },
-    { id:'objections',    emoji:'💬', label:'Objection Handler' },
-    { id:'guestprep',     emoji:'🎤', label:'Guest Prep Kit' },
-    { id:'contentbrief',  emoji:'📋', label:'Content Brief' },
+    { id:'script', label:'Script Engine' },
+    { id:'caption', label:'Caption Writer' },
+    { id:'batch', label:'Bulk Batch' },
+    { id:'episode', label:'Episode Clips' },
+    { id:'repurpose', label:'Repurpose' },
+    { id:'hooks', label:'Hook Library' },
+    { id:'design', label:'Design Studio' },
+    { id:'comment', label:'Comment Responder' },
+    { id:'hooktester', label:'Hook Tester' },
+    { id:'podcast', label:'Podcast Prep' },
+    { id:'dmscripts', label:'DM Scripts' },
+    { id:'videodirector', label:'Video Director' },
+    { id:'objections', label:'Objection Handler' },
+    { id:'guestprep', label:'Guest Prep Kit' },
+    { id:'contentbrief', label:'Content Brief' },
   ],
   optimize: [
-    { id:'review',   emoji:'📊', label:'Weekly Review' },
-    { id:'roi',      emoji:'📈', label:'ROI Dashboard' },
-    { id:'memory',   emoji:'🧠', label:'Content Memory' },
-    { id:'schedule', emoji:'🗓️', label:'Schedule' },
-    { id:'gaps',      emoji:'🔍', label:'Gap Analyzer' },
-    { id:'predictor',    emoji:'🔮', label:'Predictor' },
-    { id:'stratreview',   emoji:'🧠', label:'Strategy Review' },
-    { id:'abtests',       emoji:'🧪', label:'A/B Tests' },
-    { id:'revenue',       emoji:'💵', label:'Revenue Attribution' },
-    { id:'pricing',       emoji:'💰', label:'Pricing Calculator' },
+    { id:'review', label:'Weekly Review' },
+    { id:'roi', label:'ROI Dashboard' },
+    { id:'memory', label:'Content Memory' },
+    { id:'schedule', label:'Schedule' },
+    { id:'gaps', label:'Gap Analyzer' },
+    { id:'predictor', label:'Predictor' },
+    { id:'stratreview', label:'Strategy Review' },
+    { id:'abtests', label:'A/B Tests' },
+    { id:'revenue', label:'Revenue Attribution' },
+    { id:'pricing', label:'Pricing Calculator' },
   ],
   agency: [
-    { id:'portal',      emoji:'🏢', label:'Client Portal' },
-    { id:'deliverable', emoji:'📦', label:'Deliverables' },
-    { id:'report',      emoji:'📊', label:'Monthly Report' },
-    { id:'voice',       emoji:'🧬', label:'Voice Fingerprint' },
-    { id:'clients',     emoji:'👥', label:'Client Profiles' },
-    { id:'tracker',     emoji:'📋', label:'Collab Tracker' },
-    { id:'whitelabel',  emoji:'🏷️', label:'White Label' },
-    { id:'persona',     emoji:'🤖', label:'AI Persona' },
-    { id:'transcript',    emoji:'📞', label:'Transcripts' },
-    { id:'analytics',     emoji:'📊', label:'Analytics Import' },
-    { id:'onboardauto',    emoji:'⚡', label:'Auto Onboarding' },
-    { id:'clientcomms',   emoji:'📨', label:'Client Comms' },
+    { id:'portal', label:'Client Portal' },
+    { id:'deliverable', label:'Deliverables' },
+    { id:'report', label:'Monthly Report' },
+    { id:'voice', label:'Voice Fingerprint' },
+    { id:'clients', label:'Client Profiles' },
+    { id:'tracker', label:'Collab Tracker' },
+    { id:'whitelabel', label:'White Label' },
+    { id:'persona', label:'AI Persona' },
+    { id:'transcript', label:'Transcripts' },
+    { id:'analytics', label:'Analytics Import' },
+    { id:'onboardauto', label:'Auto Onboarding' },
+    { id:'clientcomms', label:'Client Comms' },
   ],
   youtube: [
-    { id:'yttoolkit', emoji:'▶️', label:'YouTube Toolkit' },
+    { id:'yttoolkit', label:'YouTube Toolkit' },
   ],
 };
 
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 1: CAPTION WRITER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const CAPTION_PROMPT = (topic, platform, angle, hook, cta) => `
+// ═════════════════════════════════════════════════════════════════════════════const CAPTION_PROMPT = (topic, platform, angle, hook, cta) => `
 ${VOICE}
 ${CONTENT_SOP}
 
@@ -4707,9 +4675,9 @@ function CaptionWriter() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>✍️</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Caption Writer</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Caption Writer</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>3 caption variations : short, story, and educational. Platform-native, saves-first.</p>
         </div>
       </div>
@@ -4721,7 +4689,7 @@ function CaptionWriter() {
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {PLATFORMS.map(p => (
                 <button key={p} onClick={() => setPlatform(p)}
-                  style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                  style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:B.white,border:'none',
                     borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
                   {p}
                 </button>
@@ -4772,7 +4740,7 @@ function CaptionWriter() {
                 style={{background:'linear-gradient(135deg,#1a1a2e,#16213e)',color:'#00C2FF',
                   border:'1px solid rgba(0,212,255,0.4)',borderRadius:8,padding:'7px 16px',
                   fontSize:12,fontWeight:700,cursor:'pointer'}}>
-                📺 Teleprompter
+                Teleprompter
               </button>
             </div>
           </div>
@@ -4786,9 +4754,7 @@ function CaptionWriter() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 2 : SCHEDULE OPTIMIZER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function ScheduleOptimizer() {
+// ═════════════════════════════════════════════════════════════════════════════function ScheduleOptimizer() {
   const [weeks] = useState(() => {
     try { const s = localStorage.getItem('encis_roi_data'); return s ? JSON.parse(s) : []; } catch { return []; }
   });
@@ -4851,16 +4817,16 @@ For each day: Platform, Content Type, Best Time to Post, Why (based on data)
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🗓️</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Schedule Optimizer</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Schedule Optimizer</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Reads your ROI data and Content Memory : tells you exactly when and what to post.</p>
         </div>
       </div>
 
       {weeks.length === 0 && log.length === 0 && (
         <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:10,padding:'16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
-          ⚠️ No performance data yet. Log a few weeks in the ROI Dashboard and generate some content first : then come back for a data-driven schedule.
+          No performance data yet. Log a few weeks in the ROI Dashboard and generate some content first : then come back for a data-driven schedule.
         </div>
       )}
 
@@ -4890,7 +4856,7 @@ For each day: Platform, Content Type, Best Time to Post, Why (based on data)
         </div>
 
         <RedBtn onClick={run} disabled={loading}>
-          {loading ? 'Analyzing your data...' : '🗓️ Build My Optimal Schedule'}
+          {loading ? 'Analyzing your data...' : 'Build My Optimal Schedule'}
         </RedBtn>
       </Card>
       {loading && <Spin/>}
@@ -4901,9 +4867,7 @@ For each day: Platform, Content Type, Best Time to Post, Why (based on data)
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 3 : CONTENT GAP ANALYZER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function ContentGapAnalyzer() {
+// ═════════════════════════════════════════════════════════════════════════════function ContentGapAnalyzer() {
   const [log] = useState(() => {
     try { const s = localStorage.getItem('encis_content_log'); return s ? JSON.parse(s) : []; } catch { return []; }
   });
@@ -4922,7 +4886,7 @@ function ContentGapAnalyzer() {
     recent.forEach(e => {
       if (e.angle) angleCount[e.angle] = (angleCount[e.angle] || 0) + 1;
       if (e.type) typeCount[e.type] = (typeCount[e.type] || 0) + 1;
-      if (e.perf === '🔥') rated.viral.push(e.title || e.topic);
+      if (e.perf === '') rated.viral.push(e.title || e.topic);
       if (e.perf === '⭐') rated.good.push(e.title || e.topic);
       if (e.perf === '💀') rated.flopped.push(e.title || e.topic);
     });
@@ -4956,10 +4920,10 @@ ${summary}
 [List each untouched angle with ONE specific content idea for each]
 
 ## Your Viral Pattern
-[What the 🔥 rated content has in common : format, angle, topic type]
+[What the rated content has in common : format, angle, topic type]
 
 ## What's Flopping and Why
-[Pattern in the 💀 content : what to stop or change]
+[Pattern in the content : what to stop or change]
 
 ## 10 Specific Pieces to Create This Week
 [Based on the gaps : specific filmable titles, not generic topics]
@@ -4982,16 +4946,16 @@ ${summary}
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🔍</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Content Gap Analyzer</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Content Gap Analyzer</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Scans your content library : finds what you're over-posting, under-posting, and missing entirely.</p>
         </div>
       </div>
 
       {log.length === 0 && (
         <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:10,padding:'16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
-          ⚠️ No content in memory yet. Generate content using any tool : it auto-saves here : then run the analyzer.
+          No content in memory yet. Generate content using any tool : it auto-saves here : then run the analyzer.
         </div>
       )}
 
@@ -5009,7 +4973,7 @@ ${summary}
                   <div style={{height:4,background:'rgba(255,255,255,0.08)',borderRadius:2,marginBottom:4}}>
                     <div style={{height:'100%',width:`${pct}%`,background:count===0?'rgba(233,69,96,0.3)':count===max?B.red:'#00C2FF',borderRadius:2,transition:'width 0.3s'}}/>
                   </div>
-                  <div style={{fontSize:11,color:count===0?B.red:B.gray}}>{count===0?'⚠️ Gap':count + ' pieces'}</div>
+                  <div style={{fontSize:11,color:count===0?B.red:B.gray}}>{count===0?'Gap':count + ' pieces'}</div>
                 </div>
               );
             })}
@@ -5017,7 +4981,7 @@ ${summary}
 
           {missingAngles.length > 0 && (
             <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:10,padding:'12px 16px',marginBottom:16,fontSize:12,color:'rgba(255,255,255,0.8)'}}>
-              <strong style={{color:B.red}}>⚠️ Untouched angles:</strong> {missingAngles.join(', ')}
+              <strong style={{color:B.red}}>Untouched angles:</strong> {missingAngles.join(', ')}
             </div>
           )}
         </>
@@ -5026,10 +4990,10 @@ ${summary}
       <Card>
         <div style={{color:B.gray,fontSize:13,lineHeight:1.7,marginBottom:16}}>
           Analyzing <strong style={{color:B.white}}>{log.length} pieces</strong> across your content library.
-          {log.filter(e=>e.perf==='🔥').length > 0 && <span> Found <strong style={{color:B.red}}>{log.filter(e=>e.perf==='🔥').length} viral hits</strong> to pattern-match.</span>}
+          {log.filter(e=>e.perf==='').length > 0 && <span> Found <strong style={{color:B.red}}>{log.filter(e=>e.perf==='').length} viral hits</strong> to pattern-match.</span>}
         </div>
         <RedBtn onClick={run} disabled={loading||log.length===0}>
-          {loading ? 'Analyzing library...' : '🔍 Run Gap Analysis'}
+          {loading ? 'Analyzing library...' : 'Run Gap Analysis'}
         </RedBtn>
       </Card>
       {loading && <Spin/>}
@@ -5041,9 +5005,7 @@ ${summary}
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 4 : TELEPROMPTER BUTTON ON ALL OUTPUTS
 // (injected via enhanced Output component)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function OutputWithTeleprompter({text}) {
+// ═════════════════════════════════════════════════════════════════════════════function OutputWithTeleprompter({text}) {
   const [teleprompter, setTeleprompter] = useState(false);
   if (!text) return null;
   return (
@@ -5054,7 +5016,7 @@ function OutputWithTeleprompter({text}) {
           style={{background:'linear-gradient(135deg,#1a1a2e,#16213e)',color:'#00C2FF',
             border:'1px solid rgba(0,212,255,0.4)',borderRadius:8,padding:'6px 14px',
             fontSize:12,fontWeight:700,cursor:'pointer'}}>
-          📺 Teleprompter
+          Teleprompter
         </button>
       </div>
       <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'1rem',
@@ -5069,9 +5031,7 @@ function OutputWithTeleprompter({text}) {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 5 : COLLAB OUTREACH TRACKER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const COLLAB_TRACKER_KEY = 'encis_collab_tracker';
+// ═════════════════════════════════════════════════════════════════════════════const COLLAB_TRACKER_KEY = 'encis_collab_tracker';
 
 function CollabTracker() {
   const [contacts, setContacts] = useState([]);
@@ -5138,9 +5098,9 @@ function CollabTracker() {
     <div>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <span style={{fontSize:32}}>📋</span>
+          <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
           <div>
-            <h2 style={{color:B.white,margin:0}}>Collab Outreach Tracker</h2>
+            <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Collab Outreach Tracker</h2>
             <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Track every pitch, conversation, and confirmed collab in one place.</p>
           </div>
         </div>
@@ -5175,7 +5135,7 @@ function CollabTracker() {
       {/* Empty state */}
       {contacts.length === 0 && (
         <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.02)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)',marginBottom:20}}>
-          <div style={{fontSize:48,marginBottom:12}}>🤝</div>
+          
           <div style={{color:B.white,fontWeight:700,fontSize:16,marginBottom:8}}>No contacts yet</div>
           <div style={{color:B.gray,fontSize:13,marginBottom:20}}>Add podcast guests, collab targets, and brand partners. Track every conversation.</div>
           <button onClick={() => setShowForm(true)}
@@ -5222,7 +5182,7 @@ function CollabTracker() {
                       Edit
                     </button>
                     <button onClick={() => remove(contact.id)}
-                      style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',borderRadius:6,padding:'4px 8px',fontSize:12,cursor:'pointer'}}>✕</button>
+                      style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',borderRadius:6,padding:'4px 8px',fontSize:12,cursor:'pointer'}}>×</button>
                   </div>
                 </div>
               </div>
@@ -5307,14 +5267,12 @@ function CollabTracker() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMMENT RESPONDER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const COMMENT_REPLY_PROMPT = (comments, mode, client) => `
+// ═════════════════════════════════════════════════════════════════════════════const COMMENT_REPLY_PROMPT = (comments, mode, client) => `
 ${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
 
 ${mode === 'bulk'
   ? `Write a reply to EACH of these comments. Number your replies to match. Each reply should feel personal and human: not copy-pasted. Build community, acknowledge what they said, and where natural, invite more conversation.`
-  : `Write 3 different reply options for this comment. Each option should have a different energy — one warm/personal, one direct/punchy, one community-building. All in Jason's voice.`
+  : `Write 3 different reply options for this comment. Each option should have a different energy one warm/personal, one direct/punchy, one community-building. All in Jason's voice.`
 }
 
 ${mode === 'bulk' ? 'COMMENTS:\n' + comments : 'COMMENT:\n' + comments}
@@ -5350,16 +5308,16 @@ function CommentResponder() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>💬</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Comment Responder</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Reply in your voice — single comment with 3 options, or bulk paste up to 20 at once.</p>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Comment Responder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Reply in your voice single comment with 3 options, or bulk paste up to 20 at once.</p>
         </div>
       </div>
       {activeClient && <ClientBanner client={activeClient}/>}
 
       <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
-        💡 The first-hour engagement window is everything. Respond fast, respond real, and the algorithm rewards you. Use bulk mode after a post drops to clear your comment queue in one shot.
+        The first-hour engagement window is everything. Respond fast, respond real, and the algorithm rewards you. Use bulk mode after a post drops to clear your comment queue in one shot.
       </div>
 
       <Card>
@@ -5385,7 +5343,7 @@ function CommentResponder() {
             resize:'vertical',marginBottom:16,boxSizing:'border-box',lineHeight:1.6}}/>
 
         <RedBtn onClick={run} disabled={loading||!input.trim()}>
-          {loading ? 'Writing replies...' : mode === 'single' ? '💬 Write 3 Reply Options' : '💬 Reply to All Comments'}
+          {loading ? 'Writing replies...' : mode === 'single' ? 'Write 3 Reply Options' : 'Reply to All Comments'}
         </RedBtn>
       </Card>
       {loading && <Spin/>}
@@ -5406,9 +5364,7 @@ function CommentResponder() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // HOOK TESTER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const HOOK_TEST_PROMPT = (hooks, topic) => `
+// ═════════════════════════════════════════════════════════════════════════════const HOOK_TEST_PROMPT = (hooks, topic) => `
 ${VOICE}
 
 Topic: ${topic}
@@ -5464,15 +5420,15 @@ function HookTester() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🧪</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Hook Tester</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Hook Tester</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Write 2-6 hook variations : AI scores each one and builds the best version.</p>
         </div>
       </div>
 
       <div style={{background:'rgba(233,69,96,0.06)',border:'1px solid rgba(233,69,96,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
-        🎯 Your hook is 80% of the result. Same video, different hook = 10x difference in views. Test before you post.
+        Your hook is 80% of the result. Same video, different hook = 10x difference in views. Test before you post.
       </div>
 
       <Card>
@@ -5507,14 +5463,14 @@ function HookTester() {
               {hooks.length > 2 && (
                 <button onClick={() => removeHook(i)}
                   style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',
-                    borderRadius:6,padding:'4px 8px',fontSize:16,cursor:'pointer',flexShrink:0}}>✕</button>
+                    borderRadius:6,padding:'4px 8px',fontSize:16,cursor:'pointer',flexShrink:0}}>×</button>
               )}
             </div>
           ))}
         </div>
 
         <RedBtn onClick={run} disabled={loading || !topic || filledCount < 2}>
-          {loading ? 'Testing hooks...' : `🧪 Test ${filledCount} Hook${filledCount!==1?'s':''}`}
+          {loading ? 'Testing hooks...' : `Test ${filledCount} Hook${filledCount!==1?'s':''}`}
         </RedBtn>
       </Card>
       {loading && <Spin/>}
@@ -5533,9 +5489,7 @@ function HookTester() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // EMAIL SEQUENCE BUILDER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const EMAIL_PROMPT = (magnet, audience, offer, length, client) => `
+// ═════════════════════════════════════════════════════════════════════════════const EMAIL_PROMPT = (magnet, audience, offer, length, client) => `
 ${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
 ${SWARBRICK}
 
@@ -5627,7 +5581,7 @@ function EmailSequenceBuilder() {
       });
       const d = await res.json();
       const html = d.text || d.result || '';
-      const full = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Email Sequence</title><style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 24px;color:#111;line-height:1.8}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#E94560;margin-top:48px;border-top:1px solid #eee;padding-top:24px}strong{color:#0A1628}.subject{font-size:18px;font-weight:bold;margin-bottom:4px}.preview{color:#666;font-style:italic;font-size:13px;margin-bottom:20px}@media print{body{margin:24px}}</style></head><body><h1>${magnet} — Email Sequence</h1>${html}</body></html>`;
+      const full = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Email Sequence</title><style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 24px;color:#111;line-height:1.8}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#E94560;margin-top:48px;border-top:1px solid #eee;padding-top:24px}strong{color:#0A1628}.subject{font-size:18px;font-weight:bold;margin-bottom:4px}.preview{color:#666;font-style:italic;font-size:13px;margin-bottom:20px}@media print{body{margin:24px}}</style></head><body><h1>${magnet} Email Sequence</h1>${html}</body></html>`;
       const blob = new Blob([full], {type:'text/html'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -5641,10 +5595,10 @@ function EmailSequenceBuilder() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>📧</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Email Sequence Builder</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Full nurture sequences — deliver, connect, convert. Written in your voice, not a template.</p>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Email Sequence Builder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Full nurture sequences deliver, connect, convert. Written in your voice, not a template.</p>
         </div>
       </div>
       {activeClient && <ClientBanner client={activeClient}/>}
@@ -5700,7 +5654,7 @@ function EmailSequenceBuilder() {
               <button onClick={downloadEmails} disabled={downloading}
                 style={{background:B.red,color:'#fff',border:'none',borderRadius:8,
                   padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',fontSize:13}}>
-                {downloading ? 'Preparing...' : '⬇ Download Emails'}
+                {downloading ? 'Preparing...' : 'Download Emails'}
               </button>
             </div>
           </div>
@@ -5713,9 +5667,7 @@ function EmailSequenceBuilder() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PODCAST PRE-PRODUCTION SUITE
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const PODCAST_PREPROD_PROMPT = (guestName, guestBio, episode_angle, showContext) => `
+// ═════════════════════════════════════════════════════════════════════════════const PODCAST_PREPROD_PROMPT = (guestName, guestBio, episode_angle, showContext) => `
 ${VOICE}
 
 Show: Everyday Elevations Podcast (Host: Jason Fricka: veteran, HR manager, mindset coach, Colorado)
@@ -5841,16 +5793,16 @@ function PodcastPreProd() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🎙️</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Podcast Pre-Production</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Guest research brief, full interview outline, show notes, and clip plan — before you hit record.</p>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Podcast Pre-Production</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Guest research brief, full interview outline, show notes, and clip plan before you hit record.</p>
         </div>
       </div>
 
       <div style={{display:'flex',gap:8,marginBottom:20}}>
-        {[{id:'guest',label:'🎤 Guest Episode',desc:'Interview prep + research'},
-          {id:'solo',label:'🎙️ Solo Episode',desc:'Outline + structure'}].map(m => (
+        {[{id:'guest',label:'Guest Episode',desc:'Interview prep + research'},
+          {id:'solo',label:'Solo Episode',desc:'Outline + structure'}].map(m => (
           <button key={m.id} onClick={() => { setMode(m.id); setOut(''); }}
             style={{flex:1,background:mode===m.id?B.red:'rgba(255,255,255,0.06)',color:B.white,
               border:`1px solid ${mode===m.id?B.red:'rgba(255,255,255,0.1)'}`,
@@ -5874,7 +5826,7 @@ function PodcastPreProd() {
                 style={{background:'rgba(0,212,255,0.1)',color:'#00C2FF',border:'1px solid rgba(0,212,255,0.3)',
                   borderRadius:8,padding:'10px 16px',fontWeight:700,cursor:(!guestName||fetching)?'not-allowed':'pointer',
                   fontSize:12,whiteSpace:'nowrap'}}>
-                {fetching ? 'Researching...' : '🔍 Research Guest'}
+                {fetching ? 'Researching...' : 'Research Guest'}
               </button>
             </div>
 
@@ -5932,7 +5884,7 @@ function PodcastPreProd() {
 
         <div style={{marginTop:20}}>
           <RedBtn onClick={run} disabled={loading||!canRun}>
-            {loading ? 'Building pre-production package...' : mode==='guest' ? '🎤 Build Full Episode Package' : '🎙️ Build Solo Episode Framework'}
+            {loading ? 'Building pre-production package...' : mode==='guest' ? 'Build Full Episode Package' : 'Build Solo Episode Framework'}
           </RedBtn>
           {mode === 'guest' && !guestBio && guestName && (
             <span style={{color:B.gray,fontSize:12,marginLeft:12}}>Research guest first for best results</span>
@@ -5949,13 +5901,12 @@ function PodcastPreProd() {
 // YOUTUBE TOOLKIT
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// ─── VIDIQ SOP ───────────────────────────────────────────────────────────────
-const VIDIQ_SOP = `
+// ─VIDIQ SOP ─────────────────────────────────────────────────────────────const VIDIQ_SOP = `
 VIDIQ OUTLIER SCORE FRAMEWORK (follow this to the letter):
-- Outlier Score > 1.0 = video outperforms channel average → study and replicate these elements
-- Outlier Score ≈ 1.0 = performing average → analyze for engagement improvements
-- Outlier Score < 1.0 = underperforming → diagnose: was it topic, title, thumbnail, or timing?
-- Score 2.0+ = 2x-10x+ above norm → break down thumbnail, topic, title, length, and style and repeat exactly
+- Outlier Score > 1.0 = video outperforms channel average study and replicate these elements
+- Outlier Score 1.0 = performing average analyze for engagement improvements
+- Outlier Score < 1.0 = underperforming diagnose: was it topic, title, thumbnail, or timing?
+- Score 2.0+ = 2x-10x+ above norm break down thumbnail, topic, title, length, and style and repeat exactly
 - High outlier videos ARE the content blueprint : never guess when you have outlier data
 
 UPLOAD TIMING SOP (non-negotiable):
@@ -5967,9 +5918,9 @@ UPLOAD TIMING SOP (non-negotiable):
 
 CONTENT STRATEGY FROM OUTLIER DATA:
 - After every upload, check outlier score vs channel average
-- Top outliers → extract: topic angle, title format, thumbnail style, video length, opening hook
+- Top outliers extract: topic angle, title format, thumbnail style, video length, opening hook
 - Replicate those exact elements in next 3 uploads
-- Low outliers → do NOT delete : compare to high outliers and identify the specific difference
+- Low outliers do NOT delete : compare to high outliers and identify the specific difference
 - More variety early = more data = faster discovery of channel superpowers
 
 PERFORMANCE SIGNALS THAT MATTER MOST (in order):
@@ -6239,11 +6190,11 @@ function YouTubeToolkit() {
   const [fetching, setFetching] = useState(false);
 
   const tools = [
-    { id:'script',   emoji:'🎬', label:'Script Writer',      desc:'Full VIDIQ-optimized script + SEO package' },
-    { id:'titles',   emoji:'📝', label:'Title Optimizer',    desc:'7 title variations + CTR analysis' },
-    { id:'seo',      emoji:'🔍', label:'SEO + Chapters',     desc:'Description, tags, chapters, pinned comment' },
-    { id:'audit',    emoji:'📊', label:'Channel Audit',      desc:'Perplexity pulls your channel, Claude audits it' },
-    { id:'endscreen',emoji:'📺', label:'End Screen Scripts', desc:'3 CTA variations for last 20 seconds' },
+    { id:'script', label:'Script Writer',      desc:'Full VIDIQ-optimized script + SEO package' },
+    { id:'titles', label:'Title Optimizer',    desc:'7 title variations + CTR analysis' },
+    { id:'seo', label:'SEO + Chapters',     desc:'Description, tags, chapters, pinned comment' },
+    { id:'audit', label:'Channel Audit',      desc:'Perplexity pulls your channel, Claude audits it' },
+    { id:'endscreen', label:'End Screen Scripts', desc:'3 CTA variations for last 20 seconds' },
   ];
 
   const fetchChannel = async () => {
@@ -6281,9 +6232,9 @@ function YouTubeToolkit() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>▶️</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>YouTube Toolkit</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>YouTube Toolkit</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Title optimizer, SEO engine, channel audit, and end screen scripts : built for YouTube's algorithm.</p>
         </div>
       </div>
@@ -6306,7 +6257,7 @@ function YouTubeToolkit() {
         {tool === 'script' && (
           <>
             <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.2)',borderRadius:8,padding:'10px 14px',marginBottom:16,fontSize:12,color:'rgba(0,212,255,0.85)',lineHeight:1.7}}>
-              📊 <strong>VIDIQ-Optimized:</strong> Every script is built to maximize outlier score : upload timing, hook structure, chapter markers, SEO package, and CTR analysis included.
+              <strong>VIDIQ-Optimized:</strong> Every script is built to maximize outlier score : upload timing, hook structure, chapter markers, SEO package, and CTR analysis included.
             </div>
             <SecLabel>Video Topic</SecLabel>
             <input value={topic} onChange={e=>setTopic(e.target.value)}
@@ -6378,7 +6329,7 @@ function YouTubeToolkit() {
               style={{background:'rgba(255,255,255,0.08)',color:B.white,border:'1px solid rgba(255,255,255,0.2)',
                 borderRadius:8,padding:'10px 20px',fontWeight:700,cursor:fetching?'not-allowed':'pointer',
                 fontSize:13,marginBottom:16}}>
-              {fetching ? 'Pulling channel data...' : '🔍 Pull @everydayelevations Data'}
+              {fetching ? 'Pulling channel data...' : 'Pull @everydayelevations Data'}
             </button>
             {channelData && (
               <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'12px',marginBottom:16,
@@ -6442,9 +6393,7 @@ function YouTubeToolkit() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // DM SCRIPT LIBRARY
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const DM_SCRIPTS_KEY = 'encis_dm_scripts';
+// ═════════════════════════════════════════════════════════════════════════════const DM_SCRIPTS_KEY = 'encis_dm_scripts';
 
 const DM_GEN_PROMPT = (trigger, context, goal, client) => `
 ${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
@@ -6551,16 +6500,16 @@ function DMScriptLibrary() {
     <div>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <span style={{fontSize:32}}>📩</span>
+          <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
           <div>
-            <h2 style={{color:B.white,margin:0}}>DM Script Library</h2>
-            <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Build and save full conversation flows — from first reply to close.</p>
+            <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>DM Script Library</h2>
+            <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Build and save full conversation flows from first reply to close.</p>
           </div>
         </div>
         <button onClick={() => { setShowGen(g => !g); setOut(''); }}
           style={{background:showGen?B.red:'rgba(255,255,255,0.08)',color:B.white,border:'none',
             borderRadius:8,padding:'8px 18px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
-          {showGen ? '✕ Close' : '+ Generate New Script'}
+          {showGen ? 'Close' : '+ Generate New Script'}
         </button>
       </div>
       {activeClient && <ClientBanner client={activeClient}/>}
@@ -6608,7 +6557,7 @@ function DMScriptLibrary() {
               marginBottom:16,boxSizing:'border-box'}}/>
 
           <RedBtn onClick={run} disabled={loading||!trigger}>
-            {loading ? 'Writing scripts...' : '📩 Build Full DM Flow'}
+            {loading ? 'Writing scripts...' : 'Build Full DM Flow'}
           </RedBtn>
 
           {loading && <Spin/>}
@@ -6627,7 +6576,7 @@ function DMScriptLibrary() {
                     style={{background:'rgba(39,174,96,0.15)',color:'#27ae60',
                       border:'1px solid rgba(39,174,96,0.3)',borderRadius:8,
                       padding:'6px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
-                    💾 Save to Library
+                    Save to Library
                   </button>
                 ) : (
                   <div style={{display:'flex',gap:8,flex:1}}>
@@ -6669,9 +6618,9 @@ function DMScriptLibrary() {
       {saved.length === 0 && !showGen && (
         <div style={{textAlign:'center',padding:'3rem 2rem',background:'rgba(255,255,255,0.02)',
           borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
-          <div style={{fontSize:40,marginBottom:12}}>📩</div>
+          
           <div style={{color:B.white,fontWeight:700,fontSize:15,marginBottom:8}}>No saved scripts yet</div>
-          <div style={{color:B.gray,fontSize:13,marginBottom:20}}>Generate a DM flow and save it — build your library over time.</div>
+          <div style={{color:B.gray,fontSize:13,marginBottom:20}}>Generate a DM flow and save it build your library over time.</div>
           <button onClick={() => setShowGen(true)}
             style={{background:B.red,color:'#fff',border:'none',borderRadius:8,
               padding:'10px 20px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
@@ -6690,14 +6639,14 @@ function DMScriptLibrary() {
                 <div>
                   <div style={{color:B.white,fontWeight:700,fontSize:13}}>{s.name}</div>
                   <div style={{color:B.gray,fontSize:11,marginTop:2}}>
-                    Goal: {s.goal} · Saved {s.createdAt}
+                    Goal: {s.goal} Saved {s.createdAt}
                   </div>
                 </div>
                 <div style={{display:'flex',gap:8}}>
                   <CopyBtn text={s.script}/>
                   <button onClick={() => removeScript(s.id)}
                     style={{background:'transparent',color:'rgba(255,255,255,0.2)',
-                      border:'none',fontSize:16,cursor:'pointer',padding:'4px 8px'}}>✕</button>
+                      border:'none',fontSize:16,cursor:'pointer',padding:'4px 8px'}}>×</button>
                 </div>
               </div>
               <div style={{padding:'14px 16px',maxHeight:200,overflowY:'auto'}}>
@@ -6714,9 +6663,7 @@ function DMScriptLibrary() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 30-DAY CHALLENGE BUILDER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const CHALLENGE_PROMPT = (name, transformation, audience, platform, client) => `
+// ═════════════════════════════════════════════════════════════════════════════const CHALLENGE_PROMPT = (name, transformation, audience, platform, client) => `
 ${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
 ${SWARBRICK}
 ${CONTENT_SOP}
@@ -6831,10 +6778,10 @@ function ChallengeBuilder() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🔥</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>30-Day Challenge Builder</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Full challenge system — 30 daily prompts, content series, email sequence, and post-challenge offer.</p>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>30-Day Challenge Builder</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Full challenge system 30 daily prompts, content series, email sequence, and post-challenge offer.</p>
         </div>
       </div>
       {activeClient && <ClientBanner client={activeClient}/>}
@@ -6877,7 +6824,7 @@ function ChallengeBuilder() {
         <div style={{display:'flex',gap:8,marginBottom:20}}>
           {PLATFORMS.map(p => (
             <button key={p} onClick={() => setPlatforms(p)}
-              style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+              style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:B.white,border:'none',
                 borderRadius:6,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:platform===p?700:400}}>
               {p}
             </button>
@@ -6885,7 +6832,7 @@ function ChallengeBuilder() {
         </div>
 
         <RedBtn onClick={run} disabled={loading||!name||!transformation}>
-          {loading ? 'Building challenge system...' : '🔥 Build Full 30-Day Challenge'}
+          {loading ? 'Building challenge system...' : 'Build Full 30-Day Challenge'}
         </RedBtn>
       </Card>
       {loading && <Spin/>}
@@ -6898,7 +6845,7 @@ function ChallengeBuilder() {
               <button onClick={downloadChallenge} disabled={downloading}
                 style={{background:B.red,color:'#fff',border:'none',borderRadius:8,
                   padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',fontSize:13}}>
-                {downloading ? 'Preparing...' : '⬇ Download Plan'}
+                {downloading ? 'Preparing...' : 'Download Plan'}
               </button>
             </div>
           </div>
@@ -6911,9 +6858,7 @@ function ChallengeBuilder() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPETITOR CONTENT SPY
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const SPY_PROMPT = (handle, platform, rawData, angle) => `
+// ═════════════════════════════════════════════════════════════════════════════const SPY_PROMPT = (handle, platform, rawData, angle) => `
 ${VOICE}
 
 You are analyzing a competitor's content strategy to find gaps Jason Fricka can own.
@@ -6996,15 +6941,15 @@ function CompetitorSpy() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🕵️</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Competitor Content Spy</h2>
-          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pull any creator's content strategy — find the gaps Jason can own.</p>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Competitor Content Spy</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Pull any creator's content strategy find the gaps Jason can own.</p>
         </div>
       </div>
 
       <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
-        🎯 This is intelligence, not imitation. The goal is to find what they are NOT doing so you can own it. Every gap they leave is an opening.
+        This is intelligence, not imitation. The goal is to find what they are NOT doing so you can own it. Every gap they leave is an opening.
       </div>
 
       <Card>
@@ -7021,7 +6966,7 @@ function CompetitorSpy() {
             <div style={{display:'flex',gap:6}}>
               {PLATFORMS.map(p => (
                 <button key={p} onClick={() => setPlatform(p)}
-                  style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+                  style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:B.white,border:'none',
                     borderRadius:6,padding:'8px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
                   {p}
                 </button>
@@ -7035,7 +6980,7 @@ function CompetitorSpy() {
             border:'1px solid rgba(0,212,255,0.3)',borderRadius:8,padding:'10px 20px',
             fontWeight:700,cursor:(!handle||fetching)?'not-allowed':'pointer',
             fontSize:13,marginBottom:16,display:'block'}}>
-          {fetching ? 'Pulling profile data...' : `🔍 Pull ${platform} Data for ${handle|| 'this creator'}`}
+          {fetching ? 'Pulling profile data...' : `Pull ${platform} Data for ${handle|| 'this creator'}`}
         </button>
 
         {rawData && (
@@ -7054,7 +6999,7 @@ function CompetitorSpy() {
             marginBottom:16,boxSizing:'border-box'}}/>
 
         <RedBtn onClick={run} disabled={loading||!rawData}>
-          {loading ? 'Running intel analysis...' : '🕵️ Run Competitor Intel'}
+          {loading ? 'Running intel analysis...' : 'Run Competitor Intel'}
         </RedBtn>
       </Card>
 
@@ -7086,9 +7031,7 @@ function CompetitorSpy() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // BRAND VOICE FINGERPRINTING
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const VOICE_KEY = 'encis_voice_fingerprints';
+// ═════════════════════════════════════════════════════════════════════════════const VOICE_KEY = 'encis_voice_fingerprints';
 
 const VOICE_FINGERPRINT_PROMPT = (samples, clientName) => `
 You are a voice analyst. Analyze these ${samples.length} content samples from ${clientName} and extract a precise voice fingerprint.
@@ -7157,9 +7100,9 @@ function BrandVoiceFingerprint() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🧬</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Brand Voice Fingerprinting</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Brand Voice Fingerprinting</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Paste real content samples. The system extracts the exact voice DNA and applies it to every tool automatically.</p>
         </div>
       </div>
@@ -7182,7 +7125,7 @@ function BrandVoiceFingerprint() {
         {['build','view'].map(t => (
           <button key={t} onClick={() => setActiveTab(t)}
             style={{background:activeTab===t?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',borderRadius:8,padding:'8px 20px',cursor:'pointer',fontSize:13,fontWeight:activeTab===t?700:400,textTransform:'capitalize'}}>
-            {t === 'build' ? '+ Build Fingerprint' : '🧬 View Fingerprint'}
+            {t === 'build' ? '+ Build Fingerprint' : 'View Fingerprint'}
           </button>
         ))}
       </div>
@@ -7201,7 +7144,7 @@ function BrandVoiceFingerprint() {
             </div>
           ))}
           <RedBtn onClick={run} disabled={loading || !selectedClient || samples.filter(s=>s.trim().length>20).length < 2}>
-            {loading ? 'Analyzing voice...' : '🧬 Generate Voice Fingerprint'}
+            {loading ? 'Analyzing voice...' : 'Generate Voice Fingerprint'}
           </RedBtn>
           {loading && <Spin/>}
         </Card>
@@ -7270,7 +7213,7 @@ function BrandVoiceFingerprint() {
 
       {activeTab === 'view' && !fp && (
         <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.02)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
-          <div style={{fontSize:48,marginBottom:12}}>🧬</div>
+          
           <div style={{color:B.white,fontWeight:700,fontSize:16,marginBottom:8}}>No fingerprint yet for {selectedClient?.name}</div>
           <div style={{color:B.gray,fontSize:13,marginBottom:20}}>Paste content samples to generate the voice fingerprint.</div>
           <button onClick={() => setActiveTab('build')} style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,fontWeight:700,cursor:'pointer'}}>Build Fingerprint</button>
@@ -7284,9 +7227,7 @@ function BrandVoiceFingerprint() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CLIENT PORTAL / DASHBOARD
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const CLIENT_NOTES_KEY = 'encis_client_notes';
+// ═════════════════════════════════════════════════════════════════════════════const CLIENT_NOTES_KEY = 'encis_client_notes';
 const CLIENT_DELIVERABLES_KEY = 'encis_deliverables';
 
 function ClientPortal() {
@@ -7343,15 +7284,15 @@ function ClientPortal() {
       <div>
         <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24,flexWrap:'wrap'}}>
           <button onClick={() => setView('list')} style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',borderRadius:6,padding:'6px 12px',fontSize:12,cursor:'pointer'}}>
-            ← All Clients
+            All Clients
           </button>
           <div style={{flex:1}}>
-            <h2 style={{color:B.white,margin:0}}>{focusClient.name}</h2>
+            <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>{focusClient.name}</h2>
             <div style={{color:B.gray,fontSize:12,marginTop:2}}>{focusClient.handle} · {focusClient.platforms}</div>
           </div>
           <button onClick={() => { setActiveClient(focusClient); }}
             style={{background:activeClient?.id===focusClient.id?'rgba(39,174,96,0.2)':B.red,color:activeClient?.id===focusClient.id?'#27ae60':'#fff',border:`1px solid ${activeClient?.id===focusClient.id?'rgba(39,174,96,0.4)':B.red}`,borderRadius:8,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
-            {activeClient?.id===focusClient.id ? '✓ Active Client' : 'Set Active'}
+            {activeClient?.id===focusClient.id ? 'Active Client' : 'Set Active'}
           </button>
         </div>
 
@@ -7377,13 +7318,13 @@ function ClientPortal() {
             const fp = fps[focusClient.id];
             return fp ? (
               <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:16,display:'flex',alignItems:'center',gap:10}}>
-                <span style={{fontSize:18}}>🧬</span>
+                <span style={{color:"#00C2FF",fontWeight:800,fontSize:11,letterSpacing:1}}>DNA</span>
                 <div style={{flex:1}}><span style={{color:'#00C2FF',fontWeight:700,fontSize:13}}>Voice Fingerprint Active</span><span style={{color:B.gray,fontSize:12,marginLeft:8}}>{fp.tone} · {fp.pace} sentences · {fp.sampleCount} samples</span></div>
               </div>
             ) : (
               <div style={{background:'rgba(233,69,96,0.06)',border:'1px solid rgba(233,69,96,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:16,display:'flex',alignItems:'center',gap:10}}>
-                <span style={{fontSize:18}}>⚠️</span>
-                <div style={{color:'rgba(255,255,255,0.7)',fontSize:13}}>No voice fingerprint yet. Go to Agency → Voice Fingerprint to build one.</div>
+                
+                <div style={{color:'rgba(255,255,255,0.7)',fontSize:13}}>No voice fingerprint yet. Go to Agency Voice Fingerprint to build one.</div>
               </div>
             );
           } catch { return null; }
@@ -7424,13 +7365,13 @@ function ClientPortal() {
               <div key={d.id} style={{background:'rgba(255,255,255,0.03)',border:`1px solid ${statusColors[d.status]|| 'rgba(255,255,255,0.07)'}`,borderRadius:8,padding:'12px 14px',display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
                 <div style={{flex:1}}>
                   <div style={{color:B.white,fontWeight:600,fontSize:13}}>{d.title}</div>
-                  <div style={{color:B.gray,fontSize:11,marginTop:2,textTransform:'capitalize'}}>{d.type.replace('-',' ')} {d.dueDate ? `· Due ${d.dueDate}` : ''}</div>
+                  <div style={{color:B.gray,fontSize:11,marginTop:2,textTransform:'capitalize'}}>{d.type.replace('-',' ')} {d.dueDate ? `Due ${d.dueDate}` : ''}</div>
                 </div>
                 <select value={d.status} onChange={e=>updateDeliverableStatus(d.id,e.target.value)}
                   style={{background:'rgba(0,0,0,0.4)',color:statusText[d.status]||B.white,border:`1px solid ${statusColors[d.status]}`,borderRadius:5,padding:'4px 8px',fontSize:11,fontWeight:700,cursor:'pointer',textTransform:'capitalize'}}>
                   {statuses.map(s=><option key={s} value={s} style={{color:'#fff',background:'#080D14',textTransform:'capitalize'}}>{s.replace('-',' ')}</option>)}
                 </select>
-                <button onClick={()=>removeDeliverable(d.id)} style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',cursor:'pointer',fontSize:14}}>✕</button>
+                <button onClick={()=>removeDeliverable(d.id)} style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',cursor:'pointer',fontSize:14}}>×</button>
               </div>
             ))}
           </div>
@@ -7452,7 +7393,7 @@ function ClientPortal() {
                   <div style={{color:'rgba(255,255,255,0.85)',fontSize:13,lineHeight:1.5}}>{n.text}</div>
                   <div style={{color:B.gray,fontSize:11,marginTop:4}}>{n.date}</div>
                 </div>
-                <button onClick={()=>removeNote(focusClient.id,n.id)} style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',cursor:'pointer',fontSize:12}}>✕</button>
+                <button onClick={()=>removeNote(focusClient.id,n.id)} style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',cursor:'pointer',fontSize:12}}>×</button>
               </div>
             ))}
           </div>
@@ -7465,9 +7406,9 @@ function ClientPortal() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🏢</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Client Portal</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Client Portal</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Full dashboard per client. Deliverables, notes, voice fingerprint, performance at a glance.</p>
         </div>
       </div>
@@ -7489,7 +7430,7 @@ function ClientPortal() {
               </div>
               <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:12}}>
                 <span style={{background:'rgba(255,255,255,0.07)',color:B.gray,borderRadius:4,padding:'2px 8px',fontSize:10}}>{c.platforms}</span>
-                {hasFp && <span style={{background:'rgba(0,212,255,0.1)',color:'#00C2FF',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700}}>🧬 Voice</span>}
+                {hasFp && <span style={{background:'rgba(0,212,255,0.1)',color:'#00C2FF',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700}}>Voice</span>}
                 {pending > 0 && <span style={{background:'rgba(245,166,35,0.15)',color:'#f5a623',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700}}>{pending} pending</span>}
               </div>
               <div style={{color:'rgba(255,255,255,0.5)',fontSize:12}}>{cDels.length} deliverables · {(notes[c.id]||[]).length} notes</div>
@@ -7505,9 +7446,7 @@ function ClientPortal() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MONTHLY REPORTING SUITE
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const MONTHLY_REPORT_PROMPT = (client, roiData, contentData, month, goals, wins, challenges) => `
+// ═════════════════════════════════════════════════════════════════════════════const MONTHLY_REPORT_PROMPT = (client, roiData, contentData, month, goals, wins, challenges) => `
 ${VOICE}
 
 You are writing a professional monthly performance report for a social media agency client.
@@ -7530,7 +7469,7 @@ Write a complete, professional monthly report. This goes directly to the client.
 
 # ${client.name}: Monthly Performance Report
 ## ${month}
-Prepared by SIGNAL — Social Media OS
+Prepared by SIGNAL Social Media OS
 
 ---
 
@@ -7587,7 +7526,7 @@ function MonthlyReportSuite() {
     try {
       const stored = localStorage.getItem('encis_content_log');
       if (!stored) return 'No content logged yet.';
-      return JSON.parse(stored).filter(e => e.perf === '🔥' || e.perf === '⭐').slice(0,8)
+      return JSON.parse(stored).filter(e => e.perf === '' || e.perf === '⭐').slice(0,8)
         .map(e => `${e.perf} ${e.title||e.topic|| 'Untitled'} (${e.type}, ${e.date})`).join('\n') || 'No rated content yet.';
     } catch { return 'No data available.'; }
   })();
@@ -7603,9 +7542,9 @@ function MonthlyReportSuite() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>📊</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Monthly Reporting Suite</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Monthly Reporting Suite</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>One-click monthly reports. Pulls your ROI data and content performance. Exports as PDF.</p>
         </div>
       </div>
@@ -7654,7 +7593,7 @@ function MonthlyReportSuite() {
               style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
           </div>
         </div>
-        <RedBtn onClick={run} disabled={loading||!selectedClient}>{loading ? 'Generating report...' : '📊 Generate Monthly Report'}</RedBtn>
+        <RedBtn onClick={run} disabled={loading||!selectedClient}>{loading ? 'Generating report...' : 'Generate Monthly Report'}</RedBtn>
       </Card>
       {loading && <Spin/>}
       {out && (
@@ -7673,9 +7612,7 @@ function MonthlyReportSuite() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CLIENT DELIVERABLE BUILDER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const DELIVERABLE_PROMPT = (client, type, brief, voiceFingerprint) => `
+// ═════════════════════════════════════════════════════════════════════════════const DELIVERABLE_PROMPT = (client, type, brief, voiceFingerprint) => `
 ${VOICE}
 
 You are creating a professional client deliverable for a social media agency.
@@ -7736,9 +7673,9 @@ function DeliverableBuilder() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>📦</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Client Deliverable Builder</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Client Deliverable Builder</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Generate polished, client-ready deliverables. Uses voice fingerprint automatically if built.</p>
         </div>
       </div>
@@ -7774,10 +7711,10 @@ function DeliverableBuilder() {
 
         {selectedClient && getFingerprint(selectedClient.id) && (
           <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:8,padding:'8px 12px',marginBottom:16,fontSize:12,color:'rgba(0,212,255,0.85)'}}>
-            🧬 Voice fingerprint active for {selectedClient.name}. Output will match their exact voice.
+            Voice fingerprint active for {selectedClient.name}. Output will match their exact voice.
           </div>
         )}
-        <RedBtn onClick={run} disabled={loading||!selectedClient||!brief}>{loading ? 'Building deliverable...' : '📦 Generate Deliverable'}</RedBtn>
+        <RedBtn onClick={run} disabled={loading||!selectedClient||!brief}>{loading ? 'Building deliverable...' : 'Generate Deliverable'}</RedBtn>
       </Card>
       {loading && <Spin/>}
       {out && (
@@ -7798,9 +7735,7 @@ function DeliverableBuilder() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPETITOR INTELLIGENCE DASHBOARD
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const COMP_INTEL_KEY = 'encis_competitor_intel';
+// ═════════════════════════════════════════════════════════════════════════════const COMP_INTEL_KEY = 'encis_competitor_intel';
 
 const COMP_ANALYSIS_PROMPT = (competitor, rawData, clientContext) => `
 ${VOICE}
@@ -7891,9 +7826,9 @@ function CompetitorIntel() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🕵️</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Competitor Intelligence</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Competitor Intelligence</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Track up to 10 competitors. Perplexity pulls live data. Claude finds the gaps you can own.</p>
         </div>
       </div>
@@ -7930,7 +7865,7 @@ function CompetitorIntel() {
                       <div style={{color:B.white,fontWeight:700,fontSize:13}}>{comp.handle}</div>
                       <div style={{color:B.gray,fontSize:11,marginTop:2}}>{comp.platform}</div>
                     </div>
-                    <button onClick={e=>{e.stopPropagation();removeComp(comp.id);}} style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',cursor:'pointer',fontSize:12}}>✕</button>
+                    <button onClick={e=>{e.stopPropagation();removeComp(comp.id);}} style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',cursor:'pointer',fontSize:12}}>×</button>
                   </div>
                   {hasResult && <div style={{color:B.gray,fontSize:10,marginBottom:8}}>Last run: {new Date(results[comp.id].updatedAt).toLocaleDateString()}</div>}
                   <button onClick={e=>{e.stopPropagation();runIntel(comp);}} disabled={fetching||loading}
@@ -7951,7 +7886,7 @@ function CompetitorIntel() {
           )}
           {!result && !fetching && !loading && (
             <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.02)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
-              <div style={{fontSize:48,marginBottom:12}}>🕵️</div>
+              
               <div style={{color:B.white,fontWeight:700,fontSize:16,marginBottom:8}}>{competitors.length===0?'No competitors added yet':'Select a competitor to run intel'}</div>
               <div style={{color:B.gray,fontSize:13}}>{competitors.length===0?'Add up to 10 competitor handles above.':'Click "Run Intel" to pull live data and analysis.'}</div>
             </div>
@@ -7964,9 +7899,7 @@ function CompetitorIntel() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // AI VIDEO SCRIPT DIRECTOR
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const VIDEO_DIRECTOR_PROMPT = (topic, angle, duration, location, equipment, style, shotStyle) => `
+// ═════════════════════════════════════════════════════════════════════════════const VIDEO_DIRECTOR_PROMPT = (topic, angle, duration, location, equipment, style, shotStyle) => `
 ${VOICE}
 
 Topic: "${topic}"
@@ -8048,9 +7981,9 @@ function VideoScriptDirector() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🎬</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>AI Video Script Director</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>AI Video Script Director</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Full production brief. Shot list, script, b-roll, music direction, thumbnail shot, editing notes. Hand this to any videographer.</p>
         </div>
       </div>
@@ -8097,7 +8030,7 @@ function VideoScriptDirector() {
 
         <SecLabel>Content Angle (Swarbrick Dimension)</SecLabel>
         <AngleGrid selected={angle} onSelect={setAngle}/>
-        <RedBtn onClick={run} disabled={loading||!topic}>{loading ? 'Directing...' : '🎬 Generate Production Brief'}</RedBtn>
+        <RedBtn onClick={run} disabled={loading||!topic}>{loading ? 'Directing...' : 'Generate Production Brief'}</RedBtn>
       </Card>
       {loading && <Spin/>}
       {out && <DocOutput text={out} title={`Production Brief: ${topic}`}/>}
@@ -8110,9 +8043,7 @@ function VideoScriptDirector() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CAMPAIGN BUILDER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const CAMPAIGNS_KEY = 'encis_campaigns';
+// ═════════════════════════════════════════════════════════════════════════════const CAMPAIGNS_KEY = 'encis_campaigns';
 
 const CAMPAIGN_PROMPT = (name, goal, audience, duration, platforms, launchDate, offer, client) => `
 ${client ? `CLIENT: ${client.name} (${client.handle}). Voice: ${client.voice}` : VOICE}
@@ -8152,7 +8083,7 @@ For each piece:
 The launch sequence. Coordinated across all platforms. First 24 hours are critical.
 
 For each piece:
-- Day and time: [specific — Day 1 at 12pm, Day 2 at 6pm, etc.]
+- Day and time: [specific Day 1 at 12pm, Day 2 at 6pm, etc.]
 - Platform: [where]
 - Format: [type]
 - Hook: [exact opening]
@@ -8240,9 +8171,9 @@ function CampaignBuilder() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🎯</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Campaign Builder</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Campaign Builder</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Multi-week coordinated campaigns. Pre-launch, launch, sustain, convert. Every post connected to the arc.</p>
         </div>
       </div>
@@ -8346,7 +8277,7 @@ function CampaignBuilder() {
           </div>
         </div>
 
-        <RedBtn onClick={run} disabled={loading||!name||!goal}>{loading ? 'Building campaign...' : '🎯 Build Full Campaign'}</RedBtn>
+        <RedBtn onClick={run} disabled={loading||!name||!goal}>{loading ? 'Building campaign...' : 'Build Full Campaign'}</RedBtn>
       </Card>
       {loading && <Spin/>}
       {out && <DocOutput text={out} title={`Campaign: ${name}`}/>}
@@ -8358,9 +8289,7 @@ function CampaignBuilder() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONTENT PERFORMANCE PREDICTOR
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const PREDICTOR_PROMPT = (content, platform, contentType, historicalData) => `
+// ═════════════════════════════════════════════════════════════════════════════const PREDICTOR_PROMPT = (content, platform, contentType, historicalData) => `
 ${VOICE}
 Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
@@ -8429,7 +8358,7 @@ function ContentPredictor() {
   const historicalData = (() => {
     try {
       const roi = JSON.parse(localStorage.getItem('encis_roi_data') || '[]').slice(-4);
-      const top = JSON.parse(localStorage.getItem('encis_content_log') || '[]').filter(e => e.perf === '🔥').slice(0,5);
+      const top = JSON.parse(localStorage.getItem('encis_content_log') || '[]').filter(e => e.perf === '').slice(0,5);
       if (!roi.length && !top.length) return '';
       return [
         roi.length ? `Recent avg reach: ${roi.map(w=>w.reach||0).filter(Boolean).join(', ')}` : '',
@@ -8450,9 +8379,9 @@ function ContentPredictor() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🔮</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Performance Predictor</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Performance Predictor</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Paste content before you post. Get scored on hook strength, save potential, share potential, and a full rewrite.</p>
         </div>
       </div>
@@ -8470,7 +8399,7 @@ function ContentPredictor() {
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {PLATFORMS.map(p => (
                 <button key={p} onClick={()=>setPlatform(p)}
-                  style={{background:platform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
+                  style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:B.white,border:'none',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
                   {p}
                 </button>
               ))}
@@ -8495,7 +8424,7 @@ function ContentPredictor() {
           style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:14,boxSizing:'border-box'}}/>
 
         <RedBtn onClick={async()=>{if(!content)return;setLoading(true);setOut('');const r=await ai(PREDICTOR_PROMPT(content,platform,contentType,historicalData));setOut(r);setLoading(false);}} disabled={loading||!content}>
-          {loading ? 'Analyzing...' : '🔮 Predict Performance'}
+          {loading ? 'Analyzing...' : 'Predict Performance'}
         </RedBtn>
       </Card>
       {loading && <Spin/>}
@@ -8506,9 +8435,7 @@ function ContentPredictor() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // WHITE LABEL MODE
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const WL_KEY = 'encis_whitelabel';
+// ═════════════════════════════════════════════════════════════════════════════const WL_KEY = 'encis_whitelabel';
 
 function useWhiteLabel() {
   const [wl, setWlState] = useState(null);
@@ -8551,16 +8478,16 @@ function WhiteLabelMode() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🏷️</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>White Label Mode</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>White Label Mode</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Rebrand the app with your agency name, colors, and logo. Your clients see your brand, not SIGNAL.</p>
         </div>
       </div>
 
       {wl && (
         <div style={{background:'rgba(39,174,96,0.08)',border:'1px solid rgba(39,174,96,0.2)',borderRadius:10,padding:'12px 16px',marginBottom:20,display:'flex',alignItems:'center',gap:12}}>
-          <span style={{fontSize:18}}>✓</span>
+          <span style={{color:"#27ae60",fontWeight:800,fontSize:14}}>✓</span>
           <div style={{flex:1}}>
             <div style={{color:'#27ae60',fontWeight:700,fontSize:13}}>White label active: {wl.agencyName}</div>
             <div style={{color:B.gray,fontSize:12,marginTop:2}}>App header, titles, and documents are branded to your agency.</div>
@@ -8625,7 +8552,7 @@ function WhiteLabelMode() {
         )}
 
         <div style={{display:'flex',gap:10}}>
-          <RedBtn onClick={save} disabled={!form.agencyName}>{saved ? '✓ Saved' : 'Save White Label Settings'}</RedBtn>
+          <RedBtn onClick={save} disabled={!form.agencyName}>{saved ? 'Saved' : 'Save White Label Settings'}</RedBtn>
           {wl && <button onClick={reset} style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:8,padding:'10px 18px',fontSize:13,cursor:'pointer'}}>Reset to Default</button>}
         </div>
       </Card>
@@ -8648,9 +8575,7 @@ function WhiteLabelMode() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CUSTOM AI PERSONA PER CLIENT
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const PERSONA_KEY = 'encis_personas';
+// ═════════════════════════════════════════════════════════════════════════════const PERSONA_KEY = 'encis_personas';
 const PERSONA_RATINGS_KEY = 'encis_persona_ratings';
 
 const PERSONA_BUILD_PROMPT = (client, voiceFingerprint, contentHistory, ratings) => `
@@ -8740,7 +8665,7 @@ function CustomPersona() {
     const clientLog = log.filter(e => !e.client || e.client === client.name).slice(0, 20);
     const history = clientLog.length ? clientLog.map(e => `${e.type}: ${e.title||e.topic||''}`).join('\n') : null;
     const ratings = {
-      viral: clientLog.filter(e=>e.perf==='🔥').map(e=>e.title||e.topic|| '').filter(Boolean).slice(0,5),
+      viral: clientLog.filter(e=>e.perf==='').map(e=>e.title||e.topic|| '').filter(Boolean).slice(0,5),
       good: clientLog.filter(e=>e.perf==='⭐').map(e=>e.title||e.topic|| '').filter(Boolean).slice(0,5),
       flopped: clientLog.filter(e=>e.perf==='💀').map(e=>e.title||e.topic|| '').filter(Boolean).slice(0,5),
     };
@@ -8781,9 +8706,9 @@ function CustomPersona() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🤖</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Custom AI Persona</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Custom AI Persona</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Builds a trained AI persona per client. Gets smarter as you rate content. Injected into every tool automatically.</p>
         </div>
       </div>
@@ -8828,7 +8753,7 @@ function CustomPersona() {
             {['build','view','refine'].map(t => (
               <button key={t} onClick={() => setActiveTab(t)}
                 style={{background:activeTab===t?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',borderRadius:8,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:activeTab===t?700:400,textTransform:'capitalize'}}>
-                {t === 'build' ? (persona ? 'Rebuild' : '+ Build Persona') : t === 'view' ? '🤖 View Persona' : '✏️ Refine'}
+                {t === 'build' ? (persona ? 'Rebuild' : '+ Build Persona') : t === 'view' ? 'View Persona' : 'Refine'}
               </button>
             ))}
           </div>
@@ -8844,7 +8769,7 @@ function CustomPersona() {
                 </div>
               )}
               <RedBtn onClick={buildPersona} disabled={loading}>
-                {loading ? 'Building persona...' : `🤖 Build ${selectedClient.name} Persona`}
+                {loading ? 'Building persona...' : `Build ${selectedClient.name} Persona`}
               </RedBtn>
               {loading && <Spin/>}
             </Card>
@@ -8858,7 +8783,7 @@ function CustomPersona() {
                     <div style={{color:B.white,fontWeight:800,fontSize:16}}>"{persona.personaName}"</div>
                     <div style={{color:B.gray,fontSize:12,marginTop:2}}>
                       Confidence: <span style={{color:{high:'#27ae60',medium:'#f5a623',low:B.red}[persona.confidence]||B.gray,fontWeight:700}}>{persona.confidence?.toUpperCase()}</span>
-                      {persona.refinementCount > 0 && <span style={{color:B.gray}}> · Refined {persona.refinementCount}x</span>}
+                      {persona.refinementCount > 0 && <span style={{color:B.gray}}> Refined {persona.refinementCount}x</span>}
                     </div>
                     <div style={{color:'rgba(255,255,255,0.45)',fontSize:11,marginTop:4}}>{persona.dataUsed}</div>
                   </div>
@@ -8895,7 +8820,7 @@ function CustomPersona() {
 
           {activeTab === 'view' && !persona && (
             <div style={{textAlign:'center',padding:'3rem',background:'rgba(255,255,255,0.02)',borderRadius:12,border:'1px solid rgba(255,255,255,0.06)'}}>
-              <div style={{fontSize:40,marginBottom:12}}>🤖</div>
+              
               <div style={{color:B.white,fontWeight:700,marginBottom:8}}>No persona built yet</div>
               <button onClick={()=>setActiveTab('build')} style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'9px 18px',fontSize:13,fontWeight:700,cursor:'pointer'}}>Build Now</button>
             </div>
@@ -8930,9 +8855,7 @@ function CustomPersona() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CUSTOM ANGLES MANAGER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function CustomAnglesManager({ client, onClose }) {
+// ═════════════════════════════════════════════════════════════════════════════function CustomAnglesManager({ client, onClose }) {
   const [data, setData] = useState({ mode: 'swarbrick', angles: [] });
   const [newAngle, setNewAngle] = useState({ label: '', emoji: '📌', desc: '' });
   const [saved, setSaved] = useState(false);
@@ -8970,7 +8893,7 @@ function CustomAnglesManager({ client, onClose }) {
     { id: 'both', label: 'Both', desc: 'Show Swarbrick dimensions plus custom angles. More options in every tool.' },
   ];
 
-  const emojis = ['📌','🎯','💡','🔥','⚡','🌟','💰','🏆','🎬','📱','🤝','🧩','🌿','🏠','🎤','📚','💪','🧠','❤️','🌐'];
+  const emojis = ['📌','🎯','💡','','⚡','🌟','💰','🏆','🎬','📱','🤝','🧩','🌿','🏠','🎤','📚','💪','🧠','❤️','🌐'];
 
   return (
     <div style={{background:'rgba(0,0,0,0.6)',position:'fixed',inset:0,zIndex:999,display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
@@ -9011,7 +8934,7 @@ function CustomAnglesManager({ client, onClose }) {
                       <div style={{color:B.white,fontWeight:700,fontSize:13}}>{a.label}</div>
                       {a.desc && <div style={{color:B.gray,fontSize:11,marginTop:2}}>{a.desc}</div>}
                     </div>
-                    <button onClick={() => removeAngle(a.id)} style={{background:'transparent',border:'none',color:'rgba(255,255,255,0.25)',cursor:'pointer',fontSize:14}}>✕</button>
+                    <button onClick={() => removeAngle(a.id)} style={{background:'transparent',border:'none',color:'rgba(255,255,255,0.25)',cursor:'pointer',fontSize:14}}>×</button>
                   </div>
                 ))}
               </div>
@@ -9053,9 +8976,7 @@ function CustomAnglesManager({ client, onClose }) {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CALL TRANSCRIPT INTEL
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const TRANSCRIPTS_KEY = 'encis_transcripts';
+// ═════════════════════════════════════════════════════════════════════════════const TRANSCRIPTS_KEY = 'encis_transcripts';
 
 const TRANSCRIPT_ANALYSIS_PROMPT = (client, transcript, type) => `
 ${VOICE}
@@ -9146,9 +9067,9 @@ function TranscriptIntel() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>📞</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Call Transcript Intel</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Call Transcript Intel</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Upload or paste any call transcript. Extracts content ideas, client quotes, action items, and voice patterns. No Fireflies needed.</p>
         </div>
       </div>
@@ -9202,7 +9123,7 @@ function TranscriptIntel() {
             <input ref={fileRef} type="file" accept=".txt,.md,.vtt,.srt,text/plain" onChange={handleFile} style={{display:'none'}}/>
             <button onClick={() => fileRef.current?.click()} disabled={uploading}
               style={{width:'100%',background:'rgba(255,255,255,0.03)',border:'2px dashed rgba(255,255,255,0.12)',borderRadius:10,padding:'16px',cursor:'pointer',color:B.gray,fontSize:13}}>
-              {uploading ? '⏳ Reading file...' : '📎 Upload transcript file (.txt, .vtt, .srt, .md)'}
+              {uploading ? 'Reading file...' : 'Upload transcript file (.txt, .vtt, .srt, .md)'}
             </button>
           </div>
 
@@ -9217,7 +9138,7 @@ function TranscriptIntel() {
           )}
 
           <RedBtn onClick={analyze} disabled={analyzing||!transcript.trim()||!selectedClient}>
-            {analyzing ? 'Analyzing transcript...' : '📞 Extract Intel from Transcript'}
+            {analyzing ? 'Analyzing transcript...' : 'Extract Intel from Transcript'}
           </RedBtn>
           {analyzing && <Spin/>}
         </Card>
@@ -9227,7 +9148,7 @@ function TranscriptIntel() {
         <div>
           {clientTranscripts.length === 0 ? (
             <div style={{textAlign:'center',padding:'3rem',background:'rgba(255,255,255,0.02)',borderRadius:12,border:'1px solid rgba(255,255,255,0.06)'}}>
-              <div style={{fontSize:40,marginBottom:12}}>📞</div>
+              
               <div style={{color:B.white,fontWeight:700,marginBottom:8}}>No transcripts yet for {selectedClient?.name}</div>
               <button onClick={()=>setView('upload')} style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'9px 18px',fontSize:13,fontWeight:700,cursor:'pointer'}}>Upload First Transcript</button>
             </div>
@@ -9254,7 +9175,7 @@ function TranscriptIntel() {
       {view === 'results' && out && (
         <div>
           <button onClick={() => setView('upload')} style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',borderRadius:6,padding:'6px 14px',fontSize:12,cursor:'pointer',marginBottom:16}}>
-            ← New Transcript
+            New Transcript
           </button>
           <DocOutput text={out} title={`${transcriptType} Analysis: ${selectedClient?.name}`}/>
         </div>
@@ -9267,10 +9188,8 @@ function TranscriptIntel() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // ANALYTICS IMPORT HUB
 // Parses CSV exports from Instagram, YouTube, Facebook, LinkedIn natively
-// No API needed — user exports from the platform, imports here
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const ANALYTICS_KEY = 'encis_analytics_data';
+// No API needed user exports from the platform, imports here
+// ═════════════════════════════════════════════════════════════════════════════const ANALYTICS_KEY = 'encis_analytics_data';
 
 const ANALYTICS_INSIGHT_PROMPT = (client, platform, data, period) => `
 ${VOICE}
@@ -9283,7 +9202,7 @@ PERIOD: ${period}
 IMPORTED ANALYTICS DATA:
 ${data}
 
-Analyze this data and extract every useful insight. Be specific — use the actual numbers.
+Analyze this data and extract every useful insight. Be specific use the actual numbers.
 
 # ${platform} Analytics Report: ${client.name}
 
@@ -9394,20 +9313,20 @@ function AnalyticsHub() {
   };
 
   const exportInstructions = {
-    Instagram: ['Open Instagram app or Meta Business Suite', 'Go to Insights → Overview', 'Tap "Export" or use Meta Business Suite → Insights → Export Data', 'Choose date range → Export as CSV', 'Upload that file here'],
-    YouTube: ['Go to YouTube Studio → Analytics', 'Click "Advanced mode" top right', 'Set date range → click "Export" (download icon)', 'Upload the CSV file here'],
-    Facebook: ['Open Meta Business Suite → Insights', 'Select date range → Export → Download as CSV', 'Upload here'],
-    LinkedIn: ['Go to LinkedIn Analytics → Content', 'Click "Export" button top right', 'Upload the CSV file here'],
-    X: ['Go to analytics.twitter.com', 'Click "Export data" in the top right', 'Choose date range → Export (Tweet activity)', 'Upload the CSV file here'],
-    TikTok: ['Open TikTok app → Profile → Creator tools → Analytics', 'Tap "Export data" at the bottom', 'Data is emailed to you as CSV', 'Upload that CSV here — or paste your key metrics manually'],
+    Instagram: ['Open Instagram app or Meta Business Suite', 'Go to Insights Overview', 'Tap "Export" or use Meta Business Suite Insights Export Data', 'Choose date range Export as CSV', 'Upload that file here'],
+    YouTube: ['Go to YouTube Studio Analytics', 'Click "Advanced mode" top right', 'Set date range click "Export" (download icon)', 'Upload the CSV file here'],
+    Facebook: ['Open Meta Business Suite Insights', 'Select date range Export Download as CSV', 'Upload here'],
+    LinkedIn: ['Go to LinkedIn Analytics Content', 'Click "Export" button top right', 'Upload the CSV file here'],
+    X: ['Go to analytics.twitter.com', 'Click "Export data" in the top right', 'Choose date range Export (Tweet activity)', 'Upload the CSV file here'],
+    TikTok: ['Open TikTok app Profile Creator tools Analytics', 'Tap "Export data" at the bottom', 'Data is emailed to you as CSV', 'Upload that CSV here or paste your key metrics manually'],
   };
 
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>📊</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Analytics Import Hub</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Analytics Import Hub</h2>
           <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Export from any platform for free. Import here. SIGNAL turns raw CSV data into actionable intelligence.</p>
         </div>
       </div>
@@ -9456,7 +9375,7 @@ function AnalyticsHub() {
           <input ref={fileRef} type="file" accept=".csv,.xlsx,text/csv" onChange={handleFile} style={{display:'none'}}/>
           <button onClick={() => fileRef.current?.click()} disabled={importing}
             style={{width:'100%',background:'rgba(255,255,255,0.03)',border:'2px dashed rgba(0,194,255,0.2)',borderRadius:10,padding:'16px',cursor:'pointer',color:B.light,fontSize:13,marginBottom:12}}>
-            {importing ? '⏳ Parsing data...' : `📎 Upload ${platform} Analytics CSV`}
+            {importing ? 'Parsing data...' : `Upload ${platform} Analytics CSV`}
           </button>
 
           {rawData && (
@@ -9500,9 +9419,7 @@ function AnalyticsHub() {
 // VISUAL CONTENT CALENDAR (planning + scheduling layer)
 // Drag-free, click-to-assign content to dates
 // Export to Meta Business Suite / Google Calendar
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const VISUAL_CAL_KEY = 'encis_visual_calendar';
+// ═════════════════════════════════════════════════════════════════════════════const VISUAL_CAL_KEY = 'encis_visual_calendar';
 
 function VisualCalendar() {
   const [clients] = useClients();
@@ -9576,15 +9493,15 @@ function VisualCalendar() {
     <div>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <span style={{fontSize:32}}>📅</span>
+          <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
           <div>
-            <h2 style={{color:B.white,margin:0}}>Visual Content Calendar</h2>
+            <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Visual Content Calendar</h2>
             <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Plan, approve, and export. Download CSV for Meta Business Suite or any free scheduler.</p>
           </div>
         </div>
         <div style={{display:'flex',gap:8}}>
           <button onClick={exportForMeta} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>
-            ↓ Export CSV
+            Export CSV
           </button>
         </div>
       </div>
@@ -9670,7 +9587,7 @@ function VisualCalendar() {
                   <select value={p.status} onChange={e=>updateStatus(selectedDate,p.id,e.target.value)} style={{background:'rgba(0,0,0,0.4)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:4,padding:'3px 6px',fontSize:10,cursor:'pointer'}}>
                     {['planned','approved','published','needs_edit'].map(s=><option key={s} value={s} style={{background:'#080D14'}}>{s.replace('_',' ')}</option>)}
                   </select>
-                  <button onClick={()=>removePost(selectedDate,p.id)} style={{background:'none',border:'none',color:'rgba(255,255,255,0.2)',cursor:'pointer',fontSize:14}}>✕</button>
+                  <button onClick={()=>removePost(selectedDate,p.id)} style={{background:'none',border:'none',color:'rgba(255,255,255,0.2)',cursor:'pointer',fontSize:14}}>×</button>
                 </div>
               ))}
             </div>
@@ -9692,7 +9609,7 @@ function VisualCalendar() {
       )}
 
       <div style={{marginTop:16,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'12px 16px',fontSize:12,color:B.gray,lineHeight:1.8}}>
-        <strong style={{color:B.light}}>Free scheduling workflow:</strong> Plan here → Export CSV → Upload to Meta Business Suite (free, schedules Instagram + Facebook) or copy content to YouTube Studio, LinkedIn, or any scheduler. SIGNAL handles the strategy and planning layer.
+        <strong style={{color:B.light}}>Free scheduling workflow:</strong> Plan here Export CSV Upload to Meta Business Suite (free, schedules Instagram + Facebook) or copy content to YouTube Studio, LinkedIn, or any scheduler. SIGNAL handles the strategy and planning layer.
       </div>
     </div>
   );
@@ -9700,9 +9617,7 @@ function VisualCalendar() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // AI STRATEGY REVIEW (auto-generated monthly, no API needed)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const STRATEGY_REVIEW_KEY = 'encis_strategy_reviews';
+// ═════════════════════════════════════════════════════════════════════════════const STRATEGY_REVIEW_KEY = 'encis_strategy_reviews';
 
 const STRATEGY_REVIEW_PROMPT = (client, roiData, contentData, calendarData, period) => `
 ${VOICE}
@@ -9797,9 +9712,9 @@ function AIStrategyReview() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🧠</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>AI Strategy Review</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>AI Strategy Review</h2>
           <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Monthly strategic review generated automatically from your data. Replaces the $500/month strategy call.</p>
         </div>
       </div>
@@ -9823,7 +9738,7 @@ function AIStrategyReview() {
             {[
               {label:'ROI Data',val:roiStr!=='No ROI data yet.',desc:roiStr!=='No ROI data yet.'?'Weeks logged':'Log in ROI Dashboard'},
               {label:'Content Ratings',val:contentStr!=='No rated content yet.',desc:contentStr!=='No rated content yet.'?'Rated posts found':'Rate in Content Memory'},
-              {label:'Calendar Data',val:false,desc:'Optional — add in Visual Calendar'},
+              {label:'Calendar Data',val:false,desc:'Optional add in Visual Calendar'},
             ].map(d=>(
               <div key={d.label} style={{background:d.val?'rgba(39,174,96,0.06)':'rgba(255,255,255,0.03)',border:`1px solid ${d.val?'rgba(39,174,96,0.2)':'rgba(255,255,255,0.07)'}`,borderRadius:8,padding:'10px 12px'}}>
                 <div style={{fontSize:10,color:d.val?'#27ae60':B.gray,fontWeight:700,textTransform:'uppercase',letterSpacing:1,marginBottom:4}}>{d.label}</div>
@@ -9862,9 +9777,7 @@ function AIStrategyReview() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // CLIENT ONBOARDING AUTOMATION
 // Runs all tools on new client add: audit, fingerprint, gaps, strategy draft
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const ONBOARDING_AUTO_PROMPT = (client) => `
+// ═════════════════════════════════════════════════════════════════════════════const ONBOARDING_AUTO_PROMPT = (client) => `
 ${VOICE}
 Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
@@ -9935,9 +9848,9 @@ function OnboardingAutomation() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>⚡</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Onboarding Automation</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Onboarding Automation</h2>
           <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Add a client, run this. Full onboarding package before the first call. Platform assessment, content angles, 30-day plan, first 10 posts.</p>
         </div>
       </div>
@@ -9963,7 +9876,7 @@ function OnboardingAutomation() {
 
         {selectedClient && (
           <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
-            <RedBtn onClick={generate} disabled={loading}>{loading?'Generating package...':'⚡ Generate Onboarding Package'}</RedBtn>
+            <RedBtn onClick={generate} disabled={loading}>{loading?'Generating package...':'Generate Onboarding Package'}</RedBtn>
             {existing && <button onClick={()=>setOut(existing.analysis)} style={{background:'rgba(255,255,255,0.06)',color:B.light,border:'none',borderRadius:8,padding:'10px 18px',fontSize:13,cursor:'pointer'}}>View Existing</button>}
           </div>
         )}
@@ -9979,9 +9892,7 @@ function OnboardingAutomation() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // BIO LINK PAGE BUILDER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const BIOLINK_PROMPT = (client, links, headline, subtext, style) => `
+// ═════════════════════════════════════════════════════════════════════════════const BIOLINK_PROMPT = (client, links, headline, subtext, style) => `
 ${VOICE}
 
 CLIENT: ${client.name} (${client.handle})
@@ -10000,7 +9911,7 @@ Requirements:
 - Email capture section with lead magnet hook
 - Footer with copyright
 
-Return ONLY the complete HTML — no explanation, no markdown, no backticks. Just the raw HTML starting with <!DOCTYPE html>.`;
+Return ONLY the complete HTML no explanation, no markdown, no backticks. Just the raw HTML starting with <!DOCTYPE html>.`;
 
 function BioLinkBuilder() {
   const [clients] = useClients();
@@ -10049,14 +9960,14 @@ function BioLinkBuilder() {
   };
 
   const styles = ['Midnight Premium', 'Clean Minimal', 'Bold Dark', 'Warm Creator'];
-  const iconOptions = ['🔗','📸','▶️','💼','🏠','🎙️','📧','🤝','🏆','📱','🌐','💰','🔥','📚','🎯'];
+  const iconOptions = ['🔗','📸','▶️','💼','🏠','🎙️','📧','🤝','🏆','📱','🌐','💰','','📚','🎯'];
 
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🔗</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Bio Link Page Builder</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Bio Link Page Builder</h2>
           <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Builds a complete link-in-bio landing page. Download and host free on GitHub Pages, Netlify, or Carrd.</p>
         </div>
       </div>
@@ -10074,7 +9985,7 @@ function BioLinkBuilder() {
           </div>
           <div>
             <SecLabel>One-Line Description</SecLabel>
-            <input value={subtext} onChange={e=>setSubtext(e.target.value)} placeholder="HR Manager · Mindset Coach · Colorado Real Estate"
+            <input value={subtext} onChange={e=>setSubtext(e.target.value)} placeholder="HR Manager Mindset Coach Colorado Real Estate"
               style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
           </div>
         </div>
@@ -10091,7 +10002,7 @@ function BioLinkBuilder() {
                 <div style={{color:B.white,fontSize:12,fontWeight:600}}>{l.label}</div>
                 <div style={{color:B.gray,fontSize:11}}>{l.url}</div>
               </div>
-              <button onClick={()=>removeLink(l.id)} style={{background:'none',border:'none',color:'rgba(255,255,255,0.2)',cursor:'pointer',fontSize:14}}>✕</button>
+              <button onClick={()=>removeLink(l.id)} style={{background:'none',border:'none',color:'rgba(255,255,255,0.2)',cursor:'pointer',fontSize:14}}>×</button>
             </div>
           ))}
         </div>
@@ -10116,14 +10027,14 @@ function BioLinkBuilder() {
             <button onClick={addLink} disabled={!newLink.label||!newLink.url} style={{background:B.red,color:'#000D1A',border:'none',borderRadius:8,padding:'9px 16px',fontWeight:800,cursor:'pointer',fontSize:13,whiteSpace:'nowrap'}}>+ Add</button>
           </div>
         </div>
-        <RedBtn onClick={run} disabled={loading||!selectedClient}>{loading?'Building page...':'🔗 Build Bio Link Page'}</RedBtn>
+        <RedBtn onClick={run} disabled={loading||!selectedClient}>{loading?'Building page...':'Build Bio Link Page'}</RedBtn>
       </Card>
       {loading && <Spin/>}
       {out && (
         <div style={{marginTop:20}}>
           <div style={{display:'flex',gap:8,marginBottom:12}}>
-            <button onClick={()=>setPreview(p=>!p)} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:'pointer'}}>{preview?'Hide Preview':'👁 Preview'}</button>
-            <button onClick={download} style={{background:B.red,color:'#000D1A',border:'none',borderRadius:8,padding:'7px 16px',fontSize:12,fontWeight:800,cursor:'pointer'}}>⬇ Download HTML</button>
+            <button onClick={()=>setPreview(p=>!p)} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:'pointer'}}>{preview?'Hide Preview':'Preview'}</button>
+            <button onClick={download} style={{background:B.red,color:'#000D1A',border:'none',borderRadius:8,padding:'7px 16px',fontSize:12,fontWeight:800,cursor:'pointer'}}>Download HTML</button>
             <CopyBtn text={out}/>
           </div>
           {preview && <iframe srcDoc={out} style={{width:'100%',height:600,border:'1px solid rgba(0,194,255,0.1)',borderRadius:12}} title="Bio Link Preview"/>}
@@ -10135,9 +10046,7 @@ function BioLinkBuilder() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CLIENT COMMUNICATION TEMPLATES
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const COMM_TEMPLATES_PROMPT = (client, templateType, context, agencyName) => `
+// ═════════════════════════════════════════════════════════════════════════════const COMM_TEMPLATES_PROMPT = (client, templateType, context, agencyName) => `
 ${VOICE}
 
 AGENCY: ${agencyName || 'Everyday Elevations / SIGNAL'}
@@ -10192,9 +10101,9 @@ function ClientCommsTemplates() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>📨</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Client Communication Templates</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Client Communication Templates</h2>
           <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Every email agencies send. Written in your voice, personalized per client. Ready to copy and send.</p>
         </div>
       </div>
@@ -10225,7 +10134,7 @@ function ClientCommsTemplates() {
         <SecLabel>Additional Context (optional)</SecLabel>
         <input value={context} onChange={e=>setContext(e.target.value)} placeholder="e.g. Report is 3 days late due to platform data delay, client is generally easy-going"
           style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:16,boxSizing:'border-box'}}/>
-        <RedBtn onClick={run} disabled={loading||!selectedClient||!templateType}>{loading?'Writing...':'📨 Write Communication'}</RedBtn>
+        <RedBtn onClick={run} disabled={loading||!selectedClient||!templateType}>{loading?'Writing...':'Write Communication'}</RedBtn>
       </Card>
       {loading&&<Spin/>}
       {out && <DocOutput text={out} title={`${templates.find(t=>t.id===templateType)?.label} — ${selectedClient?.name}`}/>}
@@ -10235,9 +10144,7 @@ function ClientCommsTemplates() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONTENT BRIEF GENERATOR (pre-filming session brief)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const CONTENT_BRIEF_PROMPT = (client, sessionDate, location, topics, equipment, duration, intensity) => `
+// ═════════════════════════════════════════════════════════════════════════════const CONTENT_BRIEF_PROMPT = (client, sessionDate, location, topics, equipment, duration, intensity) => `
 You are a world-class content strategist, creative director, and personal brand operator.
 
 You think like someone who runs a content-driven business, understands audience psychology, knows how content turns into revenue, and values clarity over fluff.
@@ -10252,7 +10159,7 @@ PRIMARY LOCATION: ${location || "Home or office"}
 TOPICS TO COVER: ${topics}
 EQUIPMENT AVAILABLE: ${equipment || 'Phone + basic setup'}
 SESSION DURATION: ${duration || '2-3 hours'}
-CONTENT INTENSITY: ${intensity || 'MEDIUM'} — LOW: approachable, simple, soft edges. MEDIUM: balanced insight, clear structure. HIGH: direct, strong opinions, slightly confrontational.
+CONTENT INTENSITY: ${intensity || 'MEDIUM'} LOW: approachable, simple, soft edges. MEDIUM: balanced insight, clear structure. HIGH: direct, strong opinions, slightly confrontational.
 
 STYLE RULES: No emojis. No hype language. No algorithm talk. No corporate tone. No long paragraphs. Everything must feel natural to say out loud.
 
@@ -10332,7 +10239,7 @@ For each platform in ${client.platforms}: how each piece gets used, format, leng
 
 **What this content warms people up for:** The specific service, offer, or next step for ${client.name}
 
-**Where soft conversion happens:** DMs / link in bio / comments / email — specific per piece
+**Where soft conversion happens:** DMs / link in bio / comments / email specific per piece
 
 **What type of lead this attracts:** Name the exact person and their specific situation. Not a broad demographic.
 
@@ -10354,16 +10261,16 @@ Generate a complete, tiered hashtag strategy for this niche on ${platform} right
 
 # Hashtag Strategy: ${niche} on ${platform}
 
-## Tier 1 — Niche (under 100K posts)
+## Tier 1 Niche (under 100K posts)
 10 hashtags that are specific enough to reach a targeted, engaged audience.
 For each: hashtag, approximate post count, why it works for this account.
 
-## Tier 2 — Mid-Range (100K–1M posts)
+## Tier 2 Mid-Range (100K–1M posts)
 10 hashtags with real reach but not oversaturated.
 For each: hashtag, approximate post count, content style that wins here.
 
-## Tier 3 — Broad (1M+ posts)
-5 hashtags for discovery. Use sparingly — these are competitive.
+## Tier 3 Broad (1M+ posts)
+5 hashtags for discovery. Use sparingly these are competitive.
 For each: hashtag, approximate post count, when to use it.
 
 ## Banned / Shadowbanned Risk
@@ -10408,7 +10315,7 @@ function HashtagResearch() {
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
         <span style={{fontSize:32}}>##</span>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Hashtag Research</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Hashtag Research</h2>
           <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Perplexity pulls live hashtag data. SIGNAL builds a tiered strategy with a copy-paste ready stack and rotation plan.</p>
         </div>
       </div>
@@ -10447,7 +10354,7 @@ function HashtagResearch() {
           </div>
         </div>
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-          <button onClick={fetchLive} disabled={fetching||!niche} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'9px 16px',cursor:'pointer',fontSize:12,fontWeight:700}}>{fetching?'Pulling live data...':'🔍 Pull Live Data First'}</button>
+          <button onClick={fetchLive} disabled={fetching||!niche} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'9px 16px',cursor:'pointer',fontSize:12,fontWeight:700}}>{fetching?'Pulling live data...':'Pull Live Data First'}</button>
           <RedBtn onClick={run} disabled={loading||!niche}>{loading?'Researching...':'## Build Hashtag Strategy'}</RedBtn>
         </div>
         {liveData && <div style={{marginTop:12,background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'10px',fontSize:11,color:'rgba(255,255,255,0.5)',maxHeight:80,overflowY:'auto'}}>{liveData.slice(0,300)}...</div>}
@@ -10460,9 +10367,7 @@ function HashtagResearch() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONTENT SERIES PLANNER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const SERIES_PROMPT = (seriesName, theme, platform, episodeCount, client, cadence) => `
+// ═════════════════════════════════════════════════════════════════════════════const SERIES_PROMPT = (seriesName, theme, platform, episodeCount, client, cadence) => `
 ${client ? `CLIENT: ${client.name} (${client.handle}). Voice: ${client.voice}` : VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
@@ -10522,9 +10427,9 @@ function ContentSeriesPlanner() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>📺</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Content Series Planner</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Content Series Planner</h2>
           <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Plan a named content series that runs like a show. Every episode mapped, connected, and optimized to build audience habit.</p>
         </div>
       </div>
@@ -10568,7 +10473,7 @@ function ContentSeriesPlanner() {
           {clients.filter(c=>!c.isDefault).map(c=><button key={c.id} onClick={()=>setSelectedClient(c)} style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:selectedClient?.id===c.id?'#000D1A':B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.name}</button>)}
         </div>
         <RedBtn onClick={async()=>{if(!seriesName||!theme)return;setLoading(true);setOut('');const r=await ai(SERIES_PROMPT(seriesName,theme,platform,episodeCount,selectedClient?.isDefault?null:selectedClient,cadence));setOut(r);setLoading(false);}} disabled={loading||!seriesName||!theme}>
-          {loading?'Planning series...':'📺 Plan Full Series'}
+          {loading?'Planning series...':'Plan Full Series'}
         </RedBtn>
       </Card>
       {loading&&<Spin/>}
@@ -10579,14 +10484,12 @@ function ContentSeriesPlanner() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // BIO OPTIMIZER (dedicated, more thorough than profile audit)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const BIO_OPTIMIZER_PROMPT = (client, platform, currentBio, goals) => `
+// ═════════════════════════════════════════════════════════════════════════════const BIO_OPTIMIZER_PROMPT = (client, platform, currentBio, goals) => `
 ${VOICE}
 
 CLIENT: ${client.name} (${client.handle})
 PLATFORM: ${platform}
-CURRENT BIO: ${currentBio || 'Not provided — write from scratch based on client profile'}
+CURRENT BIO: ${currentBio || 'Not provided write from scratch based on client profile'}
 GOALS: ${goals || 'Grow followers, drive leads, build authority'}
 VOICE: ${client.voice || 'Direct, no fluff'}
 OFFERS: ${client.notes || 'Not specified'}
@@ -10596,22 +10499,22 @@ Write 3 bio variations optimized for ${platform}. Each must be different enough 
 # Bio Optimization: ${client.name} on ${platform}
 
 ## What the Current Bio Gets Wrong
-Specific problems with the existing bio. Not generic — look at what's there and diagnose it.
+Specific problems with the existing bio. Not generic look at what's there and diagnose it.
 
 ## The 3 Core Jobs a ${platform} Bio Must Do
 For this specific account and goal.
 
-## Variation 1 — Authority First
+## Variation 1 Authority First
 Leads with credibility and expertise. Who you are and why you matter.
 [Complete bio, ready to paste]
 Character count: [X/${platform === 'Instagram' ? '150' : platform === 'X' ? '160' : platform === 'TikTok' ? '80' : '220'}]
 
-## Variation 2 — Outcome First
+## Variation 2 Outcome First
 Leads with what the audience gets. What changes for them by following.
 [Complete bio, ready to paste]
 Character count: [X]
 
-## Variation 3 — Personality First
+## Variation 3 Personality First
 Leads with voice and identity. Makes them feel like they already know you.
 [Complete bio, ready to paste]
 Character count: [X]
@@ -10641,10 +10544,10 @@ function BioOptimizer() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>✏️</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Bio Optimizer</h2>
-          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>3 bio variations per platform — authority-first, outcome-first, personality-first. Name field SEO and link strategy included.</p>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Bio Optimizer</h2>
+          <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>3 bio variations per platform authority-first, outcome-first, personality-first. Name field SEO and link strategy included.</p>
         </div>
       </div>
       {activeClient && !activeClient.isDefault && <ClientBanner client={activeClient}/>}
@@ -10671,7 +10574,7 @@ function BioOptimizer() {
         <input value={goals} onChange={e=>setGoals(e.target.value)} placeholder="e.g. Drive real estate leads, grow email list, build podcast listeners"
           style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:16,boxSizing:'border-box'}}/>
         <RedBtn onClick={async()=>{if(!selectedClient)return;setLoading(true);setOut('');const r=await ai(BIO_OPTIMIZER_PROMPT(selectedClient,platform,currentBio,goals));setOut(r);setLoading(false);}} disabled={loading||!selectedClient}>
-          {loading?'Optimizing...':'✏️ Optimize Bio'}
+          {loading?'Optimizing...':'Optimize Bio'}
         </RedBtn>
       </Card>
       {loading&&<Spin/>}
@@ -10684,9 +10587,7 @@ function BioOptimizer() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PRICING CALCULATOR
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const PRICING_PROMPT = (niche, platforms, followers, engagementRate, services, market) => `
+// ═════════════════════════════════════════════════════════════════════════════const PRICING_PROMPT = (niche, platforms, followers, engagementRate, services, market) => `
 ${VOICE}
 Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
@@ -10697,7 +10598,7 @@ ENGAGEMENT RATE: ${engagementRate}%
 SERVICES TO PRICE: ${services}
 MARKET: ${market || 'US'}
 
-Generate a complete pricing guide. Be specific — use real market rates for 2026. No vague ranges.
+Generate a complete pricing guide. Be specific use real market rates for 2026. No vague ranges.
 
 # Pricing Guide: ${niche} Creator
 
@@ -10766,9 +10667,9 @@ function PricingCalculator() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>💰</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Pricing Calculator</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Pricing Calculator</h2>
           <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Real 2026 market rates for brand deals, UGC, coaching, and agency services. Based on your follower count, engagement, and niche.</p>
         </div>
       </div>
@@ -10805,7 +10706,7 @@ function PricingCalculator() {
           </div>
         </div>
         <RedBtn onClick={async()=>{if(!niche)return;setLoading(true);setOut('');const r=await ai(PRICING_PROMPT(niche,platforms.join(', '),followers,engagementRate,services.join(', '),market));setOut(r);setLoading(false);}} disabled={loading||!niche}>
-          {loading?'Calculating rates...':'💰 Generate Pricing Guide'}
+          {loading?'Calculating rates...':'Generate Pricing Guide'}
         </RedBtn>
       </Card>
       {loading&&<Spin/>}
@@ -10816,9 +10717,7 @@ function PricingCalculator() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // STORY ARC PLANNER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const STORY_ARC_PROMPT = (client, campaign, duration, goal, platforms) => `
+// ═════════════════════════════════════════════════════════════════════════════const STORY_ARC_PROMPT = (client, campaign, duration, goal, platforms) => `
 ${client ? `CLIENT: ${client.name} (${client.handle}). Voice: ${client.voice}` : VOICE}
 ${CONTENT_SOP}
 
@@ -10848,7 +10747,7 @@ For each day include:
 ${Array.from({length: Math.min(parseInt(duration)||7, 30)}, (_,i) => `### Day ${i+1}`).join('\n')}
 
 ## Reusable Story Templates
-3 story templates that work throughout the arc — save, share, poll types.
+3 story templates that work throughout the arc save, share, poll types.
 
 ## Story Highlights Plan
 Which stories to save to Highlights and how to organize them.
@@ -10872,9 +10771,9 @@ function StoryArcPlanner() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>📖</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Story Arc Planner</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Story Arc Planner</h2>
           <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Plan the complete Stories sequence for a campaign. Every slide mapped, every CTA purposeful, every day moves the funnel.</p>
         </div>
       </div>
@@ -10909,7 +10808,7 @@ function StoryArcPlanner() {
           </div>
         </div>
         <RedBtn onClick={async()=>{if(!campaign||!goal)return;setLoading(true);setOut('');const r=await ai(STORY_ARC_PROMPT(selectedClient?.isDefault?null:selectedClient,campaign,duration,goal,platforms.join(', ')));setOut(r);setLoading(false);}} disabled={loading||!campaign||!goal}>
-          {loading?'Planning arc...':'📖 Plan Story Arc'}
+          {loading?'Planning arc...':'Plan Story Arc'}
         </RedBtn>
       </Card>
       {loading&&<Spin/>}
@@ -10920,9 +10819,7 @@ function StoryArcPlanner() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // GUEST PREP KIT
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const GUEST_PREP_PROMPT = (client, guestName, guestBio, guestHandle, episodeTopic, recordDate) => `
+// ═════════════════════════════════════════════════════════════════════════════const GUEST_PREP_PROMPT = (client, guestName, guestBio, guestHandle, episodeTopic, recordDate) => `
 ${client ? `HOST: ${client.name} (${client.handle})` : VOICE}
 
 PODCAST: ${client?.name || 'Everyday Elevations'} Podcast
@@ -11002,9 +10899,9 @@ function GuestPrepKit() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🎤</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Guest Prep Kit</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Guest Prep Kit</h2>
           <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Complete prep for host and guest. Intel, 10 questions, tech requirements, welcome email, and post-episode follow-up sequence.</p>
         </div>
       </div>
@@ -11037,7 +10934,7 @@ function GuestPrepKit() {
         </div>
         <button onClick={fetchGuestIntel} disabled={fetching||!guestName}
           style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:700,marginBottom:12}}>
-          {fetching?'Researching guest...':'🔍 Auto-Research Guest with Perplexity'}
+          {fetching?'Researching guest...':'Auto-Research Guest with Perplexity'}
         </button>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
           <div>
@@ -11052,7 +10949,7 @@ function GuestPrepKit() {
           </div>
         </div>
         <RedBtn onClick={async()=>{if(!guestName||!episodeTopic)return;setLoading(true);setOut('');const r=await ai(GUEST_PREP_PROMPT(selectedClient?.isDefault?null:selectedClient,guestName,guestBio,guestHandle,episodeTopic,recordDate));setOut(r);setLoading(false);}} disabled={loading||!guestName||!episodeTopic}>
-          {loading?'Building kit...':'🎤 Generate Guest Prep Kit'}
+          {loading?'Building kit...':'Generate Guest Prep Kit'}
         </RedBtn>
       </Card>
       {loading&&<Spin/>}
@@ -11065,9 +10962,7 @@ function GuestPrepKit() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // OBJECTION HANDLER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const OBJECTION_PROMPT = (client, context, objections) => `
+// ═════════════════════════════════════════════════════════════════════════════const OBJECTION_PROMPT = (client, context, objections) => `
 ${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
 
 CONTEXT: ${context}
@@ -11135,9 +11030,9 @@ function ObjectionHandler() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>💬</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Objection Handler</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Objection Handler</h2>
           <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Every objection in real estate, coaching, podcast pitching, and agency sales. DM, email, and in-person scripts ready to use.</p>
         </div>
       </div>
@@ -11167,7 +11062,7 @@ function ObjectionHandler() {
           placeholder="Add your own objections here, one per line..."
           style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
         <RedBtn onClick={run} disabled={loading||(selectedObjections.length===0&&!customObjections)}>
-          {loading?'Writing responses...':'💬 Generate Objection Scripts'}
+          {loading?'Writing responses...':'Generate Objection Scripts'}
         </RedBtn>
       </Card>
       {loading&&<Spin/>}
@@ -11178,9 +11073,7 @@ function ObjectionHandler() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // A/B TEST TRACKER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const AB_KEY = 'encis_abtests';
+// ═════════════════════════════════════════════════════════════════════════════const AB_KEY = 'encis_abtests';
 
 function ABTestTracker() {
   const [tests, setTests] = useState([]);
@@ -11228,14 +11121,14 @@ function ABTestTracker() {
     <div>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <span style={{fontSize:32}}>🧪</span>
+          <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
           <div>
-            <h2 style={{color:B.white,margin:0}}>A/B Test Tracker</h2>
+            <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>A/B Test Tracker</h2>
             <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Log content variations, track winners, and let SIGNAL find the patterns in what works.</p>
           </div>
         </div>
         <div style={{display:'flex',gap:8}}>
-          {completedTests.length >= 3 && <button onClick={analyzeAll} disabled={loading} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>{loading?'Analyzing...':'🔍 Analyze All Results'}</button>}
+          {completedTests.length >= 3 && <button onClick={analyzeAll} disabled={loading} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>{loading?'Analyzing...':'Analyze All Results'}</button>}
           <button onClick={()=>setShowForm(p=>!p)} style={{background:B.red,color:'#000D1A',border:'none',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:800}}>+ New Test</button>
         </div>
       </div>
@@ -11243,7 +11136,7 @@ function ABTestTracker() {
       {showForm && (
         <Card style={{marginBottom:16}}>
           <SecLabel>Test Name</SecLabel>
-          <input value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))} placeholder="e.g. Hook Test — Discipline Post April"
+          <input value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))} placeholder="e.g. Hook Test Discipline Post April"
             style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:12}}>
             <div>
@@ -11293,7 +11186,7 @@ function ABTestTracker() {
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10,flexWrap:'wrap',gap:8}}>
                   <div>
                     <div style={{color:B.white,fontWeight:700,fontSize:13}}>{t.name}</div>
-                    <div style={{color:B.gray,fontSize:11,marginTop:2}}>{t.platform} · {t.type} · Tracking: {t.metric}</div>
+                    <div style={{color:B.gray,fontSize:11,marginTop:2}}>{t.platform} · {t.type} Tracking: {t.metric}</div>
                   </div>
                   <div style={{display:'flex',gap:6}}>
                     <button onClick={()=>logResult(t.id,'A','','')} style={{background:'rgba(0,194,255,0.1)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:5,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:700}}>A Won</button>
@@ -11332,7 +11225,7 @@ function ABTestTracker() {
 
       {tests.length === 0 && (
         <div style={{textAlign:'center',padding:'3rem',background:'rgba(255,255,255,0.02)',borderRadius:12,border:'1px solid rgba(255,255,255,0.06)'}}>
-          <div style={{fontSize:40,marginBottom:12}}>🧪</div>
+          
           <div style={{color:B.white,fontWeight:700,marginBottom:8}}>No tests yet</div>
           <div style={{color:B.gray,fontSize:13}}>Start your first A/B test to build a database of what works.</div>
         </div>
@@ -11345,9 +11238,7 @@ function ABTestTracker() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // VIRAL FORMAT LIBRARY
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const VIRAL_FORMAT_PROMPT = (format, topic, platform, client) => `
+// ═════════════════════════════════════════════════════════════════════════════const VIRAL_FORMAT_PROMPT = (format, topic, platform, client) => `
 ${client ? `CLIENT: ${client.name}. Voice: ${client.voice}` : VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
@@ -11404,7 +11295,7 @@ function ViralFormatLibrary() {
     { id:'questions-ask', name:'Questions to Ask Yourself', cat:'Reflection', desc:'Introspective prompt list. Saves well because people want to return to it.', platforms:['Instagram','LinkedIn','X'] },
     { id:'unpopular-opinion', name:'Unpopular Opinion', cat:'Engagement', desc:'Starts debate. Comments go up because people must respond. High algorithm signal.', platforms:['Instagram','X','TikTok'] },
     { id:'storytime', name:'Storytime', cat:'Narrative', desc:'Single specific story with a turning point. The more specific, the more universal.', platforms:['TikTok','Instagram','YouTube'] },
-    { id:'grwm', name:'Get Ready With Me (GRWM)', cat:'Lifestyle', desc:'Parallel narrative — doing something physical while delivering insight. Retention format.', platforms:['TikTok','Instagram','YouTube'] },
+    { id:'grwm', name:'Get Ready With Me (GRWM)', cat:'Lifestyle', desc:'Parallel narrative doing something physical while delivering insight. Retention format.', platforms:['TikTok','Instagram','YouTube'] },
     { id:'reading-comments', name:'Reading Comments / Responding', cat:'Community', desc:'Turns audience into content. Signals engagement. Builds parasocial connection.', platforms:['TikTok','YouTube','Instagram'] },
     { id:'stitch-duet', name:'Stitch or Duet Response', cat:'Reach', desc:'Borrow someone else\'s momentum. Agree, disagree, or add to their take.', platforms:['TikTok'] },
     { id:'checklist', name:'The Checklist', cat:'Education', desc:'Actionable list format. Saves more than almost anything else because it is reference material.', platforms:['Instagram','LinkedIn','TikTok'] },
@@ -11417,9 +11308,9 @@ function ViralFormatLibrary() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🔥</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Viral Format Library</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Viral Format Library</h2>
           <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>18 proven formats with the psychology behind why they work. Pick a format, enter a topic, get a complete camera-ready execution.</p>
         </div>
       </div>
@@ -11464,7 +11355,7 @@ function ViralFormatLibrary() {
             </div>
           </div>
           <RedBtn onClick={async()=>{if(!topic)return;setLoading(true);setOut('');const r=await ai(VIRAL_FORMAT_PROMPT(selectedFormat,topic,platform,selectedClient?.isDefault?null:selectedClient));setOut(r);setLoading(false);}} disabled={loading||!topic}>
-            {loading?'Executing format...':'🔥 Execute This Format'}
+            {loading?'Executing format...':'Execute This Format'}
           </RedBtn>
         </Card>
       )}
@@ -11476,9 +11367,7 @@ function ViralFormatLibrary() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // REVENUE ATTRIBUTION TRACKER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const REVENUE_KEY = 'encis_revenue';
+// ═════════════════════════════════════════════════════════════════════════════const REVENUE_KEY = 'encis_revenue';
 
 function RevenueAttribution() {
   const [entries, setEntries] = useState([]);
@@ -11513,14 +11402,14 @@ function RevenueAttribution() {
     <div>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <span style={{fontSize:32}}>💵</span>
+          <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
           <div>
-            <h2 style={{color:B.white,margin:0}}>Revenue Attribution</h2>
+            <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Revenue Attribution</h2>
             <p style={{color:B.light,margin:'4px 0 0',fontSize:13}}>Tag content to real outcomes. Prove content creates revenue, not just followers.</p>
           </div>
         </div>
         <div style={{display:'flex',gap:8}}>
-          {entries.length >= 3 && <button onClick={analyze} disabled={loading} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>{loading?'Analyzing...':'🔍 Analyze ROI'}</button>}
+          {entries.length >= 3 && <button onClick={analyze} disabled={loading} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>{loading?'Analyzing...':'Analyze ROI'}</button>}
           <button onClick={()=>setShowForm(p=>!p)} style={{background:B.red,color:'#000D1A',border:'none',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:800}}>+ Log Attribution</button>
         </div>
       </div>
@@ -11587,9 +11476,9 @@ function RevenueAttribution() {
       <div style={{display:'flex',flexDirection:'column',gap:6}}>
         {entries.length===0&&(
           <div style={{textAlign:'center',padding:'3rem',background:'rgba(255,255,255,0.02)',borderRadius:12,border:'1px solid rgba(255,255,255,0.06)'}}>
-            <div style={{fontSize:40,marginBottom:12}}>💵</div>
+            
             <div style={{color:B.white,fontWeight:700,marginBottom:8}}>No attributions yet</div>
-            <div style={{color:B.gray,fontSize:13,maxWidth:300,margin:'0 auto'}}>Every time a post leads to an inquiry, booking, or sale — log it here. Build proof that content drives revenue.</div>
+            <div style={{color:B.gray,fontSize:13,maxWidth:300,margin:'0 auto'}}>Every time a post leads to an inquiry, booking, or sale log it here. Build proof that content drives revenue.</div>
           </div>
         )}
         {entries.map(e=>(
@@ -11600,7 +11489,7 @@ function RevenueAttribution() {
               <div style={{color:'rgba(255,255,255,0.6)',fontSize:11,marginTop:2}}>{e.outcome}</div>
             </div>
             {e.revenue&&<div style={{color:'#27ae60',fontWeight:800,fontSize:14}}>${parseFloat(e.revenue).toLocaleString()}</div>}
-            <button onClick={()=>save(entries.filter(x=>x.id!==e.id))} style={{background:'none',border:'none',color:'rgba(255,255,255,0.2)',cursor:'pointer',fontSize:14}}>✕</button>
+            <button onClick={()=>save(entries.filter(x=>x.id!==e.id))} style={{background:'none',border:'none',color:'rgba(255,255,255,0.2)',cursor:'pointer',fontSize:14}}>×</button>
           </div>
         ))}
       </div>
@@ -11617,11 +11506,9 @@ function RevenueAttribution() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 4: AUTO-LEARNING VOICE FINGERPRINT
-// When content is rated 🔥 in Content Memory, extract language patterns and
+// When content is rated in Content Memory, extract language patterns and
 // offer to update the active client's voice fingerprint automatically
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const AUTO_VOICE_UPDATE_PROMPT = (clientName, currentFingerprint, viralSamples) => `
+// ═════════════════════════════════════════════════════════════════════════════const AUTO_VOICE_UPDATE_PROMPT = (clientName, currentFingerprint, viralSamples) => `
 You are refining a brand voice fingerprint based on content that actually went viral.
 
 CLIENT: ${clientName}
@@ -11631,12 +11518,12 @@ Tone: ${currentFingerprint?.tone || 'Unknown'}
 Vocabulary: ${(currentFingerprint?.vocabulary || []).join(', ')}
 Personality: ${currentFingerprint?.personality || 'Unknown'}
 
-CONTENT THAT PERFORMED AT VIRAL LEVEL (🔥 rated):
+CONTENT THAT PERFORMED AT VIRAL LEVEL (rated):
 ${viralSamples.map((s, i) => `${i + 1}. [${s.type}] "${s.title || s.topic || 'Untitled'}"\nPreview: ${s.preview || s.title || ''}`).join('\n\n')}
 
 Analyze what these viral pieces have in common. What specific language patterns, structural choices, and voice elements made them work? Update the fingerprint to reflect what is actually proven to perform.
 
-Return a JSON object with these exact fields — update only what the viral data supports, preserve what is already working:
+Return a JSON object with these exact fields update only what the viral data supports, preserve what is already working:
 {
   "tone": "updated tone description",
   "pace": "sentence pace preference",
@@ -11673,7 +11560,7 @@ function useAutoVoiceUpdate(activeClient) {
 
         // Find viral content since last auto-update
         const viralSince = log.filter(e =>
-          e.perf === '🔥' &&
+          e.perf === '' &&
           e.timestamp > lastUpdate &&
           e.timestamp > lastChecked
         );
@@ -11730,7 +11617,7 @@ function AutoVoiceUpdateBanner({ activeClient }) {
       gap: 12,
       flexWrap: 'wrap',
     }}>
-      <span style={{ fontSize: 18 }}>🧬</span>
+      <span style={{color:"#00C2FF",fontWeight:800,fontSize:11,letterSpacing:1}}>DNA</span>
       <div style={{ flex: 1 }}>
         <div style={{ color: '#00C2FF', fontWeight: 700, fontSize: 13 }}>
           Voice fingerprint can be updated
@@ -11755,12 +11642,9 @@ function AutoVoiceUpdateBanner({ activeClient }) {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 6: ONBOARDING FLOW
-// First-time user setup — shown once, stored in localStorage
-// 4 steps: Welcome → Brand Setup → Voice → First Strategy
-// ═══════════════════════════════════════════════════════════════════════════════
-
-
-function OnboardingFlow({ onComplete }) {
+// First-time user setup shown once, stored in localStorage
+// 4 steps: Welcome Brand Setup Voice First Strategy
+// ═════════════════════════════════════════════════════════════════════════════function OnboardingFlow({ onComplete }) {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     name: 'Jason Fricka',
@@ -11909,15 +11793,15 @@ function OnboardingFlow({ onComplete }) {
       sub: "SIGNAL knows who you are. Every tool is pre-loaded with your context.",
       content: (
         <div style={{ textAlign: 'center', padding: '10px 0' }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>🚀</div>
+          
           <p style={{ color: B.light, fontSize: 14, lineHeight: 1.8, marginBottom: 24 }}>
             Start with the <strong style={{ color: '#00C2FF' }}>90-Day Strategy Builder</strong> to generate your full content foundation, or jump straight to <strong style={{ color: '#00C2FF' }}>Script Engine</strong> to create your first piece.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 300, margin: '0 auto' }}>
             {[
-              { label: '🚀 Build 90-Day Strategy', sub: 'Recommended first step' },
-              { label: '✍️ Write a Script', sub: 'Start creating immediately' },
-              { label: '👤 Run a Profile Audit', sub: 'See where you stand' },
+              { label: 'Build 90-Day Strategy', sub: 'Recommended first step' },
+              { label: 'Write a Script', sub: 'Start creating immediately' },
+              { label: 'Run a Profile Audit', sub: 'See where you stand' },
             ].map(item => (
               <div key={item.label} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,194,255,0.1)', borderRadius: 8, padding: '10px 14px', textAlign: 'left' }}>
                 <div style={{ color: B.white, fontWeight: 700, fontSize: 12 }}>{item.label}</div>
@@ -11976,7 +11860,7 @@ function OnboardingFlow({ onComplete }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 28 }}>
             <button onClick={() => step > 0 ? setStep(s => s - 1) : null}
               style={{ background: 'none', border: 'none', color: step > 0 ? B.gray : 'transparent', cursor: step > 0 ? 'pointer' : 'default', fontSize: 13, padding: '8px 0' }}>
-              ← Back
+              Back
             </button>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
               {step < steps.length - 1 && (
@@ -12004,9 +11888,7 @@ function OnboardingFlow({ onComplete }) {
 // Replaces the tool-grid home with a live data dashboard.
 // Shows: key metrics, trend alerts, pending deliverables, recent content,
 // content gap score, top performer, and quick-launch recent tools.
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function IntelligenceDashboard({ setNav, setSub }) {
+// ═════════════════════════════════════════════════════════════════════════════function IntelligenceDashboard({ setNav, setSub }) {
   const [activeClient] = useActiveClient();
   const [clients] = useClients();
   const [metrics, setMetrics] = useState(null);
@@ -12039,7 +11921,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
     try {
       const log = JSON.parse(localStorage.getItem(MEMORY_KEY) || '[]');
       setRecentContent(log.slice(0, 6));
-      const viral = log.filter(e => e.perf === '🔥');
+      const viral = log.filter(e => e.perf === '');
       if (viral.length > 0) setTopPerformer(viral[0]);
 
       // Analyze gaps
@@ -12089,7 +11971,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
               {activeClient?.isDefault ? `Good ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, ${activeClient?.name?.split(' ')[0] || 'Jason'}.` : `${activeClient?.name}`}
             </h1>
             <p style={{ color: B.gray, fontSize: 13, margin: '4px 0 0' }}>
-              {!metrics ? "No metrics logged yet — add your first week below." : `Last logged: ${metrics.week || 'this week'}`}
+              {!metrics ? "No metrics logged yet add your first week below." : `Last logged: ${metrics.week || 'this week'}`}
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -12113,7 +11995,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
           { label: 'Saves', val: metrics?.saves || null, icon: '🔖', nav:'optimize', sub:'roi', tip:'Log weekly saves' },
           { label: 'Shares', val: metrics?.shares || null, icon: '↗️', nav:'optimize', sub:'roi', tip:'Log weekly shares' },
           { label: 'Leads/DMs', val: metrics?.leads || null, icon: '💬', nav:'optimize', sub:'roi', tip:'Track lead volume' },
-          { label: 'Trend Alerts', val: trendCount || null, icon: '🔥', nav:'research', sub:'pipeline', tip:'Run trend research' },
+          { label: 'Trend Alerts', val: trendCount || null, icon: '', nav:'research', sub:'pipeline', tip:'Run trend research' },
           { label: 'Pending Work', val: pendingDeliverables || null, icon: '📦', nav:'agency', sub:'portal', tip:'View client portal' },
           { label: 'Content Logged', val: recentContent.length || null, icon: '📝', nav:'optimize', sub:'memory', tip:'Log your content' },
         ].map(m => {
@@ -12144,10 +12026,10 @@ function IntelligenceDashboard({ setNav, setSub }) {
         })}
       </div>
 
-      {/* FIRST STEPS — shown when user has no content or metrics yet */}
+      {/* FIRST STEPS shown when user has no content or metrics yet */}
       {!metrics && recentContent.length === 0 && (
         <div style={{ background: 'rgba(0,194,255,0.04)', border: '1px solid rgba(0,194,255,0.1)', borderRadius: 12, padding: '20px 24px', marginBottom: 20 }}>
-          <div style={{ fontSize: 11, color: '#00C2FF', fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Get Started — Your First 3 Moves</div>
+          <div style={{ fontSize: 11, color: '#00C2FF', fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Get Started Your First 3 Moves</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
             {[
               { num: '1', title: 'Build your strategy', desc: '90-Day Strategy Builder generates your complete content foundation.', nav: 'strategy', sub: 'onboard', cta: 'Build Strategy →' },
@@ -12245,19 +12127,19 @@ function IntelligenceDashboard({ setNav, setSub }) {
           <div style={{ fontSize: 11, color: accentColor, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Top Performer</div>
           {topPerformer ? (
             <div>
-              <div style={{ fontSize: 28, marginBottom: 8 }}>🔥</div>
+              <div style={{ fontSize: 28, marginBottom: 8 }}></div>
               <div style={{ color: B.white, fontWeight: 700, fontSize: 13, marginBottom: 4, lineHeight: 1.4 }}>
                 {topPerformer.title || topPerformer.topic || 'Viral Post'}
               </div>
               <div style={{ color: B.gray, fontSize: 11, marginBottom: 12 }}>{topPerformer.type} · {topPerformer.date}</div>
               <button onClick={() => { setNav('create'); setSub('repurpose'); }}
                 style={{ background: 'rgba(0,194,255,0.08)', color: '#00C2FF', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 7, padding: '7px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer', width: '100%' }}>
-                ♻️ Repurpose This
+                Repurpose This
               </button>
             </div>
           ) : (
             <div style={{ color: B.gray, fontSize: 12, textAlign: 'center', padding: '20px 0' }}>
-              Rate a piece 🔥 in Content Memory.
+              Rate a piece in Content Memory.
             </div>
           )}
         </div>
@@ -12291,12 +12173,12 @@ function IntelligenceDashboard({ setNav, setSub }) {
           {['STRATEGY', 'RESEARCH', 'CREATE', 'OPTIMIZE', 'AGENCY', 'YOUTUBE'].map(group => {
             const groupColors = { STRATEGY: '#00C2FF', RESEARCH: '#00C2FF', CREATE: '#f5a623', OPTIMIZE: '#27ae60', AGENCY: '#9b59b6', YOUTUBE: '#ff4444' };
             const allTools = [
-              { nav:'strategy',sub:'onboard',emoji:'🚀',title:'90-Day Strategy'},{nav:'strategy',sub:'calendar',emoji:'📅',title:'Content Calendar'},{nav:'strategy',sub:'profile',emoji:'👤',title:'Profile Audit'},{nav:'strategy',sub:'magnet',emoji:'🧲',title:'Lead Magnet'},{nav:'strategy',sub:'community',emoji:'🏔️',title:'Community Builder'},{nav:'strategy',sub:'email',emoji:'📧',title:'Email Sequences'},{nav:'strategy',sub:'challenge',emoji:'🔥',title:'Challenge Builder'},{nav:'strategy',sub:'campaign',emoji:'🎯',title:'Campaign Builder'},{nav:'strategy',sub:'visualcal',emoji:'🗓️',title:'Visual Calendar'},{nav:'strategy',sub:'series',emoji:'📺',title:'Series Planner'},{nav:'strategy',sub:'storyarc',emoji:'📖',title:'Story Arc'},{nav:'strategy',sub:'biolink',emoji:'🔗',title:'Bio Link Page'},{nav:'strategy',sub:'biooptimizer',emoji:'✏️',title:'Bio Optimizer'},
-              {nav:'research',sub:'pipeline',emoji:'🔬',title:'Research Pipeline'},{nav:'research',sub:'spy',emoji:'🕵️',title:'Competitor Intel'},{nav:'research',sub:'vault',emoji:'🗄️',title:'Prompt Vault'},{nav:'research',sub:'collab',emoji:'🤝',title:'Collab Finder'},{nav:'research',sub:'extract',emoji:'💡',title:'Insight Extractor'},{nav:'research',sub:'hashtags',emoji:'##',title:'Hashtag Research'},{nav:'research',sub:'viral',emoji:'🔥',title:'Viral Formats'},
-              {nav:'create',sub:'script',emoji:'✍️',title:'Script Engine'},{nav:'create',sub:'caption',emoji:'💬',title:'Caption Writer'},{nav:'create',sub:'videodirector',emoji:'🎬',title:'Video Director'},{nav:'create',sub:'batch',emoji:'⚡',title:'Bulk Batch'},{nav:'create',sub:'episode',emoji:'🎙️',title:'Episode Clips'},{nav:'create',sub:'repurpose',emoji:'♻️',title:'Repurpose Engine'},{nav:'create',sub:'hooks',emoji:'🪝',title:'Hook Library'},{nav:'create',sub:'design',emoji:'🎨',title:'Design Studio'},{nav:'create',sub:'comment',emoji:'💬',title:'Comment Responder'},{nav:'create',sub:'dmscripts',emoji:'📩',title:'DM Scripts'},{nav:'create',sub:'podcast',emoji:'🎙️',title:'Podcast Prep'},{nav:'create',sub:'objections',emoji:'💬',title:'Objection Handler'},{nav:'create',sub:'guestprep',emoji:'🎤',title:'Guest Prep Kit'},{nav:'create',sub:'contentbrief',emoji:'📋',title:'Content Brief'},
-              {nav:'optimize',sub:'review',emoji:'📊',title:'Weekly Review'},{nav:'optimize',sub:'roi',emoji:'📈',title:'ROI Dashboard'},{nav:'optimize',sub:'memory',emoji:'🧠',title:'Content Memory'},{nav:'optimize',sub:'schedule',emoji:'🗓️',title:'Schedule Optimizer'},{nav:'optimize',sub:'gaps',emoji:'🔍',title:'Gap Analyzer'},{nav:'optimize',sub:'predictor',emoji:'🔮',title:'Predictor'},{nav:'optimize',sub:'stratreview',emoji:'🧠',title:'Strategy Review'},{nav:'optimize',sub:'abtests',emoji:'🧪',title:'A/B Tests'},{nav:'optimize',sub:'revenue',emoji:'💵',title:'Revenue Attribution'},{nav:'optimize',sub:'pricing',emoji:'💰',title:'Pricing Calculator'},{nav:'optimize',sub:'hooktester',emoji:'🧪',title:'Hook Tester'},
-              {nav:'agency',sub:'portal',emoji:'🏢',title:'Client Portal'},{nav:'agency',sub:'deliverable',emoji:'📦',title:'Deliverables'},{nav:'agency',sub:'report',emoji:'📊',title:'Monthly Report'},{nav:'agency',sub:'voice',emoji:'🧬',title:'Voice Fingerprint'},{nav:'agency',sub:'persona',emoji:'🤖',title:'AI Persona'},{nav:'agency',sub:'transcript',emoji:'📞',title:'Transcripts'},{nav:'agency',sub:'analytics',emoji:'📊',title:'Analytics Import'},{nav:'agency',sub:'onboardauto',emoji:'⚡',title:'Auto Onboarding'},{nav:'agency',sub:'clientcomms',emoji:'📨',title:'Client Comms'},{nav:'agency',sub:'clients',emoji:'👥',title:'Client Profiles'},{nav:'agency',sub:'tracker',emoji:'📋',title:'Collab Tracker'},{nav:'agency',sub:'whitelabel',emoji:'🏷️',title:'White Label'},{nav:'agency',sub:'compintel',emoji:'🕵️',title:'Comp Intel'},
-              {nav:'youtube',sub:'yttoolkit',emoji:'▶️',title:'YouTube Toolkit'},
+              { nav:'strategy',sub:'onboard', title:'90-Day Strategy'},{nav:'strategy',sub:'calendar', title:'Content Calendar'},{nav:'strategy',sub:'profile', title:'Profile Audit'},{nav:'strategy',sub:'magnet', title:'Lead Magnet'},{nav:'strategy',sub:'community', title:'Community Builder'},{nav:'strategy',sub:'email', title:'Email Sequences'},{nav:'strategy',sub:'challenge', title:'Challenge Builder'},{nav:'strategy',sub:'campaign', title:'Campaign Builder'},{nav:'strategy',sub:'visualcal', title:'Visual Calendar'},{nav:'strategy',sub:'series', title:'Series Planner'},{nav:'strategy',sub:'storyarc', title:'Story Arc'},{nav:'strategy',sub:'biolink', title:'Bio Link Page'},{nav:'strategy',sub:'biooptimizer', title:'Bio Optimizer'},
+              {nav:'research',sub:'pipeline', title:'Research Pipeline'},{nav:'research',sub:'spy', title:'Competitor Intel'},{nav:'research',sub:'vault', title:'Prompt Vault'},{nav:'research',sub:'collab', title:'Collab Finder'},{nav:'research',sub:'extract', title:'Insight Extractor'},{nav:'research',sub:'hashtags',emoji:'##',title:'Hashtag Research'},{nav:'research',sub:'viral', title:'Viral Formats'},
+              {nav:'create',sub:'script', title:'Script Engine'},{nav:'create',sub:'caption', title:'Caption Writer'},{nav:'create',sub:'videodirector', title:'Video Director'},{nav:'create',sub:'batch', title:'Bulk Batch'},{nav:'create',sub:'episode', title:'Episode Clips'},{nav:'create',sub:'repurpose', title:'Repurpose Engine'},{nav:'create',sub:'hooks', title:'Hook Library'},{nav:'create',sub:'design', title:'Design Studio'},{nav:'create',sub:'comment', title:'Comment Responder'},{nav:'create',sub:'dmscripts', title:'DM Scripts'},{nav:'create',sub:'podcast', title:'Podcast Prep'},{nav:'create',sub:'objections', title:'Objection Handler'},{nav:'create',sub:'guestprep', title:'Guest Prep Kit'},{nav:'create',sub:'contentbrief', title:'Content Brief'},
+              {nav:'optimize',sub:'review', title:'Weekly Review'},{nav:'optimize',sub:'roi', title:'ROI Dashboard'},{nav:'optimize',sub:'memory', title:'Content Memory'},{nav:'optimize',sub:'schedule', title:'Schedule Optimizer'},{nav:'optimize',sub:'gaps', title:'Gap Analyzer'},{nav:'optimize',sub:'predictor', title:'Predictor'},{nav:'optimize',sub:'stratreview', title:'Strategy Review'},{nav:'optimize',sub:'abtests', title:'A/B Tests'},{nav:'optimize',sub:'revenue', title:'Revenue Attribution'},{nav:'optimize',sub:'pricing', title:'Pricing Calculator'},{nav:'optimize',sub:'hooktester', title:'Hook Tester'},
+              {nav:'agency',sub:'portal', title:'Client Portal'},{nav:'agency',sub:'deliverable', title:'Deliverables'},{nav:'agency',sub:'report', title:'Monthly Report'},{nav:'agency',sub:'voice', title:'Voice Fingerprint'},{nav:'agency',sub:'persona', title:'AI Persona'},{nav:'agency',sub:'transcript', title:'Transcripts'},{nav:'agency',sub:'analytics', title:'Analytics Import'},{nav:'agency',sub:'onboardauto', title:'Auto Onboarding'},{nav:'agency',sub:'clientcomms', title:'Client Comms'},{nav:'agency',sub:'clients', title:'Client Profiles'},{nav:'agency',sub:'tracker', title:'Collab Tracker'},{nav:'agency',sub:'whitelabel', title:'White Label'},{nav:'agency',sub:'compintel', title:'Comp Intel'},
+              {nav:'youtube',sub:'yttoolkit', title:'YouTube Toolkit'},
             ];
             const groupTools = allTools.filter(t => t.nav === group.toLowerCase());
             if (!groupTools.length) return null;
@@ -12322,10 +12204,8 @@ function IntelligenceDashboard({ setNav, setSub }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// FEATURE 8: TREND ALERT NOTIFICATIONS (Web Push API — free)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function useTrendNotifications() {
+// FEATURE 8: TREND ALERT NOTIFICATIONS (Web Push API free)
+// ═════════════════════════════════════════════════════════════════════════════function useTrendNotifications() {
   const [permission, setPermission] = useState('default');
 
   useEffect(() => {
@@ -12356,7 +12236,7 @@ function useTrendNotifications() {
 
   const notifyTrendAlerts = (alertCount, topAngle) => {
     sendNotification(
-      `🔥 ${alertCount} new trend alert${alertCount !== 1 ? 's' : ''} — SIGNAL`,
+      ` ${alertCount} new trend alert${alertCount !== 1 ? 's' : ''} SIGNAL`,
       `${topAngle || 'Multiple angles'} trending right now. Check before it peaks.`
     );
   };
@@ -12364,7 +12244,7 @@ function useTrendNotifications() {
   return { permission, requestPermission, notifyTrendAlerts, sendNotification };
 }
 
-// Notification Permission Banner — shows in header when not granted
+// Notification Permission Banner shows in header when not granted
 function NotificationBanner() {
   const { permission, requestPermission } = useTrendNotifications();
   const [dismissed, setDismissed] = useState(false);
@@ -12379,7 +12259,7 @@ function NotificationBanner() {
     <div style={{ background: 'rgba(201,168,76,0.06)', borderBottom: '1px solid rgba(201,168,76,0.15)', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
       <span style={{ fontSize: 14 }}>🔔</span>
       <div style={{ flex: 1, fontSize: 12, color: 'rgba(201,168,76,0.9)' }}>
-        Enable notifications to get alerted when trends break in your niche — before competitors see them.
+        Enable notifications to get alerted when trends break in your niche before competitors see them.
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
         <button onClick={async () => { await requestPermission(); }}
@@ -12399,9 +12279,7 @@ function NotificationBanner() {
 // FEATURE 10: AUTOMATED MONTHLY REPORT EMAIL
 // Generates report, formats it, opens mailto: deep link so user sends it
 // from their own email. No SendGrid, no API key, no cost.
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function useMonthlyReportEmail() {
+// ═════════════════════════════════════════════════════════════════════════════function useMonthlyReportEmail() {
   const sendReportEmail = (clientEmail, clientName, reportMarkdown, agencyName) => {
     // Convert markdown to plain text for email
     const plain = reportMarkdown
@@ -12411,7 +12289,7 @@ function useMonthlyReportEmail() {
       .replace(/\n{3,}/g, '\n\n')
       .trim();
 
-    const subject = encodeURIComponent(`${agencyName || 'SIGNAL'} — Monthly Report for ${clientName} — ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`);
+    const subject = encodeURIComponent(`${agencyName || 'SIGNAL'} Monthly Report for ${clientName} — ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`);
     const body = encodeURIComponent(`Hi ${clientName},\n\nYour monthly performance report is below.\n\n---\n\n${plain.slice(0, 2000)}\n\n[Full report attached as PDF]\n\n---\n\nBest,\n${agencyName || 'SIGNAL'}`);
 
     // Copy full report to clipboard
@@ -12424,7 +12302,7 @@ function useMonthlyReportEmail() {
   return { sendReportEmail };
 }
 
-// Email send button — added to Monthly Reporting Suite output
+// Email send button added to Monthly Reporting Suite output
 function ReportEmailButton({ reportText, clientName, clientEmail }) {
   const { sendReportEmail } = useMonthlyReportEmail();
   const [email, setEmail] = useState(clientEmail || '');
@@ -12438,7 +12316,7 @@ function ReportEmailButton({ reportText, clientName, clientEmail }) {
       {!showInput ? (
         <button onClick={() => setShowInput(true)}
           style={{ background: 'rgba(201,168,76,0.1)', color: '#C9A84C', border: '1px solid rgba(201,168,76,0.25)', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-          📧 Email Report to Client
+          Email Report to Client
         </button>
       ) : (
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -12460,11 +12338,9 @@ function ReportEmailButton({ reportText, clientName, clientEmail }) {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE: CLIENT APPROVAL LINKS
-// Generates shareable URLs for client content review — no server required.
+// Generates shareable URLs for client content review no server required.
 // Content is base64-encoded in the URL hash. Client opens link, approves/rejects.
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function ApprovalLinkGenerator({ content: delivContent, title, clientName }) {
+// ═════════════════════════════════════════════════════════════════════════════function ApprovalLinkGenerator({ content: delivContent, title, clientName }) {
   const [copied, setCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [status, setStatus] = useState(null);
@@ -12521,12 +12397,12 @@ function ApprovalLinkGenerator({ content: delivContent, title, clientName }) {
         </button>
       </div>
       <div style={{ color: B.gray, fontSize: 11, marginBottom: 12, lineHeight: 1.6 }}>
-        Send this link to {clientName || "your client"}. They can review the content and approve or request changes — no login needed.
+        Send this link to {clientName || "your client"}. They can review the content and approve or request changes no login needed.
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         <button onClick={copyLink}
           style={{ background: copied ? "rgba(39,174,96,0.15)" : "rgba(0,194,255,0.1)", color: copied ? "#27ae60" : "#00C2FF", border: "1px solid " + (copied ? "rgba(39,174,96,0.3)" : "rgba(0,194,255,0.2)"), borderRadius: 7, padding: "7px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer", transition: "all 0.2s" }}>
-          {copied ? "✓ Copied!" : "📋 Copy Link"}
+          {copied ? "Copied!" : "Copy Link"}
         </button>
         <button onClick={() => link && window.open(link, "_blank")}
           style={{ background: "rgba(255,255,255,0.06)", color: B.light, border: "1px solid rgba(255,255,255,0.08)", borderRadius: 7, padding: "7px 14px", fontSize: 12, cursor: "pointer" }}>
@@ -12536,19 +12412,18 @@ function ApprovalLinkGenerator({ content: delivContent, title, clientName }) {
       {showPreview && (
         <div style={{ marginTop: 14, background: "rgba(0,0,0,0.3)", borderRadius: 8, padding: 16, fontSize: 11, color: B.gray, lineHeight: 1.8 }}>
           <div style={{ color: B.white, fontWeight: 700, marginBottom: 6 }}>What the client sees:</div>
-          <div>— Your agency name and the document title at the top</div>
-          <div>— The full content formatted cleanly</div>
-          <div>— Two buttons: <strong style={{ color: "#27ae60" }}>Approve</strong> and <strong style={{ color: B.red }}>Request Changes</strong></div>
-          <div>— A comments box for feedback</div>
-          <div>— No login required, works on any device</div>
+          <div>Your agency name and the document title at the top</div>
+          <div>The full content formatted cleanly</div>
+          <div>Two buttons: <strong style={{ color: "#27ae60" }}>Approve</strong> and <strong style={{ color: B.red }}>Request Changes</strong></div>
+          <div>A comments box for feedback</div>
+          <div>No login required, works on any device</div>
         </div>
       )}
     </div>
   );
 }
 
-// ── Standalone approval page — renders when URL contains #approval= ───────────
-function ApprovalPage({ encodedPayload, onBack }) {
+// Standalone approval page renders when URL contains #approval= ─────────function ApprovalPage({ encodedPayload, onBack }) {
   const [status, setStatus] = useState(null);
   const [comment, setComment] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -12571,7 +12446,7 @@ function ApprovalPage({ encodedPayload, onBack }) {
   if (submitted) return (
     <div style={{ minHeight: "100vh", background: "#080D14", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div style={{ background: "#0C1420", border: "1px solid rgba(0,194,255,0.15)", borderRadius: 16, padding: 40, maxWidth: 480, textAlign: "center" }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>{status === "approved" ? "✅" : "✏️"}</div>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>{status === "approved" ? "" : "✏️"}</div>
         <h2 style={{ color: B.white, fontWeight: 900, fontSize: 22, letterSpacing: "-0.03em", marginBottom: 8 }}>
           {status === "approved" ? "Content Approved!" : "Changes Requested"}
         </h2>
@@ -12652,16 +12527,16 @@ function ApprovalPage({ encodedPayload, onBack }) {
         <div style={{ display: "flex", gap: 12 }}>
           <button onClick={() => handleSubmit("approved")}
             style={{ flex: 1, background: "linear-gradient(135deg, #27ae60, #1e8449)", color: "#fff", border: "none", borderRadius: 10, padding: "14px 24px", fontWeight: 800, cursor: "pointer", fontSize: 15, boxShadow: "0 4px 20px rgba(39,174,96,0.2)" }}>
-            ✓ Approve Content
+            Approve Content
           </button>
           <button onClick={() => handleSubmit("changes_requested")}
             style={{ flex: 1, background: "rgba(255,255,255,0.06)", color: B.white, border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "14px 24px", fontWeight: 700, cursor: "pointer", fontSize: 15 }}>
-            ✏️ Request Changes
+            Request Changes
           </button>
         </div>
 
         <div style={{ marginTop: 24, textAlign: "center", fontSize: 11, color: B.gray }}>
-          Powered by {payload.agency} · This link is for review purposes only
+          Powered by {payload.agency} This link is for review purposes only
         </div>
       </div>
     </div>
@@ -12673,9 +12548,7 @@ function ApprovalPage({ encodedPayload, onBack }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONTENT BRIEF GENERATOR
 // World-class pre-filming production blueprint
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function ContentBriefGenerator() {
+// ═════════════════════════════════════════════════════════════════════════════function ContentBriefGenerator() {
   const [clients] = useClients();
   const [activeClient] = useActiveClient();
   const [selectedClient, setSelectedClient] = useState(null);
@@ -12705,9 +12578,9 @@ function ContentBriefGenerator() {
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:32}}>🎬</span>
+        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
-          <h2 style={{color:B.white,margin:0}}>Content Brief Generator</h2>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Content Brief Generator</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>A production blueprint. Not a content plan. Read it the night before. Walk in ready.</p>
         </div>
       </div>
@@ -12773,7 +12646,7 @@ function ContentBriefGenerator() {
 
         <button onClick={run} disabled={loading||!selectedClient||!topics}
           style={{background: (!selectedClient||!topics) ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg,#00C2FF,#0096CC)', color: (!selectedClient||!topics) ? B.gray : '#000D1A', border:'none', borderRadius:8, padding:'11px 24px', fontWeight:800, cursor: (!selectedClient||!topics)?'not-allowed':'pointer', fontSize:14, boxShadow: (!selectedClient||!topics) ? 'none' : '0 0 20px rgba(0,194,255,0.25)'}}>
-          {loading ? 'Building brief...' : '🎬 Generate Production Brief'}
+          {loading ? 'Building brief...' : 'Generate Production Brief'}
         </button>
       </Card>
       {loading && <Spin/>}
@@ -12783,10 +12656,8 @@ function ContentBriefGenerator() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// WEEKLY REVIEW — 6-MODULE GROWTH SYSTEM
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const COMPONENT_MAP = {
+// WEEKLY REVIEW 6-MODULE GROWTH SYSTEM
+// ═════════════════════════════════════════════════════════════════════════════const COMPONENT_MAP = {
   home: Home,
   onboard: Onboarding,
   calendar: ContentCalendar,
@@ -12850,8 +12721,7 @@ const COMPONENT_MAP = {
 };
 
 
-// ── Global Error Boundary — prevents white screen crashes ───────────────────
-class ErrorBoundary extends React.Component {
+// Global Error Boundary prevents white screen crashes ─────────────────class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -12867,7 +12737,7 @@ class ErrorBoundary extends React.Component {
       return (
         <div style={{minHeight:'100vh',background:'#080D14',display:'flex',alignItems:'center',justifyContent:'center',padding:32}}>
           <div style={{background:'rgba(12,20,32,0.9)',border:'1px solid rgba(0,194,255,0.2)',borderRadius:16,padding:40,maxWidth:520,textAlign:'center'}}>
-            <div style={{fontSize:48,marginBottom:16}}>⚡</div>
+            
             <h2 style={{color:'#F1F5F9',fontWeight:900,fontSize:20,marginBottom:12,letterSpacing:'-0.03em'}}>Something went wrong</h2>
             <p style={{color:'#5A6A82',fontSize:14,marginBottom:24,lineHeight:1.6}}>
               SIGNAL hit an unexpected error. Your data is safe in localStorage.
@@ -12942,7 +12812,7 @@ export default function App() {
       {!onboardingDone && <OnboardingFlow onComplete={() => setOnboardingDone(true)}/>}
       <Head>
         <title>SIGNAL by Everyday Elevations</title>
-        <meta name="description" content="SIGNAL — Social Media OS by Everyday Elevations"/>
+        <meta name="description" content="SIGNAL Social Media OS by Everyday Elevations"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
@@ -13064,4 +12934,3 @@ export default function App() {
     </ErrorBoundary>
   );
 }
-  
