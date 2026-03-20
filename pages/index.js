@@ -6913,7 +6913,7 @@ function ChallengeBuilder() {
 // COMPETITOR CONTENT SPY
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const SPY_PROMPT = (handle, platforms.join(", "), rawData, angle) => `
+const SPY_PROMPT = (handle, platform, rawData, angle) => `
 ${VOICE}
 
 You are analyzing a competitor's content strategy to find gaps Jason Fricka can own.
@@ -13064,3 +13064,4 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+  
