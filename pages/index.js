@@ -181,7 +181,7 @@ const RedBtn = ({onClick,disabled,children,style={}}) => (
 
 const Card = ({children,style={}}) => (
   <div style={{
-    background: 'rgba(12,20,32,0.8)',
+    background: 'rgba(20,32,48,0.9)',
     border: '1px solid rgba(0,194,255,0.1)',
     borderRadius: 14,
     padding: '1.5rem',
@@ -405,7 +405,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
         '@page { margin: 0.75in; size: letter; }',
         '* { box-sizing: border-box; margin: 0; padding: 0; }',
         "body { font-family: 'DM Sans', -apple-system, sans-serif; color: #111; line-height: 1.7; font-size: 13px; }",
-        '.cover { background: #080D14; color: #fff; padding: 48px 40px 40px; }',
+        '.cover { background: #0F1923; color: #fff; padding: 48px 40px 40px; }',
         '.cover-agency { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: ' + accentColor + '; margin-bottom: 32px; }',
         '.cover-title { font-size: 36px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; color: #fff; margin-bottom: 8px; }',
         '.cover-subtitle { font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 40px; }',
@@ -415,7 +415,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
         '.cover-meta-value { font-size: 12px; color: rgba(255,255,255,0.8); font-weight: 500; line-height: 1.4; }',
         '.content { padding: 32px 40px; }',
         '.doc-title { font-size: 22px; font-weight: 900; color: #080D14; letter-spacing: -0.03em; margin: 32px 0 8px; padding-bottom: 12px; border-bottom: 2px solid ' + accentColor + '; }',
-        '.section-header { display: flex; align-items: center; gap: 12px; background: #080D14; color: #fff; padding: 10px 16px; margin: 28px 0 14px; border-radius: 4px; page-break-inside: avoid; }',
+        '.section-header { display: flex; align-items: center; gap: 12px; background: #0F1923; color: #fff; padding: 10px 16px; margin: 28px 0 14px; border-radius: 4px; page-break-inside: avoid; }',
         '.section-num { background: ' + accentColor + '; color: #000; font-size: 11px; font-weight: 900; width: 22px; height: 22px; border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }',
         '.section-title { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }',
         '.subsection { font-size: 13px; font-weight: 700; color: ' + accentColor + '; margin: 20px 0 6px; letter-spacing: 0.02em; }',
@@ -2631,7 +2631,7 @@ function _OldHome({setNav,setSub}) {
               {groupTools.map(t => (
                 <button key={t.sub} onClick={()=>{setNav(t.nav);setSub(t.sub);}}
                   style={{
-                    background: 'rgba(12,20,32,0.6)',
+                    background: 'rgba(18,28,42,0.9)',
                     border: '1px solid rgba(0,194,255,0.08)',
                     borderRadius: 12,
                     padding: '16px',
@@ -4092,7 +4092,15 @@ function useTrendAlerts() {
       // Strict 24-48 hour window, 1M+ views only
       const todayStr = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
       const makeQuery = (niche) =>
-        `Today is ${todayStr}. Search right now for a specific viral video about ${niche} posted on Instagram Reels or YouTube Shorts within the last 24-48 hours that has already surpassed 1 million views on Instagram Reels, TikTok, or YouTube Shorts. This must be brand new content: posted today or yesterday only. Do not report anything older than 48 hours. Do not estimate view counts: only report if you can verify over 1M views. If no video in this niche meets both requirements (posted in last 48 hours AND verified 1M+ views), respond with exactly: NO_RESULT\n\nIf you find one, respond ONLY in this exact format:\n\nACCOUNT: [exact @handle or YouTube channel name]\nPLATFORM: [Instagram or YouTube]\nVIDEO TITLE: [exact title or caption]\nVIEWS: [verified count: must exceed 1M]\nPOSTED: [exact date posted, e.g. March 18, 2026]\nWHY IT BLEW UP: [one sentence: specific psychology or format reason]\nHOOK TO STEAL: [opening line Jason Fricka could use to make a similar video]`;
+        `Today is ${todayStr}. Find a specific high-performing video or post about ${niche} that went viral recently on Instagram, YouTube, or TikTok. It must be real and verifiable. Respond using EXACTLY this format with no other text:
+ACCOUNT: @handle
+PLATFORM: Instagram/YouTube/TikTok
+VIDEO TITLE: exact title or description
+VIEWS: number (e.g. 2.3M or 450K)
+POSTED: timeframe (e.g. 3 days ago)
+WHY IT BLEW UP: one sentence
+HOOK TO STEAL: the opening line or format that made it work
+If you cannot find a specific real example, respond with only: NO_RESULT`;
 
       const angleQueries = [
         { angle: "Emotional",     q: makeQuery("emotional intelligence, self-awareness, stress management, or mental health in 2026") },
@@ -4117,7 +4125,7 @@ function useTrendAlerts() {
 
             // Skip if Perplexity couldn't find a verified 1M+ video
             if (!raw || raw.includes('NO_RESULT') || raw.toLowerCase().includes('cannot find') ||
-                raw.toLowerCase().includes('no specific') || raw.toLowerCase().includes("i don't have")) {
+                raw.toLowerCase().includes('no viral video') || raw.toLowerCase().includes('unable to find a specific viral')) {
               return null;
             }
 
@@ -4137,12 +4145,12 @@ function useTrendAlerts() {
             const why      = getField('WHY IT BLEW UP');
             const hook     = getField('HOOK TO STEAL');
 
-            // Hard filter: reject anything under 1M views
+            // Accept results with 100K+ views or no view count at all (Perplexity sometimes omits exact counts)
             if (views) {
-              const vNum  = parseFloat(views.replace(/[^0-9.]/g, '')) || 0;
-              const vUp   = views.toUpperCase();
-              const vMil  = vUp.includes('B') ? vNum * 1000 : vUp.includes('M') ? vNum : vUp.includes('K') ? vNum / 1000 : vNum / 1000000;
-              if (vMil < 1) return null;
+              const vNum = parseFloat(views.replace(/[^0-9.]/g, '')) || 0;
+              const vUp  = views.toUpperCase();
+              const vK   = vUp.includes('B') ? vNum*1000000 : vUp.includes('M') ? vNum*1000 : vUp.includes('K') ? vNum : vNum/1000;
+              if (vK < 100) return null; // reject under 100K
             }
             // Reject if account is missing or clearly fabricated
             if (!account || account.toLowerCase().includes('not available') || account === 'N/A') return null;
@@ -4249,7 +4257,7 @@ function TrendAlertBanner() {
 
   return (
     <div style={{
-      background: '#080D14',
+      background: '#0F1923',
       borderBottom: '1px solid rgba(0,194,255,0.08)',
     }}>
       <div style={{maxWidth:1100,margin:'0 auto',padding:'0 16px'}}>
@@ -13459,7 +13467,7 @@ For each gap:
           ) : (
             <div style={{display:'flex',flexDirection:'column',gap:8}}>
               {weeks.slice(0,12).map((w,i)=>(
-                <div key={i} style={{background:'rgba(12,20,32,0.8)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'12px 16px',display:'flex',gap:16,flexWrap:'wrap',alignItems:'center'}}>
+                <div key={i} style={{background:'rgba(20,32,48,0.9)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'12px 16px',display:'flex',gap:16,flexWrap:'wrap',alignItems:'center'}}>
                   <div style={{fontWeight:700,color:B.white,fontSize:13,minWidth:80}}>{w.week}</div>
                   {[['Followers',w.followers],['Reach',w.reach],['Saves',w.saves],['Shares',w.shares],['Leads',w.leads]].map(([k,v])=>v?(
                     <div key={k} style={{textAlign:'center'}}>
@@ -13499,7 +13507,7 @@ For each gap:
           {tests.length===0 ? (
             <div style={{background:'rgba(0,194,255,0.03)',border:'1px dashed rgba(0,194,255,0.1)',borderRadius:10,padding:24,textAlign:'center',color:B.gray,fontSize:12}}>No tests logged yet.</div>
           ) : tests.map(t=>(
-            <div key={t.id} style={{background:'rgba(12,20,32,0.8)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'14px 16px',marginBottom:8}}>
+            <div key={t.id} style={{background:'rgba(20,32,48,0.9)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'14px 16px',marginBottom:8}}>
               <div style={{fontWeight:700,color:B.white,fontSize:13,marginBottom:6}}>{t.hypothesis}</div>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:6}}>
                 <div style={{background:'rgba(0,0,0,0.2)',borderRadius:6,padding:'8px 10px'}}>
@@ -13542,7 +13550,7 @@ For each gap:
           {revEntries.length===0 ? (
             <div style={{background:'rgba(0,194,255,0.03)',border:'1px dashed rgba(0,194,255,0.1)',borderRadius:10,padding:24,textAlign:'center',color:B.gray,fontSize:12}}>No revenue entries logged yet.</div>
           ) : revEntries.map(r=>(
-            <div key={r.id} style={{background:'rgba(12,20,32,0.8)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'14px 16px',marginBottom:8,display:'flex',gap:16,flexWrap:'wrap',alignItems:'center'}}>
+            <div key={r.id} style={{background:'rgba(20,32,48,0.9)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'14px 16px',marginBottom:8,display:'flex',gap:16,flexWrap:'wrap',alignItems:'center'}}>
               <div style={{fontWeight:700,color:B.white,fontSize:13}}>{r.source}</div>
               {r.revenue && <div style={{color:'#27ae60',fontWeight:700,fontSize:14}}>${r.revenue}</div>}
               {r.leads && <div style={{color:B.light,fontSize:12}}>{r.leads} leads</div>}
@@ -13835,7 +13843,7 @@ export default function App() {
           @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
           * { box-sizing: border-box; margin: 0; padding: 0; }
           body {
-            background: #080D14;
+            background: #0F1923;
             background-image:
               radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0,194,255,0.06) 0%, transparent 60%),
               radial-gradient(ellipse 40% 30% at 80% 80%, rgba(0,194,255,0.03) 0%, transparent 50%);
@@ -13857,10 +13865,10 @@ export default function App() {
         `}</style>
       </Head>
 
-      <div style={{minHeight:'100vh',background:B.navy,color:B.white,backgroundImage:'radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,194,255,0.05) 0%, transparent 60%)'}}>
+      <div style={{minHeight:'100vh',background:'#0F1923',color:B.white,backgroundImage:'radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,194,255,0.05) 0%, transparent 60%)'}}>
         {/* TOP NAV */}
         <nav style={{
-            background: 'rgba(8,13,20,0.92)',
+            background: 'rgba(15,25,35,0.96)',
             borderBottom: '1px solid rgba(0,194,255,0.08)',
             padding: '0 16px',
             position: 'sticky',
@@ -13878,7 +13886,7 @@ export default function App() {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: nav===n.id ? '#00C2FF' : B.gray,
+                  color: nav===n.id ? '#00C2FF' : 'rgba(0,194,255,0.5)',
                   padding: '16px 14px',
                   cursor: 'pointer',
                   fontSize: 12,
@@ -13903,7 +13911,7 @@ export default function App() {
         {/* SUB NAV */}
         {subItems && nav !== 'home' && (
           <div style={{
-              background: 'rgba(12,20,32,0.6)',
+              background: 'rgba(18,28,42,0.9)',
               borderBottom: '1px solid rgba(0,194,255,0.06)',
               padding: '0 16px',
               backdropFilter: 'blur(10px)',
@@ -13914,11 +13922,11 @@ export default function App() {
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: sub===s.id ? B.white : B.gray,
+                    color: sub===s.id ? '#00C2FF' : 'rgba(0,194,255,0.55)',
                     padding: '9px 14px',
                     cursor: 'pointer',
                     fontSize: 11,
-                    fontWeight: sub===s.id ? 700 : 500,
+                    fontWeight: sub===s.id ? 800 : 500,
                     letterSpacing: '0.03em',
                     borderBottom: `2px solid ${sub===s.id ? '#00C2FF' : 'transparent'}`,
                     transition: 'all 0.15s',
