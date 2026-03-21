@@ -13779,6 +13779,8 @@ const COMPONENT_MAP = {
   objections: ObjectionHandler,
   series: ContentSeriesPlanner,
   compintel: CompetitorIntel,
+};
+
 // ── Global Error Boundary — prevents white screen crashes ───────────────────
 class ErrorBoundary extends React.Component {
   constructor(props) {
