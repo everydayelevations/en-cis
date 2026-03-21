@@ -218,7 +218,6 @@ const AngleGrid = ({selected, onSelect, angles}) => {
             borderRadius:8,padding:'10px 6px',cursor:'pointer',color:B.white,
             textAlign:'left',transition:'all 0.2s',position:'relative'}}>
           {a.custom && <span style={{position:'absolute',top:4,right:4,fontSize:8,color:'#f5a623',fontWeight:700}}>CUSTOM</span>}
-          <div style={{fontSize:16,marginBottom:3}}>{a.emoji}</div>
           <div style={{fontSize:11,fontWeight:selected===a.id?700:600,lineHeight:1.3,marginBottom:3}}>{a.label}</div>
           <div style={{fontSize:9,color:selected===a.id?'rgba(255,255,255,0.85)':'rgba(255,255,255,0.4)',lineHeight:1.4,fontWeight:400}}>
             {a.desc || a.label}
@@ -2646,7 +2645,6 @@ function _OldHome({setNav,setSub}) {
                     backdropFilter: 'blur(8px)',
                   }}>
                   <div style={{display:'flex',alignItems:'center',gap:10}}>
-                    <span style={{fontSize:22,flexShrink:0}}>{t.emoji}</span>
                     <div style={{fontWeight:700,fontSize:14,color:B.white,lineHeight:1.3}}>{t.title}</div>
                   </div>
                   <div style={{color:'rgba(255,255,255,0.5)',fontSize:12,lineHeight:1.6,paddingLeft:32}}>{t.desc}</div>
@@ -2754,7 +2752,7 @@ function Onboarding() {
   const sectionHead = (label) => (
     <div style={{fontSize:10,fontWeight:700,letterSpacing:2,color:B.red,textTransform:'uppercase',
       marginBottom:12,marginTop:20,paddingBottom:6,borderBottom:'1px solid rgba(233,69,96,0.25)'}}>
-      {emoji} {label}
+      {label}
     </div>
   );
 
@@ -2816,7 +2814,7 @@ function Onboarding() {
         <textarea value={emotionalJourney} onChange={e=>setEmotionalJourney(e.target.value)} rows={2}
           placeholder="How they feel before finding you, how they feel after, one-sentence summary..." style={taStyle}/>
 
-        {sectionHead('','Optional Upload & Additional Context')}
+        {sectionHead('Optional Upload & Additional Context')}
         <label style={{cursor:'pointer',display:'block',marginBottom:12}}>
           <div style={{border:`2px dashed ${uploadedDoc?'rgba(39,174,96,0.5)':'rgba(233,69,96,0.3)'}`,borderRadius:8,
             padding:'12px 16px',display:'flex',alignItems:'center',gap:12,
@@ -4992,7 +4990,7 @@ ${summary}
               const pct = Math.round((count / max) * 100);
               return (
                 <div key={a.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'12px'}}>
-                  <div style={{fontSize:12,color:B.white,fontWeight:600,marginBottom:6}}>{a.emoji} {a.label}</div>
+                  <div style={{fontSize:12,color:B.white,fontWeight:600,marginBottom:6}}>{a.label}</div>
                   <div style={{height:4,background:'rgba(255,255,255,0.08)',borderRadius:2,marginBottom:4}}>
                     <div style={{height:'100%',width:`${pct}%`,background:count===0?'rgba(233,69,96,0.3)':count===max?B.red:'#00C2FF',borderRadius:2,transition:'width 0.3s'}}/>
                   </div>
@@ -6274,7 +6272,6 @@ function YouTubeToolkit() {
             style={{background:tool===t.id?B.red:'rgba(255,255,255,0.04)',color:B.white,
               border:`1px solid ${tool===t.id?B.red:'rgba(255,255,255,0.08)'}`,
               borderRadius:10,padding:'14px',cursor:'pointer',textAlign:'left',transition:'all 0.15s'}}>
-            <div style={{fontSize:18,marginBottom:4}}>{t.emoji}</div>
             <div style={{fontWeight:700,fontSize:13}}>{t.label}</div>
             <div style={{color:tool===t.id?'rgba(255,255,255,0.75)':B.gray,fontSize:11,marginTop:2}}>{t.desc}</div>
           </button>
@@ -8951,7 +8948,6 @@ function CustomAnglesManager({ client, onClose }) {
               <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:14}}>
                 {data.angles.map(a => (
                   <div key={a.id} style={{background:'rgba(245,166,35,0.06)',border:'1px solid rgba(245,166,35,0.2)',borderRadius:8,padding:'10px 14px',display:'flex',alignItems:'center',gap:10}}>
-                    <span style={{fontSize:18,flexShrink:0}}>{a.emoji}</span>
                     <div style={{flex:1}}>
                       <div style={{color:B.white,fontWeight:700,fontSize:13}}>{a.label}</div>
                       {a.desc && <div style={{color:B.gray,fontSize:11,marginTop:2}}>{a.desc}</div>}
@@ -10375,7 +10371,7 @@ function HashtagResearch() {
             <SecLabel>Content Angle</SecLabel>
             <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
               {ANGLES.map(a=>(
-                <button key={a.id} onClick={()=>setAngle(a.id)} style={{background:angle===a.id?B.red:'rgba(255,255,255,0.06)',color:angle===a.id?'#000D1A':B.white,border:'none',borderRadius:5,padding:'4px 8px',cursor:'pointer',fontSize:10,fontWeight:700}}>{a.emoji} {a.label}</button>
+                <button key={a.id} onClick={()=>setAngle(a.id)} style={{background:angle===a.id?B.red:'rgba(255,255,255,0.06)',color:angle===a.id?'#000D1A':B.white,border:'none',borderRadius:5,padding:'4px 8px',cursor:'pointer',fontSize:10,fontWeight:700}}>{a.label}</button>
               ))}
             </div>
           </div>
@@ -12087,7 +12083,6 @@ function IntelligenceDashboard({ setNav, setSub }) {
             {quickTools.map(t => (
               <button key={t.sub} onClick={() => { setNav(t.nav); setSub(t.sub); }}
                 style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,194,255,0.06)', borderRadius: 8, padding: '10px', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 16 }}>{t.emoji}</span>
                 <span style={{ color: B.white, fontSize: 11, fontWeight: 600, lineHeight: 1.3 }}>{t.label}</span>
               </button>
             ))}
@@ -12105,7 +12100,6 @@ function IntelligenceDashboard({ setNav, setSub }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {gapAngles.map(a => (
                 <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 16 }}>{a.emoji}</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ color: B.white, fontSize: 12, fontWeight: 600 }}>{a.label}</div>
                     <div style={{ color: B.gray, fontSize: 10, marginTop: 1 }}>Under-represented in your content</div>
@@ -12218,7 +12212,6 @@ function IntelligenceDashboard({ setNav, setSub }) {
                   {groupTools.map(t => (
                     <button key={t.sub} onClick={() => { setNav(t.nav); setSub(t.sub); setShowTools(false); }}
                       style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 7, padding: '6px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <span style={{ fontSize: 12 }}>{t.emoji}</span>
                       <span style={{ color: B.light, fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap' }}>{t.title}</span>
                     </button>
                   ))}
