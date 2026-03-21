@@ -13807,6 +13807,7 @@ class ErrorBoundary extends React.Component {
     );
     return this.props.children;
   }
+}
 
 export default function App() {
   const [nav, setNav] = useState('home');
