@@ -13411,8 +13411,7 @@ function GrowthDashboard() {
   const runGapAnalysis = async () => {
     setGapLoading(true); setGapOut('');
     const log = (() => { try { return JSON.parse(localStorage.getItem('encis_content_log')||'[]'); } catch { return []; } })();
-    const roiStr = weeks.length ? weeks.slice(0,8).map(w=>`Week ${w.week}: Followers ${w.followers||'?'}, Reach ${w.reach||'?'}, Saves ${w.saves||'?'}`).join('
-') : 'No ROI data';
+    const roiStr = weeks.length ? weeks.slice(0,8).map(w=>`Week ${w.week}: Followers ${w.followers||'?'}, Reach ${w.reach||'?'}, Saves ${w.saves||'?'}`).join('\n') : 'No ROI data';
     const prompt = `${VOICE}
 You are a content gap analyst. Based on this creator's data, identify the 5 highest-impact content angles they are under-using.
 
@@ -13420,8 +13419,7 @@ ROI DATA:
 ${roiStr}
 
 CONTENT LOG SAMPLE:
-${log.slice(0,20).map(e=>`${e.platform} ${e.type}: ${e.title||e.topic||''} (${e.perf||'unrated'})`).join('
-')||'No content logged'}
+${log.slice(0,20).map(e=>`${e.platform} ${e.type}: ${e.title||e.topic||''} (${e.perf||'unrated'})`).join('\n')||'No content logged'}
 
 For each gap:
 1. The angle or content type being missed
@@ -13635,8 +13633,7 @@ function BioSuite() {
   };
   const runBioLink = async () => {
     setLoading(true); setOut('');
-    const linkList = links.map(l=>`${l.icon} ${l.label}: ${l.url}`).join('
-');
+    const linkList = links.map(l=>`${l.icon} ${l.label}: ${l.url}`).join('\n');
     const res = await ai(BIOLINK_PROMPT(selectedClient||activeClient, headline, subtext, linkList));
     setOut(res); setLoading(false);
   };
