@@ -181,12 +181,11 @@ const RedBtn = ({onClick,disabled,children,style={}}) => (
 
 const Card = ({children,style={}}) => (
   <div style={{
-    background: 'rgba(20,32,48,0.9)',
-    border: '1px solid rgba(0,194,255,0.1)',
-    borderRadius: 14,
+    background: '#FFFFFF',
+    border: '1px solid #E5E7EB',
+    borderRadius: 12,
     padding: '1.5rem',
-    backdropFilter: 'blur(10px)',
-    boxShadow: '0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
     ...style
   }}>
     {children}
@@ -194,7 +193,7 @@ const Card = ({children,style={}}) => (
 );
 
 const SecLabel = ({children, style={}}) => (
-  <div style={{fontSize:9,fontWeight:700,letterSpacing:2.5,color:'#00C2FF',
+  <div style={{fontSize:9,fontWeight:700,letterSpacing:2.5,color:'#2563EB',
     textTransform:'uppercase',marginBottom:8,...style}}>
     {children}
   </div>
@@ -213,13 +212,13 @@ const AngleGrid = ({selected, onSelect, angles}) => {
     <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:16}}>
       {displayAngles.map(a => (
         <button key={a.id} onClick={() => onSelect(a.id)}
-          style={{background:selected===a.id?B.red:'rgba(255,255,255,0.05)',
-            border:`1px solid ${selected===a.id?B.red:(a.custom?'rgba(245,166,35,0.25)':'rgba(255,255,255,0.1)')}`,
+          style={{background:selected===a.id?'#2563EB':'#F9FAFB',
+            border:`1px solid ${selected===a.id?'#2563EB':(a.custom?'#F59E0B':'#E5E7EB')}`,
             borderRadius:8,padding:'10px 6px',cursor:'pointer',color:B.white,
             textAlign:'left',transition:'all 0.2s',position:'relative'}}>
           {a.custom && <span style={{position:'absolute',top:4,right:4,fontSize:8,color:'#f5a623',fontWeight:700}}>CUSTOM</span>}
-          <div style={{fontSize:11,fontWeight:selected===a.id?700:600,lineHeight:1.3,marginBottom:3}}>{a.label}</div>
-          <div style={{fontSize:9,color:selected===a.id?'rgba(255,255,255,0.85)':'rgba(255,255,255,0.4)',lineHeight:1.4,fontWeight:400}}>
+          <div style={{fontSize:11,fontWeight:selected===a.id?700:600,lineHeight:1.3,marginBottom:3,color:selected===a.id?'#FFFFFF':'#111827'}}>{a.label}</div>
+          <div style={{fontSize:9,color:selected===a.id?'#FFFFFF':'#9CA3AF',lineHeight:1.4,fontWeight:400}}>
             {a.desc || a.label}
           </div>
         </button>
@@ -283,7 +282,7 @@ const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
     );
     // Bold-only lines (labels)
     if (line.startsWith('**') && line.endsWith('**') && line.length > 4) return (
-      <div key={idx} style={{color:B.white,fontWeight:700,fontSize:13,marginTop:12,marginBottom:4}}>
+      <div key={idx} style={{color:'#111827',fontWeight:700,fontSize:13,marginTop:12,marginBottom:4}}>
         {line.replace(/\*\*/g,'')}
       </div>
     );
@@ -330,7 +329,7 @@ const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
       </div>
 
       {/* Rendered strategy */}
-      <div style={{background:'rgba(12,20,32,0.9)',border:'1px solid rgba(0,194,255,0.1)',borderRadius:14,padding:'28px 32px',boxShadow:'0 4px 40px rgba(0,0,0,0.5)'}}>
+      <div style={{background:'rgba(12,20,32,0.9)',border:'1px solid #E5E7EB',borderRadius:14,padding:'28px 32px',boxShadow:'0 4px 40px rgba(0,0,0,0.5)'}}>
         {lines.map((line, idx) => renderLine(line, idx))}
       </div>
     </div>
@@ -405,7 +404,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
         '@page { margin: 0.75in; size: letter; }',
         '* { box-sizing: border-box; margin: 0; padding: 0; }',
         "body { font-family: 'DM Sans', -apple-system, sans-serif; color: #111; line-height: 1.7; font-size: 13px; }",
-        '.cover { background: #0F1923; color: #fff; padding: 48px 40px 40px; }',
+        '.cover { background: #F7F9FC; color: #fff; padding: 48px 40px 40px; }',
         '.cover-agency { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: ' + accentColor + '; margin-bottom: 32px; }',
         '.cover-title { font-size: 36px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; color: #fff; margin-bottom: 8px; }',
         '.cover-subtitle { font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 40px; }',
@@ -415,7 +414,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
         '.cover-meta-value { font-size: 12px; color: rgba(255,255,255,0.8); font-weight: 500; line-height: 1.4; }',
         '.content { padding: 32px 40px; }',
         '.doc-title { font-size: 22px; font-weight: 900; color: #080D14; letter-spacing: -0.03em; margin: 32px 0 8px; padding-bottom: 12px; border-bottom: 2px solid ' + accentColor + '; }',
-        '.section-header { display: flex; align-items: center; gap: 12px; background: #0F1923; color: #fff; padding: 10px 16px; margin: 28px 0 14px; border-radius: 4px; page-break-inside: avoid; }',
+        '.section-header { display: flex; align-items: center; gap: 12px; background: #F7F9FC; color: #fff; padding: 10px 16px; margin: 28px 0 14px; border-radius: 4px; page-break-inside: avoid; }',
         '.section-num { background: ' + accentColor + '; color: #000; font-size: 11px; font-weight: 900; width: 22px; height: 22px; border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }',
         '.section-title { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }',
         '.subsection { font-size: 13px; font-weight: 700; color: ' + accentColor + '; margin: 20px 0 6px; letter-spacing: 0.02em; }',
@@ -481,7 +480,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
     if (line.startsWith('#### ')) return <div key={idx} style={{fontSize:12,fontWeight:700,color:'rgba(255,255,255,0.7)',marginTop:12,marginBottom:6,textTransform:'uppercase',letterSpacing:1}}>{line.slice(5)}</div>;
     if (/^\d+\.\s/.test(line)) return <div key={idx} style={{display:'flex',gap:10,marginBottom:7,paddingLeft:4}}><span style={{color:B.red,fontWeight:800,fontSize:13,minWidth:20,flexShrink:0}}>{line.match(/^\d+/)[0]}.</span><span style={{color:'rgba(255,255,255,0.88)',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^\d+\.\s/,''))}</span></div>;
     if (line.startsWith('- ') || line.startsWith('* ')) return <div key={idx} style={{display:'flex',gap:10,marginBottom:6,paddingLeft:4}}><span style={{color:B.red,fontSize:12,marginTop:3,flexShrink:0}}>▸</span><span style={{color:'rgba(255,255,255,0.85)',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^[-*]\s/,''))}</span></div>;
-    if (line.startsWith('**') && line.endsWith('**') && line.length > 4) return <div key={idx} style={{color:B.white,fontWeight:700,fontSize:13,marginTop:12,marginBottom:4}}>{line.replace(/\*\*/g,'')}</div>;
+    if (line.startsWith('**') && line.endsWith('**') && line.length > 4) return <div key={idx} style={{color:'#111827',fontWeight:700,fontSize:13,marginTop:12,marginBottom:4}}>{line.replace(/\*\*/g,'')}</div>;
     if (line === '---') return <div key={idx} style={{borderTop:'1px solid rgba(255,255,255,0.1)',margin:'20px 0'}}/>;
     if (!line.trim()) return <div key={idx} style={{height:8}}/>;
     return <div key={idx} style={{color:'rgba(255,255,255,0.82)',fontSize:13,lineHeight:1.75,marginBottom:6}}>{renderInline(line)}</div>;
@@ -505,7 +504,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
           </button>
         </div>
       )}
-      <div style={{background:'rgba(12,20,32,0.9)',border:'1px solid rgba(0,194,255,0.1)',borderRadius:14,padding:'28px 32px',boxShadow:'0 4px 40px rgba(0,0,0,0.5)'}}>
+      <div style={{background:'rgba(12,20,32,0.9)',border:'1px solid #E5E7EB',borderRadius:14,padding:'28px 32px',boxShadow:'0 4px 40px rgba(0,0,0,0.5)'}}>
         {text.split('\n').map((line, idx) => renderLine(line, idx))}
       </div>
     </div>
@@ -514,9 +513,9 @@ function DocOutput({text, title='Document', showDownload=true}) {
 
 const Output = ({text}) => text ? (
   <div style={{marginTop:16,background:'rgba(8,13,20,0.8)',borderRadius:10,padding:'1rem',
-    position:'relative',border:'1px solid rgba(0,194,255,0.08)',boxShadow:'0 2px 16px rgba(0,0,0,0.3)'}}>
+    position:'relative',border:'1px solid #E5E7EB',boxShadow:'0 2px 16px rgba(0,0,0,0.3)'}}>
     <div style={{position:'absolute',top:8,right:8}}><CopyBtn text={text}/></div>
-    <pre style={{color:B.white,fontSize:13,whiteSpace:'pre-wrap',margin:0,lineHeight:1.7,
+    <pre style={{color:'#111827',fontSize:13,whiteSpace:'pre-wrap',margin:0,lineHeight:1.7,
       fontFamily:'inherit',paddingRight:80}}>{text}</pre>
   </div>
 ) : null;
@@ -2014,9 +2013,9 @@ function ContentMemory() {
 
       {/* Import Panel */}
       {showImport && (
-        <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:14,padding:'20px',marginBottom:20}}>
+        <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:14,padding:'20px',marginBottom:20}}>
           <div style={{fontWeight:700,color:B.white,fontSize:15,marginBottom:4}}>Import Instagram / Facebook Posts</div>
-          <div style={{color:B.gray,fontSize:12,lineHeight:1.8,marginBottom:16}}>
+          <div style={{color:'#6B7280',fontSize:12,lineHeight:1.8,marginBottom:16}}>
             Upload your Instagram export (JSON) or Meta Business Suite insights export (CSV).<br/>
             Posts auto-import with engagement stats. Performance is rated automatically based on saves and shares.
           </div>
@@ -2034,14 +2033,14 @@ function ContentMemory() {
           {/* Upload zone */}
           <label style={{cursor:'pointer',display:'block'}}>
             <div style={{border:'2px dashed rgba(233,69,96,0.35)',borderRadius:10,padding:'24px',textAlign:'center',
-              background:'rgba(255,255,255,0.02)',transition:'all 0.2s'}}>
+              background:'#FFFFFF',transition:'all 0.2s'}}>
               {importing ? (
                 <><div style={{fontSize:28,marginBottom:8}}>⏳</div>
                   <div style={{color:B.white,fontWeight:600,fontSize:14}}>Importing...</div></>
               ) : (
                 <>
                   <div style={{color:B.white,fontWeight:600,fontSize:14}}>Click to upload Instagram JSON or Meta CSV</div>
-                  <div style={{color:B.gray,fontSize:12,marginTop:4}}>.json or .csv files accepted</div></>
+                  <div style={{color:'#6B7280',fontSize:12,marginTop:4}}>.json or .csv files accepted</div></>
               )}
             </div>
             <input type="file" accept=".json,.csv,text/csv,application/json" onChange={handleImport}
@@ -2076,7 +2075,7 @@ function ContentMemory() {
 
       {/* Empty state */}
       {log.length === 0 && !showImport && (
-        <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.03)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
+        <div style={{textAlign:'center',padding:'4rem 2rem',background:'#FFFFFF',borderRadius:16,border:'1px solid #E5E7EB'}}>
           
           <div style={{color:B.white,fontWeight:700,fontSize:18,marginBottom:8}}>Nothing here yet</div>
           <div style={{color:B.gray,fontSize:14,lineHeight:1.7,marginBottom:20}}>
@@ -2095,7 +2094,7 @@ function ContentMemory() {
           {/* Search + Filter */}
           <div style={{display:'flex',gap:10,marginBottom:16,flexWrap:'wrap'}}>
             <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search content..."
-              style={{flex:1,minWidth:200,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'8px 12px',color:B.white,fontSize:13}}/>
+              style={{flex:1,minWidth:200,background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'8px 12px',color:'#111827',fontSize:13}}/>
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {types.map(t => (
                 <button key={t} onClick={() => setFilter(t)}
@@ -2115,7 +2114,7 @@ function ContentMemory() {
               ['Good','⭐',log.filter(e=>e.perf==='⭐').length,'rgba(245,166,35,0.1)'],
               ['Flopped','💀',log.filter(e=>e.perf==='💀').length,'rgba(100,100,100,0.1)'],
             ].map(([label,icon,count,bg]) => (
-              <div key={label} style={{background:bg|| 'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:10,padding:'12px',textAlign:'center'}}>
+              <div key={label} style={{background:bg|| 'rgba(255,255,255,0.04)',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px',textAlign:'center'}}>
                 <div style={{fontSize:22,fontWeight:800,color:B.white}}>{count}</div>
                 <div style={{fontSize:11,color:B.gray,marginTop:2}}>{label}</div>
               </div>
@@ -2125,28 +2124,28 @@ function ContentMemory() {
           {/* Content Log */}
           <div style={{display:'flex',flexDirection:'column',gap:10}}>
             {filtered.map(entry => (
-              <div key={entry.id} style={{background:perfColors[entry.perf]||perfColors[''],border:'1px solid rgba(255,255,255,0.07)',borderLeft:`3px solid ${typeColors[entry.type]||typeColors.default}`,borderRadius:10,padding:'14px 16px'}}>
+              <div key={entry.id} style={{background:perfColors[entry.perf]||perfColors[''],border:'1px solid #E5E7EB',borderLeft:`3px solid ${typeColors[entry.type]||typeColors.default}`,borderRadius:10,padding:'14px 16px'}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12,flexWrap:'wrap'}}>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
                       <span style={{background:typeColors[entry.type]||typeColors.default,color:'#fff',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:1}}>{entry.type}</span>
-                      <span style={{color:B.gray,fontSize:11}}>{entry.date}</span>
-                      {entry.client && <span style={{background:'rgba(255,255,255,0.08)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>👤 {entry.client}</span>}
-                      {entry.platform && <span style={{background:'rgba(255,255,255,0.05)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>{entry.platform}</span>}
+                      <span style={{color:'#6B7280',fontSize:11}}>{entry.date}</span>
+                      {entry.client && <span style={{background:'#F9FAFB',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>👤 {entry.client}</span>}
+                      {entry.platform && <span style={{background:'#FFFFFF',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>{entry.platform}</span>}
                       {entry.permalink && <a href={entry.permalink} target="_blank" rel="noopener noreferrer" style={{color:B.red,fontSize:10,textDecoration:'none'}}>View</a>}
                     </div>
                     <div style={{color:B.white,fontWeight:600,fontSize:13,marginBottom:4,wordBreak:'break-word'}}>{entry.title || entry.topic || 'Untitled'}</div>
-                    {entry.notes && editingId !== entry.id && <div style={{color:B.gray,fontSize:12,lineHeight:1.6,marginTop:4}}>{entry.notes}</div>}
+                    {entry.notes && editingId !== entry.id && <div style={{color:'#6B7280',fontSize:12,lineHeight:1.6,marginTop:4}}>{entry.notes}</div>}
                     {editingId === entry.id && (
                       <div style={{marginTop:8}}>
                         <textarea value={editNotes} onChange={e=>setEditNotes(e.target.value)} rows={2}
                           placeholder="Add performance notes, what you learned, what to replicate..."
-                          style={{width:'100%',background:'rgba(0,0,0,0.4)',border:'1px solid rgba(255,255,255,0.2)',borderRadius:6,padding:'8px',color:B.white,fontSize:12,resize:'vertical',boxSizing:'border-box'}}/>
+                          style={{width:'100%',background:'rgba(0,0,0,0.4)',border:'1px solid rgba(255,255,255,0.2)',borderRadius:6,padding:'8px',color:'#111827',fontSize:12,resize:'vertical',boxSizing:'border-box'}}/>
                         <div style={{display:'flex',gap:8,marginTop:6}}>
                           <button onClick={() => { update(entry.id, {notes:editNotes}); setEditingId(null); }}
                             style={{background:B.red,color:'#fff',border:'none',borderRadius:6,padding:'5px 12px',fontSize:11,fontWeight:700,cursor:'pointer'}}>Save</button>
                           <button onClick={() => setEditingId(null)}
-                            style={{background:'rgba(255,255,255,0.08)',color:B.gray,border:'none',borderRadius:6,padding:'5px 12px',fontSize:11,cursor:'pointer'}}>Cancel</button>
+                            style={{background:'#F9FAFB',color:B.gray,border:'none',borderRadius:6,padding:'5px 12px',fontSize:11,cursor:'pointer'}}>Cancel</button>
                         </div>
                       </div>
                     )}
@@ -2160,7 +2159,7 @@ function ContentMemory() {
                       </button>
                     ))}
                     <button onClick={() => { setEditingId(entry.id); setEditNotes(entry.notes|| ''); }}
-                      style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'4px 9px',fontSize:11,fontWeight:700,cursor:'pointer'}}>
+                      style={{background:'#FFFFFF',color:B.gray,border:'1px solid #E5E7EB',borderRadius:6,padding:'4px 9px',fontSize:11,fontWeight:700,cursor:'pointer'}}>
                       {entry.notes ? 'Edit' : '+ Note'}
                     </button>
                     <button onClick={() => remove(entry.id)}
@@ -2170,7 +2169,7 @@ function ContentMemory() {
               </div>
             ))}
             {filtered.length === 0 && log.length > 0 && (
-              <div style={{textAlign:'center',padding:'3rem',color:B.gray,fontSize:13}}>No results match your filter.</div>
+              <div style={{textAlign:'center',padding:'3rem',color:'#6B7280',fontSize:13}}>No results match your filter.</div>
             )}
           </div>
         </>
@@ -2290,8 +2289,8 @@ function BulkBatch() {
         <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,textTransform:'uppercase',marginBottom:8}}>Topic or Theme for This Batch</div>
         <input value={topic} onChange={e=>setTopic(e.target.value)}
           placeholder="e.g. 'Morning discipline', 'What the Army taught me about rest', 'Why most people quit week 3'..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
       </div>
       <RedBtn onClick={run} disabled={loading||!topic}>
         {loading ? 'Generating full batch...' : 'Generate Full Content Batch'}
@@ -2375,7 +2374,7 @@ function ClientBanner({ client }) {
     <div style={{background:'rgba(201,168,76,0.08)',border:'1px solid rgba(201,168,76,0.2)',borderRadius:8,padding:'8px 14px',marginBottom:16,display:'flex',alignItems:'center',gap:10}}>
       
       <span style={{color:'#C9A84C',fontSize:12,fontWeight:700}}>CLIENT MODE — {client.name}</span>
-      <span style={{color:B.gray,fontSize:12}}>{client.handle} · {client.platforms}</span>
+      <span style={{color:'#6B7280',fontSize:12}}>{client.handle} · {client.platforms}</span>
     </div>
   );
 }
@@ -2437,10 +2436,10 @@ function ClientMode({ setActiveClientExternal }) {
       </div>
 
       {/* Active client indicator */}
-      <div style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:12,padding:'16px',marginBottom:20}}>
+      <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:12,padding:'16px',marginBottom:20}}>
         <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:B.red,textTransform:'uppercase',marginBottom:8}}>Currently Active</div>
         <div style={{color:B.white,fontWeight:700,fontSize:16}}>{activeClient?.name || 'Jason Fricka'}</div>
-        <div style={{color:B.gray,fontSize:13,marginTop:2}}>{activeClient?.handle} · {activeClient?.platforms}</div>
+        <div style={{color:'#6B7280',fontSize:13,marginTop:2}}>{activeClient?.handle} · {activeClient?.platforms}</div>
       </div>
 
       {/* Client grid */}
@@ -2452,12 +2451,12 @@ function ClientMode({ setActiveClientExternal }) {
               borderRadius:12,padding:'16px',transition:'all 0.15s'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}>
               <div>
-                <div style={{color:B.white,fontWeight:700,fontSize:14}}>{client.name}</div>
-                <div style={{color:B.gray,fontSize:12,marginTop:2}}>{client.handle}</div>
+                <div style={{color:'#111827',fontWeight:700,fontSize:14}}>{client.name}</div>
+                <div style={{color:'#6B7280',fontSize:12,marginTop:2}}>{client.handle}</div>
               </div>
               {client.isDefault && <span style={{background:'rgba(233,69,96,0.15)',color:B.red,borderRadius:4,padding:'2px 7px',fontSize:10,fontWeight:700}}>YOU</span>}
             </div>
-            <div style={{color:B.gray,fontSize:11,lineHeight:1.6,marginBottom:12,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>
+            <div style={{color:'#6B7280',fontSize:11,lineHeight:1.6,marginBottom:12,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>
               {client.voice || client.notes || 'No description'}
             </div>
             <div style={{display:'flex',gap:8}}>
@@ -2473,7 +2472,7 @@ function ClientMode({ setActiveClientExternal }) {
               {!client.isDefault && (
                 <>
                   <button onClick={() => { setForm({...client}); setEditing(client.id); setShowForm(true); }}
-                    style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:7,padding:'7px 10px',fontSize:12,cursor:'pointer'}}>Edit</button>
+                    style={{background:'#FFFFFF',color:B.gray,border:'none',borderRadius:7,padding:'7px 10px',fontSize:12,cursor:'pointer'}}>Edit</button>
                   <button onClick={() => deleteClient(client.id)}
                     style={{background:'rgba(233,69,96,0.08)',color:B.red,border:'none',borderRadius:7,padding:'7px 10px',fontSize:12,cursor:'pointer'}}>×</button>
                 </>
@@ -2485,7 +2484,7 @@ function ClientMode({ setActiveClientExternal }) {
 
       {/* Add/Edit form */}
       {showForm && (
-        <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:14,padding:'24px',marginBottom:20}}>
+        <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:14,padding:'24px',marginBottom:20}}>
           <div style={{color:B.white,fontWeight:700,fontSize:16,marginBottom:20}}>{editing ? 'Edit Client' : 'New Client'}</div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
             {fields.map(f => (
@@ -2493,10 +2492,10 @@ function ClientMode({ setActiveClientExternal }) {
                 <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:B.red,textTransform:'uppercase',marginBottom:6}}>{f.l}</div>
                 {['voice','angles','notes'].includes(f.k) ? (
                   <textarea value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} rows={2} placeholder={f.ph}
-                    style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+                    style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
                 ) : (
                   <input value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} placeholder={f.ph}
-                    style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                    style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
                 )}
               </div>
             ))}
@@ -2504,13 +2503,13 @@ function ClientMode({ setActiveClientExternal }) {
           <div style={{display:'flex',gap:10,marginTop:18}}>
             <RedBtn onClick={saveClient} disabled={!form.name}>{editing ? 'Save Changes' : 'Add Client'}</RedBtn>
             <button onClick={() => { setShowForm(false); setEditing(null); setForm(blank); }}
-              style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,cursor:'pointer'}}>Cancel</button>
+              style={{background:'#FFFFFF',color:B.gray,border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,cursor:'pointer'}}>Cancel</button>
           </div>
         </div>
       )}
 
-      <div style={{background:'rgba(255,255,255,0.02)',borderRadius:10,padding:'16px',border:'1px solid rgba(255,255,255,0.05)'}}>
-        <div style={{color:B.gray,fontSize:12,lineHeight:1.8}}>
+      <div style={{background:'#FFFFFF',borderRadius:10,padding:'16px',border:'1px solid rgba(255,255,255,0.05)'}}>
+        <div style={{color:'#6B7280',fontSize:12,lineHeight:1.8}}>
           <strong style={{color:B.white}}>How Client Mode works:</strong> When a client is active, every tool scripts, calendars, profiles, lead magnets automatically uses their voice, angles, and brand context. Switch back to Jason anytime. Client data stays on your device.
         </div>
       </div>
@@ -2632,7 +2631,7 @@ function _OldHome({setNav,setSub}) {
                 <button key={t.sub} onClick={()=>{setNav(t.nav);setSub(t.sub);}}
                   style={{
                     background: 'rgba(18,28,42,0.9)',
-                    border: '1px solid rgba(0,194,255,0.08)',
+                    border: '1px solid #E5E7EB',
                     borderRadius: 12,
                     padding: '16px',
                     cursor: 'pointer',
@@ -2747,7 +2746,7 @@ function Onboarding() {
     setDownloading(false);
   };
 
-  const fldStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'};
+  const fldStyle = {width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'};
   const taStyle = {...fldStyle,resize:'vertical',lineHeight:1.6};
   const sectionHead = (label) => (
     <div style={{fontSize:10,fontWeight:700,letterSpacing:2,color:B.red,textTransform:'uppercase',
@@ -2822,10 +2821,10 @@ function Onboarding() {
             <span style={{fontSize:20}}>{uploadedDoc?'':''}</span>
             <div>
               {uploadedDoc
-                ? <><div style={{color:B.white,fontWeight:700,fontSize:13}}>{uploadFileName}</div>
+                ? <><div style={{color:'#111827',fontWeight:700,fontSize:13}}>{uploadFileName}</div>
                     <div style={{color:'rgba(39,174,96,0.9)',fontSize:11,marginTop:2}}>Doc loaded will be included in strategy</div></>
                 : <><div style={{color:B.white,fontWeight:600,fontSize:13}}>Upload existing doc or notes (optional)</div>
-                    <div style={{color:B.gray,fontSize:11,marginTop:2}}>.txt or .md</div></>}
+                    <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>.txt or .md</div></>}
             </div>
           </div>
           <input type="file" accept=".txt,.md,text/plain" onChange={handleFileUpload} style={{display:'none'}}/>
@@ -2852,10 +2851,10 @@ function Onboarding() {
       {out && (
         <div>
           <StrategyOutput text={out} onDownload={downloadDoc} downloading={downloading}/>
-          <div style={{marginTop:12,background:'rgba(0,194,255,0.04)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:10,padding:'16px 18px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
+          <div style={{marginTop:12,background:'rgba(0,194,255,0.04)',border:'1px solid #D1D5DB',borderRadius:10,padding:'16px 18px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
             <div>
               <div style={{color:'#00C2FF',fontWeight:700,fontSize:13,marginBottom:3}}>Strategy saved</div>
-              <div style={{color:B.gray,fontSize:11}}>Generate your content calendar now strategy loads automatically.</div>
+              <div style={{color:'#6B7280',fontSize:11}}>Generate your content calendar now strategy loads automatically.</div>
             </div>
             <div style={{display:'flex',gap:8}}>
               <button onClick={() => {
@@ -2936,14 +2935,14 @@ function ContentCalendar() {
               <span style={{fontSize:20}}>{strategyDoc?'':''}</span>
               <div style={{flex:1}}>
                 {strategyDoc
-                  ? <><div style={{color:B.white,fontWeight:700,fontSize:13}}>{strategyFileName}</div>
+                  ? <><div style={{color:'#111827',fontWeight:700,fontSize:13}}>{strategyFileName}</div>
                       <div style={{color:'rgba(39,174,96,0.9)',fontSize:11,marginTop:2}}>Strategy loaded calendar will align with your goals and brand voice</div></>
                   : <><div style={{color:B.white,fontWeight:600,fontSize:13}}>Upload your 90-Day Strategy Doc</div>
-                      <div style={{color:B.gray,fontSize:11,marginTop:2}}>Download from Strategy Builder then upload here gives the calendar full context</div></>}
+                      <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>Download from Strategy Builder then upload here gives the calendar full context</div></>}
               </div>
               {strategyDoc && (
                 <button onClick={e=>{e.preventDefault();setStrategyDoc('');setStrategyFileName('');}}
-                  style={{background:'rgba(255,255,255,0.08)',border:'none',color:B.gray,borderRadius:6,padding:'4px 10px',cursor:'pointer',fontSize:12}}>
+                  style={{background:'#F9FAFB',border:'none',color:B.gray,borderRadius:6,padding:'4px 10px',cursor:'pointer',fontSize:12}}>
                   Remove
                 </button>
               )}
@@ -2955,8 +2954,8 @@ function ContentCalendar() {
         <SecLabel>Content Pillars</SecLabel>
         <input value={pillars} onChange={e=>setPillars(e.target.value)}
           placeholder={strategyDoc ? 'Override pillars here, or leave blank to use pillars from strategy doc...' : 'e.g. Veteran mindset, Real estate tips, Family lessons, Fitness...'}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
         <div style={{display:'flex',gap:24,marginTop:16,flexWrap:'wrap'}}>
           <div>
             <SecLabel>Platform</SecLabel>
@@ -3065,7 +3064,7 @@ function ProfileAudit() {
         {liveData && (
           <div style={{marginBottom:16}}>
             <SecLabel>What Perplexity Found</SecLabel>
-            <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'12px',fontSize:12,color:'rgba(255,255,255,0.75)',lineHeight:1.7,maxHeight:180,overflowY:'auto'}}>
+            <div style={{background:'#F9FAFB',borderRadius:8,padding:'12px',fontSize:12,color:'rgba(255,255,255,0.75)',lineHeight:1.7,maxHeight:180,overflowY:'auto'}}>
               {liveData}
             </div>
           </div>
@@ -3074,14 +3073,14 @@ function ProfileAudit() {
         <SecLabel>Anything Perplexity Can't See (optional)</SecLabel>
         <textarea value={extraContext} onChange={e=>setExtraContext(e.target.value)} rows={3}
           placeholder={`e.g. My current DM volume, what posts get the most saves, my email list size, what my audience asks most...`}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
 
         <div style={{marginTop:16}}>
           <RedBtn onClick={run} disabled={loading || !liveData}>
             {loading ? 'Auditing...' : 'Run Full Audit'}
           </RedBtn>
-          {!liveData && <span style={{color:B.gray,fontSize:12,marginLeft:12}}>Pull live profile first</span>}
+          {!liveData && <span style={{color:'#6B7280',fontSize:12,marginLeft:12}}>Pull live profile first</span>}
         </div>
       </Card>
       {loading && <Spin/>}
@@ -3117,29 +3116,29 @@ function LeadMagnet() {
       <Card>
         <SecLabel>Who You're Trying to Reach</SecLabel>
         <textarea value={audience} onChange={e=>setAudience(e.target.value)} rows={2}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
 
         <SecLabel>The Core Problem You Solve</SecLabel>
         <textarea value={problem} onChange={e=>setProblem(e.target.value)} rows={2}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
 
         <SecLabel>Your Offers / Services</SecLabel>
         <textarea value={offer} onChange={e=>setOffer(e.target.value)} rows={2}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
 
         <SecLabel>What You Currently Post / Your Content Style</SecLabel>
         <textarea value={currentContent} onChange={e=>setCurrentContent(e.target.value)} rows={2}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
 
         <SecLabel>What's Resonated Most With Your Audience (comments, DMs, saves, shares)</SecLabel>
         <textarea value={whatWorks} onChange={e=>setWhatWorks(e.target.value)} rows={3}
           placeholder="e.g. My veteran transition story got 200 saves. Posts about early mornings get the most DMs. People always ask me about my morning routine..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
 
         <div style={{marginTop:16}}>
           <RedBtn onClick={run} disabled={loading}>
@@ -3179,25 +3178,25 @@ function CommunityBuilder() {
       <Card>
         <SecLabel>Who the community Is For</SecLabel>
         <textarea value={focus} onChange={e=>setFocus(e.target.value)} rows={2}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
 
         <SecLabel>What Your Current Engagement Actually Looks Like</SecLabel>
         <textarea value={currentEngagement} onChange={e=>setCurrentEngagement(e.target.value)} rows={2}
           placeholder="e.g. I get 10-15 DMs a week. Most comments are people saying they needed this today. My veteran posts get the most replies..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
 
         <SecLabel>Where Your Audience Lives Right Now</SecLabel>
         <textarea value={whereTheyAre} onChange={e=>setWhereTheyAre(e.target.value)} rows={2}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box',marginBottom:12}}/>
 
         <SecLabel>What People Ask You or Tell You Most (comments, DMs, real life)</SecLabel>
         <textarea value={whatTheyAsk} onChange={e=>setWhatTheyAsk(e.target.value)} rows={3}
           placeholder="e.g. How do you stay consistent? How did you get through your transition? Can you do more content on morning routines?..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
 
         <div style={{marginTop:16}}>
           <RedBtn onClick={run} disabled={loading}>
@@ -3314,15 +3313,15 @@ function Pipeline() {
 
         <input value={query} onChange={e=>setQuery(e.target.value)}
           placeholder="e.g. Colorado real estate market, mindset for high performers, daily discipline..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
         <SecLabel>Content Angle</SecLabel>
         <AngleGrid selected={angle} onSelect={setAngle}/>
         <SecLabel>Research Depth</SecLabel>
         <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:16}}>
           {TIER_PROMPTS.map((t,i) => (
             <button key={i} onClick={()=>setTier(i)}
-              style={{background:tier===i?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',
+              style={{background:tier===i?'#2563EB':'#F3F4F6',color:tier===i?'#FFFFFF':'#374151',border:'1px solid '+(tier===i?'transparent':'#E5E7EB'),
                 borderRadius:8,padding:'10px 8px',cursor:'pointer',textAlign:'left'}}>
               <div style={{fontWeight:700,fontSize:13}}>{t.label}</div>
               <div style={{color:tier===i?'rgba(255,255,255,0.8)':B.gray,fontSize:11,marginTop:2}}>{t.desc}</div>
@@ -3344,7 +3343,7 @@ function Pipeline() {
               </RedBtn>
             </div>
           </div>
-          <div style={{color:B.light,fontSize:12,lineHeight:1.7,whiteSpace:'pre-wrap',padding:'4px 0'}}
+          <div style={{color:'#6B7280',fontSize:12,lineHeight:1.7,whiteSpace:'pre-wrap',padding:'4px 0'}}
             dangerouslySetInnerHTML={{__html:research.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" style="color:#00C2FF">$1</a>')}}>
           </div>
         </Card>
@@ -3372,7 +3371,7 @@ function Pipeline() {
               </RedBtn>
             </div>
           </div>
-          <pre style={{color:B.white,fontSize:12,whiteSpace:'pre-wrap',margin:0,lineHeight:1.6,
+          <pre style={{color:'#111827',fontSize:12,whiteSpace:'pre-wrap',margin:0,lineHeight:1.6,
             maxHeight:250,overflowY:'auto'}}>{intel}</pre>
         </Card>
       )}
@@ -3410,7 +3409,7 @@ function Vault() {
       <div style={{display:'grid',gap:10}}>
         {current.prompts.map((p,i) => (
           <Card key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'14px 16px'}}>
-            <span style={{color:B.white,fontSize:13,flex:1}}>{p}</span>
+            <span style={{color:'#111827',fontSize:13,flex:1}}>{p}</span>
             <button onClick={()=>copyPrompt(p,i)}
               style={{background:copied===i?'rgba(46,204,113,0.2)':B.red,color:B.white,border:'none',
                 borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:700,
@@ -3448,8 +3447,8 @@ function CollabFinder() {
         <SecLabel>Niche / Space</SecLabel>
         <input value={niche} onChange={e=>setNiche(e.target.value)}
           placeholder="e.g. Veteran wellness, Colorado real estate, Personal development podcasts..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
         <SecLabel>Collaboration Type</SecLabel>
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
           {['podcast guest','stitch/collab','community partner','brand deal'].map(g => (
@@ -3493,13 +3492,13 @@ function Extract() {
         <SecLabel>Content to Analyze</SecLabel>
         <textarea value={content} onChange={e=>setContent(e.target.value)} rows={6}
           placeholder="Paste any content: article, interview transcript, book excerpt, speech..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
         <SecLabel>Specific Question / Focus (optional)</SecLabel>
         <input value={question} onChange={e=>setQuestion(e.target.value)}
           placeholder="e.g. How does this apply to veterans? What's the content angle for real estate?"
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
         <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!content}>
           {loading?'Extracting Insights...':'Extract Insights'}
         </RedBtn></div>
@@ -3559,8 +3558,8 @@ function ScriptEngine() {
             <SecLabel>Topic / Idea</SecLabel>
             <input value={topic} onChange={e=>setTopic(e.target.value)}
               placeholder="e.g. Why most people quit before they see results..."
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+                borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
             <SecLabel>Content Angle</SecLabel>
             <AngleGrid selected={angle} onSelect={setAngle}/>
             <SecLabel>Platform</SecLabel>
@@ -3579,8 +3578,8 @@ function ScriptEngine() {
             <SecLabel>Original Content to Stitch</SecLabel>
             <textarea value={stitchContent} onChange={e=>setStitchContent(e.target.value)} rows={4}
               placeholder="Paste the original post, video description, or quote you want to stitch/respond to..."
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+                borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
             <SecLabel>Your Response Angle</SecLabel>
             <AngleGrid selected={angle} onSelect={setAngle}/>
           </>
@@ -3595,7 +3594,7 @@ function ScriptEngine() {
       {out && (
         <div>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:8}}>
-            <span style={{color:B.white,fontWeight:700,fontSize:14}}>Your Script</span>
+            <span style={{color:'#111827',fontWeight:700,fontSize:14}}>Your Script</span>
             <div style={{display:'flex',gap:8}}>
               <CopyBtn text={out}/>
               <button onClick={()=>setTeleprompter(true)}
@@ -3640,13 +3639,13 @@ function EpisodeClips() {
         <SecLabel>Episode Title</SecLabel>
         <input value={title} onChange={e=>setTitle(e.target.value)}
           placeholder="e.g. How I went from active duty to building 3 businesses..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
         <SecLabel>Episode Notes / Key Points (optional)</SecLabel>
         <textarea value={notes} onChange={e=>setNotes(e.target.value)} rows={4}
           placeholder="Paste show notes, key timestamps, main topics covered..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
         <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!title}>
           {loading?'Extracting Clips...':'Extract All Clips & Assets'}
         </RedBtn></div>
@@ -3689,8 +3688,8 @@ function RepurposeEngine() {
         <SecLabel>Original Script</SecLabel>
         <textarea value={script} onChange={e=>setScript(e.target.value)} rows={6}
           placeholder="Paste your existing script or content to repurpose..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
         <div style={{marginTop:16}}><RedBtn onClick={run} disabled={loading||!script}>
           {loading?'Repurposing...':'Repurpose to All Platforms'}
         </RedBtn></div>
@@ -3723,8 +3722,8 @@ function HookLibrary() {
         <SecLabel>Topic</SecLabel>
         <input value={topic} onChange={e=>setTopic(e.target.value)}
           placeholder="e.g. Veteran transition, Mindset shift, Real estate investing, Morning routines..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
         <SecLabel>How Many Hooks?</SecLabel>
         <div style={{display:'flex',gap:8,marginBottom:16}}>
           {[10,20,30,40].map(q => (
@@ -3769,8 +3768,8 @@ function DesignStudio() {
         <SecLabel>Topic</SecLabel>
         <input value={topic} onChange={e=>setTopic(e.target.value)}
           placeholder="e.g. 5 signs you're ready for a mindset shift..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
         <SecLabel>Format</SecLabel>
         <div style={{display:'flex',gap:8,marginBottom:12}}>
           {['Carousel','Static Post','Story Sequence'].map(f => (
@@ -3843,7 +3842,7 @@ function WeeklyReview() {
     { id: 2, label: 'Revenue & Intel' },
   ];
 
-  const taStyle = { width:'100%', background:'rgba(0,0,0,0.3)', border:'1px solid rgba(0,194,255,0.12)', borderRadius:8, padding:'10px 12px', color:B.white, fontSize:13, resize:'vertical', marginBottom:14, boxSizing:'border-box', fontFamily:'inherit' };
+  const taStyle = { width:'100%', background:'#F9FAFB', border:'1px solid #D1D5DB', borderRadius:8, padding:'10px 12px', color:B.white, fontSize:13, resize:'vertical', marginBottom:14, boxSizing:'border-box', fontFamily:'inherit' };
 
   return (
     <div>
@@ -3915,7 +3914,7 @@ function WeeklyReview() {
             style={{background: !metrics ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg,#00C2FF,#0096CC)', color: !metrics ? B.gray : '#000D1A', border:'none', borderRadius:8, padding:'11px 24px', fontWeight:800, cursor: !metrics?'not-allowed':'pointer', fontSize:14, boxShadow: !metrics ? 'none' : '0 0 20px rgba(0,194,255,0.25)'}}>
             {loading ? 'Running review...' : 'Run Full 6-Module Review'}
           </button>
-          {!metrics && <span style={{color:B.gray,fontSize:11,marginLeft:12}}>Add metrics in Module 1 first</span>}
+          {!metrics && <span style={{color:'#6B7280',fontSize:11,marginLeft:12}}>Add metrics in Module 1 first</span>}
         </div>
       </Card>
       {loading && <Spin/>}
@@ -3979,7 +3978,7 @@ function Teleprompter({ text, onClose }) {
   return (
     <div style={{position:'fixed',inset:0,background:'#000',zIndex:9999,display:'flex',flexDirection:'column'}}>
       {/* Controls bar */}
-      <div style={{background:'rgba(255,255,255,0.05)',borderBottom:'1px solid rgba(255,255,255,0.1)',
+      <div style={{background:'#FFFFFF',borderBottom:'1px solid rgba(255,255,255,0.1)',
         padding:'10px 20px',display:'flex',alignItems:'center',gap:16,flexWrap:'wrap',flexShrink:0}}>
         <button onClick={() => setRunning(r => !r)}
           style={{background:running?B.red:'#00C2FF',color:'#000',border:'none',borderRadius:8,
@@ -3987,15 +3986,15 @@ function Teleprompter({ text, onClose }) {
           {running ? 'Pause' : 'Start'}
         </button>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
-          <span style={{color:B.gray,fontSize:12}}>Speed</span>
+          <span style={{color:'#6B7280',fontSize:12}}>Speed</span>
           <button onClick={()=>setSpeed(s=>Math.max(s-5,5))}
             style={{background:'rgba(255,255,255,0.1)',color:B.white,border:'none',borderRadius:6,width:28,height:28,cursor:'pointer',fontSize:16}}>−</button>
-          <span style={{color:B.white,fontWeight:700,fontSize:13,minWidth:24,textAlign:'center'}}>{speed}</span>
+          <span style={{color:'#111827',fontWeight:700,fontSize:13,minWidth:24,textAlign:'center'}}>{speed}</span>
           <button onClick={()=>setSpeed(s=>Math.min(s+5,150))}
             style={{background:'rgba(255,255,255,0.1)',color:B.white,border:'none',borderRadius:6,width:28,height:28,cursor:'pointer',fontSize:16}}>+</button>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
-          <span style={{color:B.gray,fontSize:12}}>Size</span>
+          <span style={{color:'#6B7280',fontSize:12}}>Size</span>
           <button onClick={()=>setFontSize(s=>Math.max(s-4,24))}
             style={{background:'rgba(255,255,255,0.1)',color:B.white,border:'none',borderRadius:6,width:28,height:28,cursor:'pointer',fontSize:14}}>A-</button>
           <button onClick={()=>setFontSize(s=>Math.min(s+4,80))}
@@ -4007,7 +4006,7 @@ function Teleprompter({ text, onClose }) {
             borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>
           Mirror
         </button>
-        <div style={{marginLeft:'auto',color:B.gray,fontSize:11,lineHeight:1.6,textAlign:'right'}}>
+        <div style={{marginLeft:'auto',color:'#6B7280',fontSize:11,lineHeight:1.6,textAlign:'right'}}>
           Space/Enter: play/pause<br/>↑↓: speed &nbsp;·&nbsp; Esc: exit
         </div>
         <button onClick={onClose}
@@ -4324,12 +4323,12 @@ function TrendAlertBanner() {
                     )}
                   </div>
                   {alert.account && (
-                    <div style={{color:B.white,fontWeight:700,fontSize:12,marginBottom:3}}>
+                    <div style={{color:'#111827',fontWeight:700,fontSize:12,marginBottom:3}}>
                       {alert.account}
                     </div>
                   )}
                   {alert.title && (
-                    <div style={{color:B.light,fontSize:11,marginBottom:6,lineHeight:1.5}}>
+                    <div style={{color:'#6B7280',fontSize:11,marginBottom:6,lineHeight:1.5}}>
                       {alert.title}
                     </div>
                   )}
@@ -4462,7 +4461,7 @@ function ROIDashboard() {
 
       {/* Empty state */}
       {weeks.length === 0 && !showForm && (
-        <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.03)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
+        <div style={{textAlign:'center',padding:'4rem 2rem',background:'#FFFFFF',borderRadius:16,border:'1px solid #E5E7EB'}}>
           
           <div style={{color:B.white,fontWeight:700,fontSize:18,marginBottom:8}}>No data yet</div>
           <div style={{color:B.gray,fontSize:14,lineHeight:1.7,marginBottom:20}}>Log your first week of metrics and the dashboard builds automatically.<br/>Takes 60 seconds. Pays off every week after.</div>
@@ -4481,7 +4480,7 @@ function ROIDashboard() {
               const g = growth(f.k);
               const vals = weeks.map(w => w[f.k]);
               return (
-                <div key={f.k} style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:12,padding:'14px 16px'}}>
+                <div key={f.k} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:12,padding:'14px 16px'}}>
                   <div style={{fontSize:11,color:B.gray,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:6}}>{f.label}</div>
                   <div style={{fontSize:26,fontWeight:800,color:B.white,marginBottom:4}}>{latest?.[f.k] || '—'}</div>
                   {g !== null && (
@@ -4497,13 +4496,13 @@ function ROIDashboard() {
 
           {/* Top content tracker */}
           {weeks.some(w=>w.topContent) && (
-            <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:12,padding:'16px',marginBottom:20}}>
+            <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:12,padding:'16px',marginBottom:20}}>
               <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:12}}>Top Content Log</div>
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
                 {[...weeks].reverse().filter(w=>w.topContent).slice(0,6).map((w,i) => (
                   <div key={i} style={{display:'flex',gap:12,alignItems:'flex-start'}}>
-                    <span style={{color:B.gray,fontSize:11,whiteSpace:'nowrap',paddingTop:2}}>{w.week}</span>
-                    <span style={{color:B.white,fontSize:13,lineHeight:1.5}}>{w.topContent}</span>
+                    <span style={{color:'#6B7280',fontSize:11,whiteSpace:'nowrap',paddingTop:2}}>{w.week}</span>
+                    <span style={{color:'#111827',fontSize:13,lineHeight:1.5}}>{w.topContent}</span>
                   </div>
                 ))}
               </div>
@@ -4511,7 +4510,7 @@ function ROIDashboard() {
           )}
 
           {/* Week log table */}
-          <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:12,overflow:'hidden',marginBottom:20}}>
+          <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:12,overflow:'hidden',marginBottom:20}}>
             <div style={{overflowX:'auto'}}>
               <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
                 <thead>
@@ -4532,7 +4531,7 @@ function ROIDashboard() {
                       <td style={{padding:'10px 12px'}}>
                         <div style={{display:'flex',gap:6}}>
                           <button onClick={()=>{ setForm({...w}); setEditIdx(weeks.length-1-i); setShowForm(true); }}
-                            style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',borderRadius:5,padding:'3px 8px',fontSize:11,cursor:'pointer'}}>Edit</button>
+                            style={{background:'#FFFFFF',color:B.gray,border:'none',borderRadius:5,padding:'3px 8px',fontSize:11,cursor:'pointer'}}>Edit</button>
                           <button onClick={()=>deleteWeek(weeks.length-1-i)}
                             style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',borderRadius:5,padding:'3px 6px',fontSize:12,cursor:'pointer'}}>×</button>
                         </div>
@@ -4548,7 +4547,7 @@ function ROIDashboard() {
 
       {/* Entry form */}
       {showForm && (
-        <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:14,padding:'22px',marginBottom:20}}>
+        <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:14,padding:'22px',marginBottom:20}}>
           <div style={{color:B.white,fontWeight:700,fontSize:15,marginBottom:18}}>{editIdx!==null?'Edit Week':'Log This Week'}</div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
             {formFields.map(f => (
@@ -4556,9 +4555,9 @@ function ROIDashboard() {
                 <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:B.red,textTransform:'uppercase',marginBottom:5}}>{f.label}</div>
                 {f.full
                   ? <textarea value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} rows={2} placeholder={f.ph}
-                      style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+                      style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
                   : <input value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} placeholder={f.ph}
-                      style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                      style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
                 }
               </div>
             ))}
@@ -4566,7 +4565,7 @@ function ROIDashboard() {
           <div style={{display:'flex',gap:10,marginTop:18}}>
             <RedBtn onClick={submit} disabled={!form.week}>{editIdx!==null?'Save Changes':'Log Week'}</RedBtn>
             <button onClick={()=>{ setShowForm(false); setEditIdx(null); }}
-              style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,cursor:'pointer'}}>Cancel</button>
+              style={{background:'#FFFFFF',color:B.gray,border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,cursor:'pointer'}}>Cancel</button>
           </div>
         </div>
       )}
@@ -4758,14 +4757,14 @@ function CaptionWriter() {
         <SecLabel>Topic / What the post is about</SecLabel>
         <textarea value={topic} onChange={e=>setTopic(e.target.value)} rows={2}
           placeholder="e.g. Why I wake up at 4:45 AM even on weekends, what nobody tells you about veteran transition..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
 
         <SecLabel>Opening Hook (optional : paste from Script Engine or write your own)</SecLabel>
         <input value={hook} onChange={e=>setHook(e.target.value)}
           placeholder="e.g. Nobody talks about what happens the week after you get out..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
 
         <SecLabel>Content Angle</SecLabel>
         <AngleGrid selected={angle} onSelect={setAngle}/>
@@ -4778,7 +4777,7 @@ function CaptionWriter() {
       {out && (
         <div>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:8}}>
-            <span style={{color:B.white,fontWeight:700,fontSize:14}}>Your Captions</span>
+            <span style={{color:'#111827',fontWeight:700,fontSize:14}}>Your Captions</span>
             <div style={{display:'flex',gap:8}}>
               <CopyBtn text={out}/>
               <button onClick={() => setTeleprompter(true)}
@@ -4889,12 +4888,12 @@ For each day: Platform, Content Type, Best Time to Post, Why (based on data)
         </div>
 
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:20}}>
-          <div style={{background:'rgba(255,255,255,0.03)',borderRadius:10,padding:'14px'}}>
+          <div style={{background:'#FFFFFF',borderRadius:10,padding:'14px'}}>
             <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>ROI Data</div>
             <div style={{fontSize:22,fontWeight:800,color:B.white}}>{weeks.length}</div>
             <div style={{fontSize:12,color:B.gray}}>weeks logged</div>
           </div>
-          <div style={{background:'rgba(255,255,255,0.03)',borderRadius:10,padding:'14px'}}>
+          <div style={{background:'#FFFFFF',borderRadius:10,padding:'14px'}}>
             <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>Content Memory</div>
             <div style={{fontSize:22,fontWeight:800,color:B.white}}>{log.length}</div>
             <div style={{fontSize:12,color:B.gray}}>pieces tracked</div>
@@ -5015,9 +5014,9 @@ ${summary}
               const max = Math.max(...Object.values(angleCount), 1);
               const pct = Math.round((count / max) * 100);
               return (
-                <div key={a.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'12px'}}>
+                <div key={a.id} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px'}}>
                   <div style={{fontSize:12,color:B.white,fontWeight:600,marginBottom:6}}>{a.label}</div>
-                  <div style={{height:4,background:'rgba(255,255,255,0.08)',borderRadius:2,marginBottom:4}}>
+                  <div style={{height:4,background:'#F9FAFB',borderRadius:2,marginBottom:4}}>
                     <div style={{height:'100%',width:`${pct}%`,background:count===0?'rgba(233,69,96,0.3)':count===max?B.red:'#00C2FF',borderRadius:2,transition:'width 0.3s'}}/>
                   </div>
                   <div style={{fontSize:11,color:count===0?B.red:B.gray}}>{count===0?'Gap':count + ' pieces'}</div>
@@ -5035,7 +5034,7 @@ ${summary}
       )}
 
       <Card>
-        <div style={{color:B.gray,fontSize:13,lineHeight:1.7,marginBottom:16}}>
+        <div style={{color:'#6B7280',fontSize:13,lineHeight:1.7,marginBottom:16}}>
           Analyzing <strong style={{color:B.white}}>{log.length} pieces</strong> across your content library.
           {log.filter(e=>e.perf==='').length > 0 && <span> Found <strong style={{color:B.red}}>{log.filter(e=>e.perf==='').length} viral hits</strong> to pattern-match.</span>}
         </div>
@@ -5067,9 +5066,9 @@ function OutputWithTeleprompter({text}) {
           Teleprompter
         </button>
       </div>
-      <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'1rem',
-        border:'1px solid rgba(255,255,255,0.1)'}}>
-        <pre style={{color:B.white,fontSize:13,whiteSpace:'pre-wrap',margin:0,lineHeight:1.7,
+      <div style={{background:'#F9FAFB',borderRadius:8,padding:'1rem',
+        border:'1px solid #E5E7EB'}}>
+        <pre style={{color:'#111827',fontSize:13,whiteSpace:'pre-wrap',margin:0,lineHeight:1.7,
           fontFamily:'inherit'}}>{text}</pre>
       </div>
       {teleprompter && <Teleprompter text={text} onClose={() => setTeleprompter(false)}/>}
@@ -5162,7 +5161,7 @@ function CollabTracker() {
       {/* Stats row */}
       <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
         {stats.map(s => (
-          <div key={s.status} style={{background:'rgba(255,255,255,0.03)',border:`1px solid ${statusColors[s.status]}`,
+          <div key={s.status} style={{background:'#FFFFFF',border:`1px solid ${statusColors[s.status]}`,
             borderRadius:8,padding:'10px 16px',textAlign:'center',minWidth:100}}>
             <div style={{fontSize:20,fontWeight:800,color:statusText[s.status]}}>{s.count}</div>
             <div style={{fontSize:10,color:B.gray,textTransform:'capitalize',marginTop:2}}>{s.status}</div>
@@ -5183,10 +5182,10 @@ function CollabTracker() {
 
       {/* Empty state */}
       {contacts.length === 0 && (
-        <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.02)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)',marginBottom:20}}>
+        <div style={{textAlign:'center',padding:'4rem 2rem',background:'#FFFFFF',borderRadius:16,border:'1px solid #E5E7EB',marginBottom:20}}>
           
           <div style={{color:B.white,fontWeight:700,fontSize:16,marginBottom:8}}>No contacts yet</div>
-          <div style={{color:B.gray,fontSize:13,marginBottom:20}}>Add podcast guests, collab targets, and brand partners. Track every conversation.</div>
+          <div style={{color:'#6B7280',fontSize:13,marginBottom:20}}>Add podcast guests, collab targets, and brand partners. Track every conversation.</div>
           <button onClick={() => setShowForm(true)}
             style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
             + Add First Contact
@@ -5198,23 +5197,23 @@ function CollabTracker() {
       {filtered.length > 0 && (
         <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
           {filtered.map(contact => (
-            <div key={contact.id} style={{background:'rgba(255,255,255,0.03)',
+            <div key={contact.id} style={{background:'#FFFFFF',
               border:`1px solid ${statusColors[contact.status] || 'rgba(255,255,255,0.07)'}`,
               borderRadius:12,padding:'16px'}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:10}}>
                 <div style={{flex:1}}>
                   <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
-                    <span style={{color:B.white,fontWeight:700,fontSize:14}}>{contact.name}</span>
-                    <span style={{color:B.gray,fontSize:12}}>{contact.handle}</span>
-                    <span style={{background:'rgba(255,255,255,0.07)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>{contact.platform}</span>
-                    <span style={{background:'rgba(255,255,255,0.07)',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10,textTransform:'capitalize'}}>{contact.type}</span>
+                    <span style={{color:'#111827',fontWeight:700,fontSize:14}}>{contact.name}</span>
+                    <span style={{color:'#6B7280',fontSize:12}}>{contact.handle}</span>
+                    <span style={{background:'#FFFFFF',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10}}>{contact.platform}</span>
+                    <span style={{background:'#FFFFFF',color:B.gray,borderRadius:4,padding:'2px 7px',fontSize:10,textTransform:'capitalize'}}>{contact.type}</span>
                   </div>
                   {contact.notes && (
                     <div style={{color:'rgba(255,255,255,0.65)',fontSize:12,lineHeight:1.6,marginBottom:6}}>{contact.notes}</div>
                   )}
                   <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
-                    {contact.pitchSent && <span style={{color:B.gray,fontSize:11}}>Pitched: {contact.pitchSent}</span>}
-                    {contact.lastContact && <span style={{color:B.gray,fontSize:11}}>Last contact: {contact.lastContact}</span>}
+                    {contact.pitchSent && <span style={{color:'#6B7280',fontSize:11}}>Pitched: {contact.pitchSent}</span>}
+                    {contact.lastContact && <span style={{color:'#6B7280',fontSize:11}}>Last contact: {contact.lastContact}</span>}
                   </div>
                 </div>
                 <div style={{display:'flex',flexDirection:'column',gap:6,alignItems:'flex-end'}}>
@@ -5227,7 +5226,7 @@ function CollabTracker() {
                   </select>
                   <div style={{display:'flex',gap:6}}>
                     <button onClick={() => { setForm({...contact}); setEditId(contact.id); setShowForm(true); }}
-                      style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer'}}>
+                      style={{background:'#FFFFFF',color:B.gray,border:'none',borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer'}}>
                       Edit
                     </button>
                     <button onClick={() => remove(contact.id)}
@@ -5242,7 +5241,7 @@ function CollabTracker() {
 
       {/* Platform + Type selector in form */}
       {showForm && (
-        <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:14,padding:'22px',marginBottom:20}}>
+        <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:14,padding:'22px',marginBottom:20}}>
           <div style={{color:B.white,fontWeight:700,fontSize:15,marginBottom:16}}>{editId ? 'Edit Contact' : 'Add Contact'}</div>
 
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
@@ -5278,9 +5277,9 @@ function CollabTracker() {
                 <SecLabel>{f.l}</SecLabel>
                 {f.full
                   ? <textarea value={form[f.k]|| ''} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} rows={2} placeholder={f.ph}
-                      style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+                      style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
                   : <input value={form[f.k]|| ''} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} placeholder={f.ph}
-                      style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                      style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
                 }
               </div>
             ))}
@@ -5304,7 +5303,7 @@ function CollabTracker() {
           <div style={{display:'flex',gap:10}}>
             <RedBtn onClick={submit} disabled={!form.name}>{editId ? 'Save Changes' : 'Add Contact'}</RedBtn>
             <button onClick={() => { setShowForm(false); setEditId(null); setForm(blank); }}
-              style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,cursor:'pointer'}}>Cancel</button>
+              style={{background:'#FFFFFF',color:B.gray,border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,cursor:'pointer'}}>Cancel</button>
           </div>
         </div>
       )}
@@ -5386,8 +5385,8 @@ function CommentResponder() {
         <textarea value={input} onChange={e=>setInput(e.target.value)}
           rows={mode === 'bulk' ? 8 : 4}
           placeholder={placeholder}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
             resize:'vertical',marginBottom:16,boxSizing:'border-box',lineHeight:1.6}}/>
 
         <RedBtn onClick={run} disabled={loading||!input.trim()}>
@@ -5398,7 +5397,7 @@ function CommentResponder() {
       {out && (
         <div>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:8}}>
-            <span style={{color:B.white,fontWeight:700,fontSize:14}}>
+            <span style={{color:'#111827',fontWeight:700,fontSize:14}}>
               {mode === 'single' ? '3 Reply Options' : 'Bulk Replies'}
             </span>
             <CopyBtn text={out}/>
@@ -5484,15 +5483,15 @@ function HookTester() {
         <SecLabel>What's the video about?</SecLabel>
         <input value={topic} onChange={e=>setTopic(e.target.value)}
           placeholder="e.g. Why most people quit before they see results"
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
             marginBottom:20,boxSizing:'border-box'}}/>
 
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
           <SecLabel style={{margin:0}}>Your Hook Variations ({filledCount} entered, 2 minimum)</SecLabel>
           {hooks.length < 6 && (
             <button onClick={addHook}
-              style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',
+              style={{background:'#FFFFFF',color:B.gray,border:'none',
                 borderRadius:6,padding:'4px 12px',cursor:'pointer',fontSize:12}}>
               + Add Hook
             </button>
@@ -5507,8 +5506,8 @@ function HookTester() {
                 placeholder={i === 0 ? 'e.g. Nobody told me this about getting out...' :
                              i === 1 ? 'e.g. I spent 3 years doing it wrong. Here\'s the truth.' :
                              'Another hook variation...'}
-                style={{flex:1,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-                  borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                style={{flex:1,background:'#F9FAFB',border:'1px solid #D1D5DB',
+                  borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
               {hooks.length > 2 && (
                 <button onClick={() => removeHook(i)}
                   style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',
@@ -5526,7 +5525,7 @@ function HookTester() {
       {out && (
         <div>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-            <span style={{color:B.white,fontWeight:700,fontSize:14}}>Hook Analysis</span>
+            <span style={{color:'#111827',fontWeight:700,fontSize:14}}>Hook Analysis</span>
             <CopyBtn text={out}/>
           </div>
           <Output text={out}/>
@@ -5657,20 +5656,20 @@ function EmailSequenceBuilder() {
         <SecLabel>Lead Magnet / Opt-in Trigger</SecLabel>
         <input value={magnet} onChange={e=>setMagnet(e.target.value)}
           placeholder="e.g. 5 AM Success Protocol PDF, Performance Longevity Blueprint, Free Mindset Audit"
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
             marginBottom:16,boxSizing:'border-box'}}/>
 
         <SecLabel>Who Opted In</SecLabel>
         <textarea value={audience} onChange={e=>setAudience(e.target.value)} rows={2}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
             resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
 
         <SecLabel>Your Offer / Next Step You Want Them to Take</SecLabel>
         <textarea value={offer} onChange={e=>setOffer(e.target.value)} rows={2}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
             resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
 
         <SecLabel>Sequence Length</SecLabel>
@@ -5871,8 +5870,8 @@ function PodcastPreProd() {
             <div style={{display:'flex',gap:8,marginBottom:16}}>
               <input value={guestName} onChange={e=>setGuestName(e.target.value)}
                 placeholder="e.g. David Goggins, Jocko Willink, your next guest..."
-                style={{flex:1,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-                  borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                style={{flex:1,background:'#F9FAFB',border:'1px solid #D1D5DB',
+                  borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
               <button onClick={fetchGuestIntel} disabled={fetching||!guestName}
                 style={{background:'rgba(0,212,255,0.1)',color:'#00C2FF',border:'1px solid rgba(0,212,255,0.3)',
                   borderRadius:8,padding:'10px 16px',fontWeight:700,cursor:(!guestName||fetching)?'not-allowed':'pointer',
@@ -5884,22 +5883,22 @@ function PodcastPreProd() {
             <SecLabel>Guest Bio / Background</SecLabel>
             <textarea value={guestBio} onChange={e=>setGuestBio(e.target.value)} rows={4}
               placeholder="Paste their bio, or hit Research Guest above to pull it automatically..."
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+                borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
                 resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
 
             <SecLabel>Episode Angle / What This Episode Is Really About</SecLabel>
             <input value={angle} onChange={e=>setAngle(e.target.value)}
               placeholder="e.g. How high performers recover from identity loss, The truth about discipline nobody talks about"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+                borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
                 marginBottom:16,boxSizing:'border-box'}}/>
 
             <SecLabel>Additional Context (optional)</SecLabel>
             <textarea value={showContext} onChange={e=>setShowContext(e.target.value)} rows={2}
               placeholder="e.g. We connected at a veteran event, he's been on Rogan twice, my audience loved my last episode on recovery..."
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+                borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
                 resize:'vertical',boxSizing:'border-box'}}/>
           </>
         ) : (
@@ -5907,8 +5906,8 @@ function PodcastPreProd() {
             <SecLabel>Episode Topic</SecLabel>
             <input value={soloTopic} onChange={e=>setSoloTopic(e.target.value)}
               placeholder="e.g. Why I almost quit at month 4, What the Army taught me about consistency, The real cost of staying comfortable"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+                borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
                 marginBottom:16,boxSizing:'border-box'}}/>
 
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
@@ -5938,7 +5937,7 @@ function PodcastPreProd() {
             {loading ? 'Building pre-production package...' : mode==='guest' ? 'Build Full Episode Package' : 'Build Solo Episode Framework'}
           </RedBtn>
           {mode === 'guest' && !guestBio && guestName && (
-            <span style={{color:B.gray,fontSize:12,marginLeft:12}}>Research guest first for best results</span>
+            <span style={{color:'#6B7280',fontSize:12,marginLeft:12}}>Research guest first for best results</span>
           )}
         </div>
       </Card>
@@ -6313,8 +6312,8 @@ function YouTubeToolkit() {
             <SecLabel>Video Topic</SecLabel>
             <input value={topic} onChange={e=>setTopic(e.target.value)}
               placeholder="e.g. Why I stopped chasing motivation and what I do instead..."
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+                borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
                 marginBottom:12,boxSizing:'border-box'}}/>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
               <div>
@@ -6352,8 +6351,8 @@ function YouTubeToolkit() {
             <SecLabel>Video Topic</SecLabel>
             <input value={topic} onChange={e=>setTopic(e.target.value)}
               placeholder="e.g. Why I stopped chasing motivation and what I do instead"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+                borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
                 marginBottom:16,boxSizing:'border-box'}}/>
             <SecLabel>Content Angle</SecLabel>
             <AngleGrid selected={angle} onSelect={setAngle}/>
@@ -6365,8 +6364,8 @@ function YouTubeToolkit() {
             <SecLabel>Video Script or Summary</SecLabel>
             <textarea value={script} onChange={e=>setScript(e.target.value)} rows={8}
               placeholder="Paste your full script or a detailed summary of the video content..."
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+                borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
                 resize:'vertical',boxSizing:'border-box'}}/>
           </>
         )}
@@ -6377,13 +6376,13 @@ function YouTubeToolkit() {
               <strong style={{color:B.red}}>Step 1</strong> : Pull your live channel data from Perplexity, then add any additional context the audit should know, then run.
             </div>
             <button onClick={fetchChannel} disabled={fetching}
-              style={{background:'rgba(255,255,255,0.08)',color:B.white,border:'1px solid rgba(255,255,255,0.2)',
+              style={{background:'#F9FAFB',color:B.white,border:'1px solid rgba(255,255,255,0.2)',
                 borderRadius:8,padding:'10px 20px',fontWeight:700,cursor:fetching?'not-allowed':'pointer',
                 fontSize:13,marginBottom:16}}>
               {fetching ? 'Pulling channel data...' : 'Pull @everydayelevations Data'}
             </button>
             {channelData && (
-              <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'12px',marginBottom:16,
+              <div style={{background:'#F9FAFB',borderRadius:8,padding:'12px',marginBottom:16,
                 fontSize:12,color:'rgba(255,255,255,0.7)',maxHeight:160,overflowY:'auto',lineHeight:1.7}}>
                 {channelData}
               </div>
@@ -6391,10 +6390,10 @@ function YouTubeToolkit() {
             <SecLabel>Additional Channel Context</SecLabel>
             <textarea value={auditExtra} onChange={e=>setAuditExtra(e.target.value)} rows={4}
               placeholder="Add anything Perplexity can't see: your VIDIQ outlier scores, which videos performed best, current upload frequency, subscriber growth rate, what you've already tried, content goals, target audience details, monetization status, recent changes..."
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+                borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
                 resize:'vertical',marginBottom:4,boxSizing:'border-box'}}/>
-            <div style={{color:B.gray,fontSize:11,marginBottom:12}}>This context gets sent directly to the audit : the more specific, the better the recommendations.</div>
+            <div style={{color:'#6B7280',fontSize:11,marginBottom:12}}>This context gets sent directly to the audit : the more specific, the better the recommendations.</div>
           </>
         )}
 
@@ -6403,8 +6402,8 @@ function YouTubeToolkit() {
             <SecLabel>Video Topic</SecLabel>
             <input value={topic} onChange={e=>setTopic(e.target.value)}
               placeholder="e.g. Why discipline beats motivation every time"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+                borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
                 marginBottom:16,boxSizing:'border-box'}}/>
             <SecLabel>Primary Channel Goal Right Now</SecLabel>
             <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:4}}>
@@ -6430,7 +6429,7 @@ function YouTubeToolkit() {
       {out && (
         <div>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,flexWrap:'wrap',gap:8}}>
-            <span style={{color:B.white,fontWeight:700,fontSize:14}}>{tools.find(t=>t.id===tool)?.label} Results</span>
+            <span style={{color:'#111827',fontWeight:700,fontSize:14}}>{tools.find(t=>t.id===tool)?.label} Results</span>
             <CopyBtn text={out}/>
           </div>
           <DocOutput text={out} title={tool === 'script' ? `YouTube Script : ${topic}` : tool === 'audit' ? 'Channel Audit : @everydayelevations' : `YouTube ${tool} : ${topic || 'Content'}`}/>
@@ -6583,8 +6582,8 @@ function DMScriptLibrary() {
           <SecLabel>What Triggered This DM?</SecLabel>
           <textarea value={trigger} onChange={e=>setTrigger(e.target.value)} rows={2}
             placeholder="e.g. They commented PERFORMANCE on my reel about morning routines..."
-            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-              borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+              borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
               resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
 
           <SecLabel>Goal of This Conversation</SecLabel>
@@ -6602,8 +6601,8 @@ function DMScriptLibrary() {
           <SecLabel>Extra Context (optional)</SecLabel>
           <input value={context} onChange={e=>setContext(e.target.value)}
             placeholder="e.g. They have 5K followers, run a fitness account, mentioned they're a veteran..."
-            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-              borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+            style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+              borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
               marginBottom:16,boxSizing:'border-box'}}/>
 
           <RedBtn onClick={run} disabled={loading||!trigger}>
@@ -6614,9 +6613,9 @@ function DMScriptLibrary() {
 
           {out && (
             <div style={{marginTop:16}}>
-              <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'1rem',
-                border:'1px solid rgba(255,255,255,0.1)',marginBottom:12}}>
-                <pre style={{color:B.white,fontSize:13,whiteSpace:'pre-wrap',margin:0,
+              <div style={{background:'#F9FAFB',borderRadius:8,padding:'1rem',
+                border:'1px solid #E5E7EB',marginBottom:12}}>
+                <pre style={{color:'#111827',fontSize:13,whiteSpace:'pre-wrap',margin:0,
                   lineHeight:1.7,fontFamily:'inherit'}}>{out}</pre>
               </div>
               <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
@@ -6632,15 +6631,15 @@ function DMScriptLibrary() {
                   <div style={{display:'flex',gap:8,flex:1}}>
                     <input value={scriptName} onChange={e=>setScriptName(e.target.value)}
                       placeholder="Name this script (e.g. Lead Magnet Delivery)..."
-                      style={{flex:1,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-                        borderRadius:8,padding:'7px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                      style={{flex:1,background:'#F9FAFB',border:'1px solid #D1D5DB',
+                        borderRadius:8,padding:'7px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
                     <button onClick={saveToLibrary} disabled={!scriptName}
                       style={{background:B.red,color:'#fff',border:'none',borderRadius:8,
                         padding:'7px 14px',fontSize:12,fontWeight:700,cursor:scriptName?'pointer':'not-allowed'}}>
                       Save
                     </button>
                     <button onClick={() => setSaving(false)}
-                      style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',
+                      style={{background:'#FFFFFF',color:B.gray,border:'none',
                         borderRadius:8,padding:'7px 12px',fontSize:12,cursor:'pointer'}}>
                       Cancel
                     </button>
@@ -6654,7 +6653,7 @@ function DMScriptLibrary() {
 
       {/* Saved Library */}
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-        <div style={{color:B.white,fontWeight:700,fontSize:14}}>
+        <div style={{color:'#111827',fontWeight:700,fontSize:14}}>
           Saved Scripts <span style={{color:B.gray,fontWeight:400,fontSize:12}}>({saved.length})</span>
         </div>
         {saved.length > 0 && (
@@ -6666,11 +6665,11 @@ function DMScriptLibrary() {
       </div>
 
       {saved.length === 0 && !showGen && (
-        <div style={{textAlign:'center',padding:'3rem 2rem',background:'rgba(255,255,255,0.02)',
-          borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
+        <div style={{textAlign:'center',padding:'3rem 2rem',background:'#FFFFFF',
+          borderRadius:16,border:'1px solid #E5E7EB'}}>
           
           <div style={{color:B.white,fontWeight:700,fontSize:15,marginBottom:8}}>No saved scripts yet</div>
-          <div style={{color:B.gray,fontSize:13,marginBottom:20}}>Generate a DM flow and save it build your library over time.</div>
+          <div style={{color:'#6B7280',fontSize:13,marginBottom:20}}>Generate a DM flow and save it build your library over time.</div>
           <button onClick={() => setShowGen(true)}
             style={{background:B.red,color:'#fff',border:'none',borderRadius:8,
               padding:'10px 20px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
@@ -6682,13 +6681,13 @@ function DMScriptLibrary() {
       {showSaved && saved.length > 0 && (
         <div style={{display:'flex',flexDirection:'column',gap:10}}>
           {saved.map(s => (
-            <div key={s.id} style={{background:'rgba(255,255,255,0.03)',
-              border:'1px solid rgba(255,255,255,0.08)',borderRadius:12,overflow:'hidden'}}>
+            <div key={s.id} style={{background:'#FFFFFF',
+              border:'1px solid #E5E7EB',borderRadius:12,overflow:'hidden'}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',
                 padding:'14px 16px',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
                 <div>
-                  <div style={{color:B.white,fontWeight:700,fontSize:13}}>{s.name}</div>
-                  <div style={{color:B.gray,fontSize:11,marginTop:2}}>
+                  <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{s.name}</div>
+                  <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>
                     Goal: {s.goal} Saved {s.createdAt}
                   </div>
                 </div>
@@ -6845,8 +6844,8 @@ function ChallengeBuilder() {
               style={{background:name===qc.name?'rgba(233,69,96,0.15)':'rgba(255,255,255,0.04)',
                 border:`1px solid ${name===qc.name?'rgba(233,69,96,0.4)':'rgba(255,255,255,0.08)'}`,
                 borderRadius:10,padding:'12px',cursor:'pointer',textAlign:'left'}}>
-              <div style={{color:B.white,fontWeight:700,fontSize:12,marginBottom:4}}>{qc.name}</div>
-              <div style={{color:B.gray,fontSize:11,lineHeight:1.5}}>{qc.transformation.slice(0,70)}...</div>
+              <div style={{color:'#111827',fontWeight:700,fontSize:12,marginBottom:4}}>{qc.name}</div>
+              <div style={{color:'#6B7280',fontSize:11,lineHeight:1.5}}>{qc.transformation.slice(0,70)}...</div>
             </button>
           ))}
         </div>
@@ -6854,21 +6853,21 @@ function ChallengeBuilder() {
         <SecLabel>Challenge Name</SecLabel>
         <input value={name} onChange={e=>setName(e.target.value)}
           placeholder="e.g. 30-Day Elevation Challenge, 30-Day 5AM Club..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
             marginBottom:16,boxSizing:'border-box'}}/>
 
         <SecLabel>The Transformation Promise</SecLabel>
         <textarea value={transformation} onChange={e=>setTransformation(e.target.value)} rows={2}
           placeholder="What does someone have at day 30 that they didn't at day 1? Be specific."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
             resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
 
         <SecLabel>Target Audience</SecLabel>
         <textarea value={audience} onChange={e=>setAudience(e.target.value)} rows={2}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
             resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
 
         <SecLabel>Primary Platform</SecLabel>
@@ -7010,8 +7009,8 @@ function CompetitorSpy() {
             <SecLabel>Creator Handle or Channel</SecLabel>
             <input value={handle} onChange={e=>setHandle(e.target.value)}
               placeholder="e.g. @hubermanlab, @davidgoggins, ThinkMedia..."
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-                borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+                borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
           <div>
             <SecLabel>Platform</SecLabel>
@@ -7037,7 +7036,7 @@ function CompetitorSpy() {
 
         {rawData && (
           <div style={{background:'rgba(0,0,0,0.25)',borderRadius:8,padding:'12px',marginBottom:16,
-            maxHeight:140,overflowY:'auto',border:'1px solid rgba(255,255,255,0.07)'}}>
+            maxHeight:140,overflowY:'auto',border:'1px solid #E5E7EB'}}>
             <div style={{fontSize:10,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>Live Data Pulled</div>
             <div style={{color:'rgba(255,255,255,0.65)',fontSize:12,lineHeight:1.7}}>{rawData}</div>
           </div>
@@ -7046,8 +7045,8 @@ function CompetitorSpy() {
         <SecLabel>Jason's Angle (optional: helps focus the gap analysis)</SecLabel>
         <input value={angle} onChange={e=>setAngle(e.target.value)}
           placeholder="e.g. Veteran mindset, Colorado real estate, endurance athlete over 40..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',
-            borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
+            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
             marginBottom:16,boxSizing:'border-box'}}/>
 
         <RedBtn onClick={run} disabled={loading||!rawData}>
@@ -7067,7 +7066,7 @@ function CompetitorSpy() {
             {history.map(h => (
               <button key={h.id}
                 onClick={() => { setHandle(h.handle); setPlatform(h.platform); }}
-                style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',
+                style={{background:'#FFFFFF',border:'1px solid #E5E7EB',
                   borderRadius:8,padding:'6px 12px',cursor:'pointer',color:'rgba(255,255,255,0.7)',fontSize:12}}>
                 {h.handle} <span style={{color:B.gray}}>· {h.platform} · {h.date}</span>
               </button>
@@ -7191,7 +7190,7 @@ function BrandVoiceFingerprint() {
               <SecLabel>Sample {i+1} {i < 2 ? '(required)' : '(optional)'}</SecLabel>
               <textarea value={s} onChange={e => setSamples(prev => { const n=[...prev]; n[i]=e.target.value; return n; })}
                 rows={4} placeholder={`Paste real content from ${selectedClient?.name || 'this client'}...`}
-                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+                style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
             </div>
           ))}
           <RedBtn onClick={run} disabled={loading || !selectedClient || samples.filter(s=>s.trim().length>20).length < 2}>
@@ -7207,19 +7206,19 @@ function BrandVoiceFingerprint() {
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16,flexWrap:'wrap',gap:10}}>
               <div>
                 <div style={{color:'#00C2FF',fontWeight:800,fontSize:16}}>{fp.clientName} Voice Fingerprint</div>
-                <div style={{color:B.gray,fontSize:12,marginTop:2}}>Based on {fp.sampleCount} samples. Updated {fp.updatedAt ? new Date(fp.updatedAt).toLocaleDateString() : 'recently'}.</div>
+                <div style={{color:'#6B7280',fontSize:12,marginTop:2}}>Based on {fp.sampleCount} samples. Updated {fp.updatedAt ? new Date(fp.updatedAt).toLocaleDateString() : 'recently'}.</div>
               </div>
-              <button onClick={() => setActiveTab('build')} style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',borderRadius:6,padding:'6px 14px',fontSize:12,cursor:'pointer'}}>Rebuild</button>
+              <button onClick={() => setActiveTab('build')} style={{background:'#FFFFFF',color:B.gray,border:'none',borderRadius:6,padding:'6px 14px',fontSize:12,cursor:'pointer'}}>Rebuild</button>
             </div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
               <div>
                 <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:8}}>Tone and Pace</div>
-                <div style={{color:B.white,fontSize:13,marginBottom:4}}>{fp.tone}</div>
-                <div style={{color:B.gray,fontSize:12}}>Sentence style: {fp.pace}</div>
+                <div style={{color:'#111827',fontSize:13,marginBottom:4}}>{fp.tone}</div>
+                <div style={{color:'#6B7280',fontSize:12}}>Sentence style: {fp.pace}</div>
               </div>
               <div>
                 <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:8}}>Personality</div>
-                <div style={{color:B.white,fontSize:12,lineHeight:1.6}}>{fp.personality}</div>
+                <div style={{color:'#111827',fontSize:12,lineHeight:1.6}}>{fp.personality}</div>
               </div>
             </div>
           </div>
@@ -7231,11 +7230,11 @@ function BrandVoiceFingerprint() {
               { label:'Themes', items: fp.themes, color:'#f5a623' },
               { label:'How They Open', items: fp.openings, color:'#27ae60' },
             ].map(section => (
-              <div key={section.label} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'14px'}}>
+              <div key={section.label} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px'}}>
                 <div style={{fontSize:11,color:section.color,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:10}}>{section.label}</div>
                 <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
                   {(section.items||[]).map((item,i) => (
-                    <span key={i} style={{background:'rgba(255,255,255,0.07)',color:'rgba(255,255,255,0.8)',borderRadius:4,padding:'3px 8px',fontSize:11}}>{item}</span>
+                    <span key={i} style={{background:'#FFFFFF',color:'rgba(255,255,255,0.8)',borderRadius:4,padding:'3px 8px',fontSize:11}}>{item}</span>
                   ))}
                 </div>
               </div>
@@ -7256,17 +7255,17 @@ function BrandVoiceFingerprint() {
           {fp.sample_hook && (
             <div style={{background:'rgba(233,69,96,0.08)',border:'1px solid rgba(233,69,96,0.2)',borderRadius:10,padding:'16px'}}>
               <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:8}}>Sample Hook in This Voice</div>
-              <div style={{color:B.white,fontSize:14,fontStyle:'italic',lineHeight:1.7}}>"{fp.sample_hook}"</div>
+              <div style={{color:'#111827',fontSize:14,fontStyle:'italic',lineHeight:1.7}}>"{fp.sample_hook}"</div>
             </div>
           )}
         </div>
       )}
 
       {activeTab === 'view' && !fp && (
-        <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.02)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
+        <div style={{textAlign:'center',padding:'4rem 2rem',background:'#FFFFFF',borderRadius:16,border:'1px solid #E5E7EB'}}>
           
           <div style={{color:B.white,fontWeight:700,fontSize:16,marginBottom:8}}>No fingerprint yet for {selectedClient?.name}</div>
-          <div style={{color:B.gray,fontSize:13,marginBottom:20}}>Paste content samples to generate the voice fingerprint.</div>
+          <div style={{color:'#6B7280',fontSize:13,marginBottom:20}}>Paste content samples to generate the voice fingerprint.</div>
           <button onClick={() => setActiveTab('build')} style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,fontWeight:700,cursor:'pointer'}}>Build Fingerprint</button>
         </div>
       )}
@@ -7333,12 +7332,12 @@ function ClientPortal() {
     return (
       <div>
         <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24,flexWrap:'wrap'}}>
-          <button onClick={() => setView('list')} style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',borderRadius:6,padding:'6px 12px',fontSize:12,cursor:'pointer'}}>
+          <button onClick={() => setView('list')} style={{background:'#FFFFFF',color:B.gray,border:'none',borderRadius:6,padding:'6px 12px',fontSize:12,cursor:'pointer'}}>
             All Clients
           </button>
           <div style={{flex:1}}>
             <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>{focusClient.name}</h2>
-            <div style={{color:B.gray,fontSize:12,marginTop:2}}>{focusClient.handle} · {focusClient.platforms}</div>
+            <div style={{color:'#6B7280',fontSize:12,marginTop:2}}>{focusClient.handle} · {focusClient.platforms}</div>
           </div>
           <button onClick={() => { setActiveClient(focusClient); }}
             style={{background:activeClient?.id===focusClient.id?'rgba(39,174,96,0.2)':B.red,color:activeClient?.id===focusClient.id?'#27ae60':'#fff',border:`1px solid ${activeClient?.id===focusClient.id?'rgba(39,174,96,0.4)':B.red}`,borderRadius:8,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
@@ -7354,7 +7353,7 @@ function ClientPortal() {
             { label:'Approved', val:approved, color:'#27ae60' },
             { label:'Notes', val:clientNotes.length, color:'#00C2FF' },
           ].map(s => (
-            <div key={s.label} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'14px',textAlign:'center'}}>
+            <div key={s.label} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px',textAlign:'center'}}>
               <div style={{fontSize:26,fontWeight:800,color:s.color}}>{s.val}</div>
               <div style={{fontSize:11,color:B.gray,marginTop:2,textTransform:'uppercase',letterSpacing:1}}>{s.label}</div>
             </div>
@@ -7369,7 +7368,7 @@ function ClientPortal() {
             return fp ? (
               <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:16,display:'flex',alignItems:'center',gap:10}}>
                 <span style={{color:"#00C2FF",fontWeight:800,fontSize:11,letterSpacing:1}}>DNA</span>
-                <div style={{flex:1}}><span style={{color:'#00C2FF',fontWeight:700,fontSize:13}}>Voice Fingerprint Active</span><span style={{color:B.gray,fontSize:12,marginLeft:8}}>{fp.tone} · {fp.pace} sentences · {fp.sampleCount} samples</span></div>
+                <div style={{flex:1}}><span style={{color:'#00C2FF',fontWeight:700,fontSize:13}}>Voice Fingerprint Active</span><span style={{color:'#6B7280',fontSize:12,marginLeft:8}}>{fp.tone} · {fp.pace} sentences · {fp.sampleCount} samples</span></div>
               </div>
             ) : (
               <div style={{background:'rgba(233,69,96,0.06)',border:'1px solid rgba(233,69,96,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:16,display:'flex',alignItems:'center',gap:10}}>
@@ -7387,17 +7386,17 @@ function ClientPortal() {
             <button onClick={() => setShowDelForm(p=>!p)} style={{background:B.red,color:'#fff',border:'none',borderRadius:6,padding:'5px 12px',fontSize:12,fontWeight:700,cursor:'pointer'}}>+ Add</button>
           </div>
           {showDelForm && (
-            <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:10,padding:'16px',marginBottom:12}}>
+            <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'16px',marginBottom:12}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:10}}>
                 <div>
                   <SecLabel>Title</SecLabel>
                   <input value={newDeliverable.title} onChange={e=>setNewDeliverable(p=>({...p,title:e.target.value}))} placeholder="e.g. April Content Calendar"
-                    style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:6,padding:'8px 10px',color:B.white,fontSize:12,boxSizing:'border-box'}}/>
+                    style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:6,padding:'8px 10px',color:'#111827',fontSize:12,boxSizing:'border-box'}}/>
                 </div>
                 <div>
                   <SecLabel>Due Date</SecLabel>
                   <input value={newDeliverable.dueDate} onChange={e=>setNewDeliverable(p=>({...p,dueDate:e.target.value}))} placeholder="e.g. Apr 1, 2026"
-                    style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:6,padding:'8px 10px',color:B.white,fontSize:12,boxSizing:'border-box'}}/>
+                    style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:6,padding:'8px 10px',color:'#111827',fontSize:12,boxSizing:'border-box'}}/>
                 </div>
               </div>
               <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:10}}>
@@ -7405,17 +7404,17 @@ function ClientPortal() {
               </div>
               <div style={{display:'flex',gap:8}}>
                 <RedBtn onClick={addDeliverable} disabled={!newDeliverable.title}>Add Deliverable</RedBtn>
-                <button onClick={()=>setShowDelForm(false)} style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:6,padding:'8px 14px',fontSize:12,cursor:'pointer'}}>Cancel</button>
+                <button onClick={()=>setShowDelForm(false)} style={{background:'#FFFFFF',color:B.gray,border:'none',borderRadius:6,padding:'8px 14px',fontSize:12,cursor:'pointer'}}>Cancel</button>
               </div>
             </div>
           )}
           <div style={{display:'flex',flexDirection:'column',gap:8}}>
-            {clientDeliverables.length === 0 && <div style={{color:B.gray,fontSize:13,padding:'20px 0',textAlign:'center'}}>No deliverables yet. Add the first one.</div>}
+            {clientDeliverables.length === 0 && <div style={{color:'#6B7280',fontSize:13,padding:'20px 0',textAlign:'center'}}>No deliverables yet. Add the first one.</div>}
             {clientDeliverables.map(d => (
-              <div key={d.id} style={{background:'rgba(255,255,255,0.03)',border:`1px solid ${statusColors[d.status]|| 'rgba(255,255,255,0.07)'}`,borderRadius:8,padding:'12px 14px',display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+              <div key={d.id} style={{background:'#FFFFFF',border:`1px solid ${statusColors[d.status]|| 'rgba(255,255,255,0.07)'}`,borderRadius:8,padding:'12px 14px',display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
                 <div style={{flex:1}}>
                   <div style={{color:B.white,fontWeight:600,fontSize:13}}>{d.title}</div>
-                  <div style={{color:B.gray,fontSize:11,marginTop:2,textTransform:'capitalize'}}>{d.type.replace('-',' ')} {d.dueDate ? `Due ${d.dueDate}` : ''}</div>
+                  <div style={{color:'#6B7280',fontSize:11,marginTop:2,textTransform:'capitalize'}}>{d.type.replace('-',' ')} {d.dueDate ? `Due ${d.dueDate}` : ''}</div>
                 </div>
                 <select value={d.status} onChange={e=>updateDeliverableStatus(d.id,e.target.value)}
                   style={{background:'rgba(0,0,0,0.4)',color:statusText[d.status]||B.white,border:`1px solid ${statusColors[d.status]}`,borderRadius:5,padding:'4px 8px',fontSize:11,fontWeight:700,cursor:'pointer',textTransform:'capitalize'}}>
@@ -7432,16 +7431,16 @@ function ClientPortal() {
           <div style={{fontSize:13,fontWeight:700,color:B.white,marginBottom:12}}>Client Notes</div>
           <div style={{display:'flex',gap:8,marginBottom:12}}>
             <input value={newNote} onChange={e=>setNewNote(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addNote()} placeholder="Add a note..."
-              style={{flex:1,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13}}/>
+              style={{flex:1,background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13}}/>
             <RedBtn onClick={addNote} disabled={!newNote.trim()} style={{padding:'9px 16px'}}>Add</RedBtn>
           </div>
           <div style={{display:'flex',flexDirection:'column',gap:6}}>
-            {clientNotes.length===0 && <div style={{color:B.gray,fontSize:13,padding:'16px 0',textAlign:'center'}}>No notes yet.</div>}
+            {clientNotes.length===0 && <div style={{color:'#6B7280',fontSize:13,padding:'16px 0',textAlign:'center'}}>No notes yet.</div>}
             {[...clientNotes].reverse().map(n => (
-              <div key={n.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:8,padding:'10px 14px',display:'flex',gap:10,alignItems:'flex-start'}}>
+              <div key={n.id} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:8,padding:'10px 14px',display:'flex',gap:10,alignItems:'flex-start'}}>
                 <div style={{flex:1}}>
                   <div style={{color:'rgba(255,255,255,0.85)',fontSize:13,lineHeight:1.5}}>{n.text}</div>
-                  <div style={{color:B.gray,fontSize:11,marginTop:4}}>{n.date}</div>
+                  <div style={{color:'#6B7280',fontSize:11,marginTop:4}}>{n.date}</div>
                 </div>
                 <button onClick={()=>removeNote(focusClient.id,n.id)} style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',cursor:'pointer',fontSize:12}}>×</button>
               </div>
@@ -7470,16 +7469,16 @@ function ClientPortal() {
           const hasFp = !!fps[c.id];
           return (
             <div key={c.id} onClick={() => { setFocusClient(c); setView('dashboard'); }}
-              style={{background:'rgba(255,255,255,0.03)',border:`1px solid ${activeClient?.id===c.id?'rgba(233,69,96,0.3)':'rgba(255,255,255,0.08)'}`,borderRadius:12,padding:'20px',cursor:'pointer',transition:'all 0.15s'}}>
+              style={{background:'#FFFFFF',border:`1px solid ${activeClient?.id===c.id?'rgba(233,69,96,0.3)':'rgba(255,255,255,0.08)'}`,borderRadius:12,padding:'20px',cursor:'pointer',transition:'all 0.15s'}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
                 <div>
                   <div style={{color:B.white,fontWeight:700,fontSize:15}}>{c.name}</div>
-                  <div style={{color:B.gray,fontSize:12,marginTop:2}}>{c.handle}</div>
+                  <div style={{color:'#6B7280',fontSize:12,marginTop:2}}>{c.handle}</div>
                 </div>
                 {c.isDefault && <span style={{background:'rgba(233,69,96,0.15)',color:B.red,borderRadius:4,padding:'2px 7px',fontSize:10,fontWeight:700}}>YOU</span>}
               </div>
               <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:12}}>
-                <span style={{background:'rgba(255,255,255,0.07)',color:B.gray,borderRadius:4,padding:'2px 8px',fontSize:10}}>{c.platforms}</span>
+                <span style={{background:'#FFFFFF',color:B.gray,borderRadius:4,padding:'2px 8px',fontSize:10}}>{c.platforms}</span>
                 {hasFp && <span style={{background:'rgba(0,212,255,0.1)',color:'#00C2FF',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700}}>Voice</span>}
                 {pending > 0 && <span style={{background:'rgba(245,166,35,0.15)',color:'#f5a623',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700}}>{pending} pending</span>}
               </div>
@@ -7609,37 +7608,37 @@ function MonthlyReportSuite() {
           <div>
             <SecLabel>Report Period</SecLabel>
             <input value={month} onChange={e=>setMonth(e.target.value)}
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
         </div>
 
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-          <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:8,padding:'12px'}}>
+          <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:8,padding:'12px'}}>
             <div style={{fontSize:11,color:'#27ae60',fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>ROI Data Found</div>
-            <div style={{color:B.gray,fontSize:12,lineHeight:1.6}}>{roiData.slice(0,120)}{roiData.length>120?'...':''}</div>
+            <div style={{color:'#6B7280',fontSize:12,lineHeight:1.6}}>{roiData.slice(0,120)}{roiData.length>120?'...':''}</div>
           </div>
-          <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:8,padding:'12px'}}>
+          <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:8,padding:'12px'}}>
             <div style={{fontSize:11,color:'#f5a623',fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>Top Content Found</div>
-            <div style={{color:B.gray,fontSize:12,lineHeight:1.6}}>{contentData.slice(0,120)}{contentData.length>120?'...':''}</div>
+            <div style={{color:'#6B7280',fontSize:12,lineHeight:1.6}}>{contentData.slice(0,120)}{contentData.length>120?'...':''}</div>
           </div>
         </div>
 
         <SecLabel>Goals This Month</SecLabel>
         <textarea value={goals} onChange={e=>setGoals(e.target.value)} rows={2}
           placeholder="e.g. Reach 5K followers, launch lead magnet, generate 3 real estate inquiries"
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
           <div>
             <SecLabel>Wins</SecLabel>
             <textarea value={wins} onChange={e=>setWins(e.target.value)} rows={2}
               placeholder="e.g. First viral Reel at 45K reach, booked 2 podcast guests"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
           </div>
           <div>
             <SecLabel>Challenges</SecLabel>
             <textarea value={challenges} onChange={e=>setChallenges(e.target.value)} rows={2}
               placeholder="e.g. Missed 3 posting days, LinkedIn engagement dropped"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
           </div>
         </div>
         <RedBtn onClick={run} disabled={loading||!selectedClient}>{loading ? 'Generating report...' : 'Generate Monthly Report'}</RedBtn>
@@ -7754,7 +7753,7 @@ function DeliverableBuilder() {
           {delivTypes.map(d => (
             <button key={d.id} onClick={()=>setDelivType(d.id)}
               style={{background:delivType===d.id?B.red:'rgba(255,255,255,0.04)',border:`1px solid ${delivType===d.id?B.red:'rgba(255,255,255,0.08)'}`,borderRadius:8,padding:'12px',cursor:'pointer',textAlign:'left',transition:'all 0.15s'}}>
-              <div style={{color:B.white,fontWeight:700,fontSize:12,marginBottom:3}}>{d.label}</div>
+              <div style={{color:'#111827',fontWeight:700,fontSize:12,marginBottom:3}}>{d.label}</div>
               <div style={{color:delivType===d.id?'rgba(255,255,255,0.75)':B.gray,fontSize:11}}>{d.desc}</div>
             </button>
           ))}
@@ -7763,7 +7762,7 @@ function DeliverableBuilder() {
         <SecLabel>Brief</SecLabel>
         <textarea value={brief} onChange={e=>setBrief(e.target.value)} rows={3}
           placeholder="What specifically do you need? Include topic, time period, goals, any special requirements..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
 
         {selectedClient && getFingerprint(selectedClient.id) && (
           <div style={{background:'rgba(0,212,255,0.06)',border:'1px solid rgba(0,212,255,0.15)',borderRadius:8,padding:'8px 12px',marginBottom:16,fontSize:12,color:'rgba(0,212,255,0.85)'}}>
@@ -7894,7 +7893,7 @@ function CompetitorIntel() {
         <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
           <input value={newHandle} onChange={e=>setNewHandle(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addCompetitor()}
             placeholder="@handle or channel name"
-            style={{flex:1,minWidth:160,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13}}/>
+            style={{flex:1,minWidth:160,background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13}}/>
           {['Instagram','YouTube','LinkedIn','TikTok'].map(p => (
             <button key={p} onClick={()=>setNewPlatform(p)}
               style={{background:newPlatform===p?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:newPlatform===p?700:400}}>{p}</button>
@@ -7903,7 +7902,7 @@ function CompetitorIntel() {
         </div>
         <SecLabel>Your Context (used in gap analysis)</SecLabel>
         <input value={clientContext} onChange={e=>setClientContext(e.target.value)}
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
       </Card>
 
       <div style={{display:'grid',gridTemplateColumns:competitors.length>0?'280px 1fr':'1fr',gap:16,alignItems:'start'}}>
@@ -7917,8 +7916,8 @@ function CompetitorIntel() {
                 <div key={comp.id} style={{background:isSelected?'rgba(233,69,96,0.1)':'rgba(255,255,255,0.03)',border:`1px solid ${isSelected?'rgba(233,69,96,0.3)':'rgba(255,255,255,0.08)'}`,borderRadius:10,padding:'14px',cursor:'pointer'}} onClick={()=>setSelectedComp(comp)}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:8}}>
                     <div>
-                      <div style={{color:B.white,fontWeight:700,fontSize:13}}>{comp.handle}</div>
-                      <div style={{color:B.gray,fontSize:11,marginTop:2}}>{comp.platform}</div>
+                      <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{comp.handle}</div>
+                      <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>{comp.platform}</div>
                     </div>
                     <button onClick={e=>{e.stopPropagation();removeComp(comp.id);}} style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',cursor:'pointer',fontSize:12}}>×</button>
                   </div>
@@ -7940,10 +7939,10 @@ function CompetitorIntel() {
             <DocOutput text={result.analysis} title={`Competitor Intel: ${selectedComp?.handle}`}/>
           )}
           {!result && !fetching && !loading && (
-            <div style={{textAlign:'center',padding:'4rem 2rem',background:'rgba(255,255,255,0.02)',borderRadius:16,border:'1px solid rgba(255,255,255,0.06)'}}>
+            <div style={{textAlign:'center',padding:'4rem 2rem',background:'#FFFFFF',borderRadius:16,border:'1px solid #E5E7EB'}}>
               
               <div style={{color:B.white,fontWeight:700,fontSize:16,marginBottom:8}}>{competitors.length===0?'No competitors added yet':'Select a competitor to run intel'}</div>
-              <div style={{color:B.gray,fontSize:13}}>{competitors.length===0?'Add up to 10 competitor handles above.':'Click "Run Intel" to pull live data and analysis.'}</div>
+              <div style={{color:'#6B7280',fontSize:13}}>{competitors.length===0?'Add up to 10 competitor handles above.':'Click "Run Intel" to pull live data and analysis.'}</div>
             </div>
           )}
         </div>
@@ -8048,18 +8047,18 @@ function VideoScriptDirector() {
         <SecLabel>Video Topic</SecLabel>
         <input value={topic} onChange={e=>setTopic(e.target.value)}
           placeholder="e.g. My 5 AM routine and why I have not missed it in 3 years"
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,marginBottom:16,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,marginBottom:16,boxSizing:'border-box'}}/>
 
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
           <div>
             <SecLabel>Primary Location</SecLabel>
             <input value={location} onChange={e=>setLocation(e.target.value)} placeholder="e.g. home office, gym, truck, Colorado outdoors"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
           <div>
             <SecLabel>Equipment Available</SecLabel>
             <input value={equipment} onChange={e=>setEquipment(e.target.value)} placeholder="e.g. iPhone 15 Pro, ring light, tripod, lapel mic"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
         </div>
 
@@ -8238,9 +8237,9 @@ function CampaignBuilder() {
           <SecLabel>Past Campaigns</SecLabel>
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
             {campaigns.slice(0,5).map(c => (
-              <div key={c.id} style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:8,padding:'8px 14px',fontSize:12}}>
+              <div key={c.id} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:8,padding:'8px 14px',fontSize:12}}>
                 <div style={{color:B.white,fontWeight:700}}>{c.name}</div>
-                <div style={{color:B.gray,fontSize:11,marginTop:2}}>{c.duration} weeks · {c.platforms?.join(', ')}</div>
+                <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>{c.duration} weeks · {c.platforms?.join(', ')}</div>
               </div>
             ))}
           </div>
@@ -8252,12 +8251,12 @@ function CampaignBuilder() {
           <div>
             <SecLabel>Campaign Name</SecLabel>
             <input value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Spring Lead Magnet Launch"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
           <div>
             <SecLabel>Launch Date (optional)</SecLabel>
             <input value={launchDate} onChange={e=>setLaunchDate(e.target.value)} placeholder="e.g. April 1, 2026"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
         </div>
 
@@ -8289,20 +8288,20 @@ function CampaignBuilder() {
           })}
         </div>
         <input value={goal} onChange={e=>setGoal(e.target.value)} placeholder="Or type a custom goal..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:14,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:14,boxSizing:'border-box'}}/>
 
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:14}}>
           <div>
             <SecLabel>Target Audience</SecLabel>
             <textarea value={audience} onChange={e=>setAudience(e.target.value)} rows={2}
               placeholder="Who is this campaign for specifically?"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
           </div>
           <div>
             <SecLabel>Offer or CTA</SecLabel>
             <textarea value={offer} onChange={e=>setOffer(e.target.value)} rows={2}
               placeholder="What are you asking them to do or get?"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
           </div>
         </div>
 
@@ -8474,7 +8473,7 @@ function ContentPredictor() {
         <SecLabel>Paste Your Content</SecLabel>
         <textarea value={content} onChange={e=>setContent(e.target.value)} rows={8}
           placeholder="Paste a hook, caption, script, or any piece of content you are about to post..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:14,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:14,boxSizing:'border-box'}}/>
 
         <RedBtn onClick={async()=>{if(!content)return;setLoading(true);setOut('');const r=await ai(PREDICTOR_PROMPT(content,platform,contentType,historicalData));setOut(r);setLoading(false);}} disabled={loading||!content}>
           {loading ? 'Analyzing...' : 'Predict Performance'}
@@ -8544,7 +8543,7 @@ function WhiteLabelMode() {
           <span style={{color:"#27ae60",fontWeight:800,fontSize:14}}>✓</span>
           <div style={{flex:1}}>
             <div style={{color:'#27ae60',fontWeight:700,fontSize:13}}>White label active: {wl.agencyName}</div>
-            <div style={{color:B.gray,fontSize:12,marginTop:2}}>App header, titles, and documents are branded to your agency.</div>
+            <div style={{color:'#6B7280',fontSize:12,marginTop:2}}>App header, titles, and documents are branded to your agency.</div>
           </div>
           <button onClick={reset} style={{background:'rgba(233,69,96,0.1)',color:B.red,border:'1px solid rgba(233,69,96,0.2)',borderRadius:6,padding:'5px 12px',fontSize:12,cursor:'pointer',fontWeight:700}}>Reset</button>
         </div>
@@ -8555,7 +8554,7 @@ function WhiteLabelMode() {
           <div key={f.k} style={{marginBottom:14}}>
             <SecLabel>{f.l}</SecLabel>
             <input value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} placeholder={f.ph}
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
         ))}
 
@@ -8566,7 +8565,7 @@ function WhiteLabelMode() {
               <input type="color" value={form.primaryColor} onChange={e=>setForm(p=>({...p,primaryColor:e.target.value}))}
                 style={{width:48,height:40,border:'none',borderRadius:6,cursor:'pointer',background:'none'}}/>
               <input value={form.primaryColor} onChange={e=>setForm(p=>({...p,primaryColor:e.target.value}))}
-                style={{flex:1,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13}}/>
+                style={{flex:1,background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13}}/>
             </div>
           </div>
           <div>
@@ -8575,44 +8574,44 @@ function WhiteLabelMode() {
               <input type="color" value={form.accentColor} onChange={e=>setForm(p=>({...p,accentColor:e.target.value}))}
                 style={{width:48,height:40,border:'none',borderRadius:6,cursor:'pointer',background:'none'}}/>
               <input value={form.accentColor} onChange={e=>setForm(p=>({...p,accentColor:e.target.value}))}
-                style={{flex:1,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13}}/>
+                style={{flex:1,background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13}}/>
             </div>
           </div>
         </div>
 
-        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,padding:'12px 14px',background:'rgba(255,255,255,0.03)',borderRadius:8,cursor:'pointer'}} onClick={()=>setForm(p=>({...p,hidePoweredBy:!p.hidePoweredBy}))}>
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,padding:'12px 14px',background:'#FFFFFF',borderRadius:8,cursor:'pointer'}} onClick={()=>setForm(p=>({...p,hidePoweredBy:!p.hidePoweredBy}))}>
           <div style={{width:20,height:20,borderRadius:4,background:form.hidePoweredBy?B.red:'rgba(255,255,255,0.1)',border:`2px solid ${form.hidePoweredBy?B.red:'rgba(255,255,255,0.2)'}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
             {form.hidePoweredBy && <span style={{color:'#fff',fontSize:12}}>✓</span>}
           </div>
           <div>
-            <div style={{color:B.white,fontSize:13,fontWeight:600}}>Hide "Powered by SIGNAL"</div>
-            <div style={{color:B.gray,fontSize:11,marginTop:2}}>Remove all SIGNAL references. Show only your agency branding.</div>
+            <div style={{color:'#111827',fontSize:13,fontWeight:600}}>Hide "Powered by SIGNAL"</div>
+            <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>Remove all SIGNAL references. Show only your agency branding.</div>
           </div>
         </div>
 
         {/* Live preview */}
         {form.agencyName && (
-          <div style={{background:'rgba(0,0,0,0.4)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:10,padding:'16px',marginBottom:20}}>
+          <div style={{background:'rgba(0,0,0,0.4)',border:'1px solid #E5E7EB',borderRadius:10,padding:'16px',marginBottom:20}}>
             <SecLabel>Preview</SecLabel>
-            <div style={{background:B.navy2,borderRadius:8,padding:'12px 16px',display:'flex',alignItems:'center',gap:12}}>
+            <div style={{background:'#FFFFFF',borderRadius:8,padding:'12px 16px',display:'flex',alignItems:'center',gap:12}}>
               {form.logoUrl && <img src={form.logoUrl} style={{width:32,height:32,borderRadius:6,objectFit:'contain'}} alt="logo"/>}
               <div>
                 <div style={{color:form.primaryColor,fontWeight:900,fontSize:16}}>{form.agencyName}</div>
-                {form.tagline && <div style={{color:B.gray,fontSize:11,marginTop:2}}>{form.tagline}</div>}
+                {form.tagline && <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>{form.tagline}</div>}
               </div>
             </div>
-            {form.footerText && <div style={{color:B.gray,fontSize:11,marginTop:8,textAlign:'center'}}>{form.footerText}</div>}
+            {form.footerText && <div style={{color:'#6B7280',fontSize:11,marginTop:8,textAlign:'center'}}>{form.footerText}</div>}
           </div>
         )}
 
         <div style={{display:'flex',gap:10}}>
           <RedBtn onClick={save} disabled={!form.agencyName}>{saved ? 'Saved' : 'Save White Label Settings'}</RedBtn>
-          {wl && <button onClick={reset} style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:8,padding:'10px 18px',fontSize:13,cursor:'pointer'}}>Reset to Default</button>}
+          {wl && <button onClick={reset} style={{background:'#FFFFFF',color:B.gray,border:'none',borderRadius:8,padding:'10px 18px',fontSize:13,cursor:'pointer'}}>Reset to Default</button>}
         </div>
       </Card>
 
-      <div style={{marginTop:20,background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:12,padding:'16px'}}>
-        <div style={{color:B.white,fontWeight:700,fontSize:13,marginBottom:8}}>What white label changes</div>
+      <div style={{marginTop:20,background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:12,padding:'16px'}}>
+        <div style={{color:'#111827',fontWeight:700,fontSize:13,marginBottom:8}}>What white label changes</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
           {['App title bar and browser tab','Document headers on all PDF exports','Report titles and footers','Client portal header','Email sequence branding','Strategy doc cover pages'].map(item => (
             <div key={item} style={{display:'flex',alignItems:'center',gap:8,fontSize:12,color:'rgba(255,255,255,0.65)'}}>
@@ -8813,7 +8812,7 @@ function CustomPersona() {
 
           {activeTab === 'build' && (
             <Card>
-              <div style={{color:B.gray,fontSize:13,lineHeight:1.7,marginBottom:16}}>
+              <div style={{color:'#6B7280',fontSize:13,lineHeight:1.7,marginBottom:16}}>
                 The persona is built from all available data: voice fingerprint ({fp ? 'found' : 'not built'}), content history ({history ? 'found' : 'none'}), and performance ratings ({ratings?.viral?.length ? ratings.viral.length + ' viral hits' : 'none yet'}). More data means a higher confidence persona.
               </div>
               {dataScore === 0 && (
@@ -8833,8 +8832,8 @@ function CustomPersona() {
               <div style={{background:'rgba(233,69,96,0.06)',border:'1px solid rgba(233,69,96,0.15)',borderRadius:12,padding:'20px',marginBottom:16}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16,flexWrap:'wrap',gap:10}}>
                   <div>
-                    <div style={{color:B.white,fontWeight:800,fontSize:16}}>"{persona.personaName}"</div>
-                    <div style={{color:B.gray,fontSize:12,marginTop:2}}>
+                    <div style={{color:'#111827',fontWeight:800,fontSize:16}}>"{persona.personaName}"</div>
+                    <div style={{color:'#6B7280',fontSize:12,marginTop:2}}>
                       Confidence: <span style={{color:{high:'#27ae60',medium:'#f5a623',low:B.red}[persona.confidence]||B.gray,fontWeight:700}}>{persona.confidence?.toUpperCase()}</span>
                       {persona.refinementCount > 0 && <span style={{color:B.gray}}> Refined {persona.refinementCount}x</span>}
                     </div>
@@ -8844,17 +8843,17 @@ function CustomPersona() {
                 <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:8}}>Audience Relationship</div>
                 <div style={{color:'rgba(255,255,255,0.8)',fontSize:13,fontStyle:'italic',marginBottom:16}}>"{persona.audienceRelationship}"</div>
                 <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:8}}>System Prompt</div>
-                <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'12px',fontSize:12,color:'rgba(255,255,255,0.75)',lineHeight:1.7}}>{persona.systemPrompt}</div>
+                <div style={{background:'#F9FAFB',borderRadius:8,padding:'12px',fontSize:12,color:'rgba(255,255,255,0.75)',lineHeight:1.7}}>{persona.systemPrompt}</div>
               </div>
 
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-                <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'14px'}}>
+                <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px'}}>
                   <div style={{fontSize:11,color:'#27ae60',fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:10}}>Signature Phrases</div>
                   <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
                     {(persona.signaturePhrases||[]).map((p,i) => <span key={i} style={{background:'rgba(39,174,96,0.1)',color:'rgba(255,255,255,0.8)',borderRadius:4,padding:'3px 8px',fontSize:11}}>"{p}"</span>)}
                   </div>
                 </div>
-                <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'14px'}}>
+                <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px'}}>
                   <div style={{fontSize:11,color:B.red,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',marginBottom:10}}>Never Says</div>
                   <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
                     {(persona.avoidPhrases||[]).slice(0,8).map((p,i) => <span key={i} style={{background:'rgba(233,69,96,0.08)',color:'rgba(255,255,255,0.6)',borderRadius:4,padding:'3px 8px',fontSize:11}}>{p}</span>)}
@@ -8872,7 +8871,7 @@ function CustomPersona() {
           )}
 
           {activeTab === 'view' && !persona && (
-            <div style={{textAlign:'center',padding:'3rem',background:'rgba(255,255,255,0.02)',borderRadius:12,border:'1px solid rgba(255,255,255,0.06)'}}>
+            <div style={{textAlign:'center',padding:'3rem',background:'#FFFFFF',borderRadius:12,border:'1px solid #E5E7EB'}}>
               
               <div style={{color:B.white,fontWeight:700,marginBottom:8}}>No persona built yet</div>
               <button onClick={()=>setActiveTab('build')} style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'9px 18px',fontSize:13,fontWeight:700,cursor:'pointer'}}>Build Now</button>
@@ -8881,18 +8880,18 @@ function CustomPersona() {
 
           {activeTab === 'refine' && (
             <Card>
-              <div style={{color:B.gray,fontSize:13,lineHeight:1.7,marginBottom:16}}>
+              <div style={{color:'#6B7280',fontSize:13,lineHeight:1.7,marginBottom:16}}>
                 Tell the system what feels off about the current persona. Add new content samples if you have them. The persona updates and gets smarter.
                 {persona?.refinementCount > 0 && <span style={{color:'#27ae60'}}> Refined {persona.refinementCount} time{persona.refinementCount!==1?'s':''}.</span>}
               </div>
               <SecLabel>What Needs to Change</SecLabel>
               <textarea value={feedback} onChange={e=>setFeedback(e.target.value)} rows={3}
                 placeholder="e.g. The tone is too formal. They never use lists. They always start with a question. The vocabulary is too complex..."
-                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+                style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
               <SecLabel>New Content Samples (optional)</SecLabel>
               <textarea value={newSamples} onChange={e=>setNewSamples(e.target.value)} rows={4}
                 placeholder="Paste new content that better represents the voice..."
-                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+                style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
               <RedBtn onClick={refinePersona} disabled={refining||!feedback||!persona}>{refining ? 'Refining...' : 'Refine Persona'}</RedBtn>
               {refining && <Spin/>}
             </Card>
@@ -8948,13 +8947,13 @@ function CustomAnglesManager({ client, onClose }) {
 
   return (
     <div style={{background:'rgba(0,0,0,0.6)',position:'fixed',inset:0,zIndex:999,display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
-      <div style={{background:B.navy2,border:'1px solid rgba(255,255,255,0.1)',borderRadius:16,padding:28,width:'100%',maxWidth:600,maxHeight:'90vh',overflowY:'auto'}}>
+      <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:16,padding:28,width:'100%',maxWidth:600,maxHeight:'90vh',overflowY:'auto'}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
           <div>
-            <div style={{color:B.white,fontWeight:800,fontSize:18}}>Content Angles</div>
-            <div style={{color:B.gray,fontSize:13,marginTop:2}}>{client.name}</div>
+            <div style={{color:'#111827',fontWeight:800,fontSize:18}}>Content Angles</div>
+            <div style={{color:'#6B7280',fontSize:13,marginTop:2}}>{client.name}</div>
           </div>
-          <button onClick={onClose} style={{background:'rgba(255,255,255,0.07)',border:'none',color:B.gray,borderRadius:8,padding:'6px 14px',cursor:'pointer',fontSize:13}}>Done {saved && '✓'}</button>
+          <button onClick={onClose} style={{background:'#FFFFFF',border:'none',color:B.gray,borderRadius:8,padding:'6px 14px',cursor:'pointer',fontSize:13}}>Done {saved && '✓'}</button>
         </div>
 
         {/* Mode selector */}
@@ -8965,9 +8964,9 @@ function CustomAnglesManager({ client, onClose }) {
               style={{background:data.mode===m.id?'rgba(233,69,96,0.1)':'rgba(255,255,255,0.03)',border:`1px solid ${data.mode===m.id?B.red:'rgba(255,255,255,0.08)'}`,borderRadius:10,padding:'12px 14px',cursor:'pointer',textAlign:'left'}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
                 <div style={{width:14,height:14,borderRadius:'50%',background:data.mode===m.id?B.red:'rgba(255,255,255,0.15)',flexShrink:0}}/>
-                <div style={{color:B.white,fontWeight:700,fontSize:13}}>{m.label}</div>
+                <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{m.label}</div>
               </div>
-              <div style={{color:B.gray,fontSize:12,marginTop:4,paddingLeft:22}}>{m.desc}</div>
+              <div style={{color:'#6B7280',fontSize:12,marginTop:4,paddingLeft:22}}>{m.desc}</div>
             </button>
           ))}
         </div>
@@ -8981,8 +8980,8 @@ function CustomAnglesManager({ client, onClose }) {
                 {data.angles.map(a => (
                   <div key={a.id} style={{background:'rgba(245,166,35,0.06)',border:'1px solid rgba(245,166,35,0.2)',borderRadius:8,padding:'10px 14px',display:'flex',alignItems:'center',gap:10}}>
                     <div style={{flex:1}}>
-                      <div style={{color:B.white,fontWeight:700,fontSize:13}}>{a.label}</div>
-                      {a.desc && <div style={{color:B.gray,fontSize:11,marginTop:2}}>{a.desc}</div>}
+                      <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{a.label}</div>
+                      {a.desc && <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>{a.desc}</div>}
                     </div>
                     <button onClick={() => removeAngle(a.id)} style={{background:'transparent',border:'none',color:'rgba(255,255,255,0.25)',cursor:'pointer',fontSize:14}}>×</button>
                   </div>
@@ -8991,7 +8990,7 @@ function CustomAnglesManager({ client, onClose }) {
             )}
 
             {/* Add new angle */}
-            <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:10,padding:14}}>
+            <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:14}}>
               <SecLabel>Add Custom Angle</SecLabel>
               <div style={{display:'flex',gap:8,marginBottom:8,flexWrap:'wrap'}}>
                 <div style={{display:'flex',gap:4,flexWrap:'wrap',flex:1}}>
@@ -9004,9 +9003,9 @@ function CustomAnglesManager({ client, onClose }) {
                 </div>
               </div>
               <input value={newAngle.label} onChange={e=>setNewAngle(p=>({...p,label:e.target.value}))} placeholder="Angle name (e.g. Luxury Real Estate, Wellness Coaching)"
-                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:8,boxSizing:'border-box'}}/>
+                style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:8,boxSizing:'border-box'}}/>
               <input value={newAngle.desc} onChange={e=>setNewAngle(p=>({...p,desc:e.target.value}))} placeholder="Short description (e.g. High-end property tours, buyer psychology)"
-                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:10,boxSizing:'border-box'}}/>
+                style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:10,boxSizing:'border-box'}}/>
               <RedBtn onClick={addAngle} disabled={!newAngle.label.trim()} style={{padding:'8px 18px',fontSize:12}}>+ Add Angle</RedBtn>
             </div>
           </>
@@ -9165,7 +9164,7 @@ function TranscriptIntel() {
             <div>
               <SecLabel>Call Date</SecLabel>
               <input value={transcriptDate} onChange={e=>setTranscriptDate(e.target.value)} placeholder="e.g. Mar 18, 2026"
-                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
             </div>
           </div>
 
@@ -9173,19 +9172,19 @@ function TranscriptIntel() {
           <div style={{marginBottom:12}}>
             <input ref={fileRef} type="file" accept=".txt,.md,.vtt,.srt,text/plain" onChange={handleFile} style={{display:'none'}}/>
             <button onClick={() => fileRef.current?.click()} disabled={uploading}
-              style={{width:'100%',background:'rgba(255,255,255,0.03)',border:'2px dashed rgba(255,255,255,0.12)',borderRadius:10,padding:'16px',cursor:'pointer',color:B.gray,fontSize:13}}>
+              style={{width:'100%',background:'#FFFFFF',border:'2px dashed rgba(255,255,255,0.12)',borderRadius:10,padding:'16px',cursor:'pointer',color:'#6B7280',fontSize:13}}>
               {uploading ? 'Reading file...' : 'Upload transcript file (.txt, .vtt, .srt, .md)'}
             </button>
           </div>
 
-          <div style={{textAlign:'center',color:B.gray,fontSize:11,marginBottom:8}}>or paste directly below</div>
+          <div style={{textAlign:'center',color:'#6B7280',fontSize:11,marginBottom:8}}>or paste directly below</div>
 
           <textarea value={transcript} onChange={e=>setTranscript(e.target.value)} rows={10}
             placeholder="Paste your call transcript here. Works with Zoom auto-transcripts, Otter.ai exports, manual notes, or any text format..."
-            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:14,boxSizing:'border-box'}}/>
+            style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:14,boxSizing:'border-box'}}/>
 
           {transcript.length > 0 && (
-            <div style={{color:B.gray,fontSize:11,marginBottom:12}}>{transcript.length.toLocaleString()} characters · ~{Math.round(transcript.length/5)} words</div>
+            <div style={{color:'#6B7280',fontSize:11,marginBottom:12}}>{transcript.length.toLocaleString()} characters · ~{Math.round(transcript.length/5)} words</div>
           )}
 
           <RedBtn onClick={analyze} disabled={analyzing||!transcript.trim()||!selectedClient}>
@@ -9198,7 +9197,7 @@ function TranscriptIntel() {
       {view === 'history' && (
         <div>
           {clientTranscripts.length === 0 ? (
-            <div style={{textAlign:'center',padding:'3rem',background:'rgba(255,255,255,0.02)',borderRadius:12,border:'1px solid rgba(255,255,255,0.06)'}}>
+            <div style={{textAlign:'center',padding:'3rem',background:'#FFFFFF',borderRadius:12,border:'1px solid #E5E7EB'}}>
               
               <div style={{color:B.white,fontWeight:700,marginBottom:8}}>No transcripts yet for {selectedClient?.name}</div>
               <button onClick={()=>setView('upload')} style={{background:B.red,color:'#fff',border:'none',borderRadius:8,padding:'9px 18px',fontSize:13,fontWeight:700,cursor:'pointer'}}>Upload First Transcript</button>
@@ -9206,14 +9205,14 @@ function TranscriptIntel() {
           ) : (
             <div style={{display:'flex',flexDirection:'column',gap:10}}>
               {clientTranscripts.map(t => (
-                <div key={t.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'16px',cursor:'pointer'}}
+                <div key={t.id} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'16px',cursor:'pointer'}}
                   onClick={() => { setOut(t.analysis); setView('results'); }}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:8}}>
                     <div>
-                      <div style={{color:B.white,fontWeight:700,fontSize:13}}>{t.type}</div>
-                      <div style={{color:B.gray,fontSize:11,marginTop:2}}>{t.date}</div>
+                      <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{t.type}</div>
+                      <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>{t.date}</div>
                     </div>
-                    <span style={{background:'rgba(255,255,255,0.07)',color:B.gray,borderRadius:4,padding:'2px 8px',fontSize:10}}>View Analysis</span>
+                    <span style={{background:'#FFFFFF',color:B.gray,borderRadius:4,padding:'2px 8px',fontSize:10}}>View Analysis</span>
                   </div>
                   <div style={{color:'rgba(255,255,255,0.45)',fontSize:12,lineHeight:1.5}}>{t.preview.slice(0,120)}...</div>
                 </div>
@@ -9225,7 +9224,7 @@ function TranscriptIntel() {
 
       {view === 'results' && out && (
         <div>
-          <button onClick={() => setView('upload')} style={{background:'rgba(255,255,255,0.07)',color:B.gray,border:'none',borderRadius:6,padding:'6px 14px',fontSize:12,cursor:'pointer',marginBottom:16}}>
+          <button onClick={() => setView('upload')} style={{background:'#FFFFFF',color:B.gray,border:'none',borderRadius:6,padding:'6px 14px',fontSize:12,cursor:'pointer',marginBottom:16}}>
             New Transcript
           </button>
           <DocOutput text={out} title={`${transcriptType} Analysis: ${selectedClient?.name}`}/>
@@ -9383,7 +9382,7 @@ function AnalyticsHub() {
         </div>
       </div>
 
-      <div style={{background:'rgba(0,194,255,0.06)',border:'1px solid rgba(0,194,255,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:12,color:'rgba(0,194,255,0.85)',lineHeight:1.8}}>
+      <div style={{background:'rgba(0,194,255,0.06)',border:'1px solid #D1D5DB',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:12,color:'rgba(0,194,255,0.85)',lineHeight:1.8}}>
         <strong>No API subscription needed.</strong> Every major platform lets you export analytics as CSV for free. Export from the platform, import here, get insights in seconds.
       </div>
 
@@ -9413,7 +9412,7 @@ function AnalyticsHub() {
           </div>
 
           <SecLabel>How to Export from {platform}</SecLabel>
-          <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'12px 14px',marginBottom:16}}>
+          <div style={{background:'#F9FAFB',borderRadius:8,padding:'12px 14px',marginBottom:16}}>
             {(exportInstructions[platform]||[]).map((step,i) => (
               <div key={i} style={{color:'rgba(255,255,255,0.7)',fontSize:12,lineHeight:1.8,display:'flex',gap:8}}>
                 <span style={{color:B.red,fontWeight:700,flexShrink:0}}>{i+1}.</span>{step}
@@ -9422,11 +9421,11 @@ function AnalyticsHub() {
           </div>
 
           <input value={period} onChange={e=>setPeriod(e.target.value)} placeholder="Period (e.g. Jan–Mar 2026)"
-            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+            style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
 
           <input ref={fileRef} type="file" accept=".csv,.xlsx,text/csv" onChange={handleFile} style={{display:'none'}}/>
           <button onClick={() => fileRef.current?.click()} disabled={importing}
-            style={{width:'100%',background:'rgba(255,255,255,0.03)',border:'2px dashed rgba(0,194,255,0.2)',borderRadius:10,padding:'16px',cursor:'pointer',color:B.light,fontSize:13,marginBottom:12}}>
+            style={{width:'100%',background:'#FFFFFF',border:'2px dashed rgba(0,194,255,0.2)',borderRadius:10,padding:'16px',cursor:'pointer',color:'#6B7280',fontSize:13,marginBottom:12}}>
             {importing ? 'Parsing data...' : `Upload ${platform} Analytics CSV`}
           </button>
 
@@ -9451,11 +9450,11 @@ function AnalyticsHub() {
           {imports.length === 0 && <div style={{textAlign:'center',padding:'3rem',color:B.gray}}>No imports yet.</div>}
           {imports.map(imp => (
             <div key={imp.id} onClick={() => { setOut(imp.analysis); setTab('insights'); }}
-              style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'14px',cursor:'pointer'}}>
+              style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px',cursor:'pointer'}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                 <div>
-                  <div style={{color:B.white,fontWeight:700,fontSize:13}}>{imp.platform} — {imp.clientName}</div>
-                  <div style={{color:B.gray,fontSize:11,marginTop:2}}>{imp.period} · {new Date(imp.importedAt).toLocaleDateString()}</div>
+                  <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{imp.platform} — {imp.clientName}</div>
+                  <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>{imp.period} · {new Date(imp.importedAt).toLocaleDateString()}</div>
                 </div>
                 <span style={{color:'rgba(0,194,255,0.6)',fontSize:11}}>View →</span>
               </div>
@@ -9570,7 +9569,7 @@ function VisualCalendar() {
       {/* Stats */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:16}}>
         {[['Total Posts',totalPosts,'#00C2FF'],['Planned',planned,'#f5a623'],['Approved',approved,'#27ae60']].map(([l,v,c])=>(
-          <div key={l} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:8,padding:'10px',textAlign:'center'}}>
+          <div key={l} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:8,padding:'10px',textAlign:'center'}}>
             <div style={{fontSize:22,fontWeight:800,color:c}}>{v}</div>
             <div style={{fontSize:10,color:B.gray,textTransform:'uppercase',letterSpacing:1,marginTop:2}}>{l}</div>
           </div>
@@ -9579,9 +9578,9 @@ function VisualCalendar() {
 
       {/* Month navigation */}
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
-        <button onClick={()=>setCurrentMonth(new Date(year,month-1,1))} style={{background:'rgba(255,255,255,0.06)',border:'none',color:B.white,borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:14}}>←</button>
+        <button onClick={()=>setCurrentMonth(new Date(year,month-1,1))} style={{background:'#FFFFFF',border:'none',color:B.white,borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:14}}>←</button>
         <div style={{color:B.white,fontWeight:700,fontSize:15}}>{monthName}</div>
-        <button onClick={()=>setCurrentMonth(new Date(year,month+1,1))} style={{background:'rgba(255,255,255,0.06)',border:'none',color:B.white,borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:14}}>→</button>
+        <button onClick={()=>setCurrentMonth(new Date(year,month+1,1))} style={{background:'#FFFFFF',border:'none',color:B.white,borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:14}}>→</button>
       </div>
 
       {/* Day headers */}
@@ -9622,8 +9621,8 @@ function VisualCalendar() {
       {showForm && selectedDate && (
         <Card>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-            <div style={{color:B.white,fontWeight:700,fontSize:14}}>Add Post — {new Date(selectedDate+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</div>
-            <button onClick={()=>setShowForm(false)} style={{background:'rgba(255,255,255,0.06)',border:'none',color:B.gray,borderRadius:6,padding:'4px 10px',cursor:'pointer',fontSize:12}}>Close</button>
+            <div style={{color:'#111827',fontWeight:700,fontSize:14}}>Add Post — {new Date(selectedDate+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</div>
+            <button onClick={()=>setShowForm(false)} style={{background:'#FFFFFF',border:'none',color:B.gray,borderRadius:6,padding:'4px 10px',cursor:'pointer',fontSize:12}}>Close</button>
           </div>
 
           {/* Show existing posts for this date */}
@@ -9631,10 +9630,10 @@ function VisualCalendar() {
             <div style={{marginBottom:14}}>
               <SecLabel>Scheduled for this day</SecLabel>
               {(clientCal[selectedDate]||[]).map(p => (
-                <div key={p.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:8,padding:'10px 12px',marginBottom:6,display:'flex',alignItems:'center',gap:10}}>
+                <div key={p.id} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:8,padding:'10px 12px',marginBottom:6,display:'flex',alignItems:'center',gap:10}}>
                   <div style={{width:6,height:6,borderRadius:'50%',background:platformColors[p.platform],flexShrink:0}}/>
                   <div style={{flex:1}}>
-                    <div style={{color:B.white,fontSize:12,fontWeight:600}}>{p.title}</div>
+                    <div style={{color:'#111827',fontSize:12,fontWeight:600}}>{p.title}</div>
                     <div style={{color:B.gray,fontSize:10,marginTop:1}}>{p.platform} · {p.format}</div>
                   </div>
                   <select value={p.status} onChange={e=>updateStatus(selectedDate,p.id,e.target.value)} style={{background:'rgba(0,0,0,0.4)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:4,padding:'3px 6px',fontSize:10,cursor:'pointer'}}>
@@ -9648,9 +9647,9 @@ function VisualCalendar() {
 
           <SecLabel>New Post</SecLabel>
           <input value={form.title} onChange={e=>setForm(p=>({...p,title:e.target.value}))} placeholder="Post title or topic"
-            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:10,boxSizing:'border-box'}}/>
+            style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:10,boxSizing:'border-box'}}/>
           <input value={form.hook} onChange={e=>setForm(p=>({...p,hook:e.target.value}))} placeholder="Opening hook (optional)"
-            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:10,boxSizing:'border-box'}}/>
+            style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:10,boxSizing:'border-box'}}/>
           <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:10}}>
             {['Instagram','YouTube','Facebook','LinkedIn','Email'].map(p=><button key={p} onClick={()=>setForm(f=>({...f,platform:p}))} style={{background:form.platform===p?B.red:'rgba(255,255,255,0.06)',color:form.platform===p?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
           </div>
@@ -9661,7 +9660,7 @@ function VisualCalendar() {
         </Card>
       )}
 
-      <div style={{marginTop:16,background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'12px 16px',fontSize:12,color:B.gray,lineHeight:1.8}}>
+      <div style={{marginTop:16,background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px 16px',fontSize:12,color:B.gray,lineHeight:1.8}}>
         <strong style={{color:B.light}}>Free scheduling workflow:</strong> Plan here Export CSV Upload to Meta Business Suite (free, schedules Instagram + Facebook) or copy content to YouTube Studio, LinkedIn, or any scheduler. SIGNAL handles the strategy and planning layer.
       </div>
     </div>
@@ -9802,7 +9801,7 @@ function AIStrategyReview() {
           </div>
 
           {!hasData && (
-            <div style={{background:'rgba(0,194,255,0.06)',border:'1px solid rgba(0,194,255,0.15)',borderRadius:8,padding:'10px 14px',marginBottom:16,fontSize:12,color:'rgba(0,194,255,0.8)'}}>
+            <div style={{background:'rgba(0,194,255,0.06)',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 14px',marginBottom:16,fontSize:12,color:'rgba(0,194,255,0.8)'}}>
               The review works best with ROI data and rated content. It will still generate from client profile and strategy context alone.
             </div>
           )}
@@ -9817,9 +9816,9 @@ function AIStrategyReview() {
         <div style={{display:'flex',flexDirection:'column',gap:8}}>
           {reviews.length===0&&<div style={{textAlign:'center',padding:'3rem',color:B.gray}}>No reviews yet.</div>}
           {reviews.map(r=>(
-            <div key={r.id} onClick={()=>{setOut(r.analysis);setTab('view');}} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'14px',cursor:'pointer'}}>
-              <div style={{color:B.white,fontWeight:700,fontSize:13}}>{r.clientName} — {r.period}</div>
-              <div style={{color:B.gray,fontSize:11,marginTop:2}}>Generated {new Date(r.generatedAt).toLocaleDateString()}</div>
+            <div key={r.id} onClick={()=>{setOut(r.analysis);setTab('view');}} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px',cursor:'pointer'}}>
+              <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{r.clientName} — {r.period}</div>
+              <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>Generated {new Date(r.generatedAt).toLocaleDateString()}</div>
             </div>
           ))}
         </div>
@@ -9919,10 +9918,10 @@ function OnboardingAutomation() {
               <button key={c.id} onClick={()=>setSelectedClient(c)}
                 style={{background:selectedClient?.id===c.id?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',border:`1px solid ${selectedClient?.id===c.id?'rgba(0,194,255,0.3)':'rgba(255,255,255,0.08)'}`,borderRadius:10,padding:'14px',cursor:'pointer',textAlign:'left'}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:4}}>
-                  <div style={{color:B.white,fontWeight:700,fontSize:13}}>{c.name}</div>
+                  <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{c.name}</div>
                   {done && <span style={{background:'rgba(39,174,96,0.15)',color:'#27ae60',borderRadius:4,padding:'1px 6px',fontSize:9,fontWeight:700}}>DONE</span>}
                 </div>
-                <div style={{color:B.gray,fontSize:11}}>{c.handle}</div>
+                <div style={{color:'#6B7280',fontSize:11}}>{c.handle}</div>
                 {done && <div style={{color:'rgba(255,255,255,0.3)',fontSize:10,marginTop:4}}>Generated {new Date(packages[c.id].generatedAt).toLocaleDateString()}</div>}
               </button>
             );
@@ -9932,7 +9931,7 @@ function OnboardingAutomation() {
         {selectedClient && (
           <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
             <RedBtn onClick={generate} disabled={loading}>{loading?'Generating package...':'Generate Onboarding Package'}</RedBtn>
-            {existing && <button onClick={()=>setOut(existing.analysis)} style={{background:'rgba(255,255,255,0.06)',color:B.light,border:'none',borderRadius:8,padding:'10px 18px',fontSize:13,cursor:'pointer'}}>View Existing</button>}
+            {existing && <button onClick={()=>setOut(existing.analysis)} style={{background:'#FFFFFF',color:B.light,border:'none',borderRadius:8,padding:'10px 18px',fontSize:13,cursor:'pointer'}}>View Existing</button>}
           </div>
         )}
         {loading && <Spin/>}
@@ -10034,12 +10033,12 @@ function BioLinkBuilder() {
           <div>
             <SecLabel>Page Headline</SecLabel>
             <input value={headline} onChange={e=>setHeadline(e.target.value)} placeholder={`${selectedClient?.name || 'Name'} — ${selectedClient?.handle || '@handle'}`}
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
           <div>
             <SecLabel>One-Line Description</SecLabel>
             <input value={subtext} onChange={e=>setSubtext(e.target.value)} placeholder="HR Manager Mindset Coach Colorado Real Estate"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
         </div>
         <SecLabel>Page Style</SecLabel>
@@ -10049,11 +10048,11 @@ function BioLinkBuilder() {
         <SecLabel>Links</SecLabel>
         <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:12}}>
           {links.map((l,i) => (
-            <div key={l.id} style={{display:'flex',alignItems:'center',gap:8,background:'rgba(255,255,255,0.03)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:8,padding:'8px 12px'}}>
+            <div key={l.id} style={{display:'flex',alignItems:'center',gap:8,background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:8,padding:'8px 12px'}}>
               <span style={{fontSize:16,cursor:'pointer'}} onClick={()=>{const icons=iconOptions;const ci=icons.indexOf(l.icon);setLinks(prev=>prev.map(x=>x.id===l.id?{...x,icon:icons[(ci+1)%icons.length]}:x));}}>{l.icon}</span>
               <div style={{flex:1}}>
-                <div style={{color:B.white,fontSize:12,fontWeight:600}}>{l.label}</div>
-                <div style={{color:B.gray,fontSize:11}}>{l.url}</div>
+                <div style={{color:'#111827',fontSize:12,fontWeight:600}}>{l.label}</div>
+                <div style={{color:'#6B7280',fontSize:11}}>{l.url}</div>
               </div>
               <button onClick={()=>removeLink(l.id)} style={{background:'none',border:'none',color:'rgba(255,255,255,0.2)',cursor:'pointer',fontSize:14}}>×</button>
             </div>
@@ -10062,19 +10061,19 @@ function BioLinkBuilder() {
         <div style={{display:'grid',gridTemplateColumns:'auto 1fr 1fr auto',gap:8,marginBottom:16,alignItems:'end'}}>
           <div>
             <SecLabel>Icon</SecLabel>
-            <select value={newLink.icon} onChange={e=>setNewLink(p=>({...p,icon:e.target.value}))} style={{background:'rgba(0,0,0,0.4)',color:B.white,border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 8px',fontSize:16,cursor:'pointer'}}>
+            <select value={newLink.icon} onChange={e=>setNewLink(p=>({...p,icon:e.target.value}))} style={{background:'rgba(0,0,0,0.4)',color:B.white,border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 8px',fontSize:16,cursor:'pointer'}}>
               {iconOptions.map(i=><option key={i} value={i}>{i}</option>)}
             </select>
           </div>
           <div>
             <SecLabel>Label</SecLabel>
             <input value={newLink.label} onChange={e=>setNewLink(p=>({...p,label:e.target.value}))} placeholder="Button label"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
           <div>
             <SecLabel>URL</SecLabel>
             <input value={newLink.url} onChange={e=>setNewLink(p=>({...p,url:e.target.value}))} placeholder="https://"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
           <div style={{paddingTop:20}}>
             <button onClick={addLink} disabled={!newLink.label||!newLink.url} style={{background:B.red,color:'#000D1A',border:'none',borderRadius:8,padding:'9px 16px',fontWeight:800,cursor:'pointer',fontSize:13,whiteSpace:'nowrap'}}>+ Add</button>
@@ -10090,7 +10089,7 @@ function BioLinkBuilder() {
             <button onClick={download} style={{background:B.red,color:'#000D1A',border:'none',borderRadius:8,padding:'7px 16px',fontSize:12,fontWeight:800,cursor:'pointer'}}>Download HTML</button>
             <CopyBtn text={out}/>
           </div>
-          {preview && <iframe srcDoc={out} style={{width:'100%',height:600,border:'1px solid rgba(0,194,255,0.1)',borderRadius:12}} title="Bio Link Preview"/>}
+          {preview && <iframe srcDoc={out} style={{width:'100%',height:600,border:'1px solid #E5E7EB',borderRadius:12}} title="Bio Link Preview"/>}
         </div>
       )}
     </div>
@@ -10172,7 +10171,7 @@ function ClientCommsTemplates() {
           <div>
             <SecLabel>Agency Name</SecLabel>
             <input value={agencyName} onChange={e=>setAgencyName(e.target.value)} placeholder="Your agency name"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
         </div>
         <SecLabel>Template Type</SecLabel>
@@ -10180,14 +10179,14 @@ function ClientCommsTemplates() {
           {templates.map(t=>(
             <button key={t.id} onClick={()=>setTemplateType(t.id)}
               style={{background:templateType===t.id?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',border:`1px solid ${templateType===t.id?'rgba(0,194,255,0.3)':'rgba(255,255,255,0.07)'}`,borderRadius:8,padding:'10px 12px',cursor:'pointer',textAlign:'left'}}>
-              <div style={{color:B.white,fontWeight:700,fontSize:12}}>{t.label}</div>
-              <div style={{color:B.gray,fontSize:11,marginTop:2}}>{t.desc}</div>
+              <div style={{color:'#111827',fontWeight:700,fontSize:12}}>{t.label}</div>
+              <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>{t.desc}</div>
             </button>
           ))}
         </div>
         <SecLabel>Additional Context (optional)</SecLabel>
         <input value={context} onChange={e=>setContext(e.target.value)} placeholder="e.g. Report is 3 days late due to platform data delay, client is generally easy-going"
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:16,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:16,boxSizing:'border-box'}}/>
         <RedBtn onClick={run} disabled={loading||!selectedClient||!templateType}>{loading?'Writing...':'Write Communication'}</RedBtn>
       </Card>
       {loading&&<Spin/>}
@@ -10379,7 +10378,7 @@ function HashtagResearch() {
           <div>
             <SecLabel>Niche / Topic</SecLabel>
             <input value={niche} onChange={e=>setNiche(e.target.value)} placeholder="e.g. Colorado real estate, mindset coaching, endurance athlete"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
           <div>
             <SecLabel>Account Size</SecLabel>
@@ -10412,7 +10411,7 @@ function HashtagResearch() {
           <button onClick={fetchLive} disabled={fetching||!niche} style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'9px 16px',cursor:'pointer',fontSize:12,fontWeight:700}}>{fetching?'Pulling live data...':'Pull Live Data First'}</button>
           <RedBtn onClick={run} disabled={loading||!niche}>{loading?'Researching...':'## Build Hashtag Strategy'}</RedBtn>
         </div>
-        {liveData && <div style={{marginTop:12,background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'10px',fontSize:11,color:'rgba(255,255,255,0.5)',maxHeight:80,overflowY:'auto'}}>{liveData.slice(0,300)}...</div>}
+        {liveData && <div style={{marginTop:12,background:'#F9FAFB',borderRadius:8,padding:'10px',fontSize:11,color:'rgba(255,255,255,0.5)',maxHeight:80,overflowY:'auto'}}>{liveData.slice(0,300)}...</div>}
       </Card>
       {loading&&<Spin/>}
       {out&&<DocOutput text={out} title={`Hashtag Strategy: ${niche} on ${platform}`}/>}
@@ -10495,12 +10494,12 @@ function ContentSeriesPlanner() {
           <div>
             <SecLabel>Series Name</SecLabel>
             <input value={seriesName} onChange={e=>setSeriesName(e.target.value)} placeholder="e.g. Monday Mindset, Colorado Real Talk, The 5 AM Files"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
           <div>
             <SecLabel>Core Theme</SecLabel>
             <input value={theme} onChange={e=>setTheme(e.target.value)} placeholder="e.g. Discipline over motivation, real estate truth, showing up daily"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:16}}>
@@ -10626,10 +10625,10 @@ function BioOptimizer() {
         <SecLabel>Current Bio (paste to get a diagnosis)</SecLabel>
         <textarea value={currentBio} onChange={e=>setCurrentBio(e.target.value)} rows={3}
           placeholder="Paste current bio here, or leave blank to write from scratch"
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'}}/>
         <SecLabel>Primary Goals for This Platform</SecLabel>
         <input value={goals} onChange={e=>setGoals(e.target.value)} placeholder="e.g. Drive real estate leads, grow email list, build podcast listeners"
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:16,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:16,boxSizing:'border-box'}}/>
         <RedBtn onClick={async()=>{if(!selectedClient)return;setLoading(true);setOut('');const r=await ai(BIO_OPTIMIZER_PROMPT(selectedClient,platform,currentBio,goals));setOut(r);setLoading(false);}} disabled={loading||!selectedClient}>
           {loading?'Optimizing...':'Optimize Bio'}
         </RedBtn>
@@ -10733,7 +10732,7 @@ function PricingCalculator() {
       <Card>
         <SecLabel>Niche Description</SecLabel>
         <input value={niche} onChange={e=>setNiche(e.target.value)} placeholder="e.g. Fitness coaching, Colorado real estate, mindset content"
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:14,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:14,boxSizing:'border-box'}}/>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
           <div>
             <SecLabel>Follower Range</SecLabel>
@@ -10744,7 +10743,7 @@ function PricingCalculator() {
           <div>
             <SecLabel>Engagement Rate (%)</SecLabel>
             <input value={engagementRate} onChange={e=>setEngagementRate(e.target.value)} placeholder="e.g. 4.2"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
@@ -10843,13 +10842,13 @@ function StoryArcPlanner() {
         </div>
         <SecLabel>Campaign or Context</SecLabel>
         <input value={campaign} onChange={e=>setCampaign(e.target.value)} placeholder="e.g. Spring Lead Magnet Launch, New Podcast Series, Real Estate Market Update"
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:14,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:14,boxSizing:'border-box'}}/>
         <SecLabel>Goal</SecLabel>
         <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:8}}>
           {goalPresets.map(g=><button key={g} onClick={()=>setGoal(g)} style={{background:goal===g?B.red:'rgba(255,255,255,0.06)',color:goal===g?'#000D1A':B.white,border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{g}</button>)}
         </div>
         <input value={goal} onChange={e=>setGoal(e.target.value)} placeholder="Or describe the specific goal..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:14,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:14,boxSizing:'border-box'}}/>
         <div style={{display:'flex',gap:12,marginBottom:16,flexWrap:'wrap'}}>
           <div>
             <SecLabel>Duration</SecLabel>
@@ -10974,12 +10973,12 @@ function GuestPrepKit() {
           <div>
             <SecLabel>Guest Name</SecLabel>
             <input value={guestName} onChange={e=>setGuestName(e.target.value)} placeholder="Full name"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
           <div>
             <SecLabel>Guest Handle</SecLabel>
             <input value={guestHandle} onChange={e=>setGuestHandle(e.target.value)} placeholder="@handle or website"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
         </div>
         <div style={{display:'flex',gap:8,marginBottom:12}}>
@@ -10987,7 +10986,7 @@ function GuestPrepKit() {
             <SecLabel>Guest Bio / Background</SecLabel>
             <textarea value={guestBio} onChange={e=>setGuestBio(e.target.value)} rows={3}
               placeholder="Paste bio or leave blank to auto-research with Perplexity"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
           </div>
         </div>
         <button onClick={fetchGuestIntel} disabled={fetching||!guestName}
@@ -10998,12 +10997,12 @@ function GuestPrepKit() {
           <div>
             <SecLabel>Episode Topic</SecLabel>
             <input value={episodeTopic} onChange={e=>setEpisodeTopic(e.target.value)} placeholder="e.g. Building mental toughness through endurance sports"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
           <div>
             <SecLabel>Record Date</SecLabel>
             <input value={recordDate} onChange={e=>setRecordDate(e.target.value)} placeholder="e.g. April 12, 2026"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
         </div>
         <RedBtn onClick={async()=>{if(!guestName||!episodeTopic)return;setLoading(true);setOut('');const r=await ai(GUEST_PREP_PROMPT(selectedClient?.isDefault?null:selectedClient,guestName,guestBio,guestHandle,episodeTopic,recordDate));setOut(r);setLoading(false);}} disabled={loading||!guestName||!episodeTopic}>
@@ -11117,7 +11116,7 @@ function ObjectionHandler() {
         <SecLabel>Custom Objections (one per line)</SecLabel>
         <textarea value={customObjections} onChange={e=>setCustomObjections(e.target.value)} rows={3}
           placeholder="Add your own objections here, one per line..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
         <RedBtn onClick={run} disabled={loading||(selectedObjections.length===0&&!customObjections)}>
           {loading?'Writing responses...':'Generate Objection Scripts'}
         </RedBtn>
@@ -11195,7 +11194,7 @@ function ABTestTracker() {
         <Card style={{marginBottom:16}}>
           <SecLabel>Test Name</SecLabel>
           <input value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))} placeholder="e.g. Hook Test Discipline Post April"
-            style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
+            style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:12}}>
             <div>
               <SecLabel>Platform</SecLabel>
@@ -11220,17 +11219,17 @@ function ABTestTracker() {
             <div>
               <SecLabel>Variant A</SecLabel>
               <textarea value={form.variantA} onChange={e=>setForm(p=>({...p,variantA:e.target.value}))} rows={3} placeholder="First version..."
-                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'none',boxSizing:'border-box'}}/>
+                style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'none',boxSizing:'border-box'}}/>
             </div>
             <div>
               <SecLabel>Variant B</SecLabel>
               <textarea value={form.variantB} onChange={e=>setForm(p=>({...p,variantB:e.target.value}))} rows={3} placeholder="Second version..."
-                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,resize:'none',boxSizing:'border-box'}}/>
+                style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'none',boxSizing:'border-box'}}/>
             </div>
           </div>
           <div style={{display:'flex',gap:8}}>
             <RedBtn onClick={addTest} disabled={!form.name||!form.variantA||!form.variantB}>Add Test</RedBtn>
-            <button onClick={()=>setShowForm(false)} style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:8,padding:'9px 14px',fontSize:12,cursor:'pointer'}}>Cancel</button>
+            <button onClick={()=>setShowForm(false)} style={{background:'#FFFFFF',color:B.gray,border:'none',borderRadius:8,padding:'9px 14px',fontSize:12,cursor:'pointer'}}>Cancel</button>
           </div>
         </Card>
       )}
@@ -11243,8 +11242,8 @@ function ABTestTracker() {
               <div key={t.id} style={{background:'rgba(245,166,35,0.06)',border:'1px solid rgba(245,166,35,0.15)',borderRadius:10,padding:'14px'}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10,flexWrap:'wrap',gap:8}}>
                   <div>
-                    <div style={{color:B.white,fontWeight:700,fontSize:13}}>{t.name}</div>
-                    <div style={{color:B.gray,fontSize:11,marginTop:2}}>{t.platform} · {t.type} Tracking: {t.metric}</div>
+                    <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{t.name}</div>
+                    <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>{t.platform} · {t.type} Tracking: {t.metric}</div>
                   </div>
                   <div style={{display:'flex',gap:6}}>
                     <button onClick={()=>logResult(t.id,'A','','')} style={{background:'rgba(0,194,255,0.1)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:5,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:700}}>A Won</button>
@@ -11252,8 +11251,8 @@ function ABTestTracker() {
                   </div>
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-                  <div style={{background:'rgba(255,255,255,0.03)',borderRadius:6,padding:'8px 10px'}}><div style={{fontSize:9,color:B.gray,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:3}}>Variant A</div><div style={{color:'rgba(255,255,255,0.75)',fontSize:12}}>{t.variantA}</div></div>
-                  <div style={{background:'rgba(255,255,255,0.03)',borderRadius:6,padding:'8px 10px'}}><div style={{fontSize:9,color:B.gray,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:3}}>Variant B</div><div style={{color:'rgba(255,255,255,0.75)',fontSize:12}}>{t.variantB}</div></div>
+                  <div style={{background:'#FFFFFF',borderRadius:6,padding:'8px 10px'}}><div style={{fontSize:9,color:B.gray,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:3}}>Variant A</div><div style={{color:'rgba(255,255,255,0.75)',fontSize:12}}>{t.variantA}</div></div>
+                  <div style={{background:'#FFFFFF',borderRadius:6,padding:'8px 10px'}}><div style={{fontSize:9,color:B.gray,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:3}}>Variant B</div><div style={{color:'rgba(255,255,255,0.75)',fontSize:12}}>{t.variantB}</div></div>
                 </div>
               </div>
             ))}
@@ -11271,7 +11270,7 @@ function ABTestTracker() {
                 <div key={t.id} style={{background:'rgba(39,174,96,0.05)',border:'1px solid rgba(39,174,96,0.15)',borderRadius:10,padding:'12px 14px',display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
                   <div style={{flex:1}}>
                     <div style={{color:B.white,fontWeight:600,fontSize:12}}>{t.name}</div>
-                    <div style={{color:B.gray,fontSize:11}}>{t.platform} · {t.type}</div>
+                    <div style={{color:'#6B7280',fontSize:11}}>{t.platform} · {t.type}</div>
                   </div>
                   {r?.winner && <span style={{background:'rgba(39,174,96,0.15)',color:'#27ae60',borderRadius:5,padding:'3px 10px',fontSize:11,fontWeight:700}}>Variant {r.winner} Won</span>}
                 </div>
@@ -11282,10 +11281,10 @@ function ABTestTracker() {
       )}
 
       {tests.length === 0 && (
-        <div style={{textAlign:'center',padding:'3rem',background:'rgba(255,255,255,0.02)',borderRadius:12,border:'1px solid rgba(255,255,255,0.06)'}}>
+        <div style={{textAlign:'center',padding:'3rem',background:'#FFFFFF',borderRadius:12,border:'1px solid #E5E7EB'}}>
           
           <div style={{color:B.white,fontWeight:700,marginBottom:8}}>No tests yet</div>
-          <div style={{color:B.gray,fontSize:13}}>Start your first A/B test to build a database of what works.</div>
+          <div style={{color:'#6B7280',fontSize:13}}>Start your first A/B test to build a database of what works.</div>
         </div>
       )}
 
@@ -11383,12 +11382,12 @@ function ViralFormatLibrary() {
           <button key={f.id} onClick={()=>setSelectedFormat(f)}
             style={{background:selectedFormat?.id===f.id?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',border:`1px solid ${selectedFormat?.id===f.id?'rgba(0,194,255,0.3)':'rgba(255,255,255,0.07)'}`,borderRadius:10,padding:'12px',cursor:'pointer',textAlign:'left'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:4}}>
-              <div style={{color:B.white,fontWeight:700,fontSize:12}}>{f.name}</div>
+              <div style={{color:'#111827',fontWeight:700,fontSize:12}}>{f.name}</div>
               <span style={{fontSize:9,color:'#00C2FF',fontWeight:700,background:'rgba(0,194,255,0.1)',borderRadius:3,padding:'1px 5px'}}>{f.cat}</span>
             </div>
-            <div style={{color:B.gray,fontSize:11,lineHeight:1.5,marginBottom:6}}>{f.desc}</div>
+            <div style={{color:'#6B7280',fontSize:11,lineHeight:1.5,marginBottom:6}}>{f.desc}</div>
             <div style={{display:'flex',gap:3,flexWrap:'wrap'}}>
-              {f.platforms.map(p=><span key={p} style={{fontSize:9,color:'rgba(255,255,255,0.4)',background:'rgba(255,255,255,0.06)',borderRadius:3,padding:'1px 5px'}}>{p}</span>)}
+              {f.platforms.map(p=><span key={p} style={{fontSize:9,color:'rgba(255,255,255,0.4)',background:'#FFFFFF',borderRadius:3,padding:'1px 5px'}}>{p}</span>)}
             </div>
           </button>
         ))}
@@ -11398,13 +11397,13 @@ function ViralFormatLibrary() {
         <Card>
           <div style={{marginBottom:14}}>
             <div style={{color:'#00C2FF',fontWeight:800,fontSize:15,marginBottom:4}}>{selectedFormat.name}</div>
-            <div style={{color:B.gray,fontSize:12,lineHeight:1.6}}>{selectedFormat.desc}</div>
+            <div style={{color:'#6B7280',fontSize:12,lineHeight:1.6}}>{selectedFormat.desc}</div>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
             <div>
               <SecLabel>Topic</SecLabel>
               <input value={topic} onChange={e=>setTopic(e.target.value)} placeholder="What is this about?"
-                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
             </div>
             <div>
               <SecLabel>Platform</SecLabel>
@@ -11480,12 +11479,12 @@ function RevenueAttribution() {
             <div style={{fontSize:22,fontWeight:800,color:'#27ae60'}}>${totalRevenue.toLocaleString()}</div>
             <div style={{fontSize:10,color:B.gray,textTransform:'uppercase',letterSpacing:1,marginTop:2}}>Attributed Revenue</div>
           </div>
-          <div style={{background:'rgba(0,194,255,0.06)',border:'1px solid rgba(0,194,255,0.15)',borderRadius:10,padding:'14px',textAlign:'center'}}>
+          <div style={{background:'rgba(0,194,255,0.06)',border:'1px solid #D1D5DB',borderRadius:10,padding:'14px',textAlign:'center'}}>
             <div style={{fontSize:22,fontWeight:800,color:'#00C2FF'}}>{entries.length}</div>
             <div style={{fontSize:10,color:B.gray,textTransform:'uppercase',letterSpacing:1,marginTop:2}}>Total Attributions</div>
           </div>
           {byPlatform.map(p=>(
-            <div key={p.platform} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:10,padding:'14px',textAlign:'center'}}>
+            <div key={p.platform} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px',textAlign:'center'}}>
               <div style={{fontSize:18,fontWeight:800,color:B.white}}>{p.count}</div>
               <div style={{fontSize:10,color:B.gray,textTransform:'uppercase',letterSpacing:1,marginTop:2}}>{p.platform}</div>
               {p.revenue>0&&<div style={{fontSize:10,color:'#27ae60',marginTop:2}}>${p.revenue.toLocaleString()}</div>}
@@ -11500,12 +11499,12 @@ function RevenueAttribution() {
             <div>
               <SecLabel>Content Title</SecLabel>
               <input value={form.contentTitle} onChange={e=>setForm(p=>({...p,contentTitle:e.target.value}))} placeholder="What post drove this outcome?"
-                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
             </div>
             <div>
               <SecLabel>Date</SecLabel>
               <input value={form.date} onChange={e=>setForm(p=>({...p,date:e.target.value}))} placeholder="When did this happen?"
-                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
             </div>
           </div>
           <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:12}}>
@@ -11518,34 +11517,34 @@ function RevenueAttribution() {
             <div>
               <SecLabel>Outcome Description</SecLabel>
               <input value={form.outcome} onChange={e=>setForm(p=>({...p,outcome:e.target.value}))} placeholder="e.g. Booked listing consultation, 3 DMs asking about coaching"
-                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
             </div>
             <div>
               <SecLabel>Revenue Value (optional, $)</SecLabel>
               <input value={form.revenue} onChange={e=>setForm(p=>({...p,revenue:e.target.value}))} placeholder="e.g. 8500"
-                style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+                style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
             </div>
           </div>
           <div style={{display:'flex',gap:8}}>
             <RedBtn onClick={addEntry} disabled={!form.contentTitle||!form.outcome}>Log Attribution</RedBtn>
-            <button onClick={()=>setShowForm(false)} style={{background:'rgba(255,255,255,0.06)',color:B.gray,border:'none',borderRadius:8,padding:'9px 14px',fontSize:12,cursor:'pointer'}}>Cancel</button>
+            <button onClick={()=>setShowForm(false)} style={{background:'#FFFFFF',color:B.gray,border:'none',borderRadius:8,padding:'9px 14px',fontSize:12,cursor:'pointer'}}>Cancel</button>
           </div>
         </Card>
       )}
 
       <div style={{display:'flex',flexDirection:'column',gap:6}}>
         {entries.length===0&&(
-          <div style={{textAlign:'center',padding:'3rem',background:'rgba(255,255,255,0.02)',borderRadius:12,border:'1px solid rgba(255,255,255,0.06)'}}>
+          <div style={{textAlign:'center',padding:'3rem',background:'#FFFFFF',borderRadius:12,border:'1px solid #E5E7EB'}}>
             
             <div style={{color:B.white,fontWeight:700,marginBottom:8}}>No attributions yet</div>
-            <div style={{color:B.gray,fontSize:13,maxWidth:300,margin:'0 auto'}}>Every time a post leads to an inquiry, booking, or sale log it here. Build proof that content drives revenue.</div>
+            <div style={{color:'#6B7280',fontSize:13,maxWidth:300,margin:'0 auto'}}>Every time a post leads to an inquiry, booking, or sale log it here. Build proof that content drives revenue.</div>
           </div>
         )}
         {entries.map(e=>(
-          <div key={e.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:8,padding:'12px 14px',display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+          <div key={e.id} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:8,padding:'12px 14px',display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
             <div style={{flex:1}}>
               <div style={{color:B.white,fontWeight:600,fontSize:12}}>{e.contentTitle}</div>
-              <div style={{color:B.gray,fontSize:11,marginTop:2}}>{e.platform} · {e.format} → {e.outcomeType}</div>
+              <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>{e.platform} · {e.format} → {e.outcomeType}</div>
               <div style={{color:'rgba(255,255,255,0.6)',fontSize:11,marginTop:2}}>{e.outcome}</div>
             </div>
             {e.revenue&&<div style={{color:'#27ae60',fontWeight:800,fontSize:14}}>${parseFloat(e.revenue).toLocaleString()}</div>}
@@ -11679,7 +11678,7 @@ function AutoVoiceUpdateBanner({ activeClient }) {
         <div style={{ color: '#00C2FF', fontWeight: 700, fontSize: 13 }}>
           Voice fingerprint can be updated
         </div>
-        <div style={{ color: B.gray, fontSize: 11, marginTop: 2 }}>
+        <div style={{ color: '#6B7280', fontSize: 11, marginTop: 2 }}>
           {pendingUpdate.length} viral pieces rated since last update for {activeClient.name}. SIGNAL can extract the patterns that made them work.
         </div>
       </div>
@@ -11689,7 +11688,7 @@ function AutoVoiceUpdateBanner({ activeClient }) {
           {updating ? 'Updating...' : 'Update Now'}
         </button>
         <button onClick={dismiss}
-          style={{ background: 'rgba(255,255,255,0.06)', color: B.gray, border: 'none', borderRadius: 7, padding: '6px 12px', fontSize: 12, cursor: 'pointer' }}>
+          style={{ background: '#FFFFFF', color: B.gray, border: 'none', borderRadius: 7, padding: '6px 12px', fontSize: 12, cursor: 'pointer' }}>
           Later
         </button>
       </div>
@@ -11777,7 +11776,7 @@ function OnboardingFlow({ onComplete }) {
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, marginTop: 28 }}>
             {[['60', 'Tools'], ['0', 'Subscriptions\nNeeded'], ['AI', 'Powered']].map(([n, l]) => (
-              <div key={l} style={{ background: 'rgba(0,194,255,0.06)', border: '1px solid rgba(0,194,255,0.12)', borderRadius: 10, padding: '14px 8px', textAlign: 'center' }}>
+              <div key={l} style={{ background: 'rgba(0,194,255,0.06)', border: '1px solid #D1D5DB', borderRadius: 10, padding: '14px 8px', textAlign: 'center' }}>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#00C2FF', letterSpacing: '-0.04em' }}>{n}</div>
                 <div style={{ fontSize: 10, color: B.gray, marginTop: 4, textTransform: 'uppercase', letterSpacing: 1, whiteSpace: 'pre-line' }}>{l}</div>
               </div>
@@ -11795,12 +11794,12 @@ function OnboardingFlow({ onComplete }) {
             <div>
               <SecLabel>Your Name</SecLabel>
               <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: B.white, fontSize: 13, boxSizing: 'border-box' }} />
+                style={{ width: '100%', background: '#F9FAFB', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: '#111827', fontSize: 13, boxSizing: 'border-box' }} />
             </div>
             <div>
               <SecLabel>Primary Handle</SecLabel>
               <input value={form.handle} onChange={e => setForm(f => ({ ...f, handle: e.target.value }))} placeholder="@handle"
-                style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: B.white, fontSize: 13, boxSizing: 'border-box' }} />
+                style={{ width: '100%', background: '#F9FAFB', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: '#111827', fontSize: 13, boxSizing: 'border-box' }} />
             </div>
           </div>
           <SecLabel>Active Platforms</SecLabel>
@@ -11815,11 +11814,11 @@ function OnboardingFlow({ onComplete }) {
           <SecLabel>Your Niche</SecLabel>
           <input value={form.niche} onChange={e => setForm(f => ({ ...f, niche: e.target.value }))}
             placeholder="e.g. Mindset coaching, Colorado real estate, endurance athlete"
-            style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: B.white, fontSize: 13, marginBottom: 14, boxSizing: 'border-box' }} />
+            style={{ width: '100%', background: '#F9FAFB', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: '#111827', fontSize: 13, marginBottom: 14, boxSizing: 'border-box' }} />
           <SecLabel>Primary Content Goal</SecLabel>
           <input value={form.goals} onChange={e => setForm(f => ({ ...f, goals: e.target.value }))}
             placeholder="e.g. Grow to 10K Instagram followers, generate real estate leads"
-            style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: B.white, fontSize: 13, boxSizing: 'border-box' }} />
+            style={{ width: '100%', background: '#F9FAFB', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: '#111827', fontSize: 13, boxSizing: 'border-box' }} />
         </div>
       )
     },
@@ -11828,17 +11827,17 @@ function OnboardingFlow({ onComplete }) {
       sub: "How do you actually talk? Three sentences is enough. This is what separates SIGNAL from every other AI tool.",
       content: (
         <div>
-          <div style={{ background: 'rgba(0,194,255,0.06)', border: '1px solid rgba(0,194,255,0.12)', borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 12, color: 'rgba(0,194,255,0.8)', lineHeight: 1.7 }}>
+          <div style={{ background: 'rgba(0,194,255,0.06)', border: '1px solid #D1D5DB', borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 12, color: 'rgba(0,194,255,0.8)', lineHeight: 1.7 }}>
             Don't describe your voice. Just write like you talk. "I keep it real. No hype. I'm talking to someone who actually wants to do the work." That's all it needs.
           </div>
           <SecLabel>Write 2-3 sentences in your actual voice</SecLabel>
           <textarea value={form.voice} onChange={e => setForm(f => ({ ...f, voice: e.target.value }))} rows={5}
             placeholder="Just write naturally. Like you're talking to a friend who follows you. Don't overthink it..."
-            style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: B.white, fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }} />
+            style={{ width: '100%', background: '#F9FAFB', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: '#111827', fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }} />
           <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             {['Direct, no fluff', 'Motivating but real', 'Storyteller', 'Data-driven', 'Conversational', 'Authority-first'].map(style => (
               <button key={style} onClick={() => setForm(f => ({ ...f, voice: f.voice ? f.voice + ' ' + style.toLowerCase() + '.' : style + '.' }))}
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, padding: '7px 10px', cursor: 'pointer', color: B.gray, fontSize: 11, textAlign: 'left' }}>
+                style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 6, padding: '7px 10px', cursor: 'pointer', color: '#6B7280', fontSize: 11, textAlign: 'left' }}>
                 + {style}
               </button>
             ))}
@@ -11861,9 +11860,9 @@ function OnboardingFlow({ onComplete }) {
               { label: 'Write a Script', sub: 'Start creating immediately' },
               { label: 'Run a Profile Audit', sub: 'See where you stand' },
             ].map(item => (
-              <div key={item.label} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,194,255,0.1)', borderRadius: 8, padding: '10px 14px', textAlign: 'left' }}>
-                <div style={{ color: B.white, fontWeight: 700, fontSize: 12 }}>{item.label}</div>
-                <div style={{ color: B.gray, fontSize: 11, marginTop: 2 }}>{item.sub}</div>
+              <div key={item.label} style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 8, padding: '10px 14px', textAlign: 'left' }}>
+                <div style={{ color: '#111827', fontWeight: 700, fontSize: 12 }}>{item.label}</div>
+                <div style={{ color: '#6B7280', fontSize: 11, marginTop: 2 }}>{item.sub}</div>
               </div>
             ))}
           </div>
@@ -11883,7 +11882,7 @@ function OnboardingFlow({ onComplete }) {
       padding: 16,
     }}>
       <div style={{
-        background: B.navy2,
+        background: '#FFFFFF',
         border: '1px solid rgba(0,194,255,0.15)',
         borderRadius: 20,
         width: '100%', maxWidth: 520,
@@ -11909,7 +11908,7 @@ function OnboardingFlow({ onComplete }) {
           <h2 style={{ color: B.white, fontSize: 22, fontWeight: 900, letterSpacing: '-0.03em', marginBottom: 6 }}>
             {current.title}
           </h2>
-          <p style={{ color: B.gray, fontSize: 13, marginBottom: 24, lineHeight: 1.6 }}>
+          <p style={{ color: '#6B7280', fontSize: 13, marginBottom: 24, lineHeight: 1.6 }}>
             {current.sub}
           </p>
 
@@ -12343,7 +12342,7 @@ function ReportEmailButton({ reportText, clientName, clientEmail }) {
       ) : (
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <input value={email} onChange={e => setEmail(e.target.value)} placeholder="client@email.com"
-            style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '8px 12px', color: B.white, fontSize: 13, width: 220 }} />
+            style={{ background: '#F9FAFB', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '8px 12px', color: '#111827', fontSize: 13, width: 220 }} />
           <button onClick={() => { sendReportEmail(email, clientName, reportText, wl?.agencyName); }}
             style={{ background: '#C9A84C', color: '#000', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
             Send via Email App
@@ -12416,7 +12415,7 @@ function ApprovalLinkGenerator({ content: delivContent, title, clientName }) {
           {showPreview ? "Hide preview" : "Preview page"}
         </button>
       </div>
-      <div style={{ color: B.gray, fontSize: 11, marginBottom: 12, lineHeight: 1.6 }}>
+      <div style={{ color: '#6B7280', fontSize: 11, marginBottom: 12, lineHeight: 1.6 }}>
         Send this link to {clientName || "your client"}. They can review the content and approve or request changes no login needed.
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -12431,7 +12430,7 @@ function ApprovalLinkGenerator({ content: delivContent, title, clientName }) {
       </div>
       {showPreview && (
         <div style={{ marginTop: 14, background: "rgba(0,0,0,0.3)", borderRadius: 8, padding: 16, fontSize: 11, color: B.gray, lineHeight: 1.8 }}>
-          <div style={{ color: B.white, fontWeight: 700, marginBottom: 6 }}>What the client sees:</div>
+          <div style={{ color: '#111827', fontWeight: 700, marginBottom: 6 }}>What the client sees:</div>
           <div>Your agency name and the document title at the top</div>
           <div>The full content formatted cleanly</div>
           <div>Two buttons: <strong style={{ color: "#27ae60" }}>Approve</strong> and <strong style={{ color: B.red }}>Request Changes</strong></div>
@@ -12459,7 +12458,7 @@ function ApprovalPage({ encodedPayload, onBack }) {
       <div style={{ color: B.white, textAlign: "center" }}>
         <div style={{ fontSize: 32, marginBottom: 12 }}>⚠️</div>
         <div style={{ fontSize: 16, fontWeight: 700 }}>Invalid approval link</div>
-        <div style={{ color: B.gray, fontSize: 13, marginTop: 8 }}>This link may have expired or been corrupted.</div>
+        <div style={{ color: '#6B7280', fontSize: 13, marginTop: 8 }}>This link may have expired or been corrupted.</div>
       </div>
     </div>
   );
@@ -12468,7 +12467,7 @@ function ApprovalPage({ encodedPayload, onBack }) {
     <div style={{ minHeight: "100vh", background: "#080D14", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div style={{ background: "#0C1420", border: "1px solid rgba(0,194,255,0.15)", borderRadius: 16, padding: 40, maxWidth: 480, textAlign: "center" }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>{status === "approved" ? "" : "✏️"}</div>
-        <h2 style={{ color: B.white, fontWeight: 900, fontSize: 22, letterSpacing: "-0.03em", marginBottom: 8 }}>
+        <h2 style={{ color: '#111827', fontWeight: 900, fontSize: 22, letterSpacing: "-0.03em", marginBottom: 8 }}>
           {status === "approved" ? "Content Approved!" : "Changes Requested"}
         </h2>
         <p style={{ color: B.gray, fontSize: 14, lineHeight: 1.6 }}>
@@ -12515,8 +12514,8 @@ function ApprovalPage({ encodedPayload, onBack }) {
             <path d="M28.5 14L22 26H27L24.5 38L31 26H26L28.5 14Z" fill="#00C2FF"/>
           </svg>
           <div>
-            <div style={{ color: B.white, fontWeight: 700, fontSize: 14 }}>{payload.agency}</div>
-            <div style={{ color: B.gray, fontSize: 11 }}>Content Review Portal</div>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 14 }}>{payload.agency}</div>
+            <div style={{ color: '#6B7280', fontSize: 11 }}>Content Review Portal</div>
           </div>
         </div>
         <div style={{ fontSize: 11, color: B.gray }}>
@@ -12527,7 +12526,7 @@ function ApprovalPage({ encodedPayload, onBack }) {
       <div style={{ maxWidth: 760, margin: "0 auto", padding: "32px 24px" }}>
         {/* Document title */}
         <h1 style={{ color: B.white, fontSize: 24, fontWeight: 900, letterSpacing: "-0.03em", marginBottom: 4 }}>{payload.title}</h1>
-        <div style={{ color: B.gray, fontSize: 13, marginBottom: 32 }}>Please review the content below and approve or request changes.</div>
+        <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 32 }}>Please review the content below and approve or request changes.</div>
 
         {/* Content */}
         <div style={{ background: "#0C1420", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "24px 28px", marginBottom: 28, lineHeight: 1.8, color: B.light, fontSize: 14, whiteSpace: "pre-wrap", fontFamily: "inherit" }}>
@@ -12536,7 +12535,7 @@ function ApprovalPage({ encodedPayload, onBack }) {
 
         {/* Comments */}
         <div style={{ marginBottom: 20 }}>
-          <label style={{ display: "block", color: B.gray, fontSize: 12, fontWeight: 600, marginBottom: 8, letterSpacing: 1, textTransform: "uppercase" }}>
+          <label style={{ display: "block", color: '#6B7280', fontSize: 12, fontWeight: 600, marginBottom: 8, letterSpacing: 1, textTransform: "uppercase" }}>
             Comments or notes (optional)
           </label>
           <textarea value={comment} onChange={e => setComment(e.target.value)} rows={4}
@@ -12627,24 +12626,24 @@ function ContentBriefGenerator() {
               </button>
             );
           })}
-          <span style={{color:B.gray,fontSize:11,alignSelf:'center',marginLeft:4}}>{intensityDesc[intensity]}</span>
+          <span style={{color:'#6B7280',fontSize:11,alignSelf:'center',marginLeft:4}}>{intensityDesc[intensity]}</span>
         </div>
 
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
           <div>
             <SecLabel>Session Date</SecLabel>
             <input value={sessionDate} onChange={e=>setSessionDate(e.target.value)} placeholder="e.g. Saturday March 22"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
           <div>
             <SecLabel>Primary Location</SecLabel>
             <input value={location} onChange={e=>setLocation(e.target.value)} placeholder="e.g. Home office, outdoor trail, gym"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
           <div>
             <SecLabel>Equipment Available</SecLabel>
             <input value={equipment} onChange={e=>setEquipment(e.target.value)} placeholder="e.g. iPhone 15 Pro, ring light, tripod"
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,boxSizing:'border-box'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
           <div>
             <SecLabel>Session Duration</SecLabel>
@@ -12662,7 +12661,7 @@ function ContentBriefGenerator() {
         <SecLabel>Topics / Content Ideas for This Session</SecLabel>
         <textarea value={topics} onChange={e=>setTopics(e.target.value)} rows={4}
           placeholder="List the pieces you want to film. e.g. Morning routine reel, real estate market update, mindset post about showing up when you don't feel like it, quick hit about what nobody tells you about building a side business..."
-          style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:16,boxSizing:'border-box'}}/>
 
         <button onClick={run} disabled={loading||!selectedClient||!topics}
           style={{background: (!selectedClient||!topics) ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg,#00C2FF,#0096CC)', color: (!selectedClient||!topics) ? B.gray : '#000D1A', border:'none', borderRadius:8, padding:'11px 24px', fontWeight:800, cursor: (!selectedClient||!topics)?'not-allowed':'pointer', fontSize:14, boxShadow: (!selectedClient||!topics) ? 'none' : '0 0 20px rgba(0,194,255,0.25)'}}>
@@ -12757,8 +12756,8 @@ function ContentCreationHub() {
     { id:'brief',     label:'Filming Brief', desc:'Full shoot production plan' },
   ];
 
-  const taStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit'};
-  const inStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'};
+  const taStyle = {width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit'};
+  const inStyle = {width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'};
 
   return (
     <div>
@@ -12772,12 +12771,12 @@ function ContentCreationHub() {
 
       {/* Auto-loaded context banner */}
       {autoContext && (
-        <div style={{background:'rgba(0,194,255,0.04)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
+        <div style={{background:'rgba(0,194,255,0.04)',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
           <div>
             <span style={{color:'#00C2FF',fontWeight:700,fontSize:11,letterSpacing:1,textTransform:'uppercase'}}>
               {autoContext.source==='research'?'Research Intel loaded':'Strategy loaded'}
             </span>
-            <span style={{color:B.gray,fontSize:11,marginLeft:8}}>{autoContext.name}</span>
+            <span style={{color:'#6B7280',fontSize:11,marginLeft:8}}>{autoContext.name}</span>
           </div>
           {autoContext.source==='research' && (
             <button onClick={()=>{ setMode('script'); }}
@@ -12792,9 +12791,9 @@ function ContentCreationHub() {
       <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:20}}>
         {MODES.map(m => (
           <button key={m.id} onClick={()=>{setMode(m.id);setOut('');}}
-            style={{background:mode===m.id?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.04)',
-              color:mode===m.id?'#00C2FF':B.gray,
-              border:'1px solid '+(mode===m.id?'rgba(0,194,255,0.25)':'rgba(255,255,255,0.06)'),
+            style={{background:mode===m.id?'#EEF2FF':'#F9FAFB',
+              color:mode===m.id?'#2563EB':'#6B7280',
+              border:'1px solid '+(mode===m.id?'#C7D2FE':'#E5E7EB'),
               borderRadius:6,padding:'7px 16px',cursor:'pointer',fontSize:12,fontWeight:mode===m.id?700:500,
               transition:'all 0.15s'}}>
             <div style={{fontWeight:700}}>{m.label}</div>
@@ -13055,8 +13054,8 @@ function ResearchHub() {
   ];
 
   const VIRAL_FORMATS = ['Problem-Agitate-Solve','Before-After-Bridge','5 Things Nobody Tells You','Day in My Life','Myth vs Reality','Hot Take','Story + Lesson','React + Commentary','Step-by-Step Tutorial','Controversial Opinion','Behind the Scenes','Q&A Format','Prediction','Listicle','Personal Failure Story'];
-  const inStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'};
-  const taStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit'};
+  const inStyle = {width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'};
+  const taStyle = {width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit'};
   const btnBase = (active) => ({background:active?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.04)',color:active?'#00C2FF':B.gray,border:'1px solid '+(active?'rgba(0,194,255,0.2)':'rgba(255,255,255,0.06)'),borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:active?700:400,transition:'all 0.15s'});
 
   return (
@@ -13089,7 +13088,7 @@ function ResearchHub() {
               <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:12}}>
                 {trendingChips.map((chip,i)=>(
                   <button key={i} onClick={()=>setQuery(chip.label)}
-                    style={{background:query===chip.label?B.red:'rgba(0,194,255,0.06)',border:`1px solid ${query===chip.label?B.red:'rgba(0,194,255,0.15)'}`,borderRadius:20,padding:'4px 12px',cursor:'pointer',color:B.white,fontSize:11}}>
+                    style={{background:query===chip.label?B.red:'rgba(0,194,255,0.06)',border:`1px solid ${query===chip.label?B.red:'rgba(0,194,255,0.15)'}`,borderRadius:20,padding:'4px 12px',cursor:'pointer',color:'#374151',fontSize:11}}>
                     {chip.label}
                   </button>
                 ))}
@@ -13102,7 +13101,7 @@ function ResearchHub() {
             <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:14}}>
               {TIER_PROMPTS.map((t,i)=>(
                 <button key={i} onClick={()=>setTier(i)}
-                  style={{background:tier===i?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',borderRadius:8,padding:'10px 8px',cursor:'pointer',textAlign:'left'}}>
+                  style={{background:tier===i?'#2563EB':'#F3F4F6',color:tier===i?'#FFFFFF':'#374151',border:'1px solid '+(tier===i?'transparent':'#E5E7EB'),borderRadius:8,padding:'10px 8px',cursor:'pointer',textAlign:'left'}}>
                   <div style={{fontWeight:700,fontSize:12}}>{t.label}</div>
                   <div style={{color:tier===i?'rgba(255,255,255,0.8)':B.gray,fontSize:10,marginTop:2}}>{t.desc}</div>
                 </button>
@@ -13125,7 +13124,7 @@ function ResearchHub() {
                   </button>
                 </div>
               </div>
-              <div style={{color:B.light,fontSize:12,lineHeight:1.7,whiteSpace:'pre-wrap'}}
+              <div style={{color:'#6B7280',fontSize:12,lineHeight:1.7,whiteSpace:'pre-wrap'}}
                 dangerouslySetInnerHTML={{__html:research.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" style="color:#00C2FF;text-decoration:none;">$1</a>')}}>
               </div>
             </Card>
@@ -13150,7 +13149,7 @@ function ResearchHub() {
                   </button>
                 </div>
               </div>
-              <pre style={{color:B.white,fontSize:12,whiteSpace:'pre-wrap',margin:0,lineHeight:1.6,maxHeight:280,overflowY:'auto'}}>{intel}</pre>
+              <pre style={{color:'#111827',fontSize:12,whiteSpace:'pre-wrap',margin:0,lineHeight:1.6,maxHeight:280,overflowY:'auto'}}>{intel}</pre>
             </Card>
           )}
           {script && <DocOutput text={script} title="Research Pipeline Script — SIGNAL"/>}
@@ -13277,8 +13276,8 @@ function HookWorkshop() {
     setOut(res); setLoading(false);
   };
 
-  const inStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'};
-  const taStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit'};
+  const inStyle = {width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'};
+  const taStyle = {width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit'};
 
   return (
     <div>
@@ -13292,7 +13291,7 @@ function HookWorkshop() {
       <div style={{display:'flex',gap:6,marginBottom:20}}>
         {[{id:'generate',label:'Generate Hooks'},{id:'test',label:'Score Hooks'}].map(m=>(
           <button key={m.id} onClick={()=>{setMode(m.id);setOut('');}}
-            style={{background:mode===m.id?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.04)',color:mode===m.id?'#00C2FF':B.gray,border:'1px solid '+(mode===m.id?'rgba(0,194,255,0.25)':'rgba(255,255,255,0.06)'),borderRadius:6,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+            style={{background:mode===m.id?'#EEF2FF':'#F9FAFB',color:mode===m.id?'#2563EB':'#6B7280',border:'1px solid '+(mode===m.id?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:700}}>
             {m.label}
           </button>
         ))}
@@ -13410,7 +13409,7 @@ For each gap:
     { id:'revenue', label:'Revenue Attribution' },
     { id:'gaps', label:'Content Gaps' },
   ];
-  const inStyle = {background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:7,padding:'8px 10px',color:B.white,fontSize:12,boxSizing:'border-box'};
+  const inStyle = {background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:7,padding:'8px 10px',color:'#111827',fontSize:12,boxSizing:'border-box'};
 
   return (
     <div>
@@ -13430,7 +13429,7 @@ For each gap:
       <div style={{display:'flex',gap:6,marginBottom:20}}>
         {MODES.map(m=>(
           <button key={m.id} onClick={()=>setMode(m.id)}
-            style={{background:mode===m.id?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.04)',color:mode===m.id?'#00C2FF':B.gray,border:'1px solid '+(mode===m.id?'rgba(0,194,255,0.25)':'rgba(255,255,255,0.06)'),borderRadius:6,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+            style={{background:mode===m.id?'#EEF2FF':'#F9FAFB',color:mode===m.id?'#2563EB':'#6B7280',border:'1px solid '+(mode===m.id?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:700}}>
             {m.label}
           </button>
         ))}
@@ -13461,21 +13460,21 @@ For each gap:
             </Card>
           )}
           {weeks.length===0 ? (
-            <div style={{background:'rgba(0,194,255,0.03)',border:'1px dashed rgba(0,194,255,0.1)',borderRadius:10,padding:24,textAlign:'center',color:B.gray,fontSize:12}}>
+            <div style={{background:'rgba(0,194,255,0.03)',border:'1px dashed #D1D5DB',borderRadius:10,padding:24,textAlign:'center',color:'#6B7280',fontSize:12}}>
               No metrics logged yet. Click + Log Week to start tracking.
             </div>
           ) : (
             <div style={{display:'flex',flexDirection:'column',gap:8}}>
               {weeks.slice(0,12).map((w,i)=>(
-                <div key={i} style={{background:'rgba(20,32,48,0.9)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'12px 16px',display:'flex',gap:16,flexWrap:'wrap',alignItems:'center'}}>
-                  <div style={{fontWeight:700,color:B.white,fontSize:13,minWidth:80}}>{w.week}</div>
+                <div key={i} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px 16px',display:'flex',gap:16,flexWrap:'wrap',alignItems:'center'}}>
+                  <div style={{fontWeight:700,color:'#111827',fontSize:13,minWidth:80}}>{w.week}</div>
                   {[['Followers',w.followers],['Reach',w.reach],['Saves',w.saves],['Shares',w.shares],['Leads',w.leads]].map(([k,v])=>v?(
                     <div key={k} style={{textAlign:'center'}}>
                       <div style={{fontSize:10,color:B.gray,letterSpacing:1,textTransform:'uppercase'}}>{k}</div>
                       <div style={{fontSize:14,fontWeight:700,color:B.white}}>{Number(v).toLocaleString()}</div>
                     </div>
                   ):null)}
-                  {w.notes && <div style={{color:B.gray,fontSize:11,flex:1}}>{w.notes}</div>}
+                  {w.notes && <div style={{color:'#6B7280',fontSize:11,flex:1}}>{w.notes}</div>}
                 </div>
               ))}
             </div>
@@ -13505,22 +13504,22 @@ For each gap:
             </Card>
           )}
           {tests.length===0 ? (
-            <div style={{background:'rgba(0,194,255,0.03)',border:'1px dashed rgba(0,194,255,0.1)',borderRadius:10,padding:24,textAlign:'center',color:B.gray,fontSize:12}}>No tests logged yet.</div>
+            <div style={{background:'rgba(0,194,255,0.03)',border:'1px dashed #D1D5DB',borderRadius:10,padding:24,textAlign:'center',color:'#6B7280',fontSize:12}}>No tests logged yet.</div>
           ) : tests.map(t=>(
-            <div key={t.id} style={{background:'rgba(20,32,48,0.9)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'14px 16px',marginBottom:8}}>
-              <div style={{fontWeight:700,color:B.white,fontSize:13,marginBottom:6}}>{t.hypothesis}</div>
+            <div key={t.id} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px 16px',marginBottom:8}}>
+              <div style={{fontWeight:700,color:'#111827',fontSize:13,marginBottom:6}}>{t.hypothesis}</div>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:6}}>
-                <div style={{background:'rgba(0,0,0,0.2)',borderRadius:6,padding:'8px 10px'}}>
+                <div style={{background:'#F9FAFB',borderRadius:6,padding:'8px 10px'}}>
                   <div style={{fontSize:9,color:B.gray,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Variant A</div>
-                  <div style={{color:B.light,fontSize:12}}>{t.varA}</div>
+                  <div style={{color:'#6B7280',fontSize:12}}>{t.varA}</div>
                 </div>
-                <div style={{background:'rgba(0,0,0,0.2)',borderRadius:6,padding:'8px 10px'}}>
+                <div style={{background:'#F9FAFB',borderRadius:6,padding:'8px 10px'}}>
                   <div style={{fontSize:9,color:B.gray,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Variant B</div>
-                  <div style={{color:B.light,fontSize:12}}>{t.varB}</div>
+                  <div style={{color:'#6B7280',fontSize:12}}>{t.varB}</div>
                 </div>
               </div>
               {t.winner && <div style={{color:'#27ae60',fontSize:12,fontWeight:700}}>Winner: {t.winner}</div>}
-              {t.insight && <div style={{color:B.gray,fontSize:11,marginTop:4}}>{t.insight}</div>}
+              {t.insight && <div style={{color:'#6B7280',fontSize:11,marginTop:4}}>{t.insight}</div>}
             </div>
           ))}
         </div>
@@ -13548,13 +13547,13 @@ For each gap:
             </Card>
           )}
           {revEntries.length===0 ? (
-            <div style={{background:'rgba(0,194,255,0.03)',border:'1px dashed rgba(0,194,255,0.1)',borderRadius:10,padding:24,textAlign:'center',color:B.gray,fontSize:12}}>No revenue entries logged yet.</div>
+            <div style={{background:'rgba(0,194,255,0.03)',border:'1px dashed #D1D5DB',borderRadius:10,padding:24,textAlign:'center',color:'#6B7280',fontSize:12}}>No revenue entries logged yet.</div>
           ) : revEntries.map(r=>(
-            <div key={r.id} style={{background:'rgba(20,32,48,0.9)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'14px 16px',marginBottom:8,display:'flex',gap:16,flexWrap:'wrap',alignItems:'center'}}>
-              <div style={{fontWeight:700,color:B.white,fontSize:13}}>{r.source}</div>
+            <div key={r.id} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px 16px',marginBottom:8,display:'flex',gap:16,flexWrap:'wrap',alignItems:'center'}}>
+              <div style={{fontWeight:700,color:'#111827',fontSize:13}}>{r.source}</div>
               {r.revenue && <div style={{color:'#27ae60',fontWeight:700,fontSize:14}}>${r.revenue}</div>}
-              {r.leads && <div style={{color:B.light,fontSize:12}}>{r.leads} leads</div>}
-              {r.content && <div style={{color:B.gray,fontSize:11,flex:1}}>{r.content}</div>}
+              {r.leads && <div style={{color:'#6B7280',fontSize:12}}>{r.leads} leads</div>}
+              {r.content && <div style={{color:'#6B7280',fontSize:11,flex:1}}>{r.content}</div>}
             </div>
           ))}
         </div>
@@ -13564,7 +13563,7 @@ For each gap:
       {mode==='gaps' && (
         <div>
           <Card>
-            <p style={{color:B.light,fontSize:13,lineHeight:1.7,marginBottom:16}}>
+            <p style={{color:'#6B7280',fontSize:13,lineHeight:1.7,marginBottom:16}}>
               SIGNAL analyzes your logged metrics and content history to find the 5 highest-impact angles you are under-using. The more data you have logged in ROI Dashboard and Content Memory, the more specific the analysis.
             </p>
             <button onClick={runGapAnalysis} disabled={gapLoading}
@@ -13612,7 +13611,7 @@ function BioSuite() {
     setOut(res); setLoading(false);
   };
 
-  const inStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'};
+  const inStyle = {width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'};
   const btnBase = (active) => ({background:active?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.04)',color:active?'#00C2FF':B.gray,border:'1px solid '+(active?'rgba(0,194,255,0.25)':'rgba(255,255,255,0.06)'),borderRadius:6,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:700});
 
   return (
@@ -13648,7 +13647,7 @@ function BioSuite() {
             <SecLabel>Current Bio</SecLabel>
             <textarea value={currentBio} onChange={e=>setCurrentBio(e.target.value)} rows={3}
               placeholder="Paste your current bio here..."
-              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit'}}/>
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit'}}/>
             <SecLabel>Goals</SecLabel>
             <input value={goals} onChange={e=>setGoals(e.target.value)} placeholder="e.g. grow email list, attract real estate leads, book podcast guests..." style={inStyle}/>
             <button onClick={runOptimize} disabled={loading}
@@ -13672,7 +13671,7 @@ function BioSuite() {
               </div>
             ))}
             <button onClick={()=>setLinks([...links,{label:'',url:'',icon:''}])}
-              style={{background:'rgba(255,255,255,0.05)',color:B.gray,border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,marginBottom:14}}>
+              style={{background:'#FFFFFF',color:B.gray,border:'1px solid #E5E7EB',borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,marginBottom:14}}>
               + Add Link
             </button>
             <button onClick={runBioLink} disabled={loading}
@@ -13766,10 +13765,10 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) return (
       <div style={{minHeight:'100vh',background:'#080D14',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'DM Sans,sans-serif'}}>
-        <div style={{background:'#0C1420',border:'1px solid rgba(0,194,255,0.15)',borderRadius:16,padding:40,maxWidth:480,textAlign:'center'}}>
+        <div style={{background:'#FFFFFF',border:'1px solid #D1D5DB',borderRadius:16,padding:40,maxWidth:480,textAlign:'center'}}>
           <h2 style={{color:'#F1F5F9',fontWeight:900,fontSize:22,letterSpacing:'-0.03em',marginBottom:8}}>Something went wrong</h2>
           <p style={{color:'#5A6A82',fontSize:14,marginBottom:20}}>SIGNAL hit an unexpected error. Your data is safe in localStorage.</p>
-          <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'10px 14px',marginBottom:20,fontFamily:'monospace',fontSize:12,color:'#8B9AB4',textAlign:'left'}}>
+          <div style={{background:'#F9FAFB',borderRadius:8,padding:'10px 14px',marginBottom:20,fontFamily:'monospace',fontSize:12,color:'#8B9AB4',textAlign:'left'}}>
             {this.state.error?.message || 'Unknown error'}
           </div>
           <button onClick={()=>window.location.reload()}
@@ -13843,7 +13842,7 @@ export default function App() {
           @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
           * { box-sizing: border-box; margin: 0; padding: 0; }
           body {
-            background: #0F1923;
+            background: #F7F9FC;
             background-image:
               radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0,194,255,0.06) 0%, transparent 60%),
               radial-gradient(ellipse 40% 30% at 80% 80%, rgba(0,194,255,0.03) 0%, transparent 50%);
@@ -13865,7 +13864,7 @@ export default function App() {
         `}</style>
       </Head>
 
-      <div style={{minHeight:'100vh',background:'#0F1923',color:B.white,backgroundImage:'radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,194,255,0.05) 0%, transparent 60%)'}}>
+      <div style={{minHeight:'100vh',background:'#F7F9FC',color:'#111827',backgroundImage:'none'}}>
         {/* TOP NAV */}
         <nav style={{
             background: 'rgba(15,25,35,0.96)',
