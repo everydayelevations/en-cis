@@ -11950,301 +11950,267 @@ function IntelligenceDashboard({ setNav, setSub }) {
   const [showTools, setShowTools] = useState(false);
 
   useEffect(() => {
-    // Load ROI metrics
     try {
-      const roi = JSON.parse(localStorage.getItem('encis_roi_data') || '[]');
+      const roi = JSON.parse(localStorage.getItem('encis_roi_weeks') || '[]');
       if (roi.length >= 2) {
-        const latest = roi[0];
-        const prev = roi[1];
-        const growth = prev.followers > 0
-          ? Math.round(((latest.followers - prev.followers) / prev.followers) * 100)
-          : null;
-        setMetrics(latest);
-        setWeeklyGrowth(growth);
-      } else if (roi.length === 1) {
-        setMetrics(roi[0]);
-      }
+        const latest = roi[0]; const prev = roi[1];
+        const growth = prev.followers > 0 ? Math.round(((latest.followers - prev.followers) / prev.followers) * 100) : null;
+        setMetrics(latest); setWeeklyGrowth(growth);
+      } else if (roi.length === 1) setMetrics(roi[0]);
     } catch {}
-
-    // Load content memory
     try {
       const log = JSON.parse(localStorage.getItem(MEMORY_KEY) || '[]');
       setRecentContent(log.slice(0, 6));
-      const viral = log.filter(e => e.perf === '');
+      const viral = log.filter(e => e.perf === String.fromCodePoint(0x1F525));
       if (viral.length > 0) setTopPerformer(viral[0]);
-
-      // Analyze gaps
       const angleCounts = {};
       ANGLES.forEach(a => { angleCounts[a.id] = 0; });
       log.forEach(e => { if (e.angle && angleCounts[e.angle] !== undefined) angleCounts[e.angle]++; });
-      const sorted = ANGLES.sort((a, b) => (angleCounts[a.id] || 0) - (angleCounts[b.id] || 0));
-      setGapAngles(sorted.slice(0, 3));
+      setGapAngles([...ANGLES].sort((a, b) => (angleCounts[a.id]||0) - (angleCounts[b.id]||0)).slice(0, 3));
     } catch {}
-
-    // Trend alert count
-    try {
-      const alerts = JSON.parse(localStorage.getItem('encis_trend_alerts') || '[]');
-      setTrendCount(alerts.length);
-    } catch {}
-
-    // Pending deliverables
-    try {
-      const dels = JSON.parse(localStorage.getItem(CLIENT_DELIVERABLES_KEY) || '[]');
-      setPendingDeliverables(dels.filter(d => d.status === 'pending' || d.status === 'in-progress').length);
-    } catch {}
+    try { const alerts = JSON.parse(localStorage.getItem('encis_trend_alerts') || '[]'); setTrendCount(alerts.length); } catch {}
+    try { const dels = JSON.parse(localStorage.getItem(CLIENT_DELIVERABLES_KEY) || '[]'); setPendingDeliverables(dels.filter(d => d.status === 'pending' || d.status === 'in-progress').length); } catch {}
   }, [activeClient]);
 
-  const wl = (() => { try { return JSON.parse(localStorage.getItem('encis_whitelabel') || 'null'); } catch { return null; } })();
-  const appName = wl?.agencyName || 'SIGNAL';
-  const accentColor = wl?.primaryColor || '#00C2FF';
+  const D = {
+    bg: '#F7F9FC', card: '#FFFFFF', text: '#111827', muted: '#6B7280',
+    accent: '#2563EB', border: '#E5E7EB',
+    shadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+  };
 
-  const quickTools = [
-    { nav: 'create', sub: 'script', emoji: '✍️', label: 'Script Engine' },
-    { nav: 'create', sub: 'caption', emoji: '💬', label: 'Caption Writer' },
-    { nav: 'research', sub: 'pipeline', emoji: '🔬', label: 'Research Pipeline' },
-    { nav: 'optimize', sub: 'predictor', emoji: '🔮', label: 'Predictor' },
-    { nav: 'strategy', sub: 'calendar', emoji: '📅', label: 'Calendar' },
-    { nav: 'agency', sub: 'deliverable', emoji: '📦', label: 'Deliverables' },
+  const wl = (() => { try { return JSON.parse(localStorage.getItem('encis_whitelabel') || 'null'); } catch { return null; } })();
+  const greeting = new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 17 ? 'Good afternoon' : 'Good evening';
+  const firstName = activeClient?.name?.split(' ')[0] || 'Jason';
+  const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  const kpis = [
+    { label: 'Followers', val: metrics?.followers ? Number(metrics.followers).toLocaleString() : null, growth: weeklyGrowth, nav: 'optimize', sub: 'roi' },
+    { label: 'Reach',     val: metrics?.reach ? Number(metrics.reach).toLocaleString() : null, nav: 'optimize', sub: 'roi' },
+    { label: 'Leads',     val: metrics?.leads || null, nav: 'optimize', sub: 'roi' },
+    { label: 'Revenue',   val: metrics?.revenue ? '$'+metrics.revenue : null, nav: 'optimize', sub: 'revenue' },
+    { label: 'Content',   val: recentContent.length || null, nav: 'optimize', sub: 'memory' },
   ];
 
+  const cardStyle = { background: D.card, border: '1px solid '+D.border, borderRadius: 12, padding: '20px 24px', boxShadow: D.shadow };
+  const labelStyle = { fontSize: 10, fontWeight: 700, color: D.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 };
+
   return (
-    <div style={{ animation: 'slideUp 0.3s ease-out' }}>
-      {/* HEADER */}
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+    <div style={{ background: D.bg, minHeight: '100vh', margin: '-2rem -16px', padding: '28px 16px', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
+      <div style={{ maxWidth: 1060, margin: '0 auto' }}>
+
+        {/* HEADER */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
           <div>
-            <div style={{ fontSize: 11, color: B.gray, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 4 }}>
-              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-            </div>
-            <h1 style={{ color: B.white, fontSize: 26, fontWeight: 900, letterSpacing: '-0.04em', margin: 0 }}>
-              {activeClient?.isDefault ? `Good ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, ${activeClient?.name?.split(' ')[0] || 'Jason'}.` : `${activeClient?.name}`}
-            </h1>
-            <p style={{ color: B.gray, fontSize: 13, margin: '4px 0 0' }}>
-              {!metrics ? "No metrics logged yet add your first week below." : `Last logged: ${metrics.week || 'this week'}`}
+            <div style={{ fontSize: 12, color: D.muted, marginBottom: 4 }}>{dateStr}</div>
+            <h1 style={{ fontSize: 26, fontWeight: 800, color: D.text, margin: 0, letterSpacing: '-0.03em', lineHeight: 1.2 }}>{greeting}, {firstName}.</h1>
+            <p style={{ fontSize: 13, color: D.muted, margin: '4px 0 0' }}>
+              {!metrics ? 'Log your first week of metrics to activate your dashboard.' : 'Last logged: '+(metrics.week||'this week')}
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => { setNav('strategy'); setSub('onboard'); }}
-              style={{ background: 'linear-gradient(135deg, #00C2FF, #0096CC)', color: '#000D1A', border: 'none', borderRadius: 8, padding: '8px 16px', fontWeight: 800, cursor: 'pointer', fontSize: 12, boxShadow: '0 0 16px rgba(0,194,255,0.25)' }}>
+              style={{ background: D.accent, color: '#fff', border: 'none', borderRadius: 8, padding: '9px 18px', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
               + New Strategy
             </button>
             <button onClick={() => setShowTools(s => !s)}
-              style={{ background: 'rgba(255,255,255,0.06)', color: B.light, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+              style={{ background: D.card, color: D.muted, border: '1px solid '+D.border, borderRadius: 8, padding: '9px 16px', fontWeight: 600, cursor: 'pointer', fontSize: 13 }}>
               {showTools ? 'Hide Tools' : 'All Tools'}
             </button>
           </div>
         </div>
-      </div>
 
-      {/* METRIC CARDS */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8, marginBottom: 20 }}>
-        {[
-          { label: 'Followers', val: metrics?.followers ? Number(metrics.followers).toLocaleString() : null, growth: weeklyGrowth, icon: '👥', nav:'optimize', sub:'roi', tip:'Log in ROI Dashboard' },
-          { label: 'Weekly Reach', val: metrics?.reach ? Number(metrics.reach).toLocaleString() : null, icon: '📡', nav:'optimize', sub:'roi', tip:'Log in ROI Dashboard' },
-          { label: 'Saves', val: metrics?.saves || null, icon: '🔖', nav:'optimize', sub:'roi', tip:'Log weekly saves' },
-          { label: 'Shares', val: metrics?.shares || null, icon: '↗️', nav:'optimize', sub:'roi', tip:'Log weekly shares' },
-          { label: 'Leads/DMs', val: metrics?.leads || null, icon: '💬', nav:'optimize', sub:'roi', tip:'Track lead volume' },
-          { label: 'Trend Alerts', val: trendCount || null, icon: '', nav:'research', sub:'pipeline', tip:'Run trend research' },
-          { label: 'Pending Work', val: pendingDeliverables || null, icon: '📦', nav:'agency', sub:'portal', tip:'View client portal' },
-          { label: 'Content Logged', val: recentContent.length || null, icon: '📝', nav:'optimize', sub:'memory', tip:'Log your content' },
-        ].map(m => {
-          const isEmpty = m.val === null || m.val === undefined;
-          return (
-            <div key={m.label}
-              onClick={() => { if (m.nav) { setNav(m.nav); setSub(m.sub); } }}
-              style={{ background: isEmpty ? 'rgba(12,20,32,0.4)' : 'rgba(12,20,32,0.8)', border: isEmpty ? '1px dashed rgba(0,194,255,0.08)' : '1px solid rgba(0,194,255,0.08)', borderRadius: 10, padding: '14px 12px', cursor: 'pointer', transition: 'all 0.15s', position: 'relative' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-                <div style={{ fontSize: 10, color: isEmpty ? B.gray : B.gray, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, lineHeight: 1.3 }}>{m.label}</div>
-                <span style={{ fontSize: 14, opacity: isEmpty ? 0.4 : 1 }}>{m.icon}</span>
-              </div>
-              {isEmpty ? (
-                <div>
-                  <div style={{ fontSize: 11, color: 'rgba(0,194,255,0.4)', fontWeight: 700, marginBottom: 2 }}>+ Add data</div>
-                  <div style={{ fontSize: 10, color: B.gray, lineHeight: 1.4 }}>{m.tip}</div>
-                </div>
-              ) : (
-                <div style={{ fontSize: 22, fontWeight: 900, color: B.white, letterSpacing: '-0.04em', lineHeight: 1 }}>{m.val}</div>
-              )}
-              {!isEmpty && m.growth !== undefined && m.growth !== null && (
-                <div style={{ fontSize: 10, color: m.growth >= 0 ? '#27ae60' : B.red, marginTop: 4, fontWeight: 700 }}>
-                  {m.growth >= 0 ? '+' : ''}{m.growth}% this week
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* FIRST STEPS shown when user has no content or metrics yet */}
-      {!metrics && recentContent.length === 0 && (
-        <div style={{ background: 'rgba(0,194,255,0.04)', border: '1px solid rgba(0,194,255,0.1)', borderRadius: 12, padding: '20px 24px', marginBottom: 20 }}>
-          <div style={{ fontSize: 11, color: '#00C2FF', fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Get Started Your First 3 Moves</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
-            {[
-              { num: '1', title: 'Build your strategy', desc: '90-Day Strategy Builder generates your complete content foundation.', nav: 'strategy', sub: 'onboard', cta: 'Build Strategy →' },
-              { num: '2', title: 'Log your first metric', desc: 'Add your current follower count so SIGNAL can track your growth.', nav: 'optimize', sub: 'roi', cta: 'Log Metrics →' },
-              { num: '3', title: 'Write your first script', desc: 'Script Engine generates a camera-ready script in under 60 seconds.', nav: 'create', sub: 'script', cta: 'Write Script →' },
-            ].map(step => (
-              <div key={step.num} onClick={() => { setNav(step.nav); setSub(step.sub); }}
-                style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: '14px 16px', cursor: 'pointer', border: '1px solid rgba(0,194,255,0.06)' }}>
-                <div style={{ width: 22, height: 22, borderRadius: 4, background: 'rgba(0,194,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#00C2FF', marginBottom: 8 }}>{step.num}</div>
-                <div style={{ color: B.white, fontWeight: 700, fontSize: 12, marginBottom: 4 }}>{step.title}</div>
-                <div style={{ color: B.gray, fontSize: 11, lineHeight: 1.5, marginBottom: 8 }}>{step.desc}</div>
-                <div style={{ color: '#00C2FF', fontSize: 11, fontWeight: 700 }}>{step.cta}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* MAIN GRID */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-
-        {/* Quick Launch */}
-        <div style={{ background: 'rgba(12,20,32,0.8)', border: '1px solid rgba(0,194,255,0.08)', borderRadius: 12, padding: '16px' }}>
-          <div style={{ fontSize: 11, color: accentColor, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Quick Launch</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-            {quickTools.map(t => (
-              <button key={t.sub} onClick={() => { setNav(t.nav); setSub(t.sub); }}
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,194,255,0.06)', borderRadius: 8, padding: '10px', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ color: B.white, fontSize: 11, fontWeight: 600, lineHeight: 1.3 }}>{t.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Content Gaps */}
-        <div style={{ background: 'rgba(12,20,32,0.8)', border: '1px solid rgba(0,194,255,0.08)', borderRadius: 12, padding: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ fontSize: 11, color: accentColor, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase' }}>Content Gaps</div>
-            <button onClick={() => { setNav('optimize'); setSub('gaps'); }}
-              style={{ background: 'none', border: 'none', color: B.gray, cursor: 'pointer', fontSize: 11 }}>View all →</button>
-          </div>
-          {gapAngles.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {gapAngles.map(a => (
-                <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ color: B.white, fontSize: 12, fontWeight: 600 }}>{a.label}</div>
-                    <div style={{ color: B.gray, fontSize: 10, marginTop: 1 }}>Under-represented in your content</div>
-                  </div>
-                  <button onClick={() => { setNav('create'); setSub('script'); }}
-                    style={{ background: 'rgba(0,194,255,0.08)', color: '#00C2FF', border: 'none', borderRadius: 5, padding: '3px 8px', fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
-                    Create
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{ color: B.gray, fontSize: 12, textAlign: 'center', padding: '20px 0' }}>
-              Rate content in Content Memory to see your gaps.
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Recent Content + Top Performer */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12, marginBottom: 16 }}>
-        <div style={{ background: 'rgba(12,20,32,0.8)', border: '1px solid rgba(0,194,255,0.08)', borderRadius: 12, padding: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ fontSize: 11, color: accentColor, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase' }}>Recent Content</div>
-            <button onClick={() => { setNav('optimize'); setSub('memory'); }}
-              style={{ background: 'none', border: 'none', color: B.gray, cursor: 'pointer', fontSize: 11 }}>View all →</button>
-          </div>
-          {recentContent.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {recentContent.slice(0, 5).map(e => (
-                <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <span style={{ fontSize: 14 }}>{e.perf || '·'}</span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ color: B.white, fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.title || e.topic || 'Untitled'}</div>
-                    <div style={{ color: B.gray, fontSize: 10, marginTop: 1 }}>{e.type} · {e.date}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{ color: B.gray, fontSize: 12, textAlign: 'center', padding: '20px 0' }}>
-              Generate content to see your history here.
-            </div>
-          )}
-        </div>
-
-        <div style={{ background: 'rgba(12,20,32,0.8)', border: '1px solid rgba(0,194,255,0.08)', borderRadius: 12, padding: '16px' }}>
-          <div style={{ fontSize: 11, color: accentColor, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Top Performer</div>
-          {topPerformer ? (
-            <div>
-              <div style={{ fontSize: 28, marginBottom: 8 }}></div>
-              <div style={{ color: B.white, fontWeight: 700, fontSize: 13, marginBottom: 4, lineHeight: 1.4 }}>
-                {topPerformer.title || topPerformer.topic || 'Viral Post'}
-              </div>
-              <div style={{ color: B.gray, fontSize: 11, marginBottom: 12 }}>{topPerformer.type} · {topPerformer.date}</div>
-              <button onClick={() => { setNav('create'); setSub('repurpose'); }}
-                style={{ background: 'rgba(0,194,255,0.08)', color: '#00C2FF', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 7, padding: '7px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer', width: '100%' }}>
-                Repurpose This
-              </button>
-            </div>
-          ) : (
-            <div style={{ color: B.gray, fontSize: 12, textAlign: 'center', padding: '20px 0' }}>
-              Rate a piece in Content Memory.
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Client switcher if agency mode */}
-      {clients.length > 1 && (
-        <div style={{ background: 'rgba(12,20,32,0.8)', border: '1px solid rgba(0,194,255,0.08)', borderRadius: 12, padding: '14px 16px', marginBottom: 16 }}>
-          <div style={{ fontSize: 11, color: accentColor, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 10 }}>Active Client</div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {clients.map(c => {
-              const pending = (() => { try { return JSON.parse(localStorage.getItem(CLIENT_DELIVERABLES_KEY) || '[]').filter(d => d.clientId === c.id && (d.status === 'pending' || d.status === 'in-progress')).length; } catch { return 0; } })();
-              return (
-                <button key={c.id} onClick={() => { setNav('agency'); setSub('portal'); }}
-                  style={{ background: activeClient?.id === c.id ? 'rgba(0,194,255,0.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${activeClient?.id === c.id ? 'rgba(0,194,255,0.3)' : 'rgba(255,255,255,0.07)'}`, borderRadius: 8, padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ color: activeClient?.id === c.id ? '#00C2FF' : B.white, fontWeight: 700, fontSize: 12 }}>{c.name}</span>
-                  {pending > 0 && <span style={{ background: '#f5a623', color: '#000', borderRadius: 10, padding: '1px 6px', fontSize: 9, fontWeight: 800 }}>{pending}</span>}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* All tools toggle */}
-      {showTools && (
-        <div style={{ marginTop: 8 }}>
-          <div style={{ fontSize: 11, color: accentColor, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid rgba(0,194,255,0.08)' }}>
-            All 60 Tools
-          </div>
-          {['STRATEGY', 'RESEARCH', 'CREATE', 'OPTIMIZE', 'AGENCY', 'YOUTUBE'].map(group => {
-            const groupColors = { STRATEGY: '#00C2FF', RESEARCH: '#00C2FF', CREATE: '#f5a623', OPTIMIZE: '#27ae60', AGENCY: '#9b59b6', YOUTUBE: '#ff4444' };
-            const allTools = [
-              { nav:'strategy',sub:'onboard', title:'90-Day Strategy'},{nav:'strategy',sub:'calendar', title:'Content Calendar'},{nav:'strategy',sub:'profile', title:'Profile Audit'},{nav:'strategy',sub:'magnet', title:'Lead Magnet'},{nav:'strategy',sub:'community', title:'Community Builder'},{nav:'strategy',sub:'email', title:'Email Sequences'},{nav:'strategy',sub:'challenge', title:'Challenge Builder'},{nav:'strategy',sub:'campaign', title:'Campaign Builder'},{nav:'strategy',sub:'visualcal', title:'Visual Calendar'},{nav:'strategy',sub:'series', title:'Series Planner'},{nav:'strategy',sub:'storyarc', title:'Story Arc'},{nav:'strategy',sub:'biolink', title:'Bio Link Page'},{nav:'strategy',sub:'biooptimizer', title:'Bio Optimizer'},
-              {nav:'research',sub:'pipeline', title:'Research Pipeline'},{nav:'research',sub:'spy', title:'Competitor Intel'},{nav:'research',sub:'vault', title:'Prompt Vault'},{nav:'research',sub:'collab', title:'Collab Finder'},{nav:'research',sub:'extract', title:'Insight Extractor'},{nav:'research',sub:'hashtags',emoji:'##',title:'Hashtag Research'},{nav:'research',sub:'viral', title:'Viral Formats'},
-              {nav:'create',sub:'script', title:'Script Engine'},{nav:'create',sub:'caption', title:'Caption Writer'},{nav:'create',sub:'videodirector', title:'Video Director'},{nav:'create',sub:'batch', title:'Bulk Batch'},{nav:'create',sub:'episode', title:'Episode Clips'},{nav:'create',sub:'repurpose', title:'Repurpose Engine'},{nav:'create',sub:'hooks', title:'Hook Library'},{nav:'create',sub:'design', title:'Design Studio'},{nav:'create',sub:'comment', title:'Comment Responder'},{nav:'create',sub:'dmscripts', title:'DM Scripts'},{nav:'create',sub:'podcast', title:'Podcast Prep'},{nav:'create',sub:'objections', title:'Objection Handler'},{nav:'create',sub:'guestprep', title:'Guest Prep Kit'},{nav:'create',sub:'contentbrief', title:'Content Brief'},
-              {nav:'optimize',sub:'review', title:'Weekly Review'},{nav:'optimize',sub:'roi', title:'ROI Dashboard'},{nav:'optimize',sub:'memory', title:'Content Memory'},{nav:'optimize',sub:'schedule', title:'Schedule Optimizer'},{nav:'optimize',sub:'gaps', title:'Gap Analyzer'},{nav:'optimize',sub:'predictor', title:'Predictor'},{nav:'optimize',sub:'stratreview', title:'Strategy Review'},{nav:'optimize',sub:'abtests', title:'A/B Tests'},{nav:'optimize',sub:'revenue', title:'Revenue Attribution'},{nav:'optimize',sub:'pricing', title:'Pricing Calculator'},{nav:'optimize',sub:'hooktester', title:'Hook Tester'},
-              {nav:'agency',sub:'portal', title:'Client Portal'},{nav:'agency',sub:'deliverable', title:'Deliverables'},{nav:'agency',sub:'report', title:'Monthly Report'},{nav:'agency',sub:'voice', title:'Voice Fingerprint'},{nav:'agency',sub:'persona', title:'AI Persona'},{nav:'agency',sub:'transcript', title:'Transcripts'},{nav:'agency',sub:'analytics', title:'Analytics Import'},{nav:'agency',sub:'onboardauto', title:'Auto Onboarding'},{nav:'agency',sub:'clientcomms', title:'Client Comms'},{nav:'agency',sub:'clients', title:'Client Profiles'},{nav:'agency',sub:'tracker', title:'Collab Tracker'},{nav:'agency',sub:'whitelabel', title:'White Label'},{nav:'agency',sub:'compintel', title:'Comp Intel'},
-              {nav:'youtube',sub:'yttoolkit', title:'YouTube Toolkit'},
-            ];
-            const groupTools = allTools.filter(t => t.nav === group.toLowerCase());
-            if (!groupTools.length) return null;
+        {/* KPI ROW */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 10, marginBottom: 18 }}>
+          {kpis.map(k => {
+            const empty = k.val === null || k.val === undefined;
             return (
-              <div key={group} style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 9, color: groupColors[group], fontWeight: 800, letterSpacing: 2.5, textTransform: 'uppercase', marginBottom: 8 }}>{group}</div>
-                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                  {groupTools.map(t => (
-                    <button key={t.sub} onClick={() => { setNav(t.nav); setSub(t.sub); setShowTools(false); }}
-                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 7, padding: '6px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <span style={{ color: B.light, fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap' }}>{t.title}</span>
-                    </button>
-                  ))}
-                </div>
+              <div key={k.label} onClick={() => { setNav(k.nav); setSub(k.sub); }}
+                style={{ ...cardStyle, padding: '16px 18px', cursor: 'pointer', opacity: empty ? 0.6 : 1 }}>
+                <div style={labelStyle}>{k.label}</div>
+                {empty
+                  ? <div style={{ fontSize: 12, color: D.accent, fontWeight: 600 }}>+ Add data</div>
+                  : <div style={{ fontSize: 24, fontWeight: 800, color: D.text, letterSpacing: '-0.04em', lineHeight: 1.1 }}>{k.val}</div>
+                }
+                {!empty && k.growth !== null && k.growth !== undefined && (
+                  <div style={{ fontSize: 11, color: k.growth >= 0 ? '#16a34a' : '#dc2626', fontWeight: 600, marginTop: 3 }}>
+                    {k.growth >= 0 ? '+' : ''}{k.growth}% this week
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
-      )}
+
+        {/* EXECUTION HUB + OPPORTUNITIES */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+          <div style={cardStyle}>
+            <div style={labelStyle}>Execution Hub</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              {[
+                { label: 'Create Content', nav: 'create',   sub: 'create'   },
+                { label: 'Write Caption',  nav: 'create',   sub: 'create'   },
+                { label: 'Run Research',   nav: 'research', sub: 'research' },
+                { label: 'Plan Week',      nav: 'optimize', sub: 'review'   },
+                { label: 'Log Metrics',    nav: 'optimize', sub: 'growth'   },
+                { label: 'Weekly Review',  nav: 'optimize', sub: 'review'   },
+              ].map(a => (
+                <button key={a.label} onClick={() => { setNav(a.nav); setSub(a.sub); }}
+                  style={{ background: '#F3F4F6', border: '1px solid '+D.border, borderRadius: 8, padding: '10px 14px', cursor: 'pointer', textAlign: 'left', fontSize: 12, fontWeight: 600, color: D.text, transition: 'all 0.15s' }}
+                  onMouseEnter={e => { e.currentTarget.style.background='#EEF2FF'; e.currentTarget.style.color=D.accent; e.currentTarget.style.borderColor='#C7D2FE'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background='#F3F4F6'; e.currentTarget.style.color=D.text; e.currentTarget.style.borderColor=D.border; }}>
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div style={labelStyle}>Opportunities</div>
+              <button onClick={() => { setNav('optimize'); setSub('gaps'); }}
+                style={{ background: 'none', border: 'none', color: D.accent, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>View all</button>
+            </div>
+            {gapAngles.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {gapAngles.map(a => (
+                  <div key={a.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#F9FAFB', borderRadius: 8, border: '1px solid '+D.border }}>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: D.text }}>{a.label}</div>
+                      <div style={{ fontSize: 11, color: D.muted, marginTop: 1 }}>Under-used in your mix</div>
+                    </div>
+                    <button onClick={() => { setNav('create'); setSub('create'); }}
+                      style={{ background: D.accent, color: '#fff', border: 'none', borderRadius: 6, padding: '5px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                      Create
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ color: D.muted, fontSize: 12, padding: '20px 0', textAlign: 'center' }}>Rate content in Content Memory to unlock opportunities.</div>
+            )}
+          </div>
+        </div>
+
+        {/* RECENT CONTENT + TOP PERFORMER */}
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14, marginBottom: 14 }}>
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div style={labelStyle}>Recent Content</div>
+              <button onClick={() => { setNav('optimize'); setSub('memory'); }}
+                style={{ background: 'none', border: 'none', color: D.accent, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>View all</button>
+            </div>
+            {recentContent.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {recentContent.slice(0,5).map((e,idx) => (
+                  <div key={e.id||idx} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0', borderBottom: idx < 4 ? '1px solid '+D.border : 'none' }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: e.perf ? '#16a34a' : D.border, flexShrink: 0 }}/>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: D.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.title||e.topic||'Untitled'}</div>
+                      <div style={{ fontSize: 10, color: D.muted, marginTop: 1 }}>{e.type} · {e.date}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ color: D.muted, fontSize: 12, padding: '20px 0', textAlign: 'center' }}>Generate content to build your history.</div>
+            )}
+          </div>
+
+          <div style={cardStyle}>
+            <div style={labelStyle}>Top Performer</div>
+            {topPerformer ? (
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>Viral</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: D.text, lineHeight: 1.4, marginBottom: 4 }}>{topPerformer.title||topPerformer.topic||'Untitled'}</div>
+                <div style={{ fontSize: 11, color: D.muted, marginBottom: 14 }}>{topPerformer.type} · {topPerformer.date}</div>
+                <button onClick={() => { setNav('create'); setSub('create'); }}
+                  style={{ background: D.accent, color: '#fff', border: 'none', borderRadius: 6, padding: '7px 14px', fontSize: 11, fontWeight: 700, cursor: 'pointer', width: '100%' }}>
+                  Repurpose This
+                </button>
+              </div>
+            ) : (
+              <div style={{ color: D.muted, fontSize: 12, textAlign: 'center', padding: '20px 0' }}>Rate a post in Content Memory.</div>
+            )}
+          </div>
+        </div>
+
+        {/* FIRST STEPS */}
+        {!metrics && recentContent.length === 0 && (
+          <div style={{ ...cardStyle, marginBottom: 14 }}>
+            <div style={{ ...labelStyle, color: D.accent }}>Get Started — Your First 3 Moves</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
+              {[
+                { num:'1', title:'Build your strategy', desc:'90-Day Strategy Builder generates your complete content foundation.', nav:'strategy', sub:'onboard', cta:'Build Strategy' },
+                { num:'2', title:'Log your first metric', desc:'Add your current follower count so SIGNAL can track growth.', nav:'optimize', sub:'roi', cta:'Log Metrics' },
+                { num:'3', title:'Write your first script', desc:'Script Engine generates a camera-ready script in under 60 seconds.', nav:'create', sub:'create', cta:'Write Script' },
+              ].map(step => (
+                <div key={step.num} onClick={() => { setNav(step.nav); setSub(step.sub); }}
+                  style={{ background: '#F9FAFB', borderRadius: 8, padding: '16px', cursor: 'pointer', border: '1px solid '+D.border }}>
+                  <div style={{ width: 24, height: 24, borderRadius: 6, background: D.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, color: '#fff', marginBottom: 10 }}>{step.num}</div>
+                  <div style={{ color: D.text, fontWeight: 700, fontSize: 12, marginBottom: 4 }}>{step.title}</div>
+                  <div style={{ color: D.muted, fontSize: 11, lineHeight: 1.5, marginBottom: 10 }}>{step.desc}</div>
+                  <div style={{ color: D.accent, fontSize: 11, fontWeight: 700 }}>{step.cta} →</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* CLIENT SWITCHER */}
+        {clients.length > 1 && (
+          <div style={{ ...cardStyle, marginBottom: 14 }}>
+            <div style={labelStyle}>Clients</div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {clients.map(c => {
+                const isActive = activeClient?.id === c.id;
+                const pending = (() => { try { return JSON.parse(localStorage.getItem(CLIENT_DELIVERABLES_KEY)||'[]').filter(d=>d.clientId===c.id&&(d.status==='pending'||d.status==='in-progress')).length; } catch { return 0; } })();
+                return (
+                  <button key={c.id} onClick={() => { setNav('agency'); setSub('portal'); }}
+                    style={{ background: isActive?'#EEF2FF':'#F9FAFB', color: isActive?D.accent:D.text, border: '1px solid '+(isActive?'#C7D2FE':D.border), borderRadius: 7, padding: '6px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {c.name}
+                    {pending > 0 && <span style={{ background: '#f59e0b', color: '#fff', borderRadius: 10, padding: '1px 6px', fontSize: 9, fontWeight: 800 }}>{pending}</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ALL TOOLS */}
+        {showTools && (
+          <div style={cardStyle}>
+            <div style={labelStyle}>All Tools</div>
+            {['strategy','research','create','optimize','agency','youtube'].map(group => {
+              const groupColor = { strategy:'#2563EB', research:'#2563EB', create:'#7c3aed', optimize:'#16a34a', agency:'#0891b2', youtube:'#dc2626' }[group];
+              const allTools = [
+                {nav:'strategy',sub:'onboard',t:'90-Day Strategy'},{nav:'strategy',sub:'calendar',t:'Content Calendar'},{nav:'strategy',sub:'profile',t:'Profile Audit'},{nav:'strategy',sub:'magnet',t:'Lead Magnet'},{nav:'strategy',sub:'email',t:'Email Sequences'},{nav:'strategy',sub:'challenge',t:'Challenge Builder'},{nav:'strategy',sub:'campaign',t:'Campaign Builder'},{nav:'strategy',sub:'series',t:'Series Planner'},{nav:'strategy',sub:'bio',t:'Bio Suite'},
+                {nav:'research',sub:'research',t:'Research Hub'},{nav:'research',sub:'vault',t:'Prompt Vault'},{nav:'research',sub:'collab',t:'Collab Finder'},
+                {nav:'create',sub:'create',t:'Create Hub'},{nav:'create',sub:'hooks',t:'Hook Workshop'},{nav:'create',sub:'videodirector',t:'Video Director'},{nav:'create',sub:'objections',t:'Objection Handler'},{nav:'create',sub:'guestprep',t:'Guest Prep'},{nav:'create',sub:'dmscripts',t:'DM Scripts'},{nav:'create',sub:'comment',t:'Comment Responder'},{nav:'create',sub:'podcast',t:'Podcast Pre-Prod'},
+                {nav:'optimize',sub:'review',t:'Weekly Review'},{nav:'optimize',sub:'growth',t:'Growth Dashboard'},{nav:'optimize',sub:'memory',t:'Content Memory'},{nav:'optimize',sub:'schedule',t:'Schedule Optimizer'},{nav:'optimize',sub:'predictor',t:'Predictor'},{nav:'optimize',sub:'stratreview',t:'AI Strategy Review'},
+                {nav:'agency',sub:'portal',t:'Client Portal'},{nav:'agency',sub:'deliverable',t:'Deliverable Builder'},{nav:'agency',sub:'report',t:'Monthly Report'},{nav:'agency',sub:'voice',t:'Voice Fingerprint'},{nav:'agency',sub:'clients',t:'Client Profiles'},{nav:'agency',sub:'whitelabel',t:'White Label'},{nav:'agency',sub:'transcript',t:'Transcript Intel'},{nav:'agency',sub:'clientcomms',t:'Client Comms'},{nav:'agency',sub:'pricing',t:'Pricing Calc'},
+                {nav:'youtube',sub:'yttoolkit',t:'YouTube Toolkit'},
+              ].filter(t => t.nav === group);
+              if (!allTools.length) return null;
+              return (
+                <div key={group} style={{ marginBottom: 14 }}>
+                  <div style={{ fontSize: 9, color: groupColor, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>{group.toUpperCase()}</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {allTools.map(tool => (
+                      <button key={tool.sub} onClick={() => { setNav(tool.nav); setSub(tool.sub); setShowTools(false); }}
+                        style={{ background: '#F3F4F6', border: '1px solid '+D.border, borderRadius: 6, padding: '5px 12px', cursor: 'pointer', fontSize: 11, fontWeight: 600, color: D.text }}
+                        onMouseEnter={e => { e.currentTarget.style.background='#EEF2FF'; e.currentTarget.style.color=D.accent; }}
+                        onMouseLeave={e => { e.currentTarget.style.background='#F3F4F6'; e.currentTarget.style.color=D.text; }}>
+                        {tool.t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }
