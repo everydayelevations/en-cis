@@ -1999,7 +1999,7 @@ function ContentMemory() {
         </div>
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
           <button onClick={() => setShowImport(p=>!p)}
-            style={{background:showImport??'#EEF2FF':'#F9FAFB',color:'#111827',border:`1px solid ${showImport?'#2563EB':'rgba(255,255,255,0.15)'}`,borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+            style={{background:showImport?'#EEF2FF':'#F9FAFB',color:'#111827',border:`1px solid ${showImport?'#2563EB':'rgba(255,255,255,0.15)'}`,borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
             Import Social Posts
           </button>
           {log.length > 0 && (
@@ -2098,7 +2098,7 @@ function ContentMemory() {
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {types.map(t => (
                 <button key={t} onClick={() => setFilter(t)}
-                  style={{background:filter===t??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+                  style={{background:filter===t?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                     borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:filter===t?700:400,textTransform:'capitalize'}}>
                   {t}
                 </button>
@@ -2837,7 +2837,7 @@ function Onboarding() {
           <SecLabel style={{margin:0}}>Hours/Week:</SecLabel>
           {['3','5','10','15','20+'].map(h => (
             <button key={h} onClick={()=>setHours(h)}
-              style={{background:hours===h??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+              style={{background:hours===h?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                 borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:hours===h?700:400}}>
               {h}
             </button>
@@ -2982,7 +2982,7 @@ function ContentCalendar() {
             <div style={{display:'flex',gap:8}}>
               {['30','60','90','180'].map(d => (
                 <button key={d} onClick={()=>setDuration(d)}
-                  style={{background:duration===d??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+                  style={{background:duration===d?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                     borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:duration===d?700:400}}>
                   {d} days
                 </button>
@@ -3289,7 +3289,7 @@ function Pipeline() {
                     if (chip.angle) setAngle(angleIdFromLabel(chip.angle));
                   }}
                   style={{
-                    background: query === chip.label ??'#EEF2FF':'#F9FAFB',
+                    background: query === chip.label ?'#EEF2FF':'#F9FAFB',
                     border: `1px solid ${query === chip.label ? '#2563EB' : 'rgba(0,212,255,0.2)'}`,
                     borderRadius:20,padding:'5px 12px',cursor:'pointer',
                     color: query === chip.label ? '#fff' : 'rgba(255,255,255,0.8)',
@@ -3400,7 +3400,7 @@ function Vault() {
       <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
         {VAULT_TABS.map(t => (
           <button key={t.id} onClick={()=>setActiveTab(t.id)}
-            style={{background:activeTab===t.id??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+            style={{background:activeTab===t.id?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
               borderRadius:8,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:activeTab===t.id?700:400}}>
             {t.label}
           </button>
@@ -3453,7 +3453,7 @@ function CollabFinder() {
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
           {['podcast guest','stitch/collab','community partner','brand deal'].map(g => (
             <button key={g} onClick={()=>setGoal(g)}
-              style={{background:goal===g??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+              style={{background:goal===g?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                 borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,textTransform:'capitalize',
                 fontWeight:goal===g?700:400}}>
               {g}
@@ -3546,7 +3546,7 @@ function ScriptEngine() {
       <div style={{display:'flex',gap:8,marginBottom:20}}>
         {[{id:'write',label:'Write Script'},{id:'stitch',label:'Stitch Response'}].map(m => (
           <button key={m.id} onClick={()=>setMode(m.id)}
-            style={{background:mode===m.id??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+            style={{background:mode===m.id?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
               borderRadius:8,padding:'10px 20px',cursor:'pointer',fontSize:14,fontWeight:mode===m.id?700:400}}>
             {m.label}
           </button>
@@ -3679,7 +3679,7 @@ function RepurposeEngine() {
         <div style={{display:'flex',gap:8,marginBottom:12}}>
           {PLATFORMS.map(p => (
             <button key={p} onClick={()=>setOriginalPlatform(p)}
-              style={{background:originalPlatform===p??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+              style={{background:originalPlatform===p?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                 borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:originalPlatform===p?700:400}}>
               {p}
             </button>
@@ -3728,7 +3728,7 @@ function HookLibrary() {
         <div style={{display:'flex',gap:8,marginBottom:16}}>
           {[10,20,30,40].map(q => (
             <button key={q} onClick={()=>setQuantity(q)}
-              style={{background:quantity===q??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+              style={{background:quantity===q?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                 borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:quantity===q?700:400}}>
               {q}
             </button>
@@ -3774,7 +3774,7 @@ function DesignStudio() {
         <div style={{display:'flex',gap:8,marginBottom:12}}>
           {['Carousel','Static Post','Story Sequence'].map(f => (
             <button key={f} onClick={()=>setFormat(f)}
-              style={{background:format===f??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+              style={{background:format===f?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                 borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:format===f?700:400}}>
               {f}
             </button>
@@ -3981,7 +3981,7 @@ function Teleprompter({ text, onClose }) {
       <div style={{background:'#FFFFFF',borderBottom:'1px solid rgba(255,255,255,0.1)',
         padding:'10px 20px',display:'flex',alignItems:'center',gap:16,flexWrap:'wrap',flexShrink:0}}>
         <button onClick={() => setRunning(r => !r)}
-          style={{background:running??'#EEF2FF':'#F9FAFB',color:'#000',border:'none',borderRadius:8,
+          style={{background:running?'#EEF2FF':'#F9FAFB',color:'#000',border:'none',borderRadius:8,
             padding:'8px 22px',fontWeight:900,fontSize:14,cursor:'pointer',minWidth:90}}>
           {running ? 'Pause' : 'Start'}
         </button>
@@ -4704,7 +4704,7 @@ function CaptionWriter() {
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {ctaTypes.map(c => (
                 <button key={c.id} onClick={() => setCta(c.id)}
-                  style={{background:cta===c.id??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+                  style={{background:cta===c.id?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                     borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:cta===c.id?700:400}}>
                   {c.label}
                 </button>
@@ -4839,7 +4839,7 @@ For each day: Platform, Content Type, Best Time to Post, Why (based on data)
         <div style={{display:'flex',gap:8,marginBottom:20}}>
           {['3','5','10','15','20+'].map(h => (
             <button key={h} onClick={() => setHours(h)}
-              style={{background:hours===h??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+              style={{background:hours===h?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                 borderRadius:6,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:hours===h?700:400}}>
               {h}h
             </button>
@@ -5132,7 +5132,7 @@ function CollabTracker() {
       <div style={{display:'flex',gap:6,marginBottom:16,flexWrap:'wrap'}}>
         {['all', ...statuses].map(s => (
           <button key={s} onClick={() => setFilter(s)}
-            style={{background:filter===s??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+            style={{background:filter===s?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
               borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:filter===s?700:400,textTransform:'capitalize'}}>
             {s} {s!=='all'?`(${contacts.filter(c=>c.status===s).length})`:`(${contacts.length})`}
           </button>
@@ -5209,7 +5209,7 @@ function CollabTracker() {
               <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
                 {platforms.map(p => (
                   <button key={p} onClick={() => setForm(f => ({...f, platform:p}))}
-                    style={{background:form.platform===p??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+                    style={{background:form.platform===p?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                       borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:form.platform===p?700:400}}>
                     {p}
                   </button>
@@ -5221,7 +5221,7 @@ function CollabTracker() {
               <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
                 {types.map(t => (
                   <button key={t} onClick={() => setForm(f => ({...f, type:t}))}
-                    style={{background:form.type===t??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+                    style={{background:form.type===t?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                       borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:form.type===t?700:400,textTransform:'capitalize'}}>
                     {t}
                   </button>
@@ -5331,7 +5331,7 @@ function CommentResponder() {
           {[{id:'single',label:'Single Comment',desc:'3 reply options'},
             {id:'bulk',label:'Bulk Mode',desc:'Up to 20 comments at once'}].map(m => (
             <button key={m.id} onClick={() => { setMode(m.id); setOut(''); }}
-              style={{flex:1,background:mode===m.id??'#EEF2FF':'#F9FAFB',color:'#111827',
+              style={{flex:1,background:mode===m.id?'#EEF2FF':'#F9FAFB',color:'#111827',
                 border:`1px solid ${mode===m.id?'#2563EB':'rgba(255,255,255,0.1)'}`,
                 borderRadius:10,padding:'12px',cursor:'pointer',textAlign:'left'}}>
               <div style={{fontWeight:700,fontSize:13}}>{m.label}</div>
@@ -5639,7 +5639,7 @@ function EmailSequenceBuilder() {
             {v:'7', label:'7 emails', desc:'Full funnel'},
           ].map(opt => (
             <button key={opt.v} onClick={() => setLength(opt.v)}
-              style={{flex:1,background:length===opt.v??'#EEF2FF':'#F9FAFB',
+              style={{flex:1,background:length===opt.v?'#EEF2FF':'#F9FAFB',
                 color:'#111827',border:`1px solid ${length===opt.v?'#2563EB':'rgba(255,255,255,0.1)'}`,
                 borderRadius:10,padding:'12px',cursor:'pointer',textAlign:'center'}}>
               <div style={{fontWeight:700,fontSize:14}}>{opt.label}</div>
@@ -5813,7 +5813,7 @@ function PodcastPreProd() {
         {[{id:'guest',label:'Guest Episode',desc:'Interview prep + research'},
           {id:'solo',label:'Solo Episode',desc:'Outline + structure'}].map(m => (
           <button key={m.id} onClick={() => { setMode(m.id); setOut(''); }}
-            style={{flex:1,background:mode===m.id??'#EEF2FF':'#F9FAFB',color:'#111827',
+            style={{flex:1,background:mode===m.id?'#EEF2FF':'#F9FAFB',color:'#111827',
               border:`1px solid ${mode===m.id?'#2563EB':'rgba(255,255,255,0.1)'}`,
               borderRadius:10,padding:'14px',cursor:'pointer',textAlign:'left'}}>
             <div style={{fontWeight:700,fontSize:14}}>{m.label}</div>
@@ -5879,7 +5879,7 @@ function PodcastPreProd() {
                 <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
                   {['15','20','30','45','60'].map(d => (
                     <button key={d} onClick={() => setDuration(d)}
-                      style={{background:duration===d??'#EEF2FF':'#F9FAFB',color:'#111827',
+                      style={{background:duration===d?'#EEF2FF':'#F9FAFB',color:'#111827',
                         border:'none',borderRadius:6,padding:'8px 14px',cursor:'pointer',
                         fontSize:13,fontWeight:duration===d?700:400}}>
                       {d} min
@@ -6253,7 +6253,7 @@ function YouTubeToolkit() {
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:20}}>
         {tools.map(t => (
           <button key={t.id} onClick={() => { setTool(t.id); setOut(''); }}
-            style={{background:tool===t.id??'#EEF2FF':'#F9FAFB',color:'#111827',
+            style={{background:tool===t.id?'#EEF2FF':'#F9FAFB',color:'#111827',
               border:`1px solid ${tool===t.id?'#2563EB':'rgba(255,255,255,0.08)'}`,
               borderRadius:10,padding:'14px',cursor:'pointer',textAlign:'left',transition:'all 0.15s'}}>
             <div style={{fontWeight:700,fontSize:13}}>{t.label}</div>
@@ -6280,7 +6280,7 @@ function YouTubeToolkit() {
                 <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
                   {['3-5 min','8-10 min','15-20 min'].map(d => (
                     <button key={d} onClick={() => setYtDuration(d)}
-                      style={{background:ytDuration===d??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+                      style={{background:ytDuration===d?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                         borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:ytDuration===d?700:400}}>
                       {d}
                     </button>
@@ -6292,7 +6292,7 @@ function YouTubeToolkit() {
                 <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
                   {['Educational Story','Personal Experience','Tutorial','Interview Prep'].map(s => (
                     <button key={s} onClick={() => setYtStyle(s)}
-                      style={{background:ytStyle===s??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+                      style={{background:ytStyle===s?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                         borderRadius:6,padding:'6px 10px',cursor:'pointer',fontSize:11,fontWeight:ytStyle===s?700:400}}>
                       {s}
                     </button>
@@ -6368,7 +6368,7 @@ function YouTubeToolkit() {
             <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:4}}>
               {['grow subscribers','build email list','drive real estate leads','promote podcast'].map(g => (
                 <button key={g} onClick={() => setChannelGoal(g)}
-                  style={{background:channelGoal===g??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+                  style={{background:channelGoal===g?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                     borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,
                     fontWeight:channelGoal===g?700:400,textTransform:'capitalize'}}>
                   {g}
@@ -6515,7 +6515,7 @@ function DMScriptLibrary() {
           </div>
         </div>
         <button onClick={() => { setShowGen(g => !g); setOut(''); }}
-          style={{background:showGen??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+          style={{background:showGen?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
             borderRadius:8,padding:'8px 18px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
           {showGen ? 'Close' : '+ Generate New Script'}
         </button>
@@ -6529,7 +6529,7 @@ function DMScriptLibrary() {
           <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:16}}>
             {quickTriggers.map((qt, i) => (
               <button key={i} onClick={() => setTrigger(qt.trigger)}
-                style={{background:trigger===qt.trigger??'#EEF2FF':'#F9FAFB',
+                style={{background:trigger===qt.trigger?'#EEF2FF':'#F9FAFB',
                   color:trigger===qt.trigger?'#fff':'rgba(255,255,255,0.75)',
                   border:`1px solid ${trigger===qt.trigger?'#2563EB':'rgba(255,255,255,0.1)'}`,
                   borderRadius:20,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:500}}>
@@ -6549,7 +6549,7 @@ function DMScriptLibrary() {
           <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:16}}>
             {goals.map(g => (
               <button key={g} onClick={() => setGoal(g)}
-                style={{background:goal===g??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
+                style={{background:goal===g?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                   borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,
                   fontWeight:goal===g?700:400,textTransform:'capitalize'}}>
                 {g}
@@ -7133,7 +7133,7 @@ function BrandVoiceFingerprint() {
       <div style={{display:'flex',gap:6,marginBottom:20}}>
         {['build','view'].map(t => (
           <button key={t} onClick={() => setActiveTab(t)}
-            style={{background:activeTab===t??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:8,padding:'8px 20px',cursor:'pointer',fontSize:13,fontWeight:activeTab===t?700:400,textTransform:'capitalize'}}>
+            style={{background:activeTab===t?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:8,padding:'8px 20px',cursor:'pointer',fontSize:13,fontWeight:activeTab===t?700:400,textTransform:'capitalize'}}>
             {t === 'build' ? '+ Build Fingerprint' : 'View Fingerprint'}
           </button>
         ))}
@@ -7359,7 +7359,7 @@ function ClientPortal() {
                 </div>
               </div>
               <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:10}}>
-                {deliverableTypes.map(t => <button key={t} onClick={()=>setNewDeliverable(p=>({...p,type:t}))} style={{background:newDeliverable.type===t??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:5,padding:'4px 10px',fontSize:11,cursor:'pointer',textTransform:'capitalize'}}>{t.replace('-',' ')}</button>)}
+                {deliverableTypes.map(t => <button key={t} onClick={()=>setNewDeliverable(p=>({...p,type:t}))} style={{background:newDeliverable.type===t?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:5,padding:'4px 10px',fontSize:11,cursor:'pointer',textTransform:'capitalize'}}>{t.replace('-',' ')}</button>)}
               </div>
               <div style={{display:'flex',gap:8}}>
                 <RedBtn onClick={addDeliverable} disabled={!newDeliverable.title}>Add Deliverable</RedBtn>
@@ -7711,7 +7711,7 @@ function DeliverableBuilder() {
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:8,marginBottom:16}}>
           {delivTypes.map(d => (
             <button key={d.id} onClick={()=>setDelivType(d.id)}
-              style={{background:delivType===d.id??'#EEF2FF':'#F9FAFB',border:`1px solid ${delivType===d.id?'#2563EB':'rgba(255,255,255,0.08)'}`,borderRadius:8,padding:'12px',cursor:'pointer',textAlign:'left',transition:'all 0.15s'}}>
+              style={{background:delivType===d.id?'#EEF2FF':'#F9FAFB',border:`1px solid ${delivType===d.id?'#2563EB':'rgba(255,255,255,0.08)'}`,borderRadius:8,padding:'12px',cursor:'pointer',textAlign:'left',transition:'all 0.15s'}}>
               <div style={{color:'#111827',fontWeight:700,fontSize:12,marginBottom:3}}>{d.label}</div>
               <div style={{color:delivType===d.id?'rgba(255,255,255,0.75)':'#6B7280',fontSize:11}}>{d.desc}</div>
             </button>
@@ -7855,7 +7855,7 @@ function CompetitorIntel() {
             style={{flex:1,minWidth:160,background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13}}/>
           {['Instagram','YouTube','LinkedIn','TikTok'].map(p => (
             <button key={p} onClick={()=>setNewPlatform(p)}
-              style={{background:newPlatform===p??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:newPlatform===p?700:400}}>{p}</button>
+              style={{background:newPlatform===p?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:newPlatform===p?700:400}}>{p}</button>
           ))}
           <RedBtn onClick={addCompetitor} disabled={!newHandle.trim()}>Add</RedBtn>
         </div>
@@ -8025,19 +8025,19 @@ function VideoScriptDirector() {
           <div>
             <SecLabel>Duration</SecLabel>
             <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
-              {durations.map(d => <button key={d} onClick={()=>setDuration(d)} style={{background:duration===d??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:duration===d?700:400}}>{d}</button>)}
+              {durations.map(d => <button key={d} onClick={()=>setDuration(d)} style={{background:duration===d?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:duration===d?700:400}}>{d}</button>)}
             </div>
           </div>
           <div>
             <SecLabel>Video Style</SecLabel>
             <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
-              {styles.map(s => <button key={s} onClick={()=>setStyle(s)} style={{background:style===s??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:style===s?700:400}}>{s}</button>)}
+              {styles.map(s => <button key={s} onClick={()=>setStyle(s)} style={{background:style===s?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:style===s?700:400}}>{s}</button>)}
             </div>
           </div>
           <div>
             <SecLabel>Shot Energy</SecLabel>
             <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
-              {shots.map(s => <button key={s} onClick={()=>setShotStyle(s)} style={{background:shotStyle===s??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:shotStyle===s?700:400}}>{s}</button>)}
+              {shots.map(s => <button key={s} onClick={()=>setShotStyle(s)} style={{background:shotStyle===s?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:shotStyle===s?700:400}}>{s}</button>)}
             </div>
           </div>
         </div>
@@ -8223,7 +8223,7 @@ function CampaignBuilder() {
         <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:8}}>
           {goalPresets.map(g => (
             <button key={g} onClick={() => setGoal(g)}
-              style={{background:goal===g??'#EEF2FF':'#F9FAFB',color:'#111827',border:`1px solid ${goal===g?'#2563EB':'rgba(255,255,255,0.1)'}`,borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:goal===g?700:400}}>
+              style={{background:goal===g?'#EEF2FF':'#F9FAFB',color:'#111827',border:`1px solid ${goal===g?'#2563EB':'rgba(255,255,255,0.1)'}`,borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:goal===g?700:400}}>
               {g}
             </button>
           ))}
@@ -8270,7 +8270,7 @@ function CampaignBuilder() {
             <div style={{display:'flex',gap:8}}>
               {['1','2','3','4','6','8'].map(d => (
                 <button key={d} onClick={()=>setDuration(d)}
-                  style={{background:duration===d??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:duration===d?700:400}}>
+                  style={{background:duration===d?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:duration===d?700:400}}>
                   {d}w
                 </button>
               ))}
@@ -8281,7 +8281,7 @@ function CampaignBuilder() {
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {['Instagram','YouTube','Facebook','LinkedIn','Email'].map(p => (
                 <button key={p} onClick={()=>togglePlatform(p)}
-                  style={{background:platforms.includes(p)??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:12,fontWeight:platforms.includes(p)?700:400}}>
+                  style={{background:platforms.includes(p)?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:12,fontWeight:platforms.includes(p)?700:400}}>
                   {p}
                 </button>
               ))}
@@ -8421,7 +8421,7 @@ function ContentPredictor() {
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {contentTypes.map(t => (
                 <button key={t} onClick={()=>setContentType(t)}
-                  style={{background:contentType===t??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:contentType===t?700:400}}>
+                  style={{background:contentType===t?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:contentType===t?700:400}}>
                   {t}
                 </button>
               ))}
@@ -8539,7 +8539,7 @@ function WhiteLabelMode() {
         </div>
 
         <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,padding:'12px 14px',background:'#FFFFFF',borderRadius:8,cursor:'pointer'}} onClick={()=>setForm(p=>({...p,hidePoweredBy:!p.hidePoweredBy}))}>
-          <div style={{width:20,height:20,borderRadius:4,background:form.hidePoweredBy??'#EEF2FF':'#F9FAFB',border:`2px solid ${form.hidePoweredBy?'#2563EB':'rgba(255,255,255,0.2)'}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <div style={{width:20,height:20,borderRadius:4,background:form.hidePoweredBy?'#EEF2FF':'#F9FAFB',border:`2px solid ${form.hidePoweredBy?'#2563EB':'rgba(255,255,255,0.2)'}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
             {form.hidePoweredBy && <span style={{color:'#fff',fontSize:12}}>✓</span>}
           </div>
           <div>
@@ -8763,7 +8763,7 @@ function CustomPersona() {
           <div style={{display:'flex',gap:6,marginBottom:20}}>
             {['build','view','refine'].map(t => (
               <button key={t} onClick={() => setActiveTab(t)}
-                style={{background:activeTab===t??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:8,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:activeTab===t?700:400,textTransform:'capitalize'}}>
+                style={{background:activeTab===t?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:8,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:activeTab===t?700:400,textTransform:'capitalize'}}>
                 {t === 'build' ? (persona ? 'Rebuild' : '+ Build Persona') : t === 'view' ? 'View Persona' : 'Refine'}
               </button>
             ))}
@@ -8922,7 +8922,7 @@ function CustomAnglesManager({ client, onClose }) {
             <button key={m.id} onClick={() => save({ ...data, mode: m.id })}
               style={{background:data.mode===m.id?'rgba(233,69,96,0.1)':'rgba(255,255,255,0.03)',border:`1px solid ${data.mode===m.id?'#2563EB':'rgba(255,255,255,0.08)'}`,borderRadius:10,padding:'12px 14px',cursor:'pointer',textAlign:'left'}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
-                <div style={{width:14,height:14,borderRadius:'50%',background:data.mode===m.id??'#EEF2FF':'#F9FAFB',flexShrink:0}}/>
+                <div style={{width:14,height:14,borderRadius:'50%',background:data.mode===m.id?'#EEF2FF':'#F9FAFB',flexShrink:0}}/>
                 <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{m.label}</div>
               </div>
               <div style={{color:'#6B7280',fontSize:12,marginTop:4,paddingLeft:22}}>{m.desc}</div>
@@ -9100,7 +9100,7 @@ function TranscriptIntel() {
       <div style={{display:'flex',gap:6,marginBottom:20}}>
         {['upload','history'].map(t => (
           <button key={t} onClick={() => setView(t)}
-            style={{background:view===t??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:8,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:view===t?700:400,textTransform:'capitalize'}}>
+            style={{background:view===t?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:8,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:view===t?700:400,textTransform:'capitalize'}}>
             {t === 'upload' ? '+ New Transcript' : `History (${clientTranscripts.length})`}
           </button>
         ))}
@@ -9114,7 +9114,7 @@ function TranscriptIntel() {
               <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
                 {types.map(t => (
                   <button key={t} onClick={() => setTranscriptType(t)}
-                    style={{background:transcriptType===t??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:transcriptType===t?700:400}}>
+                    style={{background:transcriptType===t?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:transcriptType===t?700:400}}>
                     {t}
                   </button>
                 ))}
@@ -9347,7 +9347,7 @@ function AnalyticsHub() {
 
       <div style={{display:'flex',gap:6,marginBottom:20}}>
         {['import','history'].map(t => (
-          <button key={t} onClick={() => setTab(t)} style={{background:tab===t??'#EEF2FF':'#F9FAFB',color:tab===t?'#000D1A':'#111827',border:'none',borderRadius:8,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+          <button key={t} onClick={() => setTab(t)} style={{background:tab===t?'#EEF2FF':'#F9FAFB',color:tab===t?'#000D1A':'#111827',border:'none',borderRadius:8,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:700}}>
             {t === 'import' ? '+ Import Analytics' : `History (${imports.length})`}
           </button>
         ))}
@@ -9365,7 +9365,7 @@ function AnalyticsHub() {
             <div>
               <SecLabel>Platform</SecLabel>
               <div style={{display:'flex',gap:6}}>
-                {['Instagram','YouTube','Facebook','LinkedIn','X','TikTok'].map(p => <button key={p} onClick={()=>setPlatform(p)} style={{background:platform===p??'#EEF2FF':'#F9FAFB',color:platform===p?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{p}</button>)}
+                {['Instagram','YouTube','Facebook','LinkedIn','X','TikTok'].map(p => <button key={p} onClick={()=>setPlatform(p)} style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:platform===p?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{p}</button>)}
               </div>
             </div>
           </div>
@@ -9610,10 +9610,10 @@ function VisualCalendar() {
           <input value={form.hook} onChange={e=>setForm(p=>({...p,hook:e.target.value}))} placeholder="Opening hook (optional)"
             style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:10,boxSizing:'border-box'}}/>
           <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:10}}>
-            {['Instagram','YouTube','Facebook','LinkedIn','Email'].map(p=><button key={p} onClick={()=>setForm(f=>({...f,platform:p}))} style={{background:form.platform===p??'#EEF2FF':'#F9FAFB',color:form.platform===p?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
+            {['Instagram','YouTube','Facebook','LinkedIn','Email'].map(p=><button key={p} onClick={()=>setForm(f=>({...f,platform:p}))} style={{background:form.platform===p?'#EEF2FF':'#F9FAFB',color:form.platform===p?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
           </div>
           <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:14}}>
-            {['Reel','Carousel','Story','Post','Email','YouTube','Short'].map(f=><button key={f} onClick={()=>setForm(p=>({...p,format:f}))} style={{background:form.format===f??'#EEF2FF':'#F9FAFB',color:form.format===f?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{f}</button>)}
+            {['Reel','Carousel','Story','Post','Email','YouTube','Short'].map(f=><button key={f} onClick={()=>setForm(p=>({...p,format:f}))} style={{background:form.format===f?'#EEF2FF':'#F9FAFB',color:form.format===f?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{f}</button>)}
           </div>
           <RedBtn onClick={addPost} disabled={!form.title}>Add to Calendar</RedBtn>
         </Card>
@@ -9733,7 +9733,7 @@ function AIStrategyReview() {
 
       <div style={{display:'flex',gap:6,marginBottom:20}}>
         {['generate','history'].map(t=>(
-          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t??'#EEF2FF':'#F9FAFB',color:tab===t?'#000D1A':'#111827',border:'none',borderRadius:8,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:700,textTransform:'capitalize'}}>
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?'#EEF2FF':'#F9FAFB',color:tab===t?'#000D1A':'#111827',border:'none',borderRadius:8,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:700,textTransform:'capitalize'}}>
             {t==='generate'?'Generate Review':`History (${reviews.length})`}
           </button>
         ))}
@@ -10002,7 +10002,7 @@ function BioLinkBuilder() {
         </div>
         <SecLabel>Page Style</SecLabel>
         <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
-          {styles.map(s => <button key={s} onClick={()=>setStyle(s)} style={{background:style===s??'#EEF2FF':'#F9FAFB',color:style===s?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{s}</button>)}
+          {styles.map(s => <button key={s} onClick={()=>setStyle(s)} style={{background:style===s?'#EEF2FF':'#F9FAFB',color:style===s?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{s}</button>)}
         </div>
         <SecLabel>Links</SecLabel>
         <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:12}}>
@@ -10343,7 +10343,7 @@ function HashtagResearch() {
             <SecLabel>Account Size</SecLabel>
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {['Under 1K','1K–10K','10K–50K','50K–100K','100K+'].map(f=>(
-                <button key={f} onClick={()=>setFollowers(f)} style={{background:followers===f??'#EEF2FF':'#F9FAFB',color:followers===f?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{f}</button>
+                <button key={f} onClick={()=>setFollowers(f)} style={{background:followers===f?'#EEF2FF':'#F9FAFB',color:followers===f?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{f}</button>
               ))}
             </div>
           </div>
@@ -10353,7 +10353,7 @@ function HashtagResearch() {
             <SecLabel>Platform</SecLabel>
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {['Instagram','TikTok','X','LinkedIn','YouTube'].map(p=>(
-                <button key={p} onClick={()=>setPlatform(p)} style={{background:platform===p??'#EEF2FF':'#F9FAFB',color:platform===p?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>
+                <button key={p} onClick={()=>setPlatform(p)} style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:platform===p?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>
               ))}
             </div>
           </div>
@@ -10361,7 +10361,7 @@ function HashtagResearch() {
             <SecLabel>Content Angle</SecLabel>
             <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
               {ANGLES.map(a=>(
-                <button key={a.id} onClick={()=>setAngle(a.id)} style={{background:angle===a.id??'#EEF2FF':'#F9FAFB',color:angle===a.id?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'4px 8px',cursor:'pointer',fontSize:10,fontWeight:700}}>{a.label}</button>
+                <button key={a.id} onClick={()=>setAngle(a.id)} style={{background:angle===a.id?'#EEF2FF':'#F9FAFB',color:angle===a.id?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'4px 8px',cursor:'pointer',fontSize:10,fontWeight:700}}>{a.label}</button>
               ))}
             </div>
           </div>
@@ -10465,25 +10465,25 @@ function ContentSeriesPlanner() {
           <div>
             <SecLabel>Platform</SecLabel>
             <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
-              {['Instagram','YouTube','TikTok','LinkedIn','Podcast'].map(p=><button key={p} onClick={()=>setPlatform(p)} style={{background:platform===p??'#EEF2FF':'#F9FAFB',color:platform===p?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
+              {['Instagram','YouTube','TikTok','LinkedIn','Podcast'].map(p=><button key={p} onClick={()=>setPlatform(p)} style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:platform===p?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
             </div>
           </div>
           <div>
             <SecLabel>Episodes</SecLabel>
             <div style={{display:'flex',gap:5}}>
-              {['6','8','12','16','24','52'].map(n=><button key={n} onClick={()=>setEpisodeCount(n)} style={{background:episodeCount===n??'#EEF2FF':'#F9FAFB',color:episodeCount===n?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{n}</button>)}
+              {['6','8','12','16','24','52'].map(n=><button key={n} onClick={()=>setEpisodeCount(n)} style={{background:episodeCount===n?'#EEF2FF':'#F9FAFB',color:episodeCount===n?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{n}</button>)}
             </div>
           </div>
           <div>
             <SecLabel>Cadence</SecLabel>
             <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
-              {['Daily','3x/week','Weekly','Bi-weekly'].map(c=><button key={c} onClick={()=>setCadence(c)} style={{background:cadence===c??'#EEF2FF':'#F9FAFB',color:cadence===c?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{c}</button>)}
+              {['Daily','3x/week','Weekly','Bi-weekly'].map(c=><button key={c} onClick={()=>setCadence(c)} style={{background:cadence===c?'#EEF2FF':'#F9FAFB',color:cadence===c?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{c}</button>)}
             </div>
           </div>
         </div>
         <SecLabel>Client (optional)</SecLabel>
         <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
-          <button onClick={()=>setSelectedClient(null)} style={{background:!selectedClient??'#EEF2FF':'#F9FAFB',color:!selectedClient?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>My Voice</button>
+          <button onClick={()=>setSelectedClient(null)} style={{background:!selectedClient?'#EEF2FF':'#F9FAFB',color:!selectedClient?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>My Voice</button>
           {clients.filter(c=>!c.isDefault).map(c=><button key={c.id} onClick={()=>setSelectedClient(c)} style={{background:selectedClient?.id===c.id?'#2563EB':'rgba(255,255,255,0.06)',color:selectedClient?.id===c.id?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.name}</button>)}
         </div>
         <RedBtn onClick={async()=>{if(!seriesName||!theme)return;setLoading(true);setOut('');const r=await ai(SERIES_PROMPT(seriesName,theme,platform,episodeCount,selectedClient?.isDefault?null:selectedClient,cadence));setOut(r);setLoading(false);}} disabled={loading||!seriesName||!theme}>
@@ -10577,7 +10577,7 @@ function BioOptimizer() {
           <div>
             <SecLabel>Platform</SecLabel>
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
-              {['Instagram','TikTok','X','LinkedIn','YouTube','Facebook'].map(p=><button key={p} onClick={()=>setPlatform(p)} style={{background:platform===p??'#EEF2FF':'#F9FAFB',color:platform===p?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
+              {['Instagram','TikTok','X','LinkedIn','YouTube','Facebook'].map(p=><button key={p} onClick={()=>setPlatform(p)} style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:platform===p?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
             </div>
           </div>
         </div>
@@ -10696,7 +10696,7 @@ function PricingCalculator() {
           <div>
             <SecLabel>Follower Range</SecLabel>
             <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
-              {followerRanges.map(f=><button key={f} onClick={()=>setFollowers(f)} style={{background:followers===f??'#EEF2FF':'#F9FAFB',color:followers===f?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 9px',cursor:'pointer',fontSize:10,fontWeight:700}}>{f}</button>)}
+              {followerRanges.map(f=><button key={f} onClick={()=>setFollowers(f)} style={{background:followers===f?'#EEF2FF':'#F9FAFB',color:followers===f?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 9px',cursor:'pointer',fontSize:10,fontWeight:700}}>{f}</button>)}
             </div>
           </div>
           <div>
@@ -10709,13 +10709,13 @@ function PricingCalculator() {
           <div>
             <SecLabel>Active Platforms</SecLabel>
             <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
-              {PLATFORMS.map(p=><button key={p} onClick={()=>toggleItem(platforms,setPlatforms,p)} style={{background:platforms.includes(p)??'#EEF2FF':'#F9FAFB',color:platforms.includes(p)?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 9px',cursor:'pointer',fontSize:10,fontWeight:700}}>{p}</button>)}
+              {PLATFORMS.map(p=><button key={p} onClick={()=>toggleItem(platforms,setPlatforms,p)} style={{background:platforms.includes(p)?'#EEF2FF':'#F9FAFB',color:platforms.includes(p)?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 9px',cursor:'pointer',fontSize:10,fontWeight:700}}>{p}</button>)}
             </div>
           </div>
           <div>
             <SecLabel>Services to Price</SecLabel>
             <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
-              {serviceOptions.map(s=><button key={s} onClick={()=>toggleItem(services,setServices,s)} style={{background:services.includes(s)??'#EEF2FF':'#F9FAFB',color:services.includes(s)?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 9px',cursor:'pointer',fontSize:10,fontWeight:700}}>{s}</button>)}
+              {serviceOptions.map(s=><button key={s} onClick={()=>toggleItem(services,setServices,s)} style={{background:services.includes(s)?'#EEF2FF':'#F9FAFB',color:services.includes(s)?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 9px',cursor:'pointer',fontSize:10,fontWeight:700}}>{s}</button>)}
             </div>
           </div>
         </div>
@@ -10796,7 +10796,7 @@ function StoryArcPlanner() {
       <Card>
         <SecLabel>Client</SecLabel>
         <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
-          <button onClick={()=>setSelectedClient(null)} style={{background:!selectedClient??'#EEF2FF':'#F9FAFB',color:!selectedClient?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>My Account</button>
+          <button onClick={()=>setSelectedClient(null)} style={{background:!selectedClient?'#EEF2FF':'#F9FAFB',color:!selectedClient?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>My Account</button>
           {clients.filter(c=>!c.isDefault).map(c=><button key={c.id} onClick={()=>setSelectedClient(c)} style={{background:selectedClient?.id===c.id?'#2563EB':'rgba(255,255,255,0.06)',color:selectedClient?.id===c.id?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.name}</button>)}
         </div>
         <SecLabel>Campaign or Context</SecLabel>
@@ -10804,7 +10804,7 @@ function StoryArcPlanner() {
           style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:14,boxSizing:'border-box'}}/>
         <SecLabel>Goal</SecLabel>
         <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:8}}>
-          {goalPresets.map(g=><button key={g} onClick={()=>setGoal(g)} style={{background:goal===g??'#EEF2FF':'#F9FAFB',color:goal===g?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{g}</button>)}
+          {goalPresets.map(g=><button key={g} onClick={()=>setGoal(g)} style={{background:goal===g?'#EEF2FF':'#F9FAFB',color:goal===g?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{g}</button>)}
         </div>
         <input value={goal} onChange={e=>setGoal(e.target.value)} placeholder="Or describe the specific goal..."
           style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:14,boxSizing:'border-box'}}/>
@@ -10812,13 +10812,13 @@ function StoryArcPlanner() {
           <div>
             <SecLabel>Duration</SecLabel>
             <div style={{display:'flex',gap:5}}>
-              {['3','5','7','10','14','21','30'].map(d=><button key={d} onClick={()=>setDuration(d)} style={{background:duration===d??'#EEF2FF':'#F9FAFB',color:duration===d?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{d}d</button>)}
+              {['3','5','7','10','14','21','30'].map(d=><button key={d} onClick={()=>setDuration(d)} style={{background:duration===d?'#EEF2FF':'#F9FAFB',color:duration===d?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{d}d</button>)}
             </div>
           </div>
           <div>
             <SecLabel>Platforms</SecLabel>
             <div style={{display:'flex',gap:5}}>
-              {['Instagram','Facebook','TikTok'].map(p=><button key={p} onClick={()=>setPlatforms(prev=>prev.includes(p)?prev.filter(x=>x!==p):[...prev,p])} style={{background:platforms.includes(p)??'#EEF2FF':'#F9FAFB',color:platforms.includes(p)?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
+              {['Instagram','Facebook','TikTok'].map(p=><button key={p} onClick={()=>setPlatforms(prev=>prev.includes(p)?prev.filter(x=>x!==p):[...prev,p])} style={{background:platforms.includes(p)?'#EEF2FF':'#F9FAFB',color:platforms.includes(p)?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
             </div>
           </div>
         </div>
@@ -10925,7 +10925,7 @@ function GuestPrepKit() {
       <Card>
         <SecLabel>Podcast Host</SecLabel>
         <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
-          <button onClick={()=>setSelectedClient(null)} style={{background:!selectedClient??'#EEF2FF':'#F9FAFB',color:!selectedClient?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>Jason (Default)</button>
+          <button onClick={()=>setSelectedClient(null)} style={{background:!selectedClient?'#EEF2FF':'#F9FAFB',color:!selectedClient?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>Jason (Default)</button>
           {clients.filter(c=>!c.isDefault).map(c=><button key={c.id} onClick={()=>setSelectedClient(c)} style={{background:selectedClient?.id===c.id?'#2563EB':'rgba(255,255,255,0.06)',color:selectedClient?.id===c.id?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.name}</button>)}
         </div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
@@ -11054,7 +11054,7 @@ function ObjectionHandler() {
       <Card>
         <SecLabel>Context</SecLabel>
         <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
-          {contextPresets.map(c=><button key={c.id} onClick={()=>{setContext(c.id);setSelectedObjections([]);}} style={{background:context===c.id??'#EEF2FF':'#F9FAFB',color:context===c.id?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.label}</button>)}
+          {contextPresets.map(c=><button key={c.id} onClick={()=>{setContext(c.id);setSelectedObjections([]);}} style={{background:context===c.id?'#EEF2FF':'#F9FAFB',color:context===c.id?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>{c.label}</button>)}
         </div>
         {activeContext && (
           <>
@@ -11063,7 +11063,7 @@ function ObjectionHandler() {
               {activeContext.objections.map(obj=>(
                 <button key={obj} onClick={()=>toggleObjection(obj)}
                   style={{background:selectedObjections.includes(obj)?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',border:`1px solid ${selectedObjections.includes(obj)?'rgba(0,194,255,0.3)':'rgba(255,255,255,0.07)'}`,borderRadius:8,padding:'10px 14px',cursor:'pointer',textAlign:'left',color:selectedObjections.includes(obj)?'#00C2FF':'#111827',fontSize:13,display:'flex',alignItems:'center',gap:10}}>
-                  <div style={{width:16,height:16,borderRadius:4,background:selectedObjections.includes(obj)??'#EEF2FF':'#F9FAFB',border:`2px solid ${selectedObjections.includes(obj)?'#2563EB':'rgba(255,255,255,0.2)'}`,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <div style={{width:16,height:16,borderRadius:4,background:selectedObjections.includes(obj)?'#EEF2FF':'#F9FAFB',border:`2px solid ${selectedObjections.includes(obj)?'#2563EB':'rgba(255,255,255,0.2)'}`,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
                     {selectedObjections.includes(obj)&&<span style={{color:'#000D1A',fontSize:10,fontWeight:900}}>✓</span>}
                   </div>
                   "{obj}"
@@ -11158,19 +11158,19 @@ function ABTestTracker() {
             <div>
               <SecLabel>Platform</SecLabel>
               <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
-                {['Instagram','TikTok','X','YouTube','LinkedIn'].map(p=><button key={p} onClick={()=>setForm(f=>({...f,platform:p}))} style={{background:form.platform===p??'#EEF2FF':'#F9FAFB',color:form.platform===p?'#000D1A':'#111827',border:'none',borderRadius:4,padding:'4px 8px',cursor:'pointer',fontSize:10,fontWeight:700}}>{p}</button>)}
+                {['Instagram','TikTok','X','YouTube','LinkedIn'].map(p=><button key={p} onClick={()=>setForm(f=>({...f,platform:p}))} style={{background:form.platform===p?'#EEF2FF':'#F9FAFB',color:form.platform===p?'#000D1A':'#111827',border:'none',borderRadius:4,padding:'4px 8px',cursor:'pointer',fontSize:10,fontWeight:700}}>{p}</button>)}
               </div>
             </div>
             <div>
               <SecLabel>Test Type</SecLabel>
               <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
-                {types.map(t=><button key={t} onClick={()=>setForm(f=>({...f,type:t}))} style={{background:form.type===t??'#EEF2FF':'#F9FAFB',color:form.type===t?'#000D1A':'#111827',border:'none',borderRadius:4,padding:'4px 8px',cursor:'pointer',fontSize:10,fontWeight:700}}>{t}</button>)}
+                {types.map(t=><button key={t} onClick={()=>setForm(f=>({...f,type:t}))} style={{background:form.type===t?'#EEF2FF':'#F9FAFB',color:form.type===t?'#000D1A':'#111827',border:'none',borderRadius:4,padding:'4px 8px',cursor:'pointer',fontSize:10,fontWeight:700}}>{t}</button>)}
               </div>
             </div>
             <div>
               <SecLabel>Success Metric</SecLabel>
               <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
-                {metrics.map(m=><button key={m} onClick={()=>setForm(f=>({...f,metric:m}))} style={{background:form.metric===m??'#EEF2FF':'#F9FAFB',color:form.metric===m?'#000D1A':'#111827',border:'none',borderRadius:4,padding:'4px 8px',cursor:'pointer',fontSize:10,fontWeight:700}}>{m}</button>)}
+                {metrics.map(m=><button key={m} onClick={()=>setForm(f=>({...f,metric:m}))} style={{background:form.metric===m?'#EEF2FF':'#F9FAFB',color:form.metric===m?'#000D1A':'#111827',border:'none',borderRadius:4,padding:'4px 8px',cursor:'pointer',fontSize:10,fontWeight:700}}>{m}</button>)}
               </div>
             </div>
           </div>
@@ -11333,7 +11333,7 @@ function ViralFormatLibrary() {
       </div>
 
       <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
-        {categories.map(c=><button key={c} onClick={()=>setFilter(c)} style={{background:filter===c??'#EEF2FF':'#F9FAFB',color:filter===c?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:700}}>{c}</button>)}
+        {categories.map(c=><button key={c} onClick={()=>setFilter(c)} style={{background:filter===c?'#EEF2FF':'#F9FAFB',color:filter===c?'#000D1A':'#111827',border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:700}}>{c}</button>)}
       </div>
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:8,marginBottom:20}}>
@@ -11367,7 +11367,7 @@ function ViralFormatLibrary() {
             <div>
               <SecLabel>Platform</SecLabel>
               <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
-                {(selectedFormat.platforms).map(p=><button key={p} onClick={()=>setPlatform(p)} style={{background:platform===p??'#EEF2FF':'#F9FAFB',color:platform===p?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
+                {(selectedFormat.platforms).map(p=><button key={p} onClick={()=>setPlatform(p)} style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:platform===p?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>{p}</button>)}
               </div>
             </div>
           </div>
@@ -11467,10 +11467,10 @@ function RevenueAttribution() {
             </div>
           </div>
           <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:12}}>
-            {PLATFORMS.map(p=><button key={p} onClick={()=>setForm(f=>({...f,platform:p}))} style={{background:form.platform===p??'#EEF2FF':'#F9FAFB',color:form.platform===p?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 9px',cursor:'pointer',fontSize:10,fontWeight:700}}>{p}</button>)}
+            {PLATFORMS.map(p=><button key={p} onClick={()=>setForm(f=>({...f,platform:p}))} style={{background:form.platform===p?'#EEF2FF':'#F9FAFB',color:form.platform===p?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 9px',cursor:'pointer',fontSize:10,fontWeight:700}}>{p}</button>)}
           </div>
           <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:12}}>
-            {outcomeTypes.map(o=><button key={o} onClick={()=>setForm(f=>({...f,outcomeType:o}))} style={{background:form.outcomeType===o??'#EEF2FF':'#F9FAFB',color:form.outcomeType===o?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 9px',cursor:'pointer',fontSize:10,fontWeight:700}}>{o}</button>)}
+            {outcomeTypes.map(o=><button key={o} onClick={()=>setForm(f=>({...f,outcomeType:o}))} style={{background:form.outcomeType===o?'#EEF2FF':'#F9FAFB',color:form.outcomeType===o?'#000D1A':'#111827',border:'none',borderRadius:5,padding:'5px 9px',cursor:'pointer',fontSize:10,fontWeight:700}}>{o}</button>)}
           </div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
             <div>
@@ -11765,7 +11765,7 @@ function OnboardingFlow({ onComplete }) {
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
             {PLATFORMS.map(p => (
               <button key={p} onClick={() => togglePlatform(p)}
-                style={{ background: form.platforms.includes(p) ??'#EEF2FF':'#F9FAFB', color: form.platforms.includes(p) ? '#000D1A' : '#111827', border: 'none', borderRadius: 7, padding: '7px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>
+                style={{ background: form.platforms.includes(p) ?'#EEF2FF':'#F9FAFB', color: form.platforms.includes(p) ? '#000D1A' : '#111827', border: 'none', borderRadius: 7, padding: '7px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>
                 {p}
               </button>
             ))}
@@ -12609,7 +12609,7 @@ function ContentBriefGenerator() {
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {['1 hour','2-3 hours','4-5 hours','Full day'].map(d => (
                 <button key={d} onClick={() => setDuration(d)}
-                  style={{background: duration===d ??'#EEF2FF':'#F9FAFB', color: duration===d ? '#000D1A' : '#111827', border:'none', borderRadius:7, padding:'5px 10px', cursor:'pointer', fontSize:11, fontWeight:700}}>
+                  style={{background: duration===d ?'#EEF2FF':'#F9FAFB', color: duration===d ? '#000D1A' : '#111827', border:'none', borderRadius:7, padding:'5px 10px', cursor:'pointer', fontSize:11, fontWeight:700}}>
                   {d}
                 </button>
               ))}
@@ -12793,7 +12793,7 @@ function ContentCreationHub() {
           <div style={{display:'flex',gap:6,marginBottom:12}}>
             {['short','medium','long','thread'].map(s=>(
               <button key={s} onClick={()=>setScriptMode(s)}
-                style={{background:scriptMode===s??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:700,textTransform:'capitalize'}}>
+                style={{background:scriptMode===s?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:700,textTransform:'capitalize'}}>
                 {s}
               </button>
             ))}
@@ -12814,7 +12814,7 @@ function ContentCreationHub() {
             <div style={{display:'flex',gap:6,marginBottom:12}}>
               {['3','5','7','10'].map(n=>(
                 <button key={n} onClick={()=>setBatchCount(n)}
-                  style={{background:batchCount===n??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+                  style={{background:batchCount===n?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>
                   {n}
                 </button>
               ))}
@@ -12840,7 +12840,7 @@ function ContentCreationHub() {
             <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:12}}>
               {PLATFORMS.map(p=>(
                 <button key={p} onClick={()=>setRepurposePlatform(p)}
-                  style={{background:repurposePlatform===p??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12}}>
+                  style={{background:repurposePlatform===p?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12}}>
                   {p}
                 </button>
               ))}
@@ -12868,7 +12868,7 @@ function ContentCreationHub() {
               <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
                 {['1 hour','2-3 hours','4-5 hours','Full day'].map(d=>(
                   <button key={d} onClick={()=>setSessionDuration(d)}
-                    style={{background:sessionDuration===d??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>
+                    style={{background:sessionDuration===d?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>
                     {d}
                   </button>
                 ))}
@@ -13047,7 +13047,7 @@ function ResearchHub() {
               <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:12}}>
                 {trendingChips.map((chip,i)=>(
                   <button key={i} onClick={()=>setQuery(chip.label)}
-                    style={{background:query===chip.label??'#EEF2FF':'#F9FAFB',border:`1px solid ${query===chip.label?'#2563EB':'rgba(0,194,255,0.15)'}`,borderRadius:20,padding:'4px 12px',cursor:'pointer',color:'#374151',fontSize:11}}>
+                    style={{background:query===chip.label?'#EEF2FF':'#F9FAFB',border:`1px solid ${query===chip.label?'#2563EB':'rgba(0,194,255,0.15)'}`,borderRadius:20,padding:'4px 12px',cursor:'pointer',color:'#374151',fontSize:11}}>
                     {chip.label}
                   </button>
                 ))}
@@ -13097,7 +13097,7 @@ function ResearchHub() {
                   <div style={{display:'flex',gap:4}}>
                     {PLATFORMS.map(p=>(
                       <button key={p} onClick={()=>setPlatform(p)}
-                        style={{background:platform===p??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:5,padding:'4px 8px',cursor:'pointer',fontSize:11}}>
+                        style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:5,padding:'4px 8px',cursor:'pointer',fontSize:11}}>
                         {p}
                       </button>
                     ))}
@@ -13264,7 +13264,7 @@ function HookWorkshop() {
             <div style={{display:'flex',gap:6,marginBottom:14}}>
               {['5','10','15','20'].map(n=>(
                 <button key={n} onClick={()=>setQuantity(n)}
-                  style={{background:quantity===n??'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+                  style={{background:quantity===n?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>
                   {n}
                 </button>
               ))}
