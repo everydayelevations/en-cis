@@ -13779,6 +13779,74 @@ const COMPONENT_MAP = {
   objections: ObjectionHandler,
   series: ContentSeriesPlanner,
   compintel: CompetitorIntel,
+// ── Global Error Boundary — prevents white screen crashes ───────────────────
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) { return { hasError: true, error }; }
+  componentDidCatch(error, info) { console.error('SIGNAL Error:', error, info); }
+  render() {
+    if (this.state.hasError) return (
+      <div style={{minHeight:'100vh',background:'#080D14',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'DM Sans,sans-serif'}}>
+        <div style={{background:'#0C1420',border:'1px solid rgba(0,194,255,0.15)',borderRadius:16,padding:40,maxWidth:480,textAlign:'center'}}>
+          <h2 style={{color:'#F1F5F9',fontWeight:900,fontSize:22,letterSpacing:'-0.03em',marginBottom:8}}>Something went wrong</h2>
+          <p style={{color:'#5A6A82',fontSize:14,marginBottom:20}}>SIGNAL hit an unexpected error. Your data is safe in localStorage.</p>
+          <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'10px 14px',marginBottom:20,fontFamily:'monospace',fontSize:12,color:'#8B9AB4',textAlign:'left'}}>
+            {this.state.error?.message || 'Unknown error'}
+          </div>
+          <button onClick={()=>window.location.reload()}
+            style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:8,padding:'12px 28px',fontWeight:800,cursor:'pointer',fontSize:14}}>
+            Reload SIGNAL
+          </button>
+        </div>
+      </div>
+    );
+    return this.props.children;
+  }
+
+export default function App() {
+  const [nav, setNav] = useState('home');
+  const [sub, setSub] = useState(null);
+  const { save: memorySave } = useContentMemory();
+  const [activeClient] = useActiveClient();
+  const [onboardingDone, setOnboardingDone] = useState(() => {
+    try { return !!localStorage.getItem(ONBOARDING_DONE_KEY); } catch { return true; }
+  });
+
+  // Check if this is a client approval link
+  const approvalPayload = (() => {
+    try {
+      const hash = typeof window !== 'undefined' ? window.location.hash : '';
+      if (hash.startsWith('#approval=')) return hash.slice(10);
+    } catch {}
+    return null;
+  })();
+
+  // If approval link, render standalone approval page
+  if (approvalPayload) {
+    return <ApprovalPage encodedPayload={approvalPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
+  }
+
+  // Register memory save function globally so all tools can log to it
+  useEffect(() => { registerMemorySave(memorySave); }, [memorySave]);
+
+  // Listen for internal navigation events (e.g. Generate Calendar from Strategy)
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.detail?.nav) { setNav(e.detail.nav); setSub(e.detail.sub || null); }
+    };
+    window.addEventListener('signal-nav', handler);
+    return () => window.removeEventListener('signal-nav', handler);
+  }, []);
+
+  const handleNav = (id) => {
+    setNav(id);
+    if(id === 'home') { setSub(null); return; }
+    if(id === 'youtube') { setSub('yttoolkit'); return; }
+    const subs = SUB_NAV[id];
+    if(subs) setSub(subs[0].id);
   };
 
   const ActiveComponent = sub
@@ -13914,30 +13982,4 @@ const COMPONENT_MAP = {
     </ErrorBoundary>
   );
 }
-// ── Global Error Boundary — prevents white screen crashes ───────────────────
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-  static getDerivedStateFromError(error) { return { hasError: true, error }; }
-  componentDidCatch(error, info) { console.error('SIGNAL Error:', error, info); }
-  render() {
-    if (this.state.hasError) return (
-      <div style={{minHeight:'100vh',background:'#080D14',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'DM Sans,sans-serif'}}>
-        <div style={{background:'#0C1420',border:'1px solid rgba(0,194,255,0.15)',borderRadius:16,padding:40,maxWidth:480,textAlign:'center'}}>
-          <h2 style={{color:'#F1F5F9',fontWeight:900,fontSize:22,letterSpacing:'-0.03em',marginBottom:8}}>Something went wrong</h2>
-          <p style={{color:'#5A6A82',fontSize:14,marginBottom:20}}>SIGNAL hit an unexpected error. Your data is safe in localStorage.</p>
-          <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'10px 14px',marginBottom:20,fontFamily:'monospace',fontSize:12,color:'#8B9AB4',textAlign:'left'}}>
-            {this.state.error?.message || 'Unknown error'}
-          </div>
-          <button onClick={()=>window.location.reload()}
-            style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:8,padding:'12px 28px',fontWeight:800,cursor:'pointer',fontSize:14}}>
-            Reload SIGNAL
-          </button>
-        </div>
-      </div>
-    );
-    return this.props.children;
-  }
 }
