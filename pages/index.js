@@ -194,7 +194,7 @@ const Card = ({children,style={}}) => (
 );
 
 const SecLabel = ({children, style={}}) => (
-  <div style={{fontSize:9,fontWeight:700,letterSpacing:2.5,color:'rgba(0,194,255,0.55)',
+  <div style={{fontSize:9,fontWeight:700,letterSpacing:2.5,color:'#00C2FF',
     textTransform:'uppercase',marginBottom:8,...style}}>
     {children}
   </div>
@@ -3804,12 +3804,37 @@ function WeeklyReview() {
   const [out, setOut] = useState('');
   const [loading, setLoading] = useState(false);
   const [activeModule, setActiveModule] = useState(0);
+  const [autoFilled, setAutoFilled] = useState(false);
+
+  // Auto-fill from stored data on mount
+  useEffect(() => {
+    if (autoFilled) return;
+    try {
+      const roiWeeks = JSON.parse(localStorage.getItem('encis_roi_weeks') || '[]');
+      if (roiWeeks.length > 0) {
+        const latest = roiWeeks[0];
+        setMetrics(`Week: ${latest.week||'This week'} | Followers: ${latest.followers||'?'} | Reach: ${latest.reach||'?'} | Saves: ${latest.saves||'?'} | Shares: ${latest.shares||'?'} | Leads: ${latest.leads||'?'}${latest.notes?' | '+latest.notes:''}`);
+      }
+      const log = JSON.parse(localStorage.getItem('encis_content_log') || '[]');
+      const topPosts = log.filter(e => e.perf).slice(0, 5);
+      if (topPosts.length) setTopContent(topPosts.map(e => `[${e.perf}] ${e.title||e.topic||'Untitled'} (${e.platform||''})`).join('\n'));
+      const tests = JSON.parse(localStorage.getItem('encis_ab_tests') || '[]');
+      if (tests.length) setTestsRan(tests.slice(0,3).map(t => `${t.hypothesis}: Winner ${t.winner||'TBD'} — ${t.insight||''}`).join('\n'));
+      const rev = JSON.parse(localStorage.getItem('encis_revenue') || '[]');
+      if (rev.length) setRevenueData(rev.slice(0,3).map(r => `${r.source}: ${r.leads||'0'} leads, $${r.revenue||'0'}`).join('\n'));
+      const spy = JSON.parse(localStorage.getItem('encis_spy_history') || '[]');
+      if (spy.length) setCompetitorNotes(spy.slice(0,2).map(s => `${s.handle}: ${s.summary||''}`).join('\n'));
+      if (roiWeeks.length || log.length) setAutoFilled(true);
+    } catch {}
+  }, []);
+
 
   const run = async () => {
     if (!metrics) return;
     setLoading(true); setOut('');
     const res = await ai(REVIEW_PROMPT(metrics, wins, struggles, topContent, testsRan, competitorNotes, revenueData));
     setOut(res); setLoading(false);
+    try { localStorage.setItem('encis_last_review', JSON.stringify({content:res,date:new Date().toISOString(),week:metrics.slice(0,50)})); } catch {}
   };
 
   const modules = [
@@ -3827,6 +3852,7 @@ function WeeklyReview() {
         <div>
           <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Weekly Review Command Center</h2>
           <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>6-module growth system. Input your week. Get a complete execution plan.</p>
+          {autoFilled && <div style={{color:'rgba(0,194,255,0.7)',fontSize:10,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginTop:4}}>Auto-filled from your logged data</div>}
         </div>
       </div>
 
@@ -4566,27 +4592,19 @@ const SUB_NAV = {
     { id:'visualcal', label:'Visual Calendar' },
     { id:'series', label:'Series Planner' },
     { id:'storyarc', label:'Story Arc' },
-    { id:'biolink', label:'Bio Link Builder' },
-    { id:'biooptimizer', label:'Bio Optimizer' },
+    { id:'bio', label:'Bio Suite' },
   ],
   research: [
-    { id:'pipeline', label:'Pipeline' },
-    { id:'spy', label:'Competitor Intel' },
+    { id:'research', label:'Research Hub' },
     { id:'vault', label:'Prompt Vault' },
     { id:'collab', label:'Collab Finder' },
-    { id:'extract', label:'Insight Extractor' },
-    { id:'spy', label:'Competitor Spy' },
   ],
   create: [
-    { id:'script', label:'Script Engine' },
-    { id:'caption', label:'Caption Writer' },
-    { id:'batch', label:'Bulk Batch' },
-    { id:'episode', label:'Episode Clips' },
-    { id:'repurpose', label:'Repurpose' },
-    { id:'hooks', label:'Hook Library' },
+    { id:'create', label:'Create Hub' },
+    { id:'hooks', label:'Hook Workshop' },
     { id:'design', label:'Design Studio' },
     { id:'comment', label:'Comment Responder' },
-    { id:'hooktester', label:'Hook Tester' },
+
     { id:'podcast', label:'Podcast Prep' },
     { id:'dmscripts', label:'DM Scripts' },
     { id:'videodirector', label:'Video Director' },
@@ -4596,7 +4614,7 @@ const SUB_NAV = {
   ],
   optimize: [
     { id:'review', label:'Weekly Review' },
-    { id:'roi', label:'ROI Dashboard' },
+    { id:'growth', label:'Growth Dashboard' },
     { id:'memory', label:'Content Memory' },
     { id:'schedule', label:'Schedule' },
     { id:'gaps', label:'Gap Analyzer' },
@@ -7663,7 +7681,13 @@ function DeliverableBuilder() {
   const [activeClient] = useActiveClient();
   const [selectedClient, setSelectedClient] = useState(null);
   const [delivType, setDelivType] = useState('content-calendar');
-  const [brief, setBrief] = useState('');
+  const [brief, setBrief] = useState(() => {
+    try {
+      const s = localStorage.getItem('encis_last_strategy');
+      if (s) { const p = JSON.parse(s); return p.name ? `Context from: ${p.name}` : ''; }
+    } catch {}
+    return '';
+  });
   const [out, setOut] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -12680,6 +12704,1019 @@ function ContentBriefGenerator() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // WEEKLY REVIEW 6-MODULE GROWTH SYSTEM
 // ═════════════════════════════════════════════════════════════════════════════
+function ContentCreationHub() {
+  const [mode, setMode] = useState('script');
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  useEffect(() => { setSelectedClient(activeClient); }, []);
+
+  // Auto-load context from strategy and research pipeline
+  const [autoContext, setAutoContext] = useState(null);
+  useEffect(() => {
+    try {
+      // Load strategy context
+      const strat = localStorage.getItem('encis_last_strategy');
+      if (strat) {
+        const parsed = JSON.parse(strat);
+        if (parsed.content) setAutoContext({ source: 'strategy', name: parsed.name || '90-Day Strategy' });
+      }
+      // Load research intel if available
+      const intel = localStorage.getItem('encis_pipeline_intel');
+      if (intel) {
+        const parsed = JSON.parse(intel);
+        if (parsed.content && parsed.timestamp > Date.now() - 86400000) {
+          setAutoContext({ source: 'research', name: parsed.topic || 'Research Intel', content: parsed.content });
+        }
+      }
+    } catch {}
+  }, []);
+
+  // Shared state
+  const [topic, setTopic] = useState('');
+  const [angle, setAngle] = useState('occupational');
+  const [platform, setPlatform] = useState('Instagram');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // Mode-specific state
+  const [scriptMode, setScriptMode] = useState('short');
+  const [captionHook, setCaptionHook] = useState('');
+  const [batchCount, setBatchCount] = useState('5');
+  const [episodeTitle, setEpisodeTitle] = useState('');
+  const [episodeNotes, setEpisodeNotes] = useState('');
+  const [repurposeFrom, setRepurposeFrom] = useState('');
+  const [repurposePlatform, setRepurposePlatform] = useState('YouTube');
+  const [sessionDate, setSessionDate] = useState('');
+  const [sessionLocation, setSessionLocation] = useState('');
+  const [sessionEquip, setSessionEquip] = useState('');
+  const [sessionDuration, setSessionDuration] = useState('2-3 hours');
+  const [intensity, setIntensity] = useState('MEDIUM');
+
+  const run = async () => {
+    if (!topic && mode !== 'brief') return;
+    if (mode === 'brief' && !topic) return;
+    setLoading(true); setOut('');
+    let prompt = '';
+    const client = selectedClient || activeClient;
+    // Get voice fingerprint for this client
+    const voiceFP = (() => { try { const fps = JSON.parse(localStorage.getItem('encis_voice_fingerprints')||'{}'); return fps[client?.id] || null; } catch { return null; } })();
+    const voiceContext = voiceFP ? `VOICE FINGERPRINT:\nTone: ${voiceFP.tone}\nVocabulary: ${(voiceFP.vocabulary||[]).join(', ')}\nAvoids: ${(voiceFP.avoids||[]).join(', ')}\nPersonality: ${voiceFP.personality||''}` : (client?.voice||'');
+    // Research intel context (if available and fresh)
+    const researchContext = autoContext?.source==='research' ? `\n\nRESEARCH INTEL CONTEXT:\n${autoContext.content?.slice(0,800)||''}` : '';
+    if (mode === 'script') prompt = SCRIPT_PROMPT(topic, ANGLES.find(a=>a.id===angle)?.label||angle, platform, scriptMode, voiceContext + researchContext);
+    else if (mode === 'caption') prompt = CAPTION_PROMPT(topic, platform, ANGLES.find(a=>a.id===angle)?.label||angle, captionHook);
+    else if (mode === 'batch') prompt = BULK_PROMPT(ANGLES.find(a=>a.id===angle)?.label||angle, platform, topic, parseInt(batchCount)||5);
+    else if (mode === 'episode') prompt = EPISODE_PROMPT(episodeTitle||topic, episodeNotes||topic);
+    else if (mode === 'repurpose') prompt = REPURPOSE_PROMPT(repurposeFrom||topic, repurposePlatform, platform);
+    else if (mode === 'brief') prompt = CONTENT_BRIEF_PROMPT(client||{name:'Jason Fricka',handle:'@everydayelevations',platforms:'Instagram, YouTube',voice:'Direct, real.'}, sessionDate, sessionLocation, topic, sessionEquip, sessionDuration, intensity);
+    const res = await ai(prompt);
+    setOut(res); setLoading(false);
+  };
+
+  const MODES = [
+    { id:'script',    label:'Script',        desc:'Camera-ready scripts' },
+    { id:'caption',   label:'Caption',       desc:'Platform captions' },
+    { id:'batch',     label:'Batch',         desc:'Multiple posts at once' },
+    { id:'episode',   label:'Episode Clips', desc:'Long-form to short clips' },
+    { id:'repurpose', label:'Repurpose',     desc:'Cross-platform adaptation' },
+    { id:'brief',     label:'Filming Brief', desc:'Full shoot production plan' },
+  ];
+
+  const taStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit'};
+  const inStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'};
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
+        <div>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Content Creation Hub</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Scripts, captions, batches, clips, repurposing, and filming briefs — one workspace.</p>
+        </div>
+      </div>
+
+      {/* Auto-loaded context banner */}
+      {autoContext && (
+        <div style={{background:'rgba(0,194,255,0.04)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
+          <div>
+            <span style={{color:'#00C2FF',fontWeight:700,fontSize:11,letterSpacing:1,textTransform:'uppercase'}}>
+              {autoContext.source==='research'?'Research Intel loaded':'Strategy loaded'}
+            </span>
+            <span style={{color:B.gray,fontSize:11,marginLeft:8}}>{autoContext.name}</span>
+          </div>
+          {autoContext.source==='research' && (
+            <button onClick={()=>{ setMode('script'); }}
+              style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:5,padding:'5px 12px',fontSize:11,fontWeight:700,cursor:'pointer'}}>
+              Use as script context
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Mode selector */}
+      <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:20}}>
+        {MODES.map(m => (
+          <button key={m.id} onClick={()=>{setMode(m.id);setOut('');}}
+            style={{background:mode===m.id?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.04)',
+              color:mode===m.id?'#00C2FF':B.gray,
+              border:'1px solid '+(mode===m.id?'rgba(0,194,255,0.25)':'rgba(255,255,255,0.06)'),
+              borderRadius:6,padding:'7px 16px',cursor:'pointer',fontSize:12,fontWeight:mode===m.id?700:500,
+              transition:'all 0.15s'}}>
+            <div style={{fontWeight:700}}>{m.label}</div>
+            <div style={{fontSize:10,opacity:0.7,marginTop:1}}>{m.desc}</div>
+          </button>
+        ))}
+      </div>
+
+      <Card>
+        {/* Client selector for brief mode */}
+        {mode === 'brief' && (
+          <>
+            <SecLabel>Client</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
+              {clients.map(c=>(
+                <button key={c.id} onClick={()=>setSelectedClient(c)}
+                  style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+                  {c.name}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Shared: topic */}
+        {mode !== 'repurpose' && (
+          <>
+            <SecLabel>{mode==='brief'?'Topics / Content Ideas for This Session':mode==='episode'?'Episode Title':'Topic or Concept'}</SecLabel>
+            <input value={mode==='episode'?episodeTitle:topic}
+              onChange={e=>mode==='episode'?setEpisodeTitle(e.target.value):setTopic(e.target.value)}
+              placeholder={mode==='brief'?'List the pieces you want to film this session...':mode==='episode'?'Episode title or concept...':'e.g. Morning discipline, real estate market, mindset shift...'}
+              style={inStyle}/>
+          </>
+        )}
+
+        {/* Mode-specific inputs */}
+        {mode === 'script' && (
+          <div style={{display:'flex',gap:6,marginBottom:12}}>
+            {['short','medium','long','thread'].map(s=>(
+              <button key={s} onClick={()=>setScriptMode(s)}
+                style={{background:scriptMode===s?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:700,textTransform:'capitalize'}}>
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {mode === 'caption' && (
+          <>
+            <SecLabel>Opening Hook (optional)</SecLabel>
+            <input value={captionHook} onChange={e=>setCaptionHook(e.target.value)}
+              placeholder="First line of your caption..." style={inStyle}/>
+          </>
+        )}
+
+        {mode === 'batch' && (
+          <>
+            <SecLabel>Number of Posts</SecLabel>
+            <div style={{display:'flex',gap:6,marginBottom:12}}>
+              {['3','5','7','10'].map(n=>(
+                <button key={n} onClick={()=>setBatchCount(n)}
+                  style={{background:batchCount===n?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+                  {n}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        {mode === 'episode' && (
+          <>
+            <SecLabel>Episode Notes / Timestamps</SecLabel>
+            <textarea value={episodeNotes} onChange={e=>setEpisodeNotes(e.target.value)} rows={3}
+              placeholder="Paste transcript, notes, or timestamps. The engine will extract the best clip moments..."
+              style={taStyle}/>
+          </>
+        )}
+
+        {mode === 'repurpose' && (
+          <>
+            <SecLabel>Original Script or Content</SecLabel>
+            <textarea value={repurposeFrom} onChange={e=>setRepurposeFrom(e.target.value)} rows={4}
+              placeholder="Paste your original script, post, or transcript here..." style={taStyle}/>
+            <SecLabel>Original Platform</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:12}}>
+              {PLATFORMS.map(p=>(
+                <button key={p} onClick={()=>setRepurposePlatform(p)}
+                  style={{background:repurposePlatform===p?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12}}>
+                  {p}
+                </button>
+              ))}
+            </div>
+            <SecLabel>Repurpose To</SecLabel>
+          </>
+        )}
+
+        {mode === 'brief' && (
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+            <div>
+              <SecLabel>Session Date</SecLabel>
+              <input value={sessionDate} onChange={e=>setSessionDate(e.target.value)} placeholder="e.g. Saturday March 22" style={inStyle}/>
+            </div>
+            <div>
+              <SecLabel>Location</SecLabel>
+              <input value={sessionLocation} onChange={e=>setSessionLocation(e.target.value)} placeholder="e.g. Home office, outdoor trail" style={inStyle}/>
+            </div>
+            <div>
+              <SecLabel>Equipment</SecLabel>
+              <input value={sessionEquip} onChange={e=>setSessionEquip(e.target.value)} placeholder="e.g. iPhone, ring light, tripod" style={inStyle}/>
+            </div>
+            <div>
+              <SecLabel>Duration</SecLabel>
+              <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                {['1 hour','2-3 hours','4-5 hours','Full day'].map(d=>(
+                  <button key={d} onClick={()=>setSessionDuration(d)}
+                    style={{background:sessionDuration===d?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Shared: angle + platform (not for episode/repurpose/brief) */}
+        {!['episode','brief'].includes(mode) && (
+          <>
+            <SecLabel>Content Angle</SecLabel>
+            <AngleGrid selected={angle} onSelect={setAngle}/>
+            <SecLabel>Platform</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
+              {PLATFORMS.map(p=>(
+                <button key={p} onClick={()=>setPlatform(p)}
+                  style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.04)',
+                    color:platform===p?'#00C2FF':B.gray,
+                    border:'1px solid '+(platform===p?'rgba(0,194,255,0.2)':'rgba(255,255,255,0.06)'),
+                    borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
+                  {p}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        <button onClick={run} disabled={loading||(!topic&&mode!=='repurpose')||(!repurposeFrom&&mode==='repurpose')}
+          style={{background:loading?'rgba(255,255,255,0.04)':'#00C2FF',color:loading?B.gray:'#000D1A',
+            border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:loading?'not-allowed':'pointer',
+            fontSize:13,letterSpacing:'0.02em'}}>
+          {loading ? 'Generating...' : MODES.find(m2=>m2.id===mode)?.label + ' →'}
+        </button>
+      </Card>
+      {loading && <Spin/>}
+      {out && <DocOutput text={out} title={MODES.find(m2=>m2.id===mode)?.label + ' — SIGNAL'}/>}
+    </div>
+  );
+}
+
+function ResearchHub() {
+  const [mode, setMode] = useState('pipeline');
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+
+  // Pipeline state
+  const [query, setQuery] = useState('');
+  const [angle, setAngle] = useState('occupational');
+  const [platform, setPlatform] = useState('Instagram');
+  const [tier, setTier] = useState(0);
+  const [research, setResearch] = useState('');
+  const [intel, setIntel] = useState('');
+  const [script, setScript] = useState('');
+  const [step, setStep] = useState('idle');
+
+  // Shared output
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // CompetitorSpy state
+  const [spyHandle, setSpyHandle] = useState('');
+  const [rawData, setRawData] = useState('');
+
+  // Hashtag state
+  const [niche, setNiche] = useState('');
+  const [followers, setFollowers] = useState('Under 10K');
+
+  // ViralFormat state
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedFormat, setSelectedFormat] = useState('');
+  const [viralTopic, setViralTopic] = useState('');
+  useEffect(() => { setSelectedClient(activeClient); }, []);
+
+  // Extract state
+  const [extractContent, setExtractContent] = useState('');
+  const [extractQ, setExtractQ] = useState('');
+
+  const trendingChips = (() => {
+    try {
+      const stored = localStorage.getItem('encis_trend_alerts');
+      if (!stored) return [];
+      return JSON.parse(stored).filter(a=>a.title||a.text).map(a=>({label:a.title||a.text?.slice(0,50),angle:a.angle})).slice(0,6);
+    } catch { return []; }
+  })();
+
+  const runPipelineResearch = async () => {
+    if(!query) return;
+    setStep('researching'); setResearch(''); setIntel(''); setScript('');
+    const t = TIER_PROMPTS[tier];
+    const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+    const res = await perp(`Today is ${today}. ${t.desc}: ${query} — focus on ${ANGLES.find(a=>a.id===angle)?.label||angle} angle. Include credible sources with URLs and publication dates.`);
+    setResearch(res); setStep('idle');
+  };
+  const runExtractIntel = async () => {
+    if(!research) return;
+    setStep('extracting'); setIntel(''); setScript('');
+    const res = await ai(PIPELINE_EXTRACT(research, ANGLES.find(a=>a.id===angle)?.label||angle));
+    setIntel(res); setStep('idle');
+    // Save intel so ContentCreationHub can auto-load it
+    try { localStorage.setItem('encis_pipeline_intel', JSON.stringify({ content: res, topic: query, angle: angle, timestamp: Date.now() })); } catch {}
+  };
+  const runScriptFromIntel = async () => {
+    if(!intel) return;
+    setStep('scripting'); setScript('');
+    const res = await ai(PIPELINE_SCRIPT(intel, platform));
+    setScript(res); setStep('idle');
+  };
+
+  const runSpy = async () => {
+    if(!spyHandle) return;
+    setLoading(true); setOut('');
+    const res = await ai(SPY_PROMPT(spyHandle, platform, rawData, ANGLES.find(a=>a.id===angle)?.label||angle));
+    setOut(res); setLoading(false);
+    try { const h = JSON.parse(localStorage.getItem('encis_spy_history')||'[]'); h.unshift({handle:spyHandle,platform,angle:ANGLES.find(a=>a.id===angle)?.label||angle,summary:res.slice(0,200),date:new Date().toLocaleDateString()}); localStorage.setItem('encis_spy_history',JSON.stringify(h.slice(0,10))); } catch {}
+  };
+  const runHashtag = async () => {
+    if(!niche) return;
+    setLoading(true); setOut('');
+    const res = await ai(HASHTAG_PROMPT(niche, platform, ANGLES.find(a=>a.id===angle)?.label||angle, followers));
+    setOut(res); setLoading(false);
+  };
+  const runViral = async () => {
+    if(!selectedFormat) return;
+    setLoading(true); setOut('');
+    const res = await ai(VIRAL_FORMAT_PROMPT(selectedClient||activeClient, selectedFormat, viralTopic, platform));
+    setOut(res); setLoading(false);
+  };
+  const runExtract = async () => {
+    if(!extractContent) return;
+    setLoading(true); setOut('');
+    const res = await ai(EP_PROMPT(extractContent, extractQ));
+    setOut(res); setLoading(false);
+  };
+
+  const MODES = [
+    { id:'pipeline',  label:'Research Pipeline', desc:'Perplexity → Intel → Script' },
+    { id:'spy',       label:'Competitor Intel',  desc:'Analyze competitor strategy' },
+    { id:'hashtag',   label:'Hashtag Strategy',  desc:'Tiered hashtag research' },
+    { id:'viral',     label:'Viral Formats',     desc:'18 proven content formats' },
+    { id:'extract',   label:'Insight Extract',   desc:'Pull hooks from any content' },
+  ];
+
+  const VIRAL_FORMATS = ['Problem-Agitate-Solve','Before-After-Bridge','5 Things Nobody Tells You','Day in My Life','Myth vs Reality','Hot Take','Story + Lesson','React + Commentary','Step-by-Step Tutorial','Controversial Opinion','Behind the Scenes','Q&A Format','Prediction','Listicle','Personal Failure Story'];
+  const inStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'};
+  const taStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit'};
+  const btnBase = (active) => ({background:active?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.04)',color:active?'#00C2FF':B.gray,border:'1px solid '+(active?'rgba(0,194,255,0.2)':'rgba(255,255,255,0.06)'),borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:active?700:400,transition:'all 0.15s'});
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
+        <div>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Research Hub</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Research pipeline, competitor intel, hashtag strategy, viral formats, and insight extraction.</p>
+        </div>
+      </div>
+
+      {/* Mode tabs */}
+      <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:20}}>
+        {MODES.map(m=>(
+          <button key={m.id} onClick={()=>{setMode(m.id);setOut('');setResearch('');setIntel('');setScript('');}}
+            style={{...btnBase(mode===m.id)}}>
+            <div style={{fontWeight:700}}>{m.label}</div>
+            <div style={{fontSize:10,opacity:0.7,marginTop:1}}>{m.desc}</div>
+          </button>
+        ))}
+      </div>
+
+      {/* ── PIPELINE ── */}
+      {mode==='pipeline' && (
+        <div>
+          <Card style={{marginBottom:12}}>
+            <SecLabel>Research Topic</SecLabel>
+            {trendingChips.length>0 && (
+              <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:12}}>
+                {trendingChips.map((chip,i)=>(
+                  <button key={i} onClick={()=>setQuery(chip.label)}
+                    style={{background:query===chip.label?B.red:'rgba(0,194,255,0.06)',border:`1px solid ${query===chip.label?B.red:'rgba(0,194,255,0.15)'}`,borderRadius:20,padding:'4px 12px',cursor:'pointer',color:B.white,fontSize:11}}>
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+            )}
+            <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="e.g. Colorado real estate market, mindset for high performers..." style={inStyle}/>
+            <SecLabel>Content Angle</SecLabel>
+            <AngleGrid selected={angle} onSelect={setAngle}/>
+            <SecLabel>Research Depth</SecLabel>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:14}}>
+              {TIER_PROMPTS.map((t,i)=>(
+                <button key={i} onClick={()=>setTier(i)}
+                  style={{background:tier===i?B.red:'rgba(255,255,255,0.07)',color:B.white,border:'none',borderRadius:8,padding:'10px 8px',cursor:'pointer',textAlign:'left'}}>
+                  <div style={{fontWeight:700,fontSize:12}}>{t.label}</div>
+                  <div style={{color:tier===i?'rgba(255,255,255,0.8)':B.gray,fontSize:10,marginTop:2}}>{t.desc}</div>
+                </button>
+              ))}
+            </div>
+            <button onClick={runPipelineResearch} disabled={step==='researching'||!query}
+              style={{background:step==='researching'||!query?'rgba(255,255,255,0.04)':'#00C2FF',color:step==='researching'||!query?B.gray:'#000D1A',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:step==='researching'||!query?'not-allowed':'pointer',fontSize:13}}>
+              {step==='researching'?'Researching...':'Step 1: Research'}
+            </button>
+          </Card>
+          {research && (
+            <Card style={{marginBottom:12}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+                <SecLabel style={{margin:0}}>Raw Research</SecLabel>
+                <div style={{display:'flex',gap:8}}>
+                  <CopyBtn text={research}/>
+                  <button onClick={runExtractIntel} disabled={step==='extracting'}
+                    style={{background:step==='extracting'?'rgba(255,255,255,0.04)':'#00C2FF',color:step==='extracting'?B.gray:'#000D1A',border:'none',borderRadius:6,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:step==='extracting'?'not-allowed':'pointer'}}>
+                    {step==='extracting'?'Extracting...':'Step 2: Extract Intel'}
+                  </button>
+                </div>
+              </div>
+              <div style={{color:B.light,fontSize:12,lineHeight:1.7,whiteSpace:'pre-wrap'}}
+                dangerouslySetInnerHTML={{__html:research.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" style="color:#00C2FF;text-decoration:none;">$1</a>')}}>
+              </div>
+            </Card>
+          )}
+          {intel && (
+            <Card style={{marginBottom:12}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+                <SecLabel style={{margin:0}}>Intelligence Brief</SecLabel>
+                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                  <CopyBtn text={intel}/>
+                  <div style={{display:'flex',gap:4}}>
+                    {PLATFORMS.map(p=>(
+                      <button key={p} onClick={()=>setPlatform(p)}
+                        style={{background:platform===p?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',borderRadius:5,padding:'4px 8px',cursor:'pointer',fontSize:11}}>
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                  <button onClick={runScriptFromIntel} disabled={step==='scripting'}
+                    style={{background:step==='scripting'?'rgba(255,255,255,0.04)':'#00C2FF',color:step==='scripting'?B.gray:'#000D1A',border:'none',borderRadius:6,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:step==='scripting'?'not-allowed':'pointer'}}>
+                    {step==='scripting'?'Writing...':'Step 3: Write Script'}
+                  </button>
+                </div>
+              </div>
+              <pre style={{color:B.white,fontSize:12,whiteSpace:'pre-wrap',margin:0,lineHeight:1.6,maxHeight:280,overflowY:'auto'}}>{intel}</pre>
+            </Card>
+          )}
+          {script && <DocOutput text={script} title="Research Pipeline Script — SIGNAL"/>}
+          {(step==='researching'||step==='extracting'||step==='scripting') && <Spin/>}
+        </div>
+      )}
+
+      {/* ── COMPETITOR SPY ── */}
+      {mode==='spy' && (
+        <Card>
+          <SecLabel>Competitor Handle or Name</SecLabel>
+          <input value={spyHandle} onChange={e=>setSpyHandle(e.target.value)} placeholder="@handle or Creator Name" style={inStyle}/>
+          <SecLabel>Platform</SecLabel>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:12}}>
+            {PLATFORMS.map(p=><button key={p} onClick={()=>setPlatform(p)} style={btnBase(platform===p)}>{p}</button>)}
+          </div>
+          <SecLabel>Content Angle to Analyze</SecLabel>
+          <AngleGrid selected={angle} onSelect={setAngle}/>
+          <SecLabel>Raw Data (paste their recent posts, stats, or observations)</SecLabel>
+          <textarea value={rawData} onChange={e=>setRawData(e.target.value)} rows={4}
+            placeholder="Paste their recent post titles, view counts, engagement rates, or any intel you have..." style={taStyle}/>
+          <button onClick={runSpy} disabled={loading||!spyHandle}
+            style={{background:!spyHandle||loading?'rgba(255,255,255,0.04)':'#00C2FF',color:!spyHandle||loading?B.gray:'#000D1A',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:!spyHandle||loading?'not-allowed':'pointer',fontSize:13}}>
+            {loading?'Analyzing...':'Analyze Competitor'}
+          </button>
+          {loading&&<Spin/>}
+          {out&&<DocOutput text={out} title={`Competitor Intel: ${spyHandle}`}/>}
+        </Card>
+      )}
+
+      {/* ── HASHTAG STRATEGY ── */}
+      {mode==='hashtag' && (
+        <Card>
+          <SecLabel>Niche or Topic</SecLabel>
+          <input value={niche} onChange={e=>setNiche(e.target.value)} placeholder="e.g. Colorado real estate, health coaching, mindset..." style={inStyle}/>
+          <SecLabel>Content Angle</SecLabel>
+          <AngleGrid selected={angle} onSelect={setAngle}/>
+          <SecLabel>Platform</SecLabel>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:12}}>
+            {PLATFORMS.map(p=><button key={p} onClick={()=>setPlatform(p)} style={btnBase(platform===p)}>{p}</button>)}
+          </div>
+          <SecLabel>Account Size</SecLabel>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
+            {['Under 1K','Under 10K','10K-50K','50K-100K','100K+'].map(s=>(
+              <button key={s} onClick={()=>setFollowers(s)} style={btnBase(followers===s)}>{s}</button>
+            ))}
+          </div>
+          <button onClick={runHashtag} disabled={loading||!niche}
+            style={{background:!niche||loading?'rgba(255,255,255,0.04)':'#00C2FF',color:!niche||loading?B.gray:'#000D1A',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:!niche||loading?'not-allowed':'pointer',fontSize:13}}>
+            {loading?'Researching...':'Generate Hashtag Strategy'}
+          </button>
+          {loading&&<Spin/>}
+          {out&&<DocOutput text={out} title={`Hashtag Strategy: ${niche} on ${platform}`}/>}
+        </Card>
+      )}
+
+      {/* ── VIRAL FORMATS ── */}
+      {mode==='viral' && (
+        <Card>
+          <SecLabel>Select Format</SecLabel>
+          <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:14}}>
+            {VIRAL_FORMATS.map(f=>(
+              <button key={f} onClick={()=>setSelectedFormat(f)}
+                style={{background:selectedFormat===f?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.04)',color:selectedFormat===f?'#00C2FF':B.light,border:'1px solid '+(selectedFormat===f?'rgba(0,194,255,0.25)':'rgba(255,255,255,0.06)'),borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:11,fontWeight:selectedFormat===f?700:400}}>
+                {f}
+              </button>
+            ))}
+          </div>
+          <SecLabel>Topic</SecLabel>
+          <input value={viralTopic} onChange={e=>setViralTopic(e.target.value)} placeholder="What is this piece about?" style={inStyle}/>
+          <SecLabel>Platform</SecLabel>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
+            {PLATFORMS.map(p=><button key={p} onClick={()=>setPlatform(p)} style={btnBase(platform===p)}>{p}</button>)}
+          </div>
+          <button onClick={runViral} disabled={loading||!selectedFormat}
+            style={{background:!selectedFormat||loading?'rgba(255,255,255,0.04)':'#00C2FF',color:!selectedFormat||loading?B.gray:'#000D1A',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:!selectedFormat||loading?'not-allowed':'pointer',fontSize:13}}>
+            {loading?'Building...':'Apply Format'}
+          </button>
+          {loading&&<Spin/>}
+          {out&&<DocOutput text={out} title={`${selectedFormat} — SIGNAL`}/>}
+        </Card>
+      )}
+
+      {/* ── EXTRACT ── */}
+      {mode==='extract' && (
+        <Card>
+          <SecLabel>Content to Analyze</SecLabel>
+          <textarea value={extractContent} onChange={e=>setExtractContent(e.target.value)} rows={5}
+            placeholder="Paste any content — article, transcript, podcast notes, competitor post..." style={taStyle}/>
+          <SecLabel>What to Extract (optional)</SecLabel>
+          <input value={extractQ} onChange={e=>setExtractQ(e.target.value)}
+            placeholder="e.g. hooks, key insights, content angles, monetization ideas..." style={inStyle}/>
+          <button onClick={runExtract} disabled={loading||!extractContent}
+            style={{background:!extractContent||loading?'rgba(255,255,255,0.04)':'#00C2FF',color:!extractContent||loading?B.gray:'#000D1A',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:!extractContent||loading?'not-allowed':'pointer',fontSize:13}}>
+            {loading?'Extracting...':'Extract Intelligence'}
+          </button>
+          {loading&&<Spin/>}
+          {out&&<DocOutput text={out} title="Insight Extraction — SIGNAL"/>}
+        </Card>
+      )}
+    </div>
+  );
+}
+
+function HookWorkshop() {
+  const [mode, setMode] = useState('generate');
+  const [topic, setTopic] = useState('');
+  const [quantity, setQuantity] = useState('10');
+  const [hooks, setHooks] = useState('');
+  const [testTopic, setTestTopic] = useState('');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const runGenerate = async () => {
+    if (!topic) return;
+    setLoading(true); setOut('');
+    const res = await ai(HOOK_PROMPT(topic, parseInt(quantity)||10));
+    setOut(res); setLoading(false);
+  };
+  const runTest = async () => {
+    if (!hooks) return;
+    setLoading(true); setOut('');
+    const res = await ai(HOOK_TEST_PROMPT(hooks, testTopic||topic));
+    setOut(res); setLoading(false);
+  };
+
+  const inStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'};
+  const taStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit'};
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
+        <div>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Hook Workshop</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Generate scroll-stopping hooks and score them before you film.</p>
+        </div>
+      </div>
+      <div style={{display:'flex',gap:6,marginBottom:20}}>
+        {[{id:'generate',label:'Generate Hooks'},{id:'test',label:'Score Hooks'}].map(m=>(
+          <button key={m.id} onClick={()=>{setMode(m.id);setOut('');}}
+            style={{background:mode===m.id?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.04)',color:mode===m.id?'#00C2FF':B.gray,border:'1px solid '+(mode===m.id?'rgba(0,194,255,0.25)':'rgba(255,255,255,0.06)'),borderRadius:6,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+            {m.label}
+          </button>
+        ))}
+      </div>
+      <Card>
+        {mode==='generate' ? (
+          <>
+            <SecLabel>Topic or Concept</SecLabel>
+            <input value={topic} onChange={e=>setTopic(e.target.value)} placeholder="e.g. morning routine, real estate investing, mindset shift..." style={inStyle}/>
+            <SecLabel>Number of Hooks</SecLabel>
+            <div style={{display:'flex',gap:6,marginBottom:14}}>
+              {['5','10','15','20'].map(n=>(
+                <button key={n} onClick={()=>setQuantity(n)}
+                  style={{background:quantity===n?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+                  {n}
+                </button>
+              ))}
+            </div>
+            <button onClick={runGenerate} disabled={loading||!topic}
+              style={{background:!topic||loading?'rgba(255,255,255,0.04)':'#00C2FF',color:!topic||loading?B.gray:'#000D1A',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:!topic||loading?'not-allowed':'pointer',fontSize:13}}>
+              {loading?'Writing hooks...':'Generate Hooks'}
+            </button>
+          </>
+        ) : (
+          <>
+            <SecLabel>Paste Your Hooks to Score</SecLabel>
+            <textarea value={hooks} onChange={e=>setHooks(e.target.value)} rows={6}
+              placeholder="Paste your hooks here, one per line..." style={taStyle}/>
+            <SecLabel>Topic Context (optional)</SecLabel>
+            <input value={testTopic} onChange={e=>setTestTopic(e.target.value)} placeholder="What is this content about?" style={inStyle}/>
+            <button onClick={runTest} disabled={loading||!hooks}
+              style={{background:!hooks||loading?'rgba(255,255,255,0.04)':'#00C2FF',color:!hooks||loading?B.gray:'#000D1A',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:!hooks||loading?'not-allowed':'pointer',fontSize:13}}>
+              {loading?'Scoring...':'Score Hooks'}
+            </button>
+          </>
+        )}
+      </Card>
+      {loading&&<Spin/>}
+      {out&&<DocOutput text={out} title="Hook Workshop — SIGNAL"/>}
+    </div>
+  );
+}
+
+function GrowthDashboard() {
+  const [mode, setMode] = useState('roi');
+  const [activeClient] = useActiveClient();
+
+  // ROI state (preserved from ROIDashboard)
+  const [weeks, setWeeks] = useState(() => { try { return JSON.parse(localStorage.getItem('encis_roi_weeks')||'[]'); } catch { return []; } });
+  const [form, setForm] = useState({ week:'', followers:'', reach:'', saves:'', shares:'', leads:'', notes:'' });
+  const [showForm, setShowForm] = useState(false);
+  const saveWeek = () => {
+    if (!form.week) return;
+    const updated = [form, ...weeks.filter(w=>w.week!==form.week)].sort((a,b)=>b.week.localeCompare(a.week));
+    setWeeks(updated);
+    try { localStorage.setItem('encis_roi_weeks', JSON.stringify(updated)); } catch {}
+    setForm({ week:'', followers:'', reach:'', saves:'', shares:'', leads:'', notes:'' });
+    setShowForm(false);
+  };
+
+  // A/B state
+  const [tests, setTests] = useState(() => { try { return JSON.parse(localStorage.getItem('encis_ab_tests')||'[]'); } catch { return []; } });
+  const [abForm, setAbForm] = useState({ hypothesis:'', varA:'', varB:'', metric:'', winner:'', insight:'' });
+  const [showAbForm, setShowAbForm] = useState(false);
+  const saveTest = () => {
+    if (!abForm.hypothesis) return;
+    const updated = [{ ...abForm, id: Date.now(), date: new Date().toLocaleDateString() }, ...tests];
+    setTests(updated);
+    try { localStorage.setItem('encis_ab_tests', JSON.stringify(updated)); } catch {}
+    setAbForm({ hypothesis:'', varA:'', varB:'', metric:'', winner:'', insight:'' });
+    setShowAbForm(false);
+  };
+
+  // Revenue state
+  const [revEntries, setRevEntries] = useState(() => { try { return JSON.parse(localStorage.getItem('encis_revenue')||'[]'); } catch { return []; } });
+  const [revForm, setRevForm] = useState({ source:'', content:'', leads:'', revenue:'', notes:'' });
+  const [showRevForm, setShowRevForm] = useState(false);
+  const saveRev = () => {
+    if (!revForm.source) return;
+    const updated = [{ ...revForm, id: Date.now(), date: new Date().toLocaleDateString() }, ...revEntries];
+    setRevEntries(updated);
+    try { localStorage.setItem('encis_revenue', JSON.stringify(updated)); } catch {}
+    setRevForm({ source:'', content:'', leads:'', revenue:'', notes:'' });
+    setShowRevForm(false);
+  };
+
+  // Gap analysis
+  const [gapOut, setGapOut] = useState('');
+  const [gapLoading, setGapLoading] = useState(false);
+  const runGapAnalysis = async () => {
+    setGapLoading(true); setGapOut('');
+    const log = (() => { try { return JSON.parse(localStorage.getItem('encis_content_log')||'[]'); } catch { return []; } })();
+    const roiStr = weeks.length ? weeks.slice(0,8).map(w=>`Week ${w.week}: Followers ${w.followers||'?'}, Reach ${w.reach||'?'}, Saves ${w.saves||'?'}`).join('
+') : 'No ROI data';
+    const prompt = `${VOICE}
+You are a content gap analyst. Based on this creator's data, identify the 5 highest-impact content angles they are under-using.
+
+ROI DATA:
+${roiStr}
+
+CONTENT LOG SAMPLE:
+${log.slice(0,20).map(e=>`${e.platform} ${e.type}: ${e.title||e.topic||''} (${e.perf||'unrated'})`).join('
+')||'No content logged'}
+
+For each gap:
+1. The angle or content type being missed
+2. Why it would perform based on the data
+3. Three specific post ideas to fill it
+4. Expected impact`;
+    const res = await ai(prompt);
+    setGapOut(res); setGapLoading(false);
+  };
+
+  const MODES = [
+    { id:'growth', label:'Growth Dashboard' },
+    { id:'ab', label:'A/B Tests' },
+    { id:'revenue', label:'Revenue Attribution' },
+    { id:'gaps', label:'Content Gaps' },
+  ];
+  const inStyle = {background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:7,padding:'8px 10px',color:B.white,fontSize:12,boxSizing:'border-box'};
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
+        <div style={{flex:1}}>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Growth Dashboard</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>ROI tracking, A/B tests, revenue attribution, and content gap analysis — one command center.</p>
+        </div>
+        {(() => { try { const r = JSON.parse(localStorage.getItem('encis_last_review')||'null'); return r ? (
+          <div style={{fontSize:10,color:'rgba(0,194,255,0.6)',textAlign:'right'}}>
+            <div style={{fontWeight:700,letterSpacing:1,textTransform:'uppercase'}}>Last review</div>
+            <div style={{color:B.gray}}>{new Date(r.date).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+          </div>
+        ) : null; } catch { return null; } })()}
+      </div>
+      <div style={{display:'flex',gap:6,marginBottom:20}}>
+        {MODES.map(m=>(
+          <button key={m.id} onClick={()=>setMode(m.id)}
+            style={{background:mode===m.id?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.04)',color:mode===m.id?'#00C2FF':B.gray,border:'1px solid '+(mode===m.id?'rgba(0,194,255,0.25)':'rgba(255,255,255,0.06)'),borderRadius:6,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+            {m.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ROI Dashboard */}
+      {mode==='roi' && (
+        <div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+            <SecLabel style={{margin:0}}>Weekly Metrics</SecLabel>
+            <button onClick={()=>setShowForm(s=>!s)}
+              style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:6,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+              + Log Week
+            </button>
+          </div>
+          {showForm && (
+            <Card style={{marginBottom:14}}>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:8}}>
+                {['week','followers','reach','saves','shares','leads'].map(f=>(
+                  <div key={f}>
+                    <SecLabel style={{marginBottom:4}}>{f}</SecLabel>
+                    <input value={form[f]} onChange={e=>setForm(p=>({...p,[f]:e.target.value}))} placeholder={f==='week'?'e.g. Mar 10-16':'number'} style={{...inStyle,width:'100%'}}/>
+                  </div>
+                ))}
+              </div>
+              <input value={form.notes} onChange={e=>setForm(p=>({...p,notes:e.target.value}))} placeholder="Notes..." style={{...inStyle,width:'100%',marginBottom:8}}/>
+              <button onClick={saveWeek} style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:6,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:'pointer'}}>Save</button>
+            </Card>
+          )}
+          {weeks.length===0 ? (
+            <div style={{background:'rgba(0,194,255,0.03)',border:'1px dashed rgba(0,194,255,0.1)',borderRadius:10,padding:24,textAlign:'center',color:B.gray,fontSize:12}}>
+              No metrics logged yet. Click + Log Week to start tracking.
+            </div>
+          ) : (
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              {weeks.slice(0,12).map((w,i)=>(
+                <div key={i} style={{background:'rgba(12,20,32,0.8)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'12px 16px',display:'flex',gap:16,flexWrap:'wrap',alignItems:'center'}}>
+                  <div style={{fontWeight:700,color:B.white,fontSize:13,minWidth:80}}>{w.week}</div>
+                  {[['Followers',w.followers],['Reach',w.reach],['Saves',w.saves],['Shares',w.shares],['Leads',w.leads]].map(([k,v])=>v?(
+                    <div key={k} style={{textAlign:'center'}}>
+                      <div style={{fontSize:10,color:B.gray,letterSpacing:1,textTransform:'uppercase'}}>{k}</div>
+                      <div style={{fontSize:14,fontWeight:700,color:B.white}}>{Number(v).toLocaleString()}</div>
+                    </div>
+                  ):null)}
+                  {w.notes && <div style={{color:B.gray,fontSize:11,flex:1}}>{w.notes}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* A/B Tests */}
+      {mode==='ab' && (
+        <div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+            <SecLabel style={{margin:0}}>Test Log</SecLabel>
+            <button onClick={()=>setShowAbForm(s=>!s)}
+              style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:6,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+              + New Test
+            </button>
+          </div>
+          {showAbForm && (
+            <Card style={{marginBottom:14}}>
+              {[['hypothesis','Hypothesis (what you are testing)'],['varA','Variant A'],['varB','Variant B'],['metric','Success Metric'],['winner','Winner'],['insight','Key Insight']].map(([f,label])=>(
+                <div key={f} style={{marginBottom:8}}>
+                  <SecLabel style={{marginBottom:4}}>{label}</SecLabel>
+                  <input value={abForm[f]} onChange={e=>setAbForm(p=>({...p,[f]:e.target.value}))} style={{...inStyle,width:'100%'}}/>
+                </div>
+              ))}
+              <button onClick={saveTest} style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:6,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:'pointer',marginTop:4}}>Save Test</button>
+            </Card>
+          )}
+          {tests.length===0 ? (
+            <div style={{background:'rgba(0,194,255,0.03)',border:'1px dashed rgba(0,194,255,0.1)',borderRadius:10,padding:24,textAlign:'center',color:B.gray,fontSize:12}}>No tests logged yet.</div>
+          ) : tests.map(t=>(
+            <div key={t.id} style={{background:'rgba(12,20,32,0.8)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'14px 16px',marginBottom:8}}>
+              <div style={{fontWeight:700,color:B.white,fontSize:13,marginBottom:6}}>{t.hypothesis}</div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:6}}>
+                <div style={{background:'rgba(0,0,0,0.2)',borderRadius:6,padding:'8px 10px'}}>
+                  <div style={{fontSize:9,color:B.gray,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Variant A</div>
+                  <div style={{color:B.light,fontSize:12}}>{t.varA}</div>
+                </div>
+                <div style={{background:'rgba(0,0,0,0.2)',borderRadius:6,padding:'8px 10px'}}>
+                  <div style={{fontSize:9,color:B.gray,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Variant B</div>
+                  <div style={{color:B.light,fontSize:12}}>{t.varB}</div>
+                </div>
+              </div>
+              {t.winner && <div style={{color:'#27ae60',fontSize:12,fontWeight:700}}>Winner: {t.winner}</div>}
+              {t.insight && <div style={{color:B.gray,fontSize:11,marginTop:4}}>{t.insight}</div>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Revenue Attribution */}
+      {mode==='revenue' && (
+        <div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+            <SecLabel style={{margin:0}}>Revenue Log</SecLabel>
+            <button onClick={()=>setShowRevForm(s=>!s)}
+              style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:6,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+              + Log Entry
+            </button>
+          </div>
+          {showRevForm && (
+            <Card style={{marginBottom:14}}>
+              {[['source','Lead Source'],['content','Content That Converted'],['leads','Leads Generated'],['revenue','Revenue ($)'],['notes','Notes']].map(([f,label])=>(
+                <div key={f} style={{marginBottom:8}}>
+                  <SecLabel style={{marginBottom:4}}>{label}</SecLabel>
+                  <input value={revForm[f]} onChange={e=>setRevForm(p=>({...p,[f]:e.target.value}))} style={{...inStyle,width:'100%'}}/>
+                </div>
+              ))}
+              <button onClick={saveRev} style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:6,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:'pointer',marginTop:4}}>Save</button>
+            </Card>
+          )}
+          {revEntries.length===0 ? (
+            <div style={{background:'rgba(0,194,255,0.03)',border:'1px dashed rgba(0,194,255,0.1)',borderRadius:10,padding:24,textAlign:'center',color:B.gray,fontSize:12}}>No revenue entries logged yet.</div>
+          ) : revEntries.map(r=>(
+            <div key={r.id} style={{background:'rgba(12,20,32,0.8)',border:'1px solid rgba(0,194,255,0.08)',borderRadius:10,padding:'14px 16px',marginBottom:8,display:'flex',gap:16,flexWrap:'wrap',alignItems:'center'}}>
+              <div style={{fontWeight:700,color:B.white,fontSize:13}}>{r.source}</div>
+              {r.revenue && <div style={{color:'#27ae60',fontWeight:700,fontSize:14}}>${r.revenue}</div>}
+              {r.leads && <div style={{color:B.light,fontSize:12}}>{r.leads} leads</div>}
+              {r.content && <div style={{color:B.gray,fontSize:11,flex:1}}>{r.content}</div>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Content Gaps */}
+      {mode==='gaps' && (
+        <div>
+          <Card>
+            <p style={{color:B.light,fontSize:13,lineHeight:1.7,marginBottom:16}}>
+              SIGNAL analyzes your logged metrics and content history to find the 5 highest-impact angles you are under-using. The more data you have logged in ROI Dashboard and Content Memory, the more specific the analysis.
+            </p>
+            <button onClick={runGapAnalysis} disabled={gapLoading}
+              style={{background:gapLoading?'rgba(255,255,255,0.04)':'#00C2FF',color:gapLoading?B.gray:'#000D1A',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:gapLoading?'not-allowed':'pointer',fontSize:13}}>
+              {gapLoading?'Analyzing...':'Find Content Gaps'}
+            </button>
+          </Card>
+          {gapLoading&&<Spin/>}
+          {gapOut&&<DocOutput text={gapOut} title="Content Gap Analysis — SIGNAL"/>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BioSuite() {
+  const [mode, setMode] = useState('optimize');
+  const [clients] = useClients();
+  const [activeClient] = useActiveClient();
+  const [selectedClient, setSelectedClient] = useState(null);
+  useEffect(() => { setSelectedClient(activeClient); }, []);
+
+  // Optimize state
+  const [platform, setPlatform] = useState('Instagram');
+  const [currentBio, setCurrentBio] = useState('');
+  const [goals, setGoals] = useState('');
+
+  // Link builder state
+  const [headline, setHeadline] = useState('');
+  const [subtext, setSubtext] = useState('');
+  const [links, setLinks] = useState([{label:'',url:'',icon:''}]);
+
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const runOptimize = async () => {
+    setLoading(true); setOut('');
+    const res = await ai(BIO_OPTIMIZER_PROMPT(selectedClient||activeClient, platform, currentBio, goals));
+    setOut(res); setLoading(false);
+  };
+  const runBioLink = async () => {
+    setLoading(true); setOut('');
+    const linkList = links.map(l=>`${l.icon} ${l.label}: ${l.url}`).join('
+');
+    const res = await ai(BIOLINK_PROMPT(selectedClient||activeClient, headline, subtext, linkList));
+    setOut(res); setLoading(false);
+  };
+
+  const inStyle = {width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'9px 12px',color:B.white,fontSize:13,marginBottom:12,boxSizing:'border-box'};
+  const btnBase = (active) => ({background:active?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.04)',color:active?'#00C2FF':B.gray,border:'1px solid '+(active?'rgba(0,194,255,0.25)':'rgba(255,255,255,0.06)'),borderRadius:6,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:700});
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+        <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
+        <div>
+          <h2 style={{color:B.white,margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Bio Suite</h2>
+          <p style={{color:B.gray,margin:'4px 0 0',fontSize:13}}>Optimize your profile bio and build your bio link page.</p>
+        </div>
+      </div>
+      <div style={{display:'flex',gap:6,marginBottom:20}}>
+        {[{id:'optimize',label:'Bio Optimizer'},{id:'link',label:'Bio Link Builder'}].map(m=>(
+          <button key={m.id} onClick={()=>{setMode(m.id);setOut('');}} style={btnBase(mode===m.id)}>{m.label}</button>
+        ))}
+      </div>
+      <Card>
+        <SecLabel>Client</SecLabel>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
+          {clients.map(c=>(
+            <button key={c.id} onClick={()=>setSelectedClient(c)}
+              style={{background:selectedClient?.id===c.id?B.red:'rgba(255,255,255,0.06)',color:B.white,border:'none',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+              {c.name}
+            </button>
+          ))}
+        </div>
+        {mode==='optimize' ? (
+          <>
+            <SecLabel>Platform</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:12}}>
+              {PLATFORMS.map(p=><button key={p} onClick={()=>setPlatform(p)} style={btnBase(platform===p)}>{p}</button>)}
+            </div>
+            <SecLabel>Current Bio</SecLabel>
+            <textarea value={currentBio} onChange={e=>setCurrentBio(e.target.value)} rows={3}
+              placeholder="Paste your current bio here..."
+              style={{width:'100%',background:'rgba(0,0,0,0.3)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:8,padding:'10px 12px',color:B.white,fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit'}}/>
+            <SecLabel>Goals</SecLabel>
+            <input value={goals} onChange={e=>setGoals(e.target.value)} placeholder="e.g. grow email list, attract real estate leads, book podcast guests..." style={inStyle}/>
+            <button onClick={runOptimize} disabled={loading}
+              style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:'pointer',fontSize:13}}>
+              {loading?'Optimizing...':'Optimize Bio'}
+            </button>
+          </>
+        ) : (
+          <>
+            <SecLabel>Headline</SecLabel>
+            <input value={headline} onChange={e=>setHeadline(e.target.value)} placeholder="e.g. Real estate. Mindset. Colorado life." style={inStyle}/>
+            <SecLabel>Subtext</SecLabel>
+            <input value={subtext} onChange={e=>setSubtext(e.target.value)} placeholder="e.g. Helping working parents build wealth through real estate" style={inStyle}/>
+            <SecLabel>Links</SecLabel>
+            {links.map((l,i)=>(
+              <div key={i} style={{display:'grid',gridTemplateColumns:'60px 1fr 2fr auto',gap:6,marginBottom:6,alignItems:'center'}}>
+                <input value={l.icon} onChange={e=>{const n=[...links];n[i]={...n[i],icon:e.target.value};setLinks(n);}} placeholder="Icon" style={{...inStyle,margin:0,textAlign:'center'}}/>
+                <input value={l.label} onChange={e=>{const n=[...links];n[i]={...n[i],label:e.target.value};setLinks(n);}} placeholder="Label" style={{...inStyle,margin:0}}/>
+                <input value={l.url} onChange={e=>{const n=[...links];n[i]={...n[i],url:e.target.value};setLinks(n);}} placeholder="URL" style={{...inStyle,margin:0}}/>
+                <button onClick={()=>setLinks(links.filter((_,j)=>j!==i))} style={{background:'none',border:'none',color:B.gray,cursor:'pointer',fontSize:16,padding:'0 4px'}}>×</button>
+              </div>
+            ))}
+            <button onClick={()=>setLinks([...links,{label:'',url:'',icon:''}])}
+              style={{background:'rgba(255,255,255,0.05)',color:B.gray,border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,marginBottom:14}}>
+              + Add Link
+            </button>
+            <button onClick={runBioLink} disabled={loading}
+              style={{display:'block',background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:'pointer',fontSize:13}}>
+              {loading?'Building...':'Generate Bio Link Page'}
+            </button>
+          </>
+        )}
+      </Card>
+      {loading&&<Spin/>}
+      {out&&<DocOutput text={out} title="Bio Suite — SIGNAL"/>}
+    </div>
+  );
+}
+
 const COMPONENT_MAP = {
   home: Home,
   onboard: Onboarding,
@@ -12687,38 +13724,48 @@ const COMPONENT_MAP = {
   profile: ProfileAudit,
   magnet: LeadMagnet,
   community: CommunityBuilder,
-  pipeline: Pipeline,
+  create: ContentCreationHub,
+  script: ContentCreationHub,
+  caption: ContentCreationHub,
+  batch: ContentCreationHub,
+  episode: ContentCreationHub,
+  repurpose: ContentCreationHub,
+  contentbrief: ContentCreationHub,
+  research: ResearchHub,
+  pipeline: ResearchHub,
+  spy: ResearchHub,
+  hashtags: ResearchHub,
+  viral: ResearchHub,
+  extract: ResearchHub,
+  hooks: HookWorkshop,
+  hooktester: HookWorkshop,
+  growth: GrowthDashboard,
+  roi: GrowthDashboard,
+  gaps: GrowthDashboard,
+  abtests: GrowthDashboard,
+  revenue: GrowthDashboard,
+  bio: BioSuite,
+  biolink: BioSuite,
+  biooptimizer: BioSuite,
   vault: Vault,
   collab: CollabFinder,
-  extract: Extract,
-  script: ScriptEngine,
-  batch: BulkBatch,
-  episode: EpisodeClips,
-  repurpose: RepurposeEngine,
-  hooks: HookLibrary,
   design: DesignStudio,
   review: WeeklyReview,
-  roi: ROIDashboard,
   memory: ContentMemory,
-  caption: CaptionWriter,
   schedule: ScheduleOptimizer,
-  gaps: ContentGapAnalyzer,
   tracker: CollabTracker,
   clients: ClientMode,
   comment: CommentResponder,
-  hooktester: HookTester,
   email: EmailSequenceBuilder,
   podcast: PodcastPreProd,
   yttoolkit: YouTubeToolkit,
   dmscripts: DMScriptLibrary,
   challenge: ChallengeBuilder,
-  spy: CompetitorIntel,
   portal: ClientPortal,
   deliverable: DeliverableBuilder,
   report: MonthlyReportSuite,
   voice: BrandVoiceFingerprint,
   videodirector: VideoScriptDirector,
-  compintel: CompetitorIntel,
   campaign: CampaignBuilder,
   predictor: ContentPredictor,
   whitelabel: WhiteLabelMode,
@@ -12728,103 +13775,13 @@ const COMPONENT_MAP = {
   visualcal: VisualCalendar,
   stratreview: AIStrategyReview,
   onboardauto: OnboardingAutomation,
-  biolink: BioLinkBuilder,
   clientcomms: ClientCommsTemplates,
-  contentbrief: ContentBriefGenerator,
-  hashtags: HashtagResearch,
-  series: ContentSeriesPlanner,
-  biooptimizer: BioOptimizer,
   pricing: PricingCalculator,
   storyarc: StoryArcPlanner,
   guestprep: GuestPrepKit,
   objections: ObjectionHandler,
-  abtests: ABTestTracker,
-  viral: ViralFormatLibrary,
-  revenue: RevenueAttribution,
-};
-
-
-// ── Global Error Boundary — prevents white screen crashes ───────────────────
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-  componentDidCatch(error, info) {
-    console.error('SIGNAL Error:', error, info);
-  }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{minHeight:'100vh',background:'#080D14',display:'flex',alignItems:'center',justifyContent:'center',padding:32}}>
-          <div style={{background:'rgba(12,20,32,0.9)',border:'1px solid rgba(0,194,255,0.2)',borderRadius:16,padding:40,maxWidth:520,textAlign:'center'}}>
-            
-            <h2 style={{color:'#F1F5F9',fontWeight:900,fontSize:20,marginBottom:12,letterSpacing:'-0.03em'}}>Something went wrong</h2>
-            <p style={{color:'#5A6A82',fontSize:14,marginBottom:24,lineHeight:1.6}}>
-              SIGNAL hit an unexpected error. Your data is safe in localStorage.
-            </p>
-            <div style={{background:'rgba(0,0,0,0.4)',borderRadius:8,padding:'10px 14px',marginBottom:24,textAlign:'left',fontSize:11,color:'rgba(255,255,255,0.4)',fontFamily:'monospace',maxHeight:80,overflow:'hidden'}}>
-              {this.state.error?.message || 'Unknown error'}
-            </div>
-            <button onClick={() => { this.setState({hasError:false,error:null}); window.location.reload(); }}
-              style={{background:'linear-gradient(135deg,#00C2FF,#0096CC)',color:'#000D1A',border:'none',borderRadius:8,padding:'10px 24px',fontWeight:800,cursor:'pointer',fontSize:14}}>
-              Reload SIGNAL
-            </button>
-          </div>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
-export default function App() {
-  const [nav, setNav] = useState('home');
-  const [sub, setSub] = useState(null);
-  const { save: memorySave } = useContentMemory();
-  const [activeClient] = useActiveClient();
-  const [onboardingDone, setOnboardingDone] = useState(() => {
-    try { return !!localStorage.getItem(ONBOARDING_DONE_KEY); } catch { return true; }
-  });
-
-  // Check if this is a client approval link
-  const approvalPayload = (() => {
-    try {
-      const hash = typeof window !== 'undefined' ? window.location.hash : '';
-      if (hash.startsWith('#approval=')) return hash.slice(10);
-    } catch {}
-    return null;
-  })();
-
-  // If approval link, render standalone approval page
-  if (approvalPayload) {
-    return <ApprovalPage encodedPayload={approvalPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
-  }
-
-  
-
-  // Register memory save function globally so all tools can log to it
-  useEffect(() => { registerMemorySave(memorySave); }, [memorySave]);
-
-  // Listen for internal navigation events (e.g. Generate Calendar from Strategy)
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.detail?.nav) { setNav(e.detail.nav); setSub(e.detail.sub || null); }
-    };
-    window.addEventListener('signal-nav', handler);
-    return () => window.removeEventListener('signal-nav', handler);
-  }, []);
-  useEffect(() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null'); document.title = wl?.agencyName ? wl.agencyName + ' | Social Media OS' : 'SIGNAL by Everyday Elevations'; } catch { document.title = 'SIGNAL by Everyday Elevations'; } }, []);
-
-  const handleNav = (id) => {
-    setNav(id);
-    if(id === 'home') { setSub(null); return; }
-    if(id === 'youtube') { setSub('yttoolkit'); return; }
-    const subs = SUB_NAV[id];
-    if(subs) setSub(subs[0].id);
+  series: ContentSeriesPlanner,
+  compintel: CompetitorIntel,
   };
 
   const ActiveComponent = sub
@@ -12959,4 +13916,31 @@ export default function App() {
       </div>
     </ErrorBoundary>
   );
+}
+// ── Global Error Boundary — prevents white screen crashes ───────────────────
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) { return { hasError: true, error }; }
+  componentDidCatch(error, info) { console.error('SIGNAL Error:', error, info); }
+  render() {
+    if (this.state.hasError) return (
+      <div style={{minHeight:'100vh',background:'#080D14',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'DM Sans,sans-serif'}}>
+        <div style={{background:'#0C1420',border:'1px solid rgba(0,194,255,0.15)',borderRadius:16,padding:40,maxWidth:480,textAlign:'center'}}>
+          <h2 style={{color:'#F1F5F9',fontWeight:900,fontSize:22,letterSpacing:'-0.03em',marginBottom:8}}>Something went wrong</h2>
+          <p style={{color:'#5A6A82',fontSize:14,marginBottom:20}}>SIGNAL hit an unexpected error. Your data is safe in localStorage.</p>
+          <div style={{background:'rgba(0,0,0,0.3)',borderRadius:8,padding:'10px 14px',marginBottom:20,fontFamily:'monospace',fontSize:12,color:'#8B9AB4',textAlign:'left'}}>
+            {this.state.error?.message || 'Unknown error'}
+          </div>
+          <button onClick={()=>window.location.reload()}
+            style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:8,padding:'12px 28px',fontWeight:800,cursor:'pointer',fontSize:14}}>
+            Reload SIGNAL
+          </button>
+        </div>
+      </div>
+    );
+    return this.props.children;
+  }
 }
