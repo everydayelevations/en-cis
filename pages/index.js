@@ -2273,7 +2273,7 @@ function BulkBatch() {
           <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
             {PLATFORMS.map(p => (
               <button key={p} onClick={()=>setPlatform(p)}
-                style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:'#111827',border:'1px solid #E5E7EB',
+                style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                   borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
                 {p}
               </button>
@@ -3045,7 +3045,7 @@ function ProfileAudit() {
         <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
           {PLATFORMS.map(p => (
             <button key={p} onClick={() => { setPlatform(p); setLiveData(''); setOut(''); }}
-              style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:'#111827',border:'1px solid #E5E7EB',
+              style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                 borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:platform===p?700:400}}>
               {p}{p==='LinkedIn'?' (Dual-Lane)':''}
             </button>
@@ -3359,7 +3359,7 @@ function Pipeline() {
                 <div style={{display:'flex',gap:6}}>
                   {PLATFORMS.map(p => (
                     <button key={p} onClick={()=>setPlatform(p)}
-                      style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:'#111827',border:'1px solid #E5E7EB',
+                      style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                         borderRadius:5,padding:'4px 10px',cursor:'pointer',fontSize:12}}>
                       {p}
                     </button>
@@ -3566,7 +3566,7 @@ function ScriptEngine() {
             <div style={{display:'flex',gap:8,marginBottom:16}}>
               {PLATFORMS.map(p => (
                 <button key={p} onClick={()=>setPlatform(p)}
-                  style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:'#111827',border:'1px solid #E5E7EB',
+                  style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                     borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:platform===p?700:400}}>
                   {p}
                 </button>
@@ -4692,7 +4692,7 @@ function CaptionWriter() {
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {PLATFORMS.map(p => (
                 <button key={p} onClick={() => setPlatform(p)}
-                  style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:'#111827',border:'1px solid #E5E7EB',
+                  style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                     borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
                   {p}
                 </button>
@@ -6800,8 +6800,8 @@ function ChallengeBuilder() {
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:8,marginBottom:20}}>
           {quickChallenges.map((qc, i) => (
             <button key={i} onClick={() => { setName(qc.name); setTransformation(qc.transformation); }}
-              style={{background:name===qc.name?'rgba(233,69,96,0.15)':'rgba(255,255,255,0.04)',
-                border:`1px solid ${name===qc.name?'rgba(233,69,96,0.4)':'rgba(255,255,255,0.08)'}`,
+              style={{background:name===qc.name?'#EEF2FF':'#F9FAFB',
+                border:`1px solid ${name===qc.name?'#C7D2FE':'#E5E7EB'}`,
                 borderRadius:10,padding:'12px',cursor:'pointer',textAlign:'left'}}>
               <div style={{color:'#111827',fontWeight:700,fontSize:12,marginBottom:4}}>{qc.name}</div>
               <div style={{color:'#6B7280',fontSize:11,lineHeight:1.5}}>{qc.transformation.slice(0,70)}...</div>
@@ -6832,9 +6832,11 @@ function ChallengeBuilder() {
         <SecLabel>Primary Platform</SecLabel>
         <div style={{display:'flex',gap:8,marginBottom:20}}>
           {PLATFORMS.map(p => (
-            <button key={p} onClick={() => setPlatforms(p)}
-              style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:'#111827',border:'1px solid #E5E7EB',
-                borderRadius:6,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:platform===p?700:400}}>
+            <button key={p} onClick={() => setPlatforms(prev => Array.isArray(prev) ? (prev.includes(p) ? prev.filter(x=>x!==p) : [...prev,p]) : [p])}
+              style={{background:Array.isArray(platforms)&&platforms.includes(p)?'#EEF2FF':'#F9FAFB',
+                color:Array.isArray(platforms)&&platforms.includes(p)?'#2563EB':'#374151',
+                border:`1px solid ${Array.isArray(platforms)&&platforms.includes(p)?'#C7D2FE':'#E5E7EB'}`,
+                borderRadius:6,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:Array.isArray(platforms)&&platforms.includes(p)?700:400}}>
               {p}
             </button>
           ))}
@@ -6976,7 +6978,7 @@ function CompetitorSpy() {
             <div style={{display:'flex',gap:6}}>
               {PLATFORMS.map(p => (
                 <button key={p} onClick={() => setPlatform(p)}
-                  style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:'#111827',border:'1px solid #E5E7EB',
+                  style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
                     borderRadius:6,padding:'8px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
                   {p}
                 </button>
@@ -8410,7 +8412,7 @@ function ContentPredictor() {
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {PLATFORMS.map(p => (
                 <button key={p} onClick={()=>setPlatform(p)}
-                  style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.03)',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
+                  style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
                   {p}
                 </button>
               ))}
@@ -12886,9 +12888,9 @@ function ContentCreationHub() {
             <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
               {PLATFORMS.map(p=>(
                 <button key={p} onClick={()=>setPlatform(p)}
-                  style={{background:platform===p?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.04)',
+                  style={{background:platform===p?'#EEF2FF':'#F9FAFB',
                     color:platform===p?'#00C2FF':'#6B7280',
-                    border:'1px solid '+(platform===p?'rgba(0,194,255,0.2)':'rgba(255,255,255,0.06)'),
+                    border:'1px solid '+(platform===p?'#C7D2FE':'#E5E7EB'),
                     borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
                   {p}
                 </button>
