@@ -158,33 +158,28 @@ const Spin = () => (
 );
 
 const RedBtn = ({onClick,disabled,children,style={}}) => (
-  <button onClick={onClick} disabled={disabled}
-    style={{
-      background: disabled ? 'rgba(255,255,255,0.04)' : '#00C2FF',
-      color: disabled ? 'rgba(255,255,255,0.25)' : '#000D1A',
-      border: disabled ? '1px solid rgba(255,255,255,0.06)' : 'none',
-      borderRadius: 6,
-      padding: '9px 20px',
-      fontWeight: 700,
-      letterSpacing: '0.02em',
-      fontSize: 13,
-      cursor: disabled ? 'not-allowed' : 'pointer',
-      fontSize: 13,
-      letterSpacing: '0.02em',
-      transition: 'all 0.15s',
-      boxShadow: disabled ? 'none' : '0 0 20px rgba(0,194,255,0.25)',
-      ...style
-    }}>
+  <button onClick={onClick} disabled={disabled} style={{
+    background: disabled ? '#9CA3AF' : '#2563EB',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 8,
+    padding: '11px 22px',
+    fontWeight: 700,
+    fontSize: 14,
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    transition: 'background 0.15s',
+    width: '100%',
+    ...style
+  }}>
     {children}
   </button>
 );
-
 const Card = ({children,style={}}) => (
-  <div style={{
+  <div className="signal-card" style={{
     background: '#FFFFFF',
     border: '1px solid #E5E7EB',
     borderRadius: 12,
-    padding: '1.5rem',
+    padding: '1.25rem',
     boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
     ...style
   }}>
@@ -209,7 +204,7 @@ const SOPBadge = () => (
 const AngleGrid = ({selected, onSelect, angles}) => {
   const displayAngles = angles || ANGLES;
   return (
-    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:16}}>
+    <div className="signal-grid-auto" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:16}}>
       {displayAngles.map(a => (
         <button key={a.id} onClick={() => onSelect(a.id)}
           style={{background:selected===a.id?'#2563EB':'#F9FAFB',
@@ -2258,7 +2253,7 @@ function BulkBatch() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div><h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Bulk Content Batch</h2>
           <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>One topic 5 posts + carousel + story sequence. Full week of content in one shot.</p></div>
@@ -2757,7 +2752,7 @@ function Onboarding() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div><h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>90-Day Strategy Builder</h2>
           <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Pre-filled with your numbers. Edit anything, then generate a complete strategy document.</p></div>
@@ -2914,7 +2909,7 @@ function ContentCalendar() {
   };
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div><h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Content Calendar Engine</h2>
           <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>4-week content framework every topic filmable tomorrow <SOPBadge/></p></div>
@@ -3032,7 +3027,7 @@ function ProfileAudit() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Profile Audit</h2>
@@ -3106,7 +3101,7 @@ function LeadMagnet() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Lead Magnet Builder</h2>
@@ -3168,7 +3163,7 @@ function CommunityBuilder() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Community Builder</h2>
@@ -3266,7 +3261,7 @@ function Pipeline() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div><h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Research Pipeline</h2>
           <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Perplexity research Intelligence extraction Camera-ready script</p></div>
@@ -3318,7 +3313,7 @@ function Pipeline() {
         <SecLabel>Content Angle</SecLabel>
         <AngleGrid selected={angle} onSelect={setAngle}/>
         <SecLabel>Research Depth</SecLabel>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:16}}>
+        <div className="signal-grid-auto" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:16}}>
           {TIER_PROMPTS.map((t,i) => (
             <button key={i} onClick={()=>setTier(i)}
               style={{background:tier===i?'#2563EB':'#F3F4F6',color:tier===i?'#FFFFFF':'#374151',border:'1px solid '+(tier===i?'transparent':'#E5E7EB'),
@@ -3392,7 +3387,7 @@ function Vault() {
   };
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div><h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Prompt Vault</h2>
           <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>25+ battle-tested prompts copy and run anywhere</p></div>
@@ -3438,7 +3433,7 @@ function CollabFinder() {
   };
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div><h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Collab Finder</h2>
           <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Perplexity-powered guest targets + pitch templates</p></div>
@@ -3483,7 +3478,7 @@ function Extract() {
   };
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div><h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Insight Extractor</h2>
           <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Pull gold from any content articles, interviews, books, transcripts</p></div>
@@ -3538,7 +3533,7 @@ function ScriptEngine() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div><h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Script Engine</h2>
           <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>3 script variations Write original or Stitch response <SOPBadge/></p></div>
@@ -3630,7 +3625,7 @@ function EpisodeClips() {
   };
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div><h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Episode to Clips</h2>
           <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>One podcast episode 5-7 clips + carousel + LinkedIn + quotes + email</p></div>
@@ -3669,7 +3664,7 @@ function RepurposeEngine() {
   };
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div><h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Repurpose Engine</h2>
           <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>One script 4 platform-native versions <SOPBadge/></p></div>
@@ -3713,7 +3708,7 @@ function HookLibrary() {
   };
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div><h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Hook Library</h2>
           <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>5 hook types Pattern Interrupt, Question, Bold Statement, Story, Data</p></div>
@@ -3759,7 +3754,7 @@ function DesignStudio() {
   };
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div><h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Design Studio</h2>
           <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Carousel + static post concepts with visual direction + captions</p></div>
@@ -3846,7 +3841,7 @@ function WeeklyReview() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Weekly Review Command Center</h2>
@@ -4081,7 +4076,16 @@ function useTrendAlerts() {
       const stored = localStorage.getItem(TREND_ALERTS_KEY);
       const date   = localStorage.getItem(TREND_ALERTS_DATE);
       if (stored) setAlerts(JSON.parse(stored));
-      if (date)   setLastRun(date);
+      if (date) {
+        // Format ms timestamp → readable string
+        const ts = /^\d+$/.test(date) ? parseInt(date) : null;
+        if (ts) {
+          const d = new Date(ts);
+          setLastRun(d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' at ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}));
+        } else {
+          setLastRun(date);
+        }
+      }
     } catch {}
   }, []);
 
@@ -4205,7 +4209,7 @@ function TrendAlertBanner() {
 
   // Always render even with no alerts, show the bar so user can refresh
   const hasAlerts = alerts.length > 0;
-  const preview = alerts.find(a => a.text?.length > 10)?.text?.slice(0, 100) || '';
+  const preview = (alerts.find(a => a.text?.length > 10)?.text || '').replace(/\*\*/g,'').slice(0, 80);
 
   return (
     <div style={{
@@ -4226,7 +4230,7 @@ function TrendAlertBanner() {
             </span>
           )}
           {/* Preview text */}
-          <span style={{color:'rgba(255,255,255,0.45)',fontSize:11,flex:1,overflow:'hidden',
+          <span className="signal-trend-preview" style={{color:'rgba(255,255,255,0.45)',fontSize:11,flex:1,overflow:'hidden',
             textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
             <span style={{color: apiError ? '#ef4444' : 'rgba(255,255,255,0.45)'}}>
             {loading ? 'Scanning trends...' :
@@ -4261,18 +4265,19 @@ function TrendAlertBanner() {
           <div style={{paddingBottom:16}}>
             {lastRun && (
               <div style={{color:'#6B7280',fontSize:10,marginBottom:10,letterSpacing:0.5}}>
-                Last checked: {lastRun} &nbsp;·&nbsp; {alerts.length} trend{alerts.length!==1?'s':''} verified
+                Last checked: {lastRun} · {alerts.length} trend{alerts.length!==1?'s':''} found
               </div>
             )}
             <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:8}}>
               {alerts.map(alert => (
                 <div key={alert.id} style={{
-                  background: alert.seen ? 'rgba(255,255,255,0.02)' : 'rgba(0,194,255,0.04)',
-                  border: `1px solid ${alert.seen?'rgba(255,255,255,0.05)':'rgba(0,194,255,0.12)'}`,
-                  borderRadius:8, padding:'12px 14px',
+                  background:'#FFFFFF',
+                  border:`1px solid ${alert.seen?'#E5E7EB':'#C7D2FE'}`,
+                  borderRadius:8,padding:'12px 14px',
+                  boxShadow:'0 1px 3px rgba(0,0,0,0.05)',
                 }}>
                   <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
-                    <span style={{color:'rgba(0,194,255,0.6)',fontSize:9,fontWeight:700,
+                    <span style={{color:'#2563EB',fontSize:9,fontWeight:700,
                       letterSpacing:2,textTransform:'uppercase'}}>
                       {alert.angle}
                     </span>
@@ -4298,7 +4303,7 @@ function TrendAlertBanner() {
                   )}
                   {alert.text && (
                     <div style={{color:'#6B7280',fontSize:10,lineHeight:1.5,marginBottom:6}}>
-                      {alert.text.slice(0,120)}{alert.text.length>120?'...':''}
+                      {alert.text.replace(/\*\*/g,'').slice(0,160)}{alert.text.replace(/\*\*/g,'').length>160?'...':''}
                     </div>
                   )}
                   {alert.profileUrl && (
@@ -4677,7 +4682,7 @@ function CaptionWriter() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Caption Writer</h2>
@@ -4820,7 +4825,7 @@ For each day: Platform, Content Type, Best Time to Post, Why (based on data)
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Schedule Optimizer</h2>
@@ -4950,7 +4955,7 @@ ${summary}
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Content Gap Analyzer</h2>
@@ -5313,7 +5318,7 @@ function CommentResponder() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Comment Responder</h2>
@@ -5426,7 +5431,7 @@ function HookTester() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Hook Tester</h2>
@@ -5602,7 +5607,7 @@ function EmailSequenceBuilder() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Email Sequence Builder</h2>
@@ -5801,7 +5806,7 @@ function PodcastPreProd() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Podcast Pre-Production</h2>
@@ -6241,7 +6246,7 @@ function YouTubeToolkit() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>YouTube Toolkit</h2>
@@ -6786,7 +6791,7 @@ function ChallengeBuilder() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>30-Day Challenge Builder</h2>
@@ -6952,7 +6957,7 @@ function CompetitorSpy() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Competitor Content Spy</h2>
@@ -7110,7 +7115,7 @@ function BrandVoiceFingerprint() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Brand Voice Fingerprinting</h2>
@@ -7292,7 +7297,7 @@ function ClientPortal() {
 
     return (
       <div>
-        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap',flexWrap:'wrap'}}>
           <button onClick={() => setView('list')} style={{background:'#FFFFFF',color:'#6B7280',border:'none',borderRadius:6,padding:'6px 12px',fontSize:12,cursor:'pointer'}}>
             All Clients
           </button>
@@ -7415,7 +7420,7 @@ function ClientPortal() {
   // List view
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Client Portal</h2>
@@ -7550,7 +7555,7 @@ function MonthlyReportSuite() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Monthly Reporting Suite</h2>
@@ -7688,7 +7693,7 @@ function DeliverableBuilder() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Client Deliverable Builder</h2>
@@ -7840,7 +7845,7 @@ function CompetitorIntel() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Competitor Intelligence</h2>
@@ -7996,7 +8001,7 @@ function VideoScriptDirector() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>AI Video Script Director</h2>
@@ -8184,7 +8189,7 @@ function CampaignBuilder() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Campaign Builder</h2>
@@ -8391,7 +8396,7 @@ function ContentPredictor() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Performance Predictor</h2>
@@ -8491,7 +8496,7 @@ function WhiteLabelMode() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>White Label Mode</h2>
@@ -8718,7 +8723,7 @@ function CustomPersona() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Custom AI Persona</h2>
@@ -9077,7 +9082,7 @@ function TranscriptIntel() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Call Transcript Intel</h2>
@@ -9335,7 +9340,7 @@ function AnalyticsHub() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Analytics Import Hub</h2>
@@ -9725,7 +9730,7 @@ function AIStrategyReview() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>AI Strategy Review</h2>
@@ -9862,7 +9867,7 @@ function OnboardingAutomation() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Onboarding Automation</h2>
@@ -9977,7 +9982,7 @@ function BioLinkBuilder() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Bio Link Page Builder</h2>
@@ -10114,7 +10119,7 @@ function ClientCommsTemplates() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Client Communication Templates</h2>
@@ -10327,7 +10332,7 @@ function HashtagResearch() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <span style={{fontSize:32}}>##</span>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Hashtag Research</h2>
@@ -10442,7 +10447,7 @@ function ContentSeriesPlanner() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Content Series Planner</h2>
@@ -10560,7 +10565,7 @@ function BioOptimizer() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Bio Optimizer</h2>
@@ -10682,7 +10687,7 @@ function PricingCalculator() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Pricing Calculator</h2>
@@ -10787,7 +10792,7 @@ function StoryArcPlanner() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Story Arc Planner</h2>
@@ -10916,7 +10921,7 @@ function GuestPrepKit() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Guest Prep Kit</h2>
@@ -11046,7 +11051,7 @@ function ObjectionHandler() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Objection Handler</h2>
@@ -11326,7 +11331,7 @@ function ViralFormatLibrary() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Viral Format Library</h2>
@@ -11963,11 +11968,11 @@ function IntelligenceDashboard({ setNav, setSub }) {
   const labelStyle = { fontSize: 10, fontWeight: 700, color: D.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 };
 
   return (
-    <div style={{ background: D.bg, minHeight: '100vh', margin: '-2rem -16px', padding: '28px 16px', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
+    <div style={{ background: D.bg, minHeight: '100vh', margin: '-1.5rem -16px', padding: '20px 16px', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
       <div style={{ maxWidth: 1060, margin: '0 auto' }}>
 
         {/* HEADER */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+        <div className="signal-tool-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
           <div>
             <div style={{ fontSize: 12, color: D.muted, marginBottom: 4 }}>{dateStr}</div>
             <h1 style={{ fontSize: 26, fontWeight: 800, color: D.text, margin: 0, letterSpacing: '-0.03em', lineHeight: 1.2 }}>{greeting}, {firstName}.</h1>
@@ -11988,7 +11993,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
         </div>
 
         {/* KPI ROW */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 10, marginBottom: 18 }}>
+        <div className="signal-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 10, marginBottom: 18 }}>
           {kpis.map(k => {
             const empty = k.val === null || k.val === undefined;
             return (
@@ -12010,10 +12015,10 @@ function IntelligenceDashboard({ setNav, setSub }) {
         </div>
 
         {/* EXECUTION HUB + OPPORTUNITIES */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+        <div className="signal-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
           <div style={cardStyle}>
             <div style={labelStyle}>Execution Hub</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div className="signal-exec-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {[
                 { label: 'Create Content', nav: 'create',   sub: 'create'   },
                 { label: 'Write Caption',  nav: 'create',   sub: 'create'   },
@@ -12060,7 +12065,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
         </div>
 
         {/* RECENT CONTENT + TOP PERFORMER */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14, marginBottom: 14 }}>
+        <div className="signal-grid-2" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14, marginBottom: 14 }}>
           <div style={cardStyle}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div style={labelStyle}>Recent Content</div>
@@ -12106,7 +12111,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
         {!metrics && recentContent.length === 0 && (
           <div style={{ ...cardStyle, marginBottom: 14 }}>
             <div style={{ ...labelStyle, color: D.accent }}>Get Started — Your First 3 Moves</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
+            <div className="signal-grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
               {[
                 { num:'1', title:'Build your strategy', desc:'90-Day Strategy Builder generates your complete content foundation.', nav:'strategy', sub:'onboard', cta:'Build Strategy' },
                 { num:'2', title:'Log your first metric', desc:'Add your current follower count so SIGNAL can track growth.', nav:'optimize', sub:'roi', cta:'Log Metrics' },
@@ -12557,7 +12562,7 @@ function ContentBriefGenerator() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Content Brief Generator</h2>
@@ -12722,7 +12727,7 @@ function ContentCreationHub() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Content Creation Hub</h2>
@@ -12912,6 +12917,110 @@ function ContentCreationHub() {
   );
 }
 
+function TrendIntelPanel() {
+  const { alerts, loading, lastRun, checkTrends, markSeen, unseen, apiError } = useTrendAlerts();
+  const [expanded, setExpanded] = React.useState(null); // id of expanded card
+
+  const stripMd = (str) => (str || '').replace(/\*\*/g, '').replace(/\*/g, '');
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20,flexWrap:'wrap',gap:12}}>
+        <div>
+          <h3 style={{margin:0,fontSize:15,fontWeight:800,color:'#111827',letterSpacing:'-0.02em'}}>Trend Intel</h3>
+          <p style={{margin:'3px 0 0',fontSize:12,color:'#6B7280'}}>
+            {lastRun ? `Last scanned: ${lastRun}` : 'Scan for viral content across your content angles'}
+          </p>
+        </div>
+        <button onClick={checkTrends} disabled={loading}
+          style={{background:loading?'#F9FAFB':'#2563EB',color:loading?'#9CA3AF':'#fff',
+            border:'none',borderRadius:8,padding:'8px 18px',fontWeight:700,fontSize:13,
+            cursor:loading?'default':'pointer'}}>
+          {loading ? 'Scanning...' : alerts.length > 0 ? 'Refresh Trends' : 'Scan Now'}
+        </button>
+      </div>
+
+      {apiError && (
+        <div style={{background:'#FEF2F2',border:'1px solid #FECACA',borderRadius:8,padding:'12px 16px',marginBottom:16,fontSize:12,color:'#DC2626'}}>
+          {apiError}
+        </div>
+      )}
+
+      {loading && (
+        <div style={{textAlign:'center',padding:'32px 0',color:'#6B7280',fontSize:13}}>
+          Scanning 3 content angles via Perplexity... this takes about 5 seconds.
+        </div>
+      )}
+
+      {!loading && alerts.length === 0 && !apiError && (
+        <div style={{textAlign:'center',padding:'40px 0',color:'#9CA3AF',fontSize:13}}>
+          No trends scanned yet. Hit Scan Now to find viral content across your angles.
+        </div>
+      )}
+
+      {!loading && alerts.length > 0 && (
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:12}}>
+          {alerts.map(alert => {
+            const isOpen = expanded === alert.id;
+            const cleanText = stripMd(alert.text);
+            return (
+              <div key={alert.id} style={{
+                background:'#FFFFFF',
+                border:`1px solid ${isOpen?'#C7D2FE':'#E5E7EB'}`,
+                borderRadius:10,
+                boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
+                overflow:'hidden',
+                cursor:'pointer',
+              }} onClick={()=>{ setExpanded(isOpen?null:alert.id); if(!alert.seen)markSeen(); }}>
+                {/* Card header */}
+                <div style={{padding:'12px 14px 10px',borderBottom:'1px solid #F3F4F6'}}>
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
+                    <span style={{fontSize:9,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#2563EB'}}>
+                      {alert.angle}
+                    </span>
+                    {!alert.seen && (
+                      <span style={{background:'#2563EB',color:'#fff',borderRadius:3,padding:'1px 6px',fontSize:8,fontWeight:800}}>NEW</span>
+                    )}
+                  </div>
+                  {alert.account && alert.account !== alert.platform+' trend' && (
+                    <div style={{fontSize:13,fontWeight:700,color:'#111827',marginBottom:2}}>{alert.account}</div>
+                  )}
+                  <div style={{fontSize:11,color:'#6B7280',lineHeight:1.5}}>
+                    {cleanText.slice(0, isOpen ? 500 : 120)}{!isOpen && cleanText.length > 120 ? '...' : ''}
+                  </div>
+                </div>
+
+                {/* Card footer */}
+                <div style={{padding:'8px 14px',display:'flex',alignItems:'center',gap:8,background:'#FAFAFA'}}>
+                  {alert.views && (
+                    <span style={{fontSize:10,fontWeight:700,color:'#16a34a',background:'#DCFCE7',
+                      borderRadius:4,padding:'2px 7px'}}>{alert.views}</span>
+                  )}
+                  <span style={{fontSize:10,color:'#9CA3AF',flex:1}}>{alert.platform}</span>
+                  {alert.profileUrl && (
+                    <a href={alert.profileUrl} target="_blank" rel="noopener noreferrer"
+                      onClick={e=>e.stopPropagation()}
+                      style={{fontSize:10,color:'#2563EB',fontWeight:700,textDecoration:'none'}}>
+                      View →
+                    </a>
+                  )}
+                  <a href={alert.searchUrl} target="_blank" rel="noopener noreferrer"
+                    onClick={e=>e.stopPropagation()}
+                    style={{fontSize:10,color:'#6B7280',textDecoration:'none'}}>
+                    Search
+                  </a>
+                  <span style={{fontSize:9,color:'#D1D5DB'}}>{isOpen?'▲':'▼'}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 function ResearchHub() {
   const [mode, setMode] = useState('pipeline');
   const [clients] = useClients();
@@ -13008,6 +13117,7 @@ function ResearchHub() {
 
   const MODES = [
     { id:'pipeline',  label:'Research Pipeline', desc:'Perplexity → Intel → Script' },
+    { id:'trends',    label:'Trend Intel',       desc:'Live viral content alerts' },
     { id:'spy',       label:'Competitor Intel',  desc:'Analyze competitor strategy' },
     { id:'hashtag',   label:'Hashtag Strategy',  desc:'Tiered hashtag research' },
     { id:'viral',     label:'Viral Formats',     desc:'18 proven content formats' },
@@ -13021,7 +13131,7 @@ function ResearchHub() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Research Hub</h2>
@@ -13119,6 +13229,10 @@ function ResearchHub() {
       )}
 
       {/* ── COMPETITOR SPY ── */}
+      {mode==='trends' && (
+        <TrendIntelPanel/>
+      )}
+
       {mode==='spy' && (
         <Card>
           <SecLabel>Competitor Handle or Name</SecLabel>
@@ -13242,7 +13356,7 @@ function HookWorkshop() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Hook Workshop</h2>
@@ -13374,7 +13488,7 @@ For each gap:
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
         <div style={{flex:1}}>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Growth Dashboard</h2>
@@ -13577,7 +13691,7 @@ function BioSuite() {
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Bio Suite</h2>
@@ -13810,7 +13924,7 @@ export default function App() {
             font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             letter-spacing: -0.01em;
           }
-          textarea, input, select { outline: none; color-scheme: dark; font-family: 'DM Sans', sans-serif; }
+          textarea, input, select { outline: none; color-scheme: light; font-family: 'DM Sans', sans-serif; }
           textarea:focus, input:focus { border-color: #00C2FF !important; box-shadow: 0 0 0 2px rgba(0,194,255,0.08); }
           select:focus { border-color: #00C2FF !important; }
           button { font-family: 'DM Sans', sans-serif; }
@@ -13822,6 +13936,42 @@ export default function App() {
           ::-webkit-scrollbar-thumb { background: rgba(0,194,255,0.2); border-radius: 2px; }
           ::-webkit-scrollbar-thumb:hover { background: rgba(0,194,255,0.4); }
           * { scrollbar-width: thin; scrollbar-color: rgba(0,194,255,0.2) transparent; }
+
+          /* ── MOBILE RESPONSIVE ── */
+          @media (max-width: 640px) {
+            /* Nav scrolls horizontally — never wraps */
+            .signal-nav-inner { gap: 0 !important; }
+            .signal-nav-btn { padding: 14px 10px !important; font-size: 11px !important; }
+            .signal-subnav { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .signal-subnav::-webkit-scrollbar { display: none; }
+            .signal-subnav-inner { gap: 0 !important; padding-bottom: 1px; }
+            .signal-subnav-btn { padding: 8px 12px !important; font-size: 10px !important; flex-shrink: 0; }
+            /* Main content full-width */
+            .signal-main { padding: 1rem 12px !important; }
+            /* Cards tighter on mobile */
+            .signal-card { padding: 1rem !important; }
+            /* Grids collapse to single column */
+            .signal-grid-2 { grid-template-columns: 1fr !important; }
+            .signal-grid-3 { grid-template-columns: 1fr !important; }
+            .signal-grid-auto { grid-template-columns: 1fr 1fr !important; }
+            /* Header stacks vertically */
+            .signal-tool-header { flex-direction: column !important; gap: 8px !important; }
+            /* Buttons full width on mobile */
+            .signal-action-row { flex-direction: column !important; }
+            .signal-action-row button { width: 100% !important; }
+            /* KPI row — 2 across */
+            .signal-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            /* Trend banner text truncates properly */
+            .signal-trend-preview { max-width: 120px !important; }
+            /* Input font size 16px prevents iOS zoom */
+            input, textarea, select { font-size: 16px !important; }
+            /* Execution hub 2 col */
+            .signal-exec-grid { grid-template-columns: 1fr 1fr !important; }
+          }
+          @media (max-width: 380px) {
+            .signal-nav-btn { padding: 12px 8px !important; font-size: 10px !important; }
+            .signal-kpi-grid { grid-template-columns: 1fr 1fr !important; }
+          }
         `}</style>
       </Head>
 
@@ -13837,7 +13987,7 @@ export default function App() {
             backdropFilter: 'blur(20px)',
             boxShadow: '0 1px 0 rgba(0,194,255,0.06), 0 4px 24px rgba(0,0,0,0.5)',
           }}>
-          <div style={{maxWidth:1100,margin:'0 auto',display:'flex',alignItems:'center',gap:4}}>
+          <div className="signal-nav-inner" style={{maxWidth:1100,margin:'0 auto',display:'flex',alignItems:'center',gap:4,overflowX:'auto',msOverflowStyle:'none',scrollbarWidth:'none'}}>
             <div style={{marginRight:12,padding:'12px 0'}}>
               <img src="/E-E-Logo.jpg" alt="EN" style={{width:32,height:32,borderRadius:'50%'}}/>
             </div>
@@ -13847,7 +13997,7 @@ export default function App() {
                   background: 'none',
                   border: 'none',
                   color: nav===n.id ? '#00C2FF' : 'rgba(0,194,255,0.5)',
-                  padding: '16px 14px',
+                  padding: '16px 12px',
                   cursor: 'pointer',
                   fontSize: 12,
                   fontWeight: nav===n.id ? 700 : 500,
@@ -13855,6 +14005,7 @@ export default function App() {
                   borderBottom: `2px solid ${nav===n.id ? '#00C2FF' : 'transparent'}`,
                   transition: 'all 0.15s',
                   whiteSpace: 'nowrap',
+                  flexShrink: 0,
                 }}>
                 {n.label}
               </button>
@@ -13870,20 +14021,24 @@ export default function App() {
 
         {/* SUB NAV */}
         {subItems && nav !== 'home' && (
-          <div style={{
+          <div className="signal-subnav" style={{
               background: 'rgba(18,28,42,0.9)',
               borderBottom: '1px solid rgba(0,194,255,0.06)',
               padding: '0 16px',
               backdropFilter: 'blur(10px)',
+              overflowX: 'auto',
+              WebkitOverflowScrolling: 'touch',
+              msOverflowStyle: 'none',
+              scrollbarWidth: 'none',
             }}>
-            <div style={{maxWidth:1100,margin:'0 auto',display:'flex',gap:4}}>
+            <div className="signal-subnav-inner" style={{maxWidth:1100,margin:'0 auto',display:'flex',gap:0}}>
               {subItems.map(s => (
                 <button key={s.id} onClick={()=>setSub(s.id)}
                   style={{
                     background: 'none',
                     border: 'none',
                     color: sub===s.id ? '#00C2FF' : 'rgba(0,194,255,0.55)',
-                    padding: '9px 14px',
+                    padding: '9px 12px',
                     cursor: 'pointer',
                     fontSize: 11,
                     fontWeight: sub===s.id ? 800 : 500,
@@ -13891,6 +14046,7 @@ export default function App() {
                     borderBottom: `2px solid ${sub===s.id ? '#00C2FF' : 'transparent'}`,
                     transition: 'all 0.15s',
                     whiteSpace: 'nowrap',
+                    flexShrink: 0,
                   }}>
                   {s.label}
                 </button>
@@ -13905,7 +14061,7 @@ export default function App() {
         {/* MAIN CONTENT */}
         <NotificationBanner/>
         <AutoVoiceUpdateBanner activeClient={activeClient}/>
-        <main style={{maxWidth:1100,margin:'0 auto',padding:'2rem 16px',animation:'slideUp 0.3s ease-out'}}>
+        <main className="signal-main" style={{maxWidth:1100,margin:'0 auto',padding:'1.5rem 16px',animation:'slideUp 0.3s ease-out'}}>
           {ActiveComponent
             ? <ActiveComponent setNav={handleNav} setSub={setSub}/>
             : (
