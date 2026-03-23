@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Head from 'next/head';
+import EighthAscentLogo from '../components/EighthAscentLogo';
 
 // ─── BRAND ────────────────────────────────────────────────────────────────
 const B = {
@@ -2644,7 +2645,7 @@ function _OldHome({setNav,setSub}) {
       <div style={{textAlign:'center',padding:'3rem 0 3rem'}}>
         <div style={{position:'relative',display:'inline-block',marginBottom:20}}>
           <div style={{position:'absolute',inset:-8,borderRadius:'50%',background:'radial-gradient(circle, rgba(0,194,255,0.15) 0%, transparent 70%)',animation:'pulse 3s ease-in-out infinite'}}/>
-          <img src="/E-E-Logo.jpg" alt="SIGNAL" style={{width:72,height:72,borderRadius:'50%',position:'relative',filter:'brightness(0) invert(1)',objectFit:'cover'}}/>
+          <EighthAscentLogo size={72} style={{position:'relative'}} />
         </div>
         <h1 style={{color:'#111827',fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:900,margin:'0 0 6px',letterSpacing:'-0.03em'}}>
           {(() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null'); return wl?.agencyName ? <span style={{color:wl.primaryColor||'#2563EB'}}>{wl.agencyName}</span> : <><span>SIGNAL</span> <span style={{color:'#2563EB'}}>by Everyday Elevations</span></>; } catch { return <><span>EN-CIS</span> <span style={{color:'#2563EB'}}>Command Center</span></>; } })()}
@@ -12260,8 +12261,8 @@ function useTrendNotifications() {
     try {
       const notif = new Notification(title, {
         body,
-        icon: '/E-E-Logo.jpg',
-        badge: '/E-E-Logo.jpg',
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
         tag: 'signal-trend-alert',
       });
       if (onClick) notif.onclick = onClick;
