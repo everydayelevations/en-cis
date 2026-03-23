@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
+import EighthAscentLogo from '../components/EighthAscentLogo';
 
 const B = {
   navy:     "#0A1628",
@@ -136,7 +137,7 @@ function Home({ go, ec, sc }) {
         <div style={{ position:"absolute", bottom:-40, left:-40, width:200, height:200, borderRadius:"50%", background:`${B.navyLight}44`, pointerEvents:"none" }} />
 
         <div style={{ display:"flex", alignItems:"center", gap:24, marginBottom:32, position:"relative" }}>
-          <img src="/E-E-Logo.jpg" alt="Everyday Elevations" style={{ width:80, height:80, borderRadius:12, objectFit:"cover", border:`2px solid ${B.red}` }} />
+          <EighthAscentLogo size={80} />
           <div>
             <div style={{ fontSize:"clamp(28px,5vw,44px)", fontWeight:700, fontFamily:"'Bebas Neue',sans-serif", letterSpacing:2, color:B.white, lineHeight:1 }}>ELEVATION NATION</div>
             <div style={{ fontSize:"clamp(10px,1.5vw,13px)", fontWeight:600, letterSpacing:5, color:B.red, textTransform:"uppercase", marginTop:4 }}>Content Intelligence System</div>
@@ -186,7 +187,7 @@ function Home({ go, ec, sc }) {
             <div style={{ fontSize:10, fontWeight:700, letterSpacing:3, textTransform:"uppercase", color:B.red, marginBottom:6 }}>Elevation Nation</div>
             <div style={{ color:"rgba(255,255,255,0.7)", fontSize:13, lineHeight:1.7, maxWidth:480 }}>Everyday people who refuse to stay where they are. Every script, every piece of content is built to grow this community.</div>
           </div>
-          <img src="/E-E-Logo.jpg" alt="EE" style={{ width:48, height:48, borderRadius:8, objectFit:"cover", opacity:0.9, flexShrink:0 }} />
+          <EighthAscentLogo size={48} />
         </div>
       </div>
     </div>
@@ -540,7 +541,7 @@ export default function App() {
       <Head>
         <title>EN·CIS — Elevation Nation</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/E-E-Logo.jpg" />
+        <link rel="icon" href="/favicon.ico" />
       </Head>
       <div style={{ minHeight:"100vh", background:B.offWhite, color:B.text, fontFamily:"'Barlow','Segoe UI',sans-serif", display:"flex", flexDirection:"column" }}>
         <style>{`
@@ -555,7 +556,7 @@ export default function App() {
         {/* Nav */}
         <nav style={{ background:B.navy, padding:"0 24px", display:"flex", alignItems:"center", position:"sticky", top:0, zIndex:100, boxShadow:"0 2px 12px rgba(10,22,40,0.4)" }}>
           <div style={{ display:"flex", alignItems:"center", gap:10, marginRight:28, padding:"10px 0" }}>
-            <img src="/E-E-Logo.jpg" alt="EE" style={{ width:32, height:32, borderRadius:6, objectFit:"cover" }} />
+            <EighthAscentLogo size={32} />
             <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:14, letterSpacing:3, color:B.red }}>EN·CIS</span>
           </div>
           <div style={{ display:"flex", overflowX:"auto" }}>
