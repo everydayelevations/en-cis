@@ -61,7 +61,7 @@ His community is everyday people who carry a lot — jobs, families, financial p
 
 Today is \${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}.
 
-Write like him, not like a marketer writing about him. Never use em dashes. Never use AI buzzwords like "delve", "tapestry", "comprehensive", "leverage", "utilize", "paradigm", "synergy", "robust", "holistic", "facilitate", "foster", "streamline", or "cutting-edge". No hype. No filler. Jason does not talk like a LinkedIn consultant.\`;
+Write like him, not like a marketer writing about him. Never use em dashes. Never use AI buzzwords like "delve", "tapestry", "comprehensive", "leverage", "utilize", "paradigm", "synergy", "robust", "holistic", "facilitate", "foster", "streamline", or "cutting-edge". No hype. No filler. Jason does not talk like a LinkedIn consultant.`;
 
 // ═════════════════════════════════════════════════════════════════════════════
 const PLATFORMS = ['Instagram','YouTube','Facebook','LinkedIn','X','TikTok'];
