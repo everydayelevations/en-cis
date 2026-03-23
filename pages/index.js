@@ -516,50 +516,84 @@ const Output = ({text}) => text ? (
 ) : null;
 
 // ═════════════════════════════════════════════════════════════════════════════
-const SCRIPT_PROMPT = (topic, angle, platform) => `
+const SCRIPT_PROMPT = (topic, angle, platform, scriptMode, voiceContext) => `
 ${VOICE}
+${voiceContext ? voiceContext : ''}
 ${CONTENT_SOP}
 ${SWARBRICK}
 
 Topic: "${topic}"
 Angle: ${angle}
 Platform: ${platform}
+Length: ${scriptMode || 'short'}
 Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
-HOOK SOP (apply to every variation):
-Every hook must use one of these 5 types. First 2-3 words must stop the scroll.
-No "Hey guys." No "In this video." No intros. Value or conflict from frame 1.
-PATTERN INTERRUPT : challenges an assumption the audience holds right now
-CURIOSITY QUESTION : creates a gap they must fill by watching
-BOLD STATEMENT : counterintuitive or surprising claim
-STORY MOMENT : specific scene: "The day I..." or "I was sitting in my truck when..."
-DATA POINT : a number that stops them cold
+━━━ GREENSPAN CONTENT CREATION SOP ━━━
 
-Write 3 complete camera-ready ${platform} script variations. Each must feel different in hook type, energy, and structure.
+STORY + NARRATIVE REQUIREMENTS (every script must have all four):
+- Clear character setup: Who is the protagonist, what's their situation
+- Relatable traits: Elements a large audience recognizes from their own life
+- Conflict or tension: What's at stake, what's the problem
+- Resolution or insight: The payoff — what the viewer gets for watching
+
+HOOK RULES (Greenspan standard — non-negotiable):
+First 3 seconds must hit hard. No intros. No "hey guys." No "in this video."
+Value or conflict from frame 1. Use one of these hook types:
+- PATTERN INTERRUPT: Challenges an assumption the audience holds right now
+- CURIOSITY QUESTION: Creates a gap they must fill by watching
+- BOLD STATEMENT: Counterintuitive or surprising claim — make them stop
+- STORY MOMENT: Specific scene — "The day I..." or "I was sitting in my truck when..."
+- DATA POINT: A number or outcome that stops them cold
+
+TECHNICAL REQUIREMENTS (Greenspan checklist):
+- Multiple transition opportunities in first 5 seconds (note them in direction)
+- Additional transitions in first 15 seconds
+- Visual hook: A strong opening image or action the editor can use
+- Contrarian perspective: A POV that stands out from what everyone else is saying
+- Authentic voice: Not corporate, not over-produced — real and direct
+
+VIRAL STRUCTURE:
+1. Hook (pattern interrupt — first 2-3 words carry everything)
+2. Tension or problem (why this matters right now)
+3. Story or breakdown (the real thing that happened, not theory)
+4. Insight (the thing they didn't see coming)
+5. Actionable takeaway (one thing they can do or think differently today)
+6. CTA (60% comment-based / 20% DM / 20% link)
+
+ORIGINALITY RULE: If this script could be filmed by 1,000 other creators unchanged, rewrite it.
+Pull from lived experience. Real estate, money stress, training, relationships, turning points.
+
+━━━ SCRIPTS ━━━
+
+Write 3 complete camera-ready ${platform} script variations. Each must differ in hook type, energy, and structure.
 
 ---
 **VARIATION 1: Educational (optimizes for saves)**
-Hook Type: [pick one of the 5 : write the actual hook]
-Hook: [word-for-word : first 2-3 words must land hard]
+Hook Type: [pick one of the 5 — write the actual hook]
+Hook: [word-for-word — first 2-3 words must land hard]
 
 Body:
 Point 1: [specific insight, no filler]
 Point 2: [builds on point 1]
-Point 3: [the payoff : something they did not expect]
+Point 3: [the payoff — something they didn't expect]
 
-CTA: [exact words : 60% comment / 20% DM / 20% link]
+On-Screen Text: [keywords to overlay at each beat]
+Visual Direction: [what the editor does in the first 5 seconds + transitions]
+CTA: [exact words — 60% comment / 20% DM / 20% link]
 Caption: [3-4 sentences, saves-first, includes the hook]
 Hashtags: [5 niche / 5 mid / 5 broad]
 
 ---
 **VARIATION 2: Personal Story (optimizes for follows)**
 Hook Type: [Story or Pattern Interrupt]
-Hook: [specific scene, not generic : a real moment]
+Hook: [specific scene, not generic — a real moment from Jason's life]
 
-Setup: [the before : where you were, what you were doing]
-Conflict: [the turn : what happened or what you realized]
-Resolution: [the result : specific, not vague]
+Setup: [the before — where you were, what you were doing]
+Conflict: [the turn — what happened or what you realized]
+Resolution: [the result — specific, not vague]
 
+On-Screen Text:
+Visual Direction: [opening frame + key transition moments]
 CTA: [exact words]
 Caption:
 Hashtags:
@@ -569,29 +603,29 @@ Hashtags:
 Hook Type: [Bold Statement or Data Point]
 Hook: [the take that makes people stop and argue or agree hard]
 
-Body: [3 punchy lines that back up the claim : no hedging]
+Body: [3 punchy lines that back up the claim — no hedging, no qualifying]
 
-CTA: [drives comments : end with a question that splits the room]
+On-Screen Text:
+Visual Direction:
+CTA: [drives comments — end with a question that splits the room]
 Caption:
 Hashtags:
 
-Runtime target: 45-75 seconds spoken. No intros. No "like and subscribe." Hook first.
+Runtime: ${scriptMode==='short'?'20-45 seconds spoken':scriptMode==='medium'?'60-90 seconds':scriptMode==='long'?'2-4 minutes':'thread format'}. No intros. No "like and subscribe." Hook first, always.
 
 ${platform === 'TikTok' ? `
 TIKTOK-SPECIFIC RULES:
-- First 2 words carry everything. The scroll decision is made before the third word.
-- "POV:", "The thing about", "Nobody talks about", "Day X of" these formats work.
-- Shorter is almost always better on TikTok. 15-30 seconds outperforms 60+ unless the hook is elite.
-- Sound matters. Note whether this works better with trending audio or talking head.
-- End with a reason to follow, not just a like CTA.` : ''}
+- First 2 words carry everything. Scroll decision is made before the third word.
+- "POV:", "The thing about", "Nobody talks about", "Day X of" — these formats work.
+- Shorter almost always wins. 15-30 seconds outperforms 60+ unless the hook is elite.
+- Note whether this works better with trending audio or talking head.` : ''}
 
 ${platform === 'X' ? `
 X / TWITTER THREAD FORMAT:
-Write as a thread, not a script. Each variation should be:
-- Tweet 1 (Hook): Under 280 characters. Bold claim or counterintuitive statement. Must work standalone.
-- Tweets 2-7 (Body): Each tweet one idea. Short paragraphs. Numbered 2/ 3/ 4/ etc.
-- Tweet 8 (CTA): Follow for more, reply with your take, or link.
-Total thread: 8-10 tweets. Every tweet must be worth reading alone.` : ''}
+- Tweet 1 (Hook): Under 280 chars. Bold claim or counterintuitive statement. Must work standalone.
+- Tweets 2-7 (Body): Each tweet one idea. Short. Numbered 2/ 3/ 4/...
+- Tweet 8 (CTA): Follow, reply with your take, or link.
+Total: 8-10 tweets. Every tweet worth reading alone.` : ''}
 `;
 
 const STITCH_PROMPT = (originalContent, angle) => `
@@ -12644,7 +12678,7 @@ function ContentBriefGenerator() {
 // WEEKLY REVIEW 6-MODULE GROWTH SYSTEM
 // ═════════════════════════════════════════════════════════════════════════════
 function ContentCreationHub() {
-  const [mode, setMode] = useState('script');
+  const [mode, setMode] = useState('topics');
   const [clients] = useClients();
   const [activeClient] = useActiveClient();
   const [selectedClient, setSelectedClient] = useState(null);
@@ -12654,19 +12688,16 @@ function ContentCreationHub() {
   const [autoContext, setAutoContext] = useState(null);
   useEffect(() => {
     try {
-      // Load strategy context
       const strat = localStorage.getItem('encis_last_strategy');
       if (strat) {
         const parsed = JSON.parse(strat);
         if (parsed.content) setAutoContext({ source: 'strategy', name: parsed.name || '90-Day Strategy' });
       }
-      // Load research intel if available
       const intel = localStorage.getItem('encis_pipeline_intel');
       if (intel) {
         const parsed = JSON.parse(intel);
-        if (parsed.content && parsed.timestamp > Date.now() - 86400000) {
+        if (parsed.content && parsed.timestamp > Date.now() - 86400000)
           setAutoContext({ source: 'research', name: parsed.topic || 'Research Intel', content: parsed.content });
-        }
       }
     } catch {}
   }, []);
@@ -12677,6 +12708,14 @@ function ContentCreationHub() {
   const [platform, setPlatform] = useState('Instagram');
   const [out, setOut] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Topic Generator state
+  const [topicSeed, setTopicSeed] = useState('');
+  const [topicLength, setTopicLength] = useState('Medium');
+  const [topicAngle, setTopicAngle] = useState('Occupational');
+  const [generatedIdeas, setGeneratedIdeas] = useState([]);
+  const [selectedIdea, setSelectedIdea] = useState(null);
+  const [topicLoading, setTopicLoading] = useState(false);
 
   // Mode-specific state
   const [scriptMode, setScriptMode] = useState('short');
@@ -12692,37 +12731,115 @@ function ContentCreationHub() {
   const [sessionDuration, setSessionDuration] = useState('2-3 hours');
   const [intensity, setIntensity] = useState('MEDIUM');
 
+  // Generate topic ideas
+  const generateTopics = async () => {
+    setTopicLoading(true); setGeneratedIdeas([]); setSelectedIdea(null);
+    const client = selectedClient || activeClient;
+    const voiceFP = (() => { try { const fps = JSON.parse(localStorage.getItem('encis_voice_fingerprints')||'{}'); return fps[client?.id] || null; } catch { return null; } })();
+    const voiceHint = voiceFP ? `Voice: ${voiceFP.tone || ''}. ` : '';
+    const prompt = `You are a high-performance content strategist and idea generator for ${client?.name || 'Jason Fricka'}.
+
+CREATOR CONTEXT:
+${client?.voice || 'Colorado-based. HR manager, endurance athlete, real estate agent, dad. Direct voice. Real stories. No fluff.'}
+${voiceHint}Platform: ${platform} | Content Length: ${topicLength} | Angle: ${topicAngle}
+${topicSeed ? 'Seed topic: "' + topicSeed + '"' : 'No seed — pick highest-opportunity topics right now.'}
+
+━━━ GREENSPAN CONTENT IDEATION SOP ━━━
+
+STEP 1 — CONCEPT REQUIREMENTS (every idea must have all four):
+- Viral Potential: Inherent shareable quality — not just "good content"
+- Common Traits: Elements a large audience immediately recognizes from their own life
+- Provocative Angle: Something that might upset, surprise, or challenge a belief
+- Story Setup: Clear character + situation + tension — not a tip, a moment
+
+STEP 2 — ORIGINALITY RULE (non-negotiable):
+If this idea could be posted by 1,000 other creators without changing a word, reject it.
+Pull from lived experience — real estate interactions, financial stress, training moments, relationship pressure, personal turning points.
+Every idea must feel like it came from a real moment, not theory.
+
+STEP 3 — CONTENT SCORING FILTER (internal — improve before outputting):
+Score each idea on:
+- Relatable: Real people recognize this situation from their own life
+- Provocative: Challenges a belief, sparks debate, or surprises
+- Valuable: Viewer leaves with something they can actually use
+- Structured: Clear hook → tension → insight → payoff
+Reject anything weak on any dimension. Improve and resubmit internally.
+
+STEP 4 — CONTENT LANES (pull from these, not generic wellness/creator content):
+1. Colorado Real Estate — first-time buyers, veterans, local market reality, Parker/South Denver, VA loans, hard truths about buying
+2. High-Pressure Life — money stress, being the provider, hard tradeoffs, what nobody tells you about adult responsibility
+3. Discipline + Physical Growth — training, consistency, mental toughness, endurance goals, what the work actually looks like
+4. Identity + Growth — confidence, internal battles, personal evolution, the version of yourself you're building
+5. Real Talk Advice — mistakes made, hard truths delivered straight, tactical breakdowns of real situations
+
+STEP 5 — VIRAL STRUCTURE (apply to every idea's hook):
+Hook must be a pattern interrupt — the first line stops the scroll.
+Hook types that perform: bold claim, confession, "what nobody tells you", mistake reveal, counterintuitive truth, specific number or outcome.
+Body: tension or problem → story or breakdown → insight → actionable takeaway → CTA.
+
+STEP 6 — TECHNICAL REQUIREMENTS:
+- Strong verbal hook (first 3 seconds must hit hard)
+- Visual hook potential (something the editor can work with in the opening)
+- Multiple transition opportunities in first 5 seconds
+- Contrarian perspective — a POV that stands out from standard creator content
+- Strong CTA built into the concept
+
+LENGTH CONTEXT:
+${topicLength==='Short'?'15-60 second Reel/Short — one tight idea, immediate hook, zero fluff. One insight, delivered hard.':topicLength==='Medium'?'1-3 minute video or carousel — story arc with real tension and a clear takeaway. Room for a breakdown.':'Long-form YouTube or podcast — depth, multiple beats, strong narrative arc. Earned credibility through specificity.'}
+
+━━━ OUTPUT FORMAT ━━━
+Return ONLY a numbered list 1-5. Each idea on one line.
+Format: [Hook line that stops the scroll] — [What they film/write, the personal anchor, and why it will hit]
+
+No preamble. No section labels. No explanation outside the format. Just 5 ideas.`;
+
+    const res = await ai(prompt);
+    const ideas = res.split('\n')
+      .map(l => l.replace(/^\d+[\.\)]\s*/, '').trim())
+      .filter(l => l.length > 10)
+      .slice(0, 5);
+    setGeneratedIdeas(ideas);
+    setTopicLoading(false);
+  };
+
+  // When user picks an idea — auto-populate topic and switch to Script
+  const selectIdea = (idea) => {
+    setSelectedIdea(idea);
+    setTopic(idea);
+    setMode('script');
+    setOut('');
+  };
+
   const run = async () => {
-    if (!topic && mode !== 'brief') return;
+    if (!topic && mode !== 'repurpose') return;
     if (mode === 'brief' && !topic) return;
     setLoading(true); setOut('');
     let prompt = '';
     const client = selectedClient || activeClient;
-    // Get voice fingerprint for this client
     const voiceFP = (() => { try { const fps = JSON.parse(localStorage.getItem('encis_voice_fingerprints')||'{}'); return fps[client?.id] || null; } catch { return null; } })();
-    const voiceContext = voiceFP ? `VOICE FINGERPRINT:\nTone: ${voiceFP.tone}\nVocabulary: ${(voiceFP.vocabulary||[]).join(', ')}\nAvoids: ${(voiceFP.avoids||[]).join(', ')}\nPersonality: ${voiceFP.personality||''}` : (client?.voice||'');
-    // Research intel context (if available and fresh)
+    const voiceContext = voiceFP ? `VOICE FINGERPRINT:\nTone: ${voiceFP.tone}\nVocabulary: ${(voiceFP.vocabulary||[]).join(', ')}\nAvoids: ${(voiceFP.avoids||[]).join(', ')}` : (client?.voice||'');
     const researchContext = autoContext?.source==='research' ? `\n\nRESEARCH INTEL CONTEXT:\n${autoContext.content?.slice(0,800)||''}` : '';
     if (mode === 'script') prompt = SCRIPT_PROMPT(topic, ANGLES.find(a=>a.id===angle)?.label||angle, platform, scriptMode, voiceContext + researchContext);
-    else if (mode === 'caption') prompt = CAPTION_PROMPT(topic, platform, ANGLES.find(a=>a.id===angle)?.label||angle, captionHook);
-    else if (mode === 'batch') prompt = BULK_PROMPT(ANGLES.find(a=>a.id===angle)?.label||angle, platform, topic, parseInt(batchCount)||5);
+    else if (mode === 'caption') prompt = CAPTION_PROMPT(topic, platform, ANGLES.find(a=>a.id===angle)?.label||angle, voiceContext);
+    else if (mode === 'batch') prompt = BULK_PROMPT(ANGLES.find(a=>a.id===angle)?.label||angle, platform, topic, batchCount, voiceContext);
     else if (mode === 'episode') prompt = EPISODE_PROMPT(episodeTitle||topic, episodeNotes||topic);
     else if (mode === 'repurpose') prompt = REPURPOSE_PROMPT(repurposeFrom||topic, repurposePlatform, platform);
-    else if (mode === 'brief') prompt = CONTENT_BRIEF_PROMPT(client||{name:'Jason Fricka',handle:'@everydayelevations',platforms:'Instagram, YouTube',voice:'Direct, real.'}, sessionDate, sessionLocation, topic, sessionEquip, sessionDuration, intensity);
+    else if (mode === 'brief') prompt = CONTENT_BRIEF_PROMPT(client||{name:'Jason Fricka',handle:'@everydayelevations'}, topic, intensity, sessionDate, sessionLocation, sessionEquip, sessionDuration);
     const res = await ai(prompt);
     setOut(res); setLoading(false);
   };
 
   const MODES = [
-    { id:'script',    label:'Script',        desc:'Camera-ready scripts' },
-    { id:'caption',   label:'Caption',       desc:'Platform captions' },
-    { id:'batch',     label:'Batch',         desc:'Multiple posts at once' },
-    { id:'episode',   label:'Episode Clips', desc:'Long-form to short clips' },
-    { id:'repurpose', label:'Repurpose',     desc:'Cross-platform adaptation' },
-    { id:'brief',     label:'Filming Brief', desc:'Full shoot production plan' },
+    { id:'topics',    label:'Topic Generator', desc:'Start here — get ideas', isStart: true },
+    { id:'script',    label:'Script',           desc:'Camera-ready scripts' },
+    { id:'caption',   label:'Caption',          desc:'Platform captions' },
+    { id:'batch',     label:'Batch',            desc:'Multiple posts at once' },
+    { id:'episode',   label:'Episode Clips',    desc:'Long-form to clips' },
+    { id:'repurpose', label:'Repurpose',        desc:'Cross-platform' },
+    { id:'brief',     label:'Filming Brief',    desc:'Full shoot plan' },
   ];
 
-  const taStyle = {width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit'};
+  const taStyle = {width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box'};
   const inStyle = {width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'};
 
   return (
@@ -12731,23 +12848,23 @@ function ContentCreationHub() {
         <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Content Creation Hub</h2>
-          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Scripts, captions, batches, clips, repurposing, and filming briefs — one workspace.</p>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Generate ideas, then create — scripts, captions, batches, and more.</p>
         </div>
       </div>
 
       {/* Auto-loaded context banner */}
       {autoContext && (
-        <div style={{background:'rgba(0,194,255,0.04)',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
+        <div style={{background:'#EFF6FF',border:'1px solid #BFDBFE',borderRadius:8,padding:'10px 14px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
           <div>
-            <span style={{color:'#00C2FF',fontWeight:700,fontSize:11,letterSpacing:1,textTransform:'uppercase'}}>
+            <span style={{color:'#2563EB',fontWeight:700,fontSize:11,letterSpacing:1,textTransform:'uppercase'}}>
               {autoContext.source==='research'?'Research Intel loaded':'Strategy loaded'}
             </span>
             <span style={{color:'#6B7280',fontSize:11,marginLeft:8}}>{autoContext.name}</span>
           </div>
           {autoContext.source==='research' && (
             <button onClick={()=>{ setMode('script'); }}
-              style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:5,padding:'5px 12px',fontSize:11,fontWeight:700,cursor:'pointer'}}>
-              Use as script context
+              style={{background:'#2563EB',color:'#fff',border:'none',borderRadius:5,padding:'5px 12px',fontSize:11,fontWeight:700,cursor:'pointer'}}>
+              Use in Script
             </button>
           )}
         </div>
@@ -12757,160 +12874,306 @@ function ContentCreationHub() {
       <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:20}}>
         {MODES.map(m => (
           <button key={m.id} onClick={()=>{setMode(m.id);setOut('');}}
-            style={{background:mode===m.id?'#EEF2FF':'#F9FAFB',
-              color:mode===m.id?'#2563EB':'#6B7280',
-              border:'1px solid '+(mode===m.id?'#C7D2FE':'#E5E7EB'),
-              borderRadius:6,padding:'7px 16px',cursor:'pointer',fontSize:12,fontWeight:mode===m.id?700:500,
-              transition:'all 0.15s'}}>
-            <div style={{fontWeight:700}}>{m.label}</div>
-            <div style={{fontSize:10,opacity:0.7,marginTop:1}}>{m.desc}</div>
+            style={{
+              background: mode===m.id ? (m.isStart?'#2563EB':'#EEF2FF') : (m.isStart?'#F0F7FF':'#F9FAFB'),
+              color: mode===m.id ? (m.isStart?'#fff':'#2563EB') : (m.isStart?'#2563EB':'#6B7280'),
+              border: '1px solid ' + (mode===m.id ? (m.isStart?'#2563EB':'#C7D2FE') : (m.isStart?'#BFDBFE':'#E5E7EB')),
+              borderRadius: 8,
+              padding: '8px 16px',
+              cursor: 'pointer',
+              fontSize: 12,
+              fontWeight: mode===m.id ? 700 : (m.isStart ? 600 : 500),
+              transition: 'all 0.15s',
+              position: 'relative',
+            }}>
+            {m.isStart && mode!==m.id && (
+              <span style={{position:'absolute',top:-8,left:8,background:'#2563EB',color:'#fff',
+                fontSize:8,fontWeight:800,letterSpacing:1,padding:'1px 6px',borderRadius:3,
+                textTransform:'uppercase'}}>Start here</span>
+            )}
+            <div style={{fontWeight:'inherit'}}>{m.label}</div>
+            <div style={{fontSize:10,opacity:0.75,marginTop:1}}>{m.desc}</div>
           </button>
         ))}
       </div>
 
-      <Card>
-        {/* Client selector for brief mode */}
-        {mode === 'brief' && (
-          <>
-            <SecLabel>Client</SecLabel>
-            <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
-              {clients.map(c=>(
-                <button key={c.id} onClick={()=>setSelectedClient(c)}
-                  style={{background:selectedClient?.id===c.id?'#2563EB':'rgba(255,255,255,0.06)',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:700}}>
-                  {c.name}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-
-        {/* Shared: topic */}
-        {mode !== 'repurpose' && (
-          <>
-            <SecLabel>{mode==='brief'?'Topics / Content Ideas for This Session':mode==='episode'?'Episode Title':'Topic or Concept'}</SecLabel>
-            <input value={mode==='episode'?episodeTitle:topic}
-              onChange={e=>mode==='episode'?setEpisodeTitle(e.target.value):setTopic(e.target.value)}
-              placeholder={mode==='brief'?'List the pieces you want to film this session...':mode==='episode'?'Episode title or concept...':'e.g. Morning discipline, real estate market, mindset shift...'}
+      {/* ── TOPIC GENERATOR ── */}
+      {mode === 'topics' && (
+        <Card>
+          <div style={{marginBottom:16}}>
+            <SecLabel>Seed Topic (optional)</SecLabel>
+            <input value={topicSeed} onChange={e=>setTopicSeed(e.target.value)}
+              placeholder="e.g. morning routines, real estate investing, mindset... or leave blank"
               style={inStyle}/>
-          </>
-        )}
-
-        {/* Mode-specific inputs */}
-        {mode === 'script' && (
-          <div style={{display:'flex',gap:6,marginBottom:12}}>
-            {['short','medium','long','thread'].map(s=>(
-              <button key={s} onClick={()=>setScriptMode(s)}
-                style={{background:scriptMode===s?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:11,fontWeight:700,textTransform:'capitalize'}}>
-                {s}
-              </button>
-            ))}
           </div>
-        )}
 
-        {mode === 'caption' && (
-          <>
-            <SecLabel>Opening Hook (optional)</SecLabel>
-            <input value={captionHook} onChange={e=>setCaptionHook(e.target.value)}
-              placeholder="First line of your caption..." style={inStyle}/>
-          </>
-        )}
-
-        {mode === 'batch' && (
-          <>
-            <SecLabel>Number of Posts</SecLabel>
-            <div style={{display:'flex',gap:6,marginBottom:12}}>
-              {['3','5','7','10'].map(n=>(
-                <button key={n} onClick={()=>setBatchCount(n)}
-                  style={{background:batchCount===n?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>
-                  {n}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-
-        {mode === 'episode' && (
-          <>
-            <SecLabel>Episode Notes / Timestamps</SecLabel>
-            <textarea value={episodeNotes} onChange={e=>setEpisodeNotes(e.target.value)} rows={3}
-              placeholder="Paste transcript, notes, or timestamps. The engine will extract the best clip moments..."
-              style={taStyle}/>
-          </>
-        )}
-
-        {mode === 'repurpose' && (
-          <>
-            <SecLabel>Original Script or Content</SecLabel>
-            <textarea value={repurposeFrom} onChange={e=>setRepurposeFrom(e.target.value)} rows={4}
-              placeholder="Paste your original script, post, or transcript here..." style={taStyle}/>
-            <SecLabel>Original Platform</SecLabel>
-            <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:12}}>
-              {PLATFORMS.map(p=>(
-                <button key={p} onClick={()=>setRepurposePlatform(p)}
-                  style={{background:repurposePlatform===p?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12}}>
-                  {p}
-                </button>
-              ))}
-            </div>
-            <SecLabel>Repurpose To</SecLabel>
-          </>
-        )}
-
-        {mode === 'brief' && (
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:16}}>
             <div>
-              <SecLabel>Session Date</SecLabel>
-              <input value={sessionDate} onChange={e=>setSessionDate(e.target.value)} placeholder="e.g. Saturday March 22" style={inStyle}/>
-            </div>
-            <div>
-              <SecLabel>Location</SecLabel>
-              <input value={sessionLocation} onChange={e=>setSessionLocation(e.target.value)} placeholder="e.g. Home office, outdoor trail" style={inStyle}/>
-            </div>
-            <div>
-              <SecLabel>Equipment</SecLabel>
-              <input value={sessionEquip} onChange={e=>setSessionEquip(e.target.value)} placeholder="e.g. iPhone, ring light, tripod" style={inStyle}/>
-            </div>
-            <div>
-              <SecLabel>Duration</SecLabel>
+              <SecLabel>Content Length</SecLabel>
               <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
-                {['1 hour','2-3 hours','4-5 hours','Full day'].map(d=>(
-                  <button key={d} onClick={()=>setSessionDuration(d)}
-                    style={{background:sessionDuration===d?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:700}}>
-                    {d}
+                {['Short','Medium','Long'].map(l=>(
+                  <button key={l} onClick={()=>setTopicLength(l)}
+                    style={{background:topicLength===l?'#EEF2FF':'#F9FAFB',
+                      color:topicLength===l?'#2563EB':'#374151',
+                      border:'1px solid '+(topicLength===l?'#C7D2FE':'#E5E7EB'),
+                      borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,
+                      fontWeight:topicLength===l?700:500}}>
+                    {l}
+                  </button>
+                ))}
+              </div>
+              <div style={{fontSize:10,color:'#9CA3AF',marginTop:4}}>
+                {topicLength==='Short'?'Reel / Short (15-60s)':topicLength==='Medium'?'Video / Carousel (1-3 min)':'YouTube / Podcast (5+ min)'}
+              </div>
+            </div>
+            <div>
+              <SecLabel>Content Angle</SecLabel>
+              <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                {['Emotional','Physical','Social','Intellectual'].map(a=>(
+                  <button key={a} onClick={()=>setTopicAngle(a)}
+                    style={{background:topicAngle===a?'#EEF2FF':'#F9FAFB',
+                      color:topicAngle===a?'#2563EB':'#374151',
+                      border:'1px solid '+(topicAngle===a?'#C7D2FE':'#E5E7EB'),
+                      borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,
+                      fontWeight:topicAngle===a?700:500}}>
+                    {a}
                   </button>
                 ))}
               </div>
             </div>
           </div>
-        )}
 
-        {/* Shared: angle + platform (not for episode/repurpose/brief) */}
-        {!['episode','brief'].includes(mode) && (
-          <>
-            <SecLabel>Content Angle</SecLabel>
-            <AngleGrid selected={angle} onSelect={setAngle}/>
-            <SecLabel>Platform</SecLabel>
-            <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
-              {PLATFORMS.map(p=>(
-                <button key={p} onClick={()=>setPlatform(p)}
-                  style={{background:platform===p?'#EEF2FF':'#F9FAFB',
-                    color:platform===p?'#00C2FF':'#6B7280',
-                    border:'1px solid '+(platform===p?'#C7D2FE':'#E5E7EB'),
-                    borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:400}}>
-                  {p}
+          <SecLabel>Platform</SecLabel>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+            {PLATFORMS.map(p=>(
+              <button key={p} onClick={()=>setPlatform(p)}
+                style={{background:platform===p?'#EEF2FF':'#F9FAFB',
+                  color:platform===p?'#2563EB':'#6B7280',
+                  border:'1px solid '+(platform===p?'#C7D2FE':'#E5E7EB'),
+                  borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,
+                  fontWeight:platform===p?700:500}}>
+                {p}
+              </button>
+            ))}
+          </div>
+
+          <button onClick={generateTopics} disabled={topicLoading}
+            style={{background:topicLoading?'#F9FAFB':'#2563EB',color:topicLoading?'#9CA3AF':'#fff',
+              border:'none',borderRadius:8,padding:'11px 24px',fontWeight:700,fontSize:14,
+              cursor:topicLoading?'not-allowed':'pointer',width:'100%',marginBottom:generatedIdeas.length?16:0}}>
+            {topicLoading ? 'Generating ideas...' : 'Generate 5 Topic Ideas'}
+          </button>
+
+          {topicLoading && <Spin/>}
+
+          {generatedIdeas.length > 0 && (
+            <div>
+              <div style={{fontSize:11,fontWeight:700,color:'#6B7280',letterSpacing:'0.06em',
+                textTransform:'uppercase',marginBottom:10}}>
+                Pick one to script immediately
+              </div>
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {generatedIdeas.map((idea, idx) => (
+                  <button key={idx} onClick={()=>selectIdea(idea)}
+                    style={{
+                      background: selectedIdea===idea ? '#EEF2FF' : '#F9FAFB',
+                      border: '1px solid ' + (selectedIdea===idea ? '#C7D2FE' : '#E5E7EB'),
+                      borderRadius: 8,
+                      padding: '12px 16px',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      transition: 'all 0.15s',
+                    }}>
+                    <span style={{width:22,height:22,borderRadius:'50%',background:'#2563EB',
+                      color:'#fff',fontSize:11,fontWeight:800,display:'flex',alignItems:'center',
+                      justifyContent:'center',flexShrink:0}}>{idx+1}</span>
+                    <span style={{fontSize:13,color:'#111827',fontWeight:selectedIdea===idea?700:500,flex:1,textAlign:'left',lineHeight:1.4}}>
+                      {idea}
+                    </span>
+                    <span style={{fontSize:11,color:'#2563EB',fontWeight:700,flexShrink:0,whiteSpace:'nowrap'}}>
+                      {selectedIdea===idea ? 'Scripting →' : 'Use this →'}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <div style={{marginTop:12,fontSize:11,color:'#9CA3AF',textAlign:'center'}}>
+                Selecting an idea loads it directly into the Script tool
+              </div>
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* ── SCRIPT / CAPTION / BATCH / EPISODE / REPURPOSE / BRIEF ── */}
+      {mode !== 'topics' && (
+        <Card>
+          {/* Carried-over idea from Topic Generator */}
+          {selectedIdea && mode === 'script' && (
+            <div style={{background:'#EFF6FF',border:'1px solid #BFDBFE',borderRadius:6,
+              padding:'8px 12px',marginBottom:14,display:'flex',alignItems:'center',gap:10}}>
+              <span style={{fontSize:9,fontWeight:800,color:'#2563EB',letterSpacing:1,textTransform:'uppercase',flexShrink:0}}>
+                From Topic Generator
+              </span>
+              <span style={{fontSize:12,color:'#374151',flex:1}}>{selectedIdea}</span>
+              <button onClick={()=>{setSelectedIdea(null);setTopic('');}}
+                style={{background:'none',border:'none',color:'#9CA3AF',cursor:'pointer',fontSize:11,flexShrink:0}}>
+                ✕
+              </button>
+            </div>
+          )}
+
+          {/* Client selector for brief mode */}
+          {mode === 'brief' && (
+            <>
+              <SecLabel>Client</SecLabel>
+              <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
+                {clients.map(c=>(
+                  <button key={c.id} onClick={()=>setSelectedClient(c)}
+                    style={{background:selectedClient?.id===c.id?'#2563EB':'#F9FAFB',color:selectedClient?.id===c.id?'#fff':'#111827',
+                      border:'1px solid '+(selectedClient?.id===c.id?'#2563EB':'#E5E7EB'),borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:600}}>
+                    {c.name}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Topic input */}
+          {mode !== 'repurpose' && (
+            <>
+              <SecLabel>{mode==='brief'?'Topics / Content Ideas for This Session':mode==='episode'?'Episode Title':'Topic'}</SecLabel>
+              <input value={mode==='episode'?episodeTitle:topic}
+                onChange={e=>mode==='episode'?setEpisodeTitle(e.target.value):setTopic(e.target.value)}
+                placeholder={mode==='brief'?'List the pieces you want to film...':mode==='episode'?'e.g. My morning routine that changed everything':'e.g. Why most people fail at building habits...'}
+                style={inStyle}/>
+            </>
+          )}
+
+          {/* Script length */}
+          {mode === 'script' && (
+            <div style={{display:'flex',gap:6,marginBottom:12,flexWrap:'wrap'}}>
+              {['short','medium','long','thread'].map(s=>(
+                <button key={s} onClick={()=>setScriptMode(s)}
+                  style={{background:scriptMode===s?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid '+(scriptMode===s?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:scriptMode===s?700:500,textTransform:'capitalize'}}>
+                  {s}
                 </button>
               ))}
             </div>
-          </>
-        )}
+          )}
 
-        <button onClick={run} disabled={loading||(!topic&&mode!=='repurpose')||(!repurposeFrom&&mode==='repurpose')}
-          style={{background:loading?'rgba(255,255,255,0.04)':'#00C2FF',color:loading?'#6B7280':'#000D1A',
-            border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:loading?'not-allowed':'pointer',
-            fontSize:13,letterSpacing:'0.02em'}}>
-          {loading ? 'Generating...' : MODES.find(m2=>m2.id===mode)?.label + ' →'}
-        </button>
-      </Card>
+          {/* Caption hook */}
+          {mode === 'caption' && (
+            <>
+              <SecLabel>Opening Hook (optional)</SecLabel>
+              <input value={captionHook} onChange={e=>setCaptionHook(e.target.value)}
+                placeholder="First line of your caption..." style={inStyle}/>
+            </>
+          )}
+
+          {/* Batch count */}
+          {mode === 'batch' && (
+            <>
+              <SecLabel>Number of Posts</SecLabel>
+              <div style={{display:'flex',gap:6,marginBottom:12}}>
+                {['3','5','7','10'].map(n=>(
+                  <button key={n} onClick={()=>setBatchCount(n)}
+                    style={{background:batchCount===n?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid '+(batchCount===n?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:batchCount===n?700:500}}>
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Episode notes */}
+          {mode === 'episode' && (
+            <>
+              <SecLabel>Episode Notes / Timestamps</SecLabel>
+              <textarea value={episodeNotes} onChange={e=>setEpisodeNotes(e.target.value)} rows={3}
+                placeholder="Paste transcript, notes, or timestamps..." style={taStyle}/>
+            </>
+          )}
+
+          {/* Repurpose inputs */}
+          {mode === 'repurpose' && (
+            <>
+              <SecLabel>Original Script or Content</SecLabel>
+              <textarea value={repurposeFrom} onChange={e=>setRepurposeFrom(e.target.value)} rows={4}
+                placeholder="Paste your original script, post, or transcript here..." style={taStyle}/>
+              <SecLabel>Original Platform</SecLabel>
+              <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:12}}>
+                {PLATFORMS.map(p=>(
+                  <button key={p} onClick={()=>setRepurposePlatform(p)}
+                    style={{background:repurposePlatform===p?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid '+(repurposePlatform===p?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:repurposePlatform===p?700:500}}>
+                    {p}
+                  </button>
+                ))}
+              </div>
+              <SecLabel>Repurpose To</SecLabel>
+            </>
+          )}
+
+          {/* Brief session inputs */}
+          {mode === 'brief' && (
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+              <div>
+                <SecLabel>Session Date</SecLabel>
+                <input value={sessionDate} onChange={e=>setSessionDate(e.target.value)} placeholder="e.g. Saturday morning" style={inStyle}/>
+              </div>
+              <div>
+                <SecLabel>Location</SecLabel>
+                <input value={sessionLocation} onChange={e=>setSessionLocation(e.target.value)} placeholder="e.g. Home office, gym" style={inStyle}/>
+              </div>
+              <div>
+                <SecLabel>Equipment</SecLabel>
+                <input value={sessionEquip} onChange={e=>setSessionEquip(e.target.value)} placeholder="e.g. iPhone, ring light" style={inStyle}/>
+              </div>
+              <div>
+                <SecLabel>Duration</SecLabel>
+                <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                  {['1 hour','2-3 hours','4-5 hours','Full day'].map(d=>(
+                    <button key={d} onClick={()=>setSessionDuration(d)}
+                      style={{background:sessionDuration===d?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid '+(sessionDuration===d?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'5px 10px',cursor:'pointer',fontSize:11,fontWeight:sessionDuration===d?700:500}}>
+                      {d}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Angle + Platform (not for episode/brief) */}
+          {!['episode','brief'].includes(mode) && (
+            <>
+              <SecLabel>Content Angle</SecLabel>
+              <AngleGrid selected={angle} onSelect={setAngle}/>
+              <SecLabel>Platform</SecLabel>
+              <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
+                {PLATFORMS.map(p=>(
+                  <button key={p} onClick={()=>setPlatform(p)}
+                    style={{background:platform===p?'#EEF2FF':'#F9FAFB',
+                      color:platform===p?'#2563EB':'#6B7280',
+                      border:'1px solid '+(platform===p?'#C7D2FE':'#E5E7EB'),
+                      borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:500}}>
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          <button onClick={run} disabled={loading||(!topic&&mode!=='repurpose')||(!repurposeFrom&&mode==='repurpose')}
+            style={{background:loading?'#F9FAFB':'#2563EB',color:loading?'#9CA3AF':'#fff',
+              border:'none',borderRadius:8,padding:'11px 24px',fontWeight:700,cursor:loading?'not-allowed':'pointer',
+              fontSize:14,width:'100%',letterSpacing:'0.01em'}}>
+            {loading ? 'Generating...' : MODES.find(m2=>m2.id===mode)?.label + ' →'}
+          </button>
+        </Card>
+      )}
+
       {loading && <Spin/>}
       {out && <DocOutput text={out} title={MODES.find(m2=>m2.id===mode)?.label + ' — SIGNAL'}/>}
     </div>
