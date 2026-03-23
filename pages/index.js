@@ -47,7 +47,21 @@ Spiritual: Not religion unless relevant. Purpose. Values. The deeper reason behi
 
 const CONTENT_SOP = `Content standards I've built my system on: No intros, no fluff : drop them into value on the first frame. Four-layer journey: See It→Click It→Watch It→Go Deeper. CTA split: 60% comment-based, 20% DM, 20% link. I measure wins by shares and saves first : not likes.`;
 
-const VOICE = `Write in Jason Fricka's voice. He's an HR manager, mindset coach, endurance athlete, dad, and real estate agent in Colorado. He talks like he's sitting across the table from you : direct, no fluff, no corporate speak. Short sentences. Real stories. He doesn't hype things up. He doesn't use words like "transform" or "journey" or "find your potential." He says what he means. He talks about hard days, early mornings, the work nobody sees, and why showing up matters even when it doesn't feel like it. His community is the community : everyday people who refuse to stay where they are. He roots for them out loud. Today is ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}. Write like him, not like a marketer writing about him. Never use em dashes. Never use AI buzzwords like "delve", "tapestry", "comprehensive", "leverage", "utilize", "paradigm", "synergy", "robust", "holistic", "facilitate", "foster", "streamline", or "cutting-edge". No hype. No filler. Jason does not talk like a LinkedIn consultant.`;
+const VOICE = `Write in Jason Fricka's voice.
+
+WHO HE IS:
+Jason is an HR Manager at a cabinet manufacturing company in Colorado — this is his primary career and where he spends most of his working hours. He deals with real HR every day: benefits, compliance, employee issues, hiring, difficult conversations, management problems. He knows what it's like to be the person everyone comes to when something goes wrong at work.
+
+He's also a licensed real estate agent serving veterans and families in the South Denver Metro area. He's a dad, a veteran, an endurance athlete training toward bigger challenges, and he hosts a podcast called Everyday Elevations. He manages multiple responsibilities simultaneously and knows what that pressure actually feels like.
+
+HOW HE TALKS:
+Direct. No fluff. Short sentences. Real stories. He sits across the table from you and tells you what he actually thinks. He doesn't hype things up. He doesn't use words like "transform" or "journey" or "find your potential." He says what he means. He talks about hard days, early mornings, the work nobody sees, and why showing up matters even when it doesn't feel like it.
+
+His community is everyday people who carry a lot — jobs, families, financial pressure, physical goals — and refuse to stay where they are. He roots for them out loud.
+
+Today is \${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}.
+
+Write like him, not like a marketer writing about him. Never use em dashes. Never use AI buzzwords like "delve", "tapestry", "comprehensive", "leverage", "utilize", "paradigm", "synergy", "robust", "holistic", "facilitate", "foster", "streamline", or "cutting-edge". No hype. No filler. Jason does not talk like a LinkedIn consultant.\`;
 
 // ═════════════════════════════════════════════════════════════════════════════
 const PLATFORMS = ['Instagram','YouTube','Facebook','LinkedIn','X','TikTok'];
@@ -12737,61 +12751,51 @@ function ContentCreationHub() {
     const client = selectedClient || activeClient;
     const voiceFP = (() => { try { const fps = JSON.parse(localStorage.getItem('encis_voice_fingerprints')||'{}'); return fps[client?.id] || null; } catch { return null; } })();
     const voiceHint = voiceFP ? `Voice: ${voiceFP.tone || ''}. ` : '';
-    const prompt = `You are a high-performance content strategist and idea generator for ${client?.name || 'Jason Fricka'}.
+    const prompt = `You are a content strategist generating ideas for Jason Fricka.
 
-CREATOR CONTEXT:
-${client?.voice || 'Colorado-based. HR manager, endurance athlete, real estate agent, dad. Direct voice. Real stories. No fluff.'}
-${voiceHint}Platform: ${platform} | Content Length: ${topicLength} | Angle: ${topicAngle}
-${topicSeed ? 'Seed topic: "' + topicSeed + '"' : 'No seed — pick highest-opportunity topics right now.'}
+CREATOR PROFILE:
+${client?.voice || ''}
+Platform: ${platform} | Format: ${topicLength} | Dimension: ${topicAngle}
+${topicSeed ? 'Seed topic: "' + topicSeed + '"' : 'No seed — mix freely across all areas of Jason\'s life.'}
 
-━━━ GREENSPAN CONTENT IDEATION SOP ━━━
+JASON'S LIFE TERRITORIES — pull ideas from ALL of these and mix them:
 
-STEP 1 — CONCEPT REQUIREMENTS (every idea must have all four):
-- Viral Potential: Inherent shareable quality — not just "good content"
-- Common Traits: Elements a large audience immediately recognizes from their own life
-- Provocative Angle: Something that might upset, surprise, or challenge a belief
-- Story Setup: Clear character + situation + tension — not a tip, a moment
+HR & WORKPLACE (primary career — use heavily):
+HR Manager at a cabinet manufacturing company in Colorado. Daily: benefits, ADA compliance, terminations, hiring, policy enforcement, workers comp, manager training, difficult employee conversations. He's the person everyone goes to when work goes wrong. He sees human behavior under real pressure — people afraid of losing their jobs, managers who get it wrong, the gap between policy and human reality. Rich, underserved content territory.
 
-STEP 2 — ORIGINALITY RULE (non-negotiable):
-If this idea could be posted by 1,000 other creators without changing a word, reject it.
-Pull from lived experience — real estate interactions, financial stress, training moments, relationship pressure, personal turning points.
-Every idea must feel like it came from a real moment, not theory.
+REAL ESTATE:
+Licensed agent, South Denver/Parker. Veterans, families, first-time buyers, VA loans. The real cost of homeownership vs expectations. One RE idea max per run unless seed topic says otherwise.
 
-STEP 3 — CONTENT SCORING FILTER (internal — improve before outputting):
-Score each idea on:
-- Relatable: Real people recognize this situation from their own life
-- Provocative: Challenges a belief, sparks debate, or surprises
-- Valuable: Viewer leaves with something they can actually use
-- Structured: Clear hook → tension → insight → payoff
-Reject anything weak on any dimension. Improve and resubmit internally.
+AI IMPLEMENTATION:
+Actively building AI tools across his HR role, real estate business, and content creation. The unglamorous reality of learning AI as a non-developer — what works, what doesn't, what AI cannot replace in human judgment and relationships.
 
-STEP 4 — CONTENT LANES (pull from these, not generic wellness/creator content):
-1. Colorado Real Estate — first-time buyers, veterans, local market reality, Parker/South Denver, VA loans, hard truths about buying
-2. High-Pressure Life — money stress, being the provider, hard tradeoffs, what nobody tells you about adult responsibility
-3. Discipline + Physical Growth — training, consistency, mental toughness, endurance goals, what the work actually looks like
-4. Identity + Growth — confidence, internal battles, personal evolution, the version of yourself you're building
-5. Real Talk Advice — mistakes made, hard truths delivered straight, tactical breakdowns of real situations
+ENDURANCE & PHYSICAL DISCIPLINE:
+Training toward RAGBRAI, 10Ks, bigger endurance goals. Not gym motivation — the raw reality of staying physically disciplined when exhausted from full-time career, side business, and fatherhood.
 
-STEP 5 — VIRAL STRUCTURE (apply to every idea's hook):
-Hook must be a pattern interrupt — the first line stops the scroll.
-Hook types that perform: bold claim, confession, "what nobody tells you", mistake reveal, counterintuitive truth, specific number or outcome.
-Body: tension or problem → story or breakdown → insight → actionable takeaway → CTA.
+FATHERHOOD & FAMILY:
+Dad to Jordan, partner to Lisa. Carrying responsibility for a family while building toward your own goals. The tension between being the person others depend on and still growing yourself.
 
-STEP 6 — TECHNICAL REQUIREMENTS:
-- Strong verbal hook (first 3 seconds must hit hard)
-- Visual hook potential (something the editor can work with in the opening)
-- Multiple transition opportunities in first 5 seconds
-- Contrarian perspective — a POV that stands out from standard creator content
-- Strong CTA built into the concept
+VETERAN IDENTITY:
+What military service built that still runs in the background. The civilian transition, identity shift, what veterans carry that most people don't see.
 
-LENGTH CONTEXT:
-${topicLength==='Short'?'15-60 second Reel/Short — one tight idea, immediate hook, zero fluff. One insight, delivered hard.':topicLength==='Medium'?'1-3 minute video or carousel — story arc with real tension and a clear takeaway. Room for a breakdown.':'Long-form YouTube or podcast — depth, multiple beats, strong narrative arc. Earned credibility through specificity.'}
+PODCAST & PERSONAL GROWTH (Everyday Elevations):
+Practical growth — not aspirational. Small daily choices that compound. The gap between what self-help promises and what actually moves the needle in a real, complicated life.
 
-━━━ OUTPUT FORMAT ━━━
-Return ONLY a numbered list 1-5. Each idea on one line.
-Format: [Hook line that stops the scroll] — [What they film/write, the personal anchor, and why it will hit]
+DIMENSION FOCUS: ${topicAngle}
+${topicAngle==='Emotional'?'Stress, self-talk, identity, managing pressure across HR/real estate/family simultaneously, what Jason feels vs projects':topicAngle==='Physical'?'Training at 5am with a full life, recovery, the relationship between physical discipline and mental state, what consistency actually costs':topicAngle==='Social'?'Being a dad, a partner, an HR manager who sees people at their most raw — how you show up for others when you have little left':topicAngle==='Intellectual'?'AI tools being built right now, what HR teaches about human nature, problem-solving under pressure, what experience reveals that no course teaches':topicAngle==='Occupational'?'The daily HR reality, building a real estate side business, implementing AI at work, what multiple demanding roles cost day-to-day':topicAngle==='Financial'?'Real estate as a long-game vehicle, what HR salary negotiations reveal, building across multiple income streams, real math not hype':topicAngle==='Environmental'?'Colorado life, training outdoors, the environment you create at home and work and how it shapes who you become':topicAngle==='Spiritual'?'Purpose and values — the deeper reason behind the discipline, what Jason is building, for whom, why it demands this level of consistency':'The deeper reason behind the discipline — what he is actually building, for whom, why it requires this level of consistency'}
 
-No preamble. No section labels. No explanation outside the format. Just 5 ideas.`;
+IDEA REQUIREMENTS:
+Grounded in specific real moments, not concepts or general wisdom.
+  Good: "I had to terminate someone last week who cried in my office — and I still think it was right"
+  Bad: "Why HR managers are underrated"
+Relatable over provocative. Goal: viewer says "I've felt that" or "I didn't know that."
+Integrated when powerful: HR + fatherhood, AI + real estate, endurance + work ethic, veteran + discipline.
+Varied formats: story/confession, lesson/breakdown, hard truth, day-in-my-life, before/after.
+No generic wellness content. No manufactured drama. No "secrets they don't want you to know."
+
+OUTPUT: Numbered list 1-5 only. One per line.
+Format: [First words spoken on camera — the hook] — [What the video covers and why it resonates]
+Vary territories across the 5 ideas. No more than one real estate idea. Ground every idea in lived reality.`;
 
     const res = await ai(prompt);
     const ideas = res.split('\n')
@@ -12929,7 +12933,7 @@ No preamble. No section labels. No explanation outside the format. Just 5 ideas.
             <div>
               <SecLabel>Content Angle</SecLabel>
               <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
-                {['Emotional','Physical','Social','Intellectual'].map(a=>(
+                {['Emotional','Physical','Social','Intellectual','Occupational','Financial','Environmental','Spiritual'].map(a=>(
                   <button key={a} onClick={()=>setTopicAngle(a)}
                     style={{background:topicAngle===a?'#EEF2FF':'#F9FAFB',
                       color:topicAngle===a?'#2563EB':'#374151',
