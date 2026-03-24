@@ -238,6 +238,35 @@ const AngleGrid = ({selected, onSelect, angles}) => {
   );
 };
 
+const SaveButton = ({entry, style={}}) => {
+  const [saved, setSaved] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const handle = async () => {
+    if (saved || saving) return;
+    setSaving(true);
+    await saveToSupabase({...entry, full: entry.full || entry.preview || ''});
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  };
+  return (
+    <button onClick={handle} disabled={saving || saved} style={{
+      background: saved ? 'rgba(39,174,96,0.15)' : 'rgba(0,194,255,0.08)',
+      color: saved ? '#27ae60' : '#00C2FF',
+      border: `1px solid ${saved ? 'rgba(39,174,96,0.3)' : 'rgba(0,194,255,0.2)'}`,
+      borderRadius: 7,
+      padding: '6px 14px',
+      fontSize: 12,
+      fontWeight: 700,
+      cursor: saving || saved ? 'default' : 'pointer',
+      transition: 'all 0.2s',
+      ...style,
+    }}>
+      {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save'}
+    </button>
+  );
+};
+
 const CopyBtn = ({text}) => {
   const [copied,setCopied] = useState(false);
   return (
@@ -506,6 +535,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
     <div style={{marginTop:20}}>
       {showDownload && (
         <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginBottom:12}}>
+          <SaveButton entry={{type:'content', title:title, preview:text.slice(0,400), full:text}}/>
           <CopyBtn text={text}/>
           <button onClick={download} disabled={downloading}
             style={{background:downloading?'#6B7280':'#2563EB',color:'#fff',border:'none',
