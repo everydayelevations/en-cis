@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { supabase } from '../lib/supabase';
 import Head from 'next/head';
 import EighthAscentLogo from '../components/EighthAscentLogo';
 
@@ -1825,7 +1826,28 @@ function useContentMemory() {
 // Global memory instance: shared across all tools
 let _memorySave = null;
 function registerMemorySave(fn) { _memorySave = fn; }
-function logToMemory(entry) { if (_memorySave) _memorySave(entry); }
+async function saveToSupabase(entry) {
+  try {
+    await supabase.from('saved_content').insert([{
+      type: entry.type || 'content',
+      title: (entry.title || entry.topic || 'Untitled').slice(0, 200),
+      platform: entry.platform || null,
+      angle: entry.angle || null,
+      content_preview: (entry.preview || '').slice(0, 500),
+      full_content: entry.full || entry.preview || '',
+      perf_rating: entry.perf || null,
+      client_name: entry.client || null,
+      notes: entry.notes || null,
+    }]);
+  } catch(e) {
+    console.error('Supabase save error:', e);
+  }
+}
+
+function logToMemory(entry) {
+  if (_memorySave) _memorySave(entry);
+  saveToSupabase(entry);
+}
 
 function ContentMemory() {
   const { log, save, update, remove, clear } = useContentMemory();
@@ -14178,7 +14200,7 @@ export default function App() {
     <ErrorBoundary>
       {!onboardingDone && <OnboardingFlow onComplete={() => setOnboardingDone(true)}/>}
       <Head>
-        <title>SIGNAL by Everyday Elevations</title>
+        <title>8th Ascent</title>
         <meta name="description" content="SIGNAL Social Media OS by Everyday Elevations"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <style>{`
