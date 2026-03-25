@@ -15873,7 +15873,7 @@ Generate their complete onboarding package. Return as JSON only — no markdown,
     ],
     audience: [
       { k:'audience', l:'Who is their audience?', ph:'e.g. Busy moms in their 30s who want to lose weight without giving up their lives', ta:true },
-      { k:'audiencePain', l:'What is their audience's biggest pain point?', ph:'e.g. They start and stop. Can't stay consistent. Feel like they're failing', ta:true },
+      { k:'audiencePain', l:"What is their audience's biggest pain point?", ph:"e.g. They start and stop. Can't stay consistent. Feel like they're failing", ta:true },
       { k:'audienceWin', l:'What does success look like for their audience?', ph:'e.g. Down 20 lbs, feel confident, able to keep up with their kids', ta:true },
     ],
     voice: [
