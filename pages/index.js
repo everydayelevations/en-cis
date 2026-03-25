@@ -15464,8 +15464,7 @@ Platform: ${platform}
 
 Write ALL ${filledTopics.length} captions now. Each one is complete and ready to post.
 
-${filledTopics.map((topic, i) => `TOPIC ${i + 1}: ${topic}`).join('
-')}
+${filledTopics.map((topic, i) => `TOPIC ${i + 1}: ${topic}`).join('\n')}
 
 For EACH topic write:
 
@@ -16089,8 +16088,7 @@ Top content: ${r.topContent}
 Hook style: ${r.hookStyle}
 What they own: ${r.niche}
 Engagement pattern: ${r.engagement}
-`).join('
-')}
+`).join('\n')}
 
 Produce a sharp gap analysis:
 
