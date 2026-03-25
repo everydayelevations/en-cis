@@ -412,7 +412,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
         .join('\n');
 
       // Build agency-grade PDF document using string concat (no nested template literals)
-      const agencyName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.agencyName) ? wl.agencyName : 'SIGNAL by Everyday Elevations'; } catch(e) { return 'SIGNAL by Everyday Elevations'; } })();
+      const agencyName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.agencyName) ? wl.agencyName : '8th Ascent'; } catch(e) { return '8th Ascent'; } })();
       const accentColor = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.primaryColor) ? wl.primaryColor : '#00C2FF'; } catch(e) { return '#00C2FF'; } })();
       const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
 
@@ -456,7 +456,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
         '@page { margin: 0.75in; size: letter; }',
         '* { box-sizing: border-box; margin: 0; padding: 0; }',
         "body { font-family: 'DM Sans', -apple-system, sans-serif; color: #111; line-height: 1.7; font-size: 13px; }",
-        '.cover { background: #F7F9FC; color: #fff; padding: 48px 40px 40px; }',
+        '.cover { background: #0A1628; color: #F1F5F9; padding: 48px 40px 40px; }',
         '.cover-agency { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: ' + accentColor + '; margin-bottom: 32px; }',
         '.cover-title { font-size: 36px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; color: #fff; margin-bottom: 8px; }',
         '.cover-subtitle { font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 40px; }',
