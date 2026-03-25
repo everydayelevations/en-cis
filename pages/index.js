@@ -4699,6 +4699,7 @@ const SUB_NAV = {
   ],
   create: [
     { id:'smartbrief', label:'Smart Brief ✦' },
+    { id:'brain', label:'Brain Builder 🧠' },
     { id:'create', label:'Create Hub' },
     { id:'hooks', label:'Hook Workshop' },
     { id:'design', label:'Design Studio' },
@@ -16954,6 +16955,710 @@ function RealityCheckBanner() {
   );
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PHASE 2: BRAIN BUILDER + STORY SEEDING SPRINT
+// The Living Brain that powers all content generation.
+// Brain Builder: structured profile setup with health indicators
+// Story Seeding Sprint: 10 questions → 10 story bank entries in 20 min
+// Story Scratch Pad: raw capture → Claude structures it
+// ═══════════════════════════════════════════════════════════════════════════
+
+const BRAIN_KEY = 'encis_living_brain';
+const STORY_BANK_KEY = 'encis_story_bank';
+const BRAIN_HEALTH_KEY = 'encis_brain_health';
+
+// ── STORY SEEDING SPRINT QUESTIONS ──────────────────────────────────────────
+const SEEDING_QUESTIONS = [
+  { id: 1, q: "What is something you have done at work that most people would not have the stomach for? Describe the moment specifically." },
+  { id: 2, q: "What did you get completely wrong early in your career that you now see clearly? What did that cost you?" },
+  { id: 3, q: "What did military service teach you that still runs in the background every single day?" },
+  { id: 4, q: "What is the hardest thing about being a dad that nobody talks about honestly?" },
+  { id: 5, q: "What was the moment you realized HR was not what you thought it was going to be?" },
+  { id: 6, q: "What does showing up at 5am to train actually feel like when you genuinely do not want to be there?" },
+  { id: 7, q: "What is a real estate conversation that changed how you see buyers, sellers, or the whole process?" },
+  { id: 8, q: "What is something you built or figured out that took way longer than it should have — and what made it hard?" },
+  { id: 9, q: "What do people misunderstand about discipline that genuinely bothers you?" },
+  { id: 10, q: "What are you still working on right now that you are not fully comfortable admitting publicly?" },
+];
+
+// Prompt to extract structured story from raw answer
+const STORY_EXTRACT_PROMPT = (question, answer, clientName) => `You are extracting a structured story bank entry from a creator's personal answer.
+
+CREATOR: ${clientName || 'Jason Fricka'}
+QUESTION: ${question}
+ANSWER: ${answer}
+
+Extract a complete story bank entry. Return ONLY this JSON — no explanation, no markdown fences:
+{
+  "title": "[short memorable title for this story — 5 words max]",
+  "story_type": "[personal | lesson | tension | belief | transformation | confession]",
+  "summary": "[2-3 sentence summary of the actual story or moment]",
+  "key_lesson": "[the single most useful insight — one sentence]",
+  "emotional_theme": "[the core emotion: accountability | vulnerability | resilience | honesty | frustration | pride | doubt | clarity]",
+  "audience_relevance": "[why this resonates with the audience — one sentence]",
+  "reusable_hooks": ["[hook 1 — first line of content using this story]", "[hook 2]", "[hook 3]"],
+  "best_formats": ["[Reel Script | Caption | Carousel | Email | LinkedIn Post]"],
+  "proof_type": "[personal experience | lesson learned | hard truth | behind the scenes | confession]"
+}`;
+
+// Prompt to extract story from Scratch Pad raw text
+const SCRATCH_PAD_EXTRACT_PROMPT = (raw, clientName) => `You are extracting a story bank entry from raw notes a creator just typed.
+
+CREATOR: ${clientName || 'Jason Fricka'}
+RAW NOTES: ${raw}
+
+Extract whatever story or insight is present. If it is incomplete, work with what is there.
+Return ONLY this JSON — no explanation, no markdown:
+{
+  "title": "[short memorable title — 5 words max]",
+  "story_type": "[personal | lesson | tension | belief | transformation | confession]",
+  "summary": "[what happened or what the insight is — 2-3 sentences]",
+  "key_lesson": "[the core takeaway — one sentence]",
+  "emotional_theme": "[accountability | vulnerability | resilience | honesty | frustration | pride | doubt | clarity]",
+  "audience_relevance": "[why this matters to the audience — one sentence]",
+  "reusable_hooks": ["[hook 1]", "[hook 2]"],
+  "best_formats": ["[best format to use this]"],
+  "proof_type": "[personal experience | lesson learned | hard truth | behind the scenes | confession]"
+}`;
+
+// Brain health check — returns pillar staleness and anchor stats
+function getBrainHealth(stories, recentContent, qualityAnchors) {
+  const now = Date.now();
+  const fourteenDays = 14 * 24 * 60 * 60 * 1000;
+  const sixtyDays = 60 * 24 * 60 * 60 * 1000;
+
+  // Check if Brain has updated recently (quality anchors)
+  const recentAnchors = (qualityAnchors || []).filter(a =>
+    new Date(a.savedAt).getTime() > now - fourteenDays
+  );
+
+  // Find stale stories (not referenced in 60 days)
+  const activeStoryTitles = (recentContent || [])
+    .filter(c => c.notes && c.notes.includes('story'))
+    .map(c => c.title || '');
+  const staleStories = (stories || []).filter(s =>
+    s.lastUsed && (now - new Date(s.lastUsed).getTime() > sixtyDays)
+  );
+
+  // Pillar usage from recent content
+  const pillarUsage = {};
+  (recentContent || []).slice(0, 20).forEach(c => {
+    if (c.angle) pillarUsage[c.angle] = (pillarUsage[c.angle] || 0) + 1;
+  });
+
+  return {
+    anchorCount: (qualityAnchors || []).length,
+    recentAnchorCount: recentAnchors.length,
+    needsAnchorAlert: recentAnchors.length === 0 && (qualityAnchors || []).length > 0,
+    staleStoryCount: staleStories.length,
+    staleStories: staleStories.slice(0, 3),
+    pillarUsage,
+    stalePillars: Object.entries(pillarUsage)
+      .filter(([_, count]) => count < 2)
+      .map(([pillar]) => pillar),
+    storyCount: (stories || []).length,
+    isSeeded: (stories || []).length >= 5,
+  };
+}
+
+// ── BRAIN BUILDER COMPONENT ──────────────────────────────────────────────────
+
+function BrainBuilder() {
+  const [activeClient] = useActiveClient();
+  const [tab, setTab] = React.useState('overview'); // overview | seeding | scratch | health
+
+  // Brain state
+  const [brain, setBrain] = React.useState(null);
+  const [stories, setStories] = React.useState([]);
+  const [qualityAnchors, setQualityAnchors] = React.useState([]);
+  const [recentContent, setRecentContent] = React.useState([]);
+  const [health, setHealth] = React.useState(null);
+
+  // Seeding Sprint state
+  const [seedingStep, setSeedingStep] = React.useState(0); // 0=intro, 1-10=questions, 11=processing, 12=done
+  const [seedingAnswers, setSeedingAnswers] = React.useState({});
+  const [currentAnswer, setCurrentAnswer] = React.useState('');
+  const [seedingLoading, setSeedingLoading] = React.useState(false);
+  const [seedingProgress, setSeedingProgress] = React.useState(0);
+
+  // Scratch Pad state
+  const [scratchText, setScratchText] = React.useState('');
+  const [scratchLoading, setScratchLoading] = React.useState(false);
+  const [scratchResult, setScratchResult] = React.useState(null);
+
+  React.useEffect(() => {
+    loadBrain();
+  }, [activeClient]);
+
+  const loadBrain = async () => {
+    try {
+      const clientId = activeClient?.id || 'jason';
+
+      // Load brain
+      const brains = JSON.parse(localStorage.getItem(BRAIN_KEY) || '{}');
+      setBrain(brains[clientId] || null);
+
+      // Load stories
+      const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
+      setStories(allStories[clientId] || []);
+
+      // Load quality anchors
+      const anchors = JSON.parse(localStorage.getItem(QUALITY_ANCHOR_KEY) || '[]');
+      setQualityAnchors(anchors.filter(a => (a.clientId || 'jason') === clientId));
+
+      // Load recent content from Supabase
+      const { data } = await supabase
+        .from('saved_content')
+        .select('*')
+        .eq('client_id', clientId)
+        .order('created_at', { ascending: false })
+        .limit(30);
+
+      const recent = data || [];
+      setRecentContent(recent);
+      setHealth(getBrainHealth(allStories[clientId] || [], recent, anchors));
+    } catch(e) { console.error('BrainBuilder load:', e); }
+  };
+
+  const saveStory = (newStory) => {
+    try {
+      const clientId = activeClient?.id || 'jason';
+      const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
+      const clientStories = allStories[clientId] || [];
+      const story = {
+        ...newStory,
+        id: Date.now(),
+        clientId,
+        savedAt: new Date().toISOString(),
+        lastUsed: null,
+        usageCount: 0,
+      };
+      allStories[clientId] = [story, ...clientStories];
+      localStorage.setItem(STORY_BANK_KEY, JSON.stringify(allStories));
+      setStories(allStories[clientId]);
+      return story;
+    } catch(e) { console.error('saveStory:', e); return null; }
+  };
+
+  const deleteStory = (storyId) => {
+    try {
+      const clientId = activeClient?.id || 'jason';
+      const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
+      allStories[clientId] = (allStories[clientId] || []).filter(s => s.id !== storyId);
+      localStorage.setItem(STORY_BANK_KEY, JSON.stringify(allStories));
+      setStories(allStories[clientId]);
+    } catch {}
+  };
+
+  // ── SEEDING SPRINT ──
+
+  const startSeeding = () => {
+    setSeedingStep(1);
+    setSeedingAnswers({});
+    setCurrentAnswer('');
+    setSeedingProgress(0);
+  };
+
+  const saveAnswer = () => {
+    if (!currentAnswer.trim()) return;
+    setSeedingAnswers(prev => ({ ...prev, [seedingStep]: currentAnswer.trim() }));
+    if (seedingStep < 10) {
+      setSeedingStep(prev => prev + 1);
+      setCurrentAnswer('');
+    } else {
+      processAllAnswers({ ...seedingAnswers, [seedingStep]: currentAnswer.trim() });
+    }
+  };
+
+  const skipQuestion = () => {
+    if (seedingStep < 10) {
+      setSeedingStep(prev => prev + 1);
+      setCurrentAnswer('');
+    } else {
+      processAllAnswers(seedingAnswers);
+    }
+  };
+
+  const processAllAnswers = async (answers) => {
+    setSeedingStep(11);
+    setSeedingLoading(true);
+    const clientName = activeClient?.name || 'Jason';
+    const answeredQuestions = Object.entries(answers);
+
+    let processed = 0;
+    for (const [qNum, answer] of answeredQuestions) {
+      const question = SEEDING_QUESTIONS[parseInt(qNum) - 1];
+      if (!question || !answer.trim()) continue;
+
+      try {
+        const raw = await ai(STORY_EXTRACT_PROMPT(question.q, answer, clientName));
+        const clean = raw.replace(/```json|```/g, '').trim();
+        const story = JSON.parse(clean);
+        saveStory({ ...story, sourceQuestion: question.q, rawAnswer: answer });
+        processed++;
+        setSeedingProgress(Math.round((processed / answeredQuestions.length) * 100));
+      } catch(e) {
+        // Save raw if parse fails
+        saveStory({
+          title: `Story from Q${qNum}`,
+          story_type: 'personal',
+          summary: answer.slice(0, 200),
+          key_lesson: '',
+          emotional_theme: 'personal',
+          audience_relevance: '',
+          reusable_hooks: [],
+          best_formats: ['Reel Script'],
+          proof_type: 'personal experience',
+          sourceQuestion: question.q,
+          rawAnswer: answer,
+        });
+        processed++;
+      }
+    }
+    setSeedingLoading(false);
+    setSeedingStep(12);
+    loadBrain();
+  };
+
+  // ── SCRATCH PAD ──
+
+  const processScratch = async () => {
+    if (!scratchText.trim()) return;
+    setScratchLoading(true);
+    setScratchResult(null);
+    try {
+      const clientName = activeClient?.name || 'Jason';
+      const raw = await ai(SCRATCH_PAD_EXTRACT_PROMPT(scratchText, clientName));
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const result = JSON.parse(clean);
+      setScratchResult(result);
+    } catch(e) {
+      setScratchResult({
+        title: 'Raw Note',
+        story_type: 'personal',
+        summary: scratchText.slice(0, 200),
+        key_lesson: 'To be refined',
+        emotional_theme: 'personal',
+        audience_relevance: '',
+        reusable_hooks: [],
+        best_formats: ['Reel Script'],
+        proof_type: 'personal experience',
+      });
+    }
+    setScratchLoading(false);
+  };
+
+  const confirmScratch = () => {
+    if (!scratchResult) return;
+    saveStory({ ...scratchResult, rawAnswer: scratchText });
+    setScratchText('');
+    setScratchResult(null);
+    setTab('overview');
+  };
+
+  // ── RENDER ──
+
+  const storyTypeColors = {
+    personal: '#3B82F6', lesson: '#10B981', tension: '#F59E0B',
+    belief: '#8B5CF6', transformation: '#EC4899', confession: '#EF4444',
+  };
+
+  const tabs = [
+    { id: 'overview', label: 'Story Bank' },
+    { id: 'seeding', label: 'Seeding Sprint' },
+    { id: 'scratch', label: 'Scratch Pad' },
+    { id: 'health', label: 'Brain Health' },
+  ];
+
+  return (
+    <div style={{ maxWidth: 720, margin: '0 auto' }}>
+
+      {/* Header */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <div style={{ width: 3, height: 28, background: '#00C2FF', borderRadius: 2 }}/>
+          <h2 style={{ color: '#111827', margin: 0, fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>
+            Brain Builder
+          </h2>
+        </div>
+        <p style={{ color: '#6B7280', margin: 0, fontSize: 14, paddingLeft: 13 }}>
+          {stories.length} stories · {qualityAnchors.length} quality anchors · powers every generation
+        </p>
+      </div>
+
+      {/* Health alert */}
+      {health?.needsAnchorAlert && (
+        <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 10, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 16 }}>⚠️</span>
+          <div>
+            <div style={{ color: '#F59E0B', fontWeight: 700, fontSize: 13 }}>Brain not updating</div>
+            <div style={{ color: '#6B7280', fontSize: 12, marginTop: 2 }}>No quality anchors saved in 14 days. Your last 5 approvals may not meet the threshold.</div>
+          </div>
+        </div>
+      )}
+
+      {/* Tabs */}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: '#F9FAFB', borderRadius: 10, padding: 4 }}>
+        {tabs.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            style={{ flex: 1, background: tab === t.id ? '#FFFFFF' : 'transparent', color: tab === t.id ? '#111827' : '#6B7280', border: 'none', borderRadius: 7, padding: '8px 4px', cursor: 'pointer', fontSize: 12, fontWeight: tab === t.id ? 700 : 500, boxShadow: tab === t.id ? '0 1px 4px rgba(0,0,0,0.08)' : 'none', transition: 'all 0.15s' }}>
+            {t.label}
+            {t.id === 'seeding' && !health?.isSeeded && <span style={{ marginLeft: 4, color: '#EF4444', fontSize: 10 }}>●</span>}
+          </button>
+        ))}
+      </div>
+
+      {/* ── TAB: STORY BANK ── */}
+      {tab === 'overview' && (
+        <div>
+          {stories.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 24px', background: '#F9FAFB', borderRadius: 12 }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>📖</div>
+              <div style={{ color: '#111827', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Story Bank is empty</div>
+              <p style={{ color: '#6B7280', fontSize: 14, marginBottom: 24, lineHeight: 1.7 }}>
+                Your Brain needs stories to produce specific content. Run the Seeding Sprint to add 10 stories in 20 minutes.
+              </p>
+              <button onClick={() => setTab('seeding')}
+                style={{ background: '#111827', color: '#FFF', border: 'none', borderRadius: 10, padding: '12px 24px', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>
+                Run Seeding Sprint →
+              </button>
+            </div>
+          ) : (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div style={{ color: '#6B7280', fontSize: 13 }}>{stories.length} stories in your bank</div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={() => setTab('scratch')}
+                    style={{ background: '#F9FAFB', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, padding: '7px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                    + Add Story
+                  </button>
+                  <button onClick={() => setTab('seeding')}
+                    style={{ background: '#111827', color: '#FFF', border: 'none', borderRadius: 8, padding: '7px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>
+                    Run Sprint Again
+                  </button>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {stories.map(story => (
+                  <div key={story.id} style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderLeft: `3px solid ${storyTypeColors[story.story_type] || '#6B7280'}`, borderRadius: 10, padding: '16px 18px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                          <span style={{ background: storyTypeColors[story.story_type] || '#6B7280', color: '#FFF', fontSize: 9, fontWeight: 700, letterSpacing: 1, padding: '2px 7px', borderRadius: 4, textTransform: 'uppercase' }}>
+                            {story.story_type}
+                          </span>
+                          {story.emotional_theme && (
+                            <span style={{ color: '#9CA3AF', fontSize: 11 }}>{story.emotional_theme}</span>
+                          )}
+                        </div>
+                        <div style={{ color: '#111827', fontWeight: 700, fontSize: 14 }}>{story.title}</div>
+                      </div>
+                      <button onClick={() => deleteStory(story.id)}
+                        style={{ background: 'none', border: 'none', color: '#D1D5DB', cursor: 'pointer', fontSize: 16, padding: '0 4px', flexShrink: 0 }}>
+                        ×
+                      </button>
+                    </div>
+                    <div style={{ color: '#374151', fontSize: 13, lineHeight: 1.6, marginBottom: 8 }}>{story.summary}</div>
+                    {story.key_lesson && (
+                      <div style={{ background: '#F9FAFB', borderRadius: 6, padding: '8px 12px', marginBottom: 8 }}>
+                        <span style={{ color: '#6B7280', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>Key lesson · </span>
+                        <span style={{ color: '#374151', fontSize: 12 }}>{story.key_lesson}</span>
+                      </div>
+                    )}
+                    {story.reusable_hooks && story.reusable_hooks.length > 0 && (
+                      <div style={{ marginTop: 8 }}>
+                        <div style={{ color: '#9CA3AF', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 5 }}>Hooks</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          {story.reusable_hooks.slice(0, 2).map((hook, i) => (
+                            <div key={i} style={{ color: '#374151', fontSize: 12, paddingLeft: 8, borderLeft: '2px solid #E5E7EB' }}>
+                              "{hook}"
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── TAB: SEEDING SPRINT ── */}
+      {tab === 'seeding' && (
+        <div>
+          {/* Intro */}
+          {seedingStep === 0 && (
+            <div style={{ background: '#F9FAFB', borderRadius: 12, padding: '32px 28px', textAlign: 'center' }}>
+              <div style={{ fontSize: 40, marginBottom: 16 }}>⚡</div>
+              <h3 style={{ color: '#111827', fontWeight: 800, fontSize: 20, marginBottom: 8 }}>Story Seeding Sprint</h3>
+              <p style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.8, marginBottom: 8 }}>
+                10 questions. 2-3 sentences each. About 20 minutes.
+              </p>
+              <p style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.8, marginBottom: 24 }}>
+                Claude turns your answers into 10 structured story bank entries. No overthinking — raw is better than polished.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 28, textAlign: 'left' }}>
+                {['Your answers become specific hooks the system can reference', 'Every content generation draws from these stories automatically', 'Can be re-run quarterly as your experiences grow'].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: '#FFFFFF', borderRadius: 8, padding: '10px 14px', border: '1px solid #E5E7EB' }}>
+                    <span style={{ color: '#10B981', fontWeight: 700, flexShrink: 0 }}>✓</span>
+                    <span style={{ color: '#374151', fontSize: 13 }}>{item}</span>
+                  </div>
+                ))}
+              </div>
+              <button onClick={startSeeding}
+                style={{ background: '#111827', color: '#FFF', border: 'none', borderRadius: 10, padding: '14px 32px', fontWeight: 800, cursor: 'pointer', fontSize: 15, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
+                Start Sprint →
+              </button>
+              {stories.length > 0 && (
+                <p style={{ color: '#9CA3AF', fontSize: 12, marginTop: 16 }}>
+                  You already have {stories.length} stories. Running again adds more.
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Questions 1-10 */}
+          {seedingStep >= 1 && seedingStep <= 10 && (
+            <div>
+              {/* Progress */}
+              <div style={{ display: 'flex', gap: 4, marginBottom: 24 }}>
+                {SEEDING_QUESTIONS.map((_, i) => (
+                  <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i < seedingStep - 1 ? '#10B981' : i === seedingStep - 1 ? '#111827' : '#E5E7EB', transition: 'background 0.3s' }}/>
+                ))}
+              </div>
+
+              <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '24px' }}>
+                <div style={{ color: '#9CA3AF', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>
+                  Question {seedingStep} of 10
+                </div>
+                <div style={{ color: '#111827', fontSize: 16, fontWeight: 600, lineHeight: 1.6, marginBottom: 20 }}>
+                  {SEEDING_QUESTIONS[seedingStep - 1]?.q}
+                </div>
+                <textarea
+                  value={currentAnswer}
+                  onChange={e => setCurrentAnswer(e.target.value)}
+                  placeholder="Write 2-3 sentences. Raw and honest is better than polished..."
+                  rows={5}
+                  autoFocus
+                  style={{ width: '100%', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 10, padding: '14px 16px', color: '#111827', fontSize: 14, resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit', lineHeight: 1.7, outline: 'none' }}
+                  onFocus={e => e.target.style.borderColor = '#00C2FF'}
+                  onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+                />
+                <div style={{ display: 'flex', gap: 10, marginTop: 16, justifyContent: 'space-between', alignItems: 'center' }}>
+                  <button onClick={skipQuestion}
+                    style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: 13 }}>
+                    Skip this question
+                  </button>
+                  <button onClick={saveAnswer} disabled={!currentAnswer.trim()}
+                    style={{ background: currentAnswer.trim() ? '#111827' : '#F3F4F6', color: currentAnswer.trim() ? '#FFF' : '#9CA3AF', border: 'none', borderRadius: 10, padding: '12px 28px', fontWeight: 700, cursor: currentAnswer.trim() ? 'pointer' : 'not-allowed', fontSize: 14 }}>
+                    {seedingStep < 10 ? 'Next Question →' : 'Build My Stories →'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Processing */}
+          {seedingStep === 11 && (
+            <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+              <div style={{ width: 44, height: 44, border: '3px solid #E5E7EB', borderTopColor: '#00C2FF', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 20px' }}/>
+              <div style={{ color: '#111827', fontWeight: 700, fontSize: 16, marginBottom: 8 }}>Building your Story Bank...</div>
+              <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 20 }}>Claude is structuring your answers into story entries</div>
+              <div style={{ background: '#F9FAFB', borderRadius: 8, height: 6, maxWidth: 300, margin: '0 auto' }}>
+                <div style={{ background: '#10B981', height: '100%', borderRadius: 8, width: `${seedingProgress}%`, transition: 'width 0.5s' }}/>
+              </div>
+              <div style={{ color: '#9CA3AF', fontSize: 12, marginTop: 8 }}>{seedingProgress}%</div>
+            </div>
+          )}
+
+          {/* Done */}
+          {seedingStep === 12 && (
+            <div style={{ textAlign: 'center', padding: '40px 24px', background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 12 }}>
+              <div style={{ fontSize: 44, marginBottom: 16 }}>✅</div>
+              <div style={{ color: '#111827', fontWeight: 800, fontSize: 20, marginBottom: 8 }}>Story Bank seeded</div>
+              <div style={{ color: '#6B7280', fontSize: 14, marginBottom: 24 }}>
+                {stories.length} stories added to your Brain. Every content generation can now draw from real moments.
+              </div>
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+                <button onClick={() => { setTab('overview'); setSeedingStep(0); }}
+                  style={{ background: '#111827', color: '#FFF', border: 'none', borderRadius: 10, padding: '12px 24px', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>
+                  View Story Bank →
+                </button>
+                <button onClick={() => setSeedingStep(0)}
+                  style={{ background: '#F9FAFB', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: 10, padding: '12px 24px', fontWeight: 600, cursor: 'pointer', fontSize: 14 }}>
+                  Run Again
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── TAB: SCRATCH PAD ── */}
+      {tab === 'scratch' && (
+        <div>
+          <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 24px', marginBottom: 16 }}>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Story Scratch Pad</div>
+            <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 16, lineHeight: 1.6 }}>
+              Something just happened. Type it raw. Claude structures it into a story bank entry in 60 seconds.
+            </div>
+            <textarea
+              value={scratchText}
+              onChange={e => setScratchText(e.target.value)}
+              placeholder="Something happened today... or a thought you keep having... or a conversation that stuck with you. Just write it."
+              rows={6}
+              style={{ width: '100%', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 10, padding: '14px 16px', color: '#111827', fontSize: 14, resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit', lineHeight: 1.7, outline: 'none' }}
+              onFocus={e => e.target.style.borderColor = '#00C2FF'}
+              onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+            />
+            <button onClick={processScratch} disabled={!scratchText.trim() || scratchLoading}
+              style={{ marginTop: 14, width: '100%', background: scratchText.trim() ? '#111827' : '#F3F4F6', color: scratchText.trim() ? '#FFF' : '#9CA3AF', border: 'none', borderRadius: 10, padding: '13px 24px', fontWeight: 700, cursor: scratchText.trim() ? 'pointer' : 'not-allowed', fontSize: 14 }}>
+              {scratchLoading ? 'Structuring...' : 'Extract Story →'}
+            </button>
+          </div>
+
+          {scratchLoading && (
+            <div style={{ textAlign: 'center', padding: '24px 0' }}>
+              <div style={{ width: 28, height: 28, border: '2px solid #E5E7EB', borderTopColor: '#00C2FF', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }}/>
+              <p style={{ color: '#6B7280', fontSize: 13 }}>Structuring your story...</p>
+            </div>
+          )}
+
+          {scratchResult && !scratchLoading && (
+            <div style={{ background: '#FFFFFF', border: '1px solid #10B981', borderRadius: 12, padding: '20px 24px' }}>
+              <div style={{ color: '#10B981', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>
+                Story extracted
+              </div>
+              <div style={{ color: '#111827', fontWeight: 700, fontSize: 16, marginBottom: 6 }}>{scratchResult.title}</div>
+              <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+                <span style={{ background: storyTypeColors[scratchResult.story_type] || '#6B7280', color: '#FFF', fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4, textTransform: 'uppercase' }}>
+                  {scratchResult.story_type}
+                </span>
+                <span style={{ color: '#9CA3AF', fontSize: 11, lineHeight: '20px' }}>{scratchResult.emotional_theme}</span>
+              </div>
+              <div style={{ color: '#374151', fontSize: 13, lineHeight: 1.6, marginBottom: 10 }}>{scratchResult.summary}</div>
+              {scratchResult.key_lesson && (
+                <div style={{ background: '#F9FAFB', borderRadius: 6, padding: '8px 12px', marginBottom: 12 }}>
+                  <span style={{ color: '#6B7280', fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}>Key lesson · </span>
+                  <span style={{ color: '#374151', fontSize: 12 }}>{scratchResult.key_lesson}</span>
+                </div>
+              )}
+              {scratchResult.reusable_hooks?.length > 0 && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ color: '#9CA3AF', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Hooks generated</div>
+                  {scratchResult.reusable_hooks.map((h, i) => (
+                    <div key={i} style={{ color: '#374151', fontSize: 12, paddingLeft: 10, borderLeft: '2px solid #E5E7EB', marginBottom: 4 }}>"{h}"</div>
+                  ))}
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={confirmScratch}
+                  style={{ flex: 1, background: '#10B981', color: '#FFF', border: 'none', borderRadius: 8, padding: '11px 16px', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>
+                  Save to Story Bank ✓
+                </button>
+                <button onClick={() => setScratchResult(null)}
+                  style={{ background: '#F9FAFB', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: 8, padding: '11px 16px', fontWeight: 600, cursor: 'pointer', fontSize: 13 }}>
+                  Discard
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── TAB: BRAIN HEALTH ── */}
+      {tab === 'health' && health && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+          {/* Quality Anchors */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '18px 20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div style={{ color: '#111827', fontWeight: 700, fontSize: 14 }}>Quality Anchors</div>
+              <div style={{ background: health.recentAnchorCount > 0 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', color: health.recentAnchorCount > 0 ? '#10B981' : '#F59E0B', fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4 }}>
+                {health.recentAnchorCount > 0 ? `${health.recentAnchorCount} in last 14 days` : 'None recently'}
+              </div>
+            </div>
+            <div style={{ color: '#6B7280', fontSize: 13, lineHeight: 1.6, marginBottom: 10 }}>
+              Only content with Generic Risk ≤ 3 and Score ≥ 8 updates your Brain voice pattern. {health.anchorCount} total anchors saved.
+            </div>
+            {health.needsAnchorAlert && (
+              <div style={{ background: 'rgba(245,158,11,0.08)', borderRadius: 8, padding: '10px 12px', color: '#92400E', fontSize: 12, lineHeight: 1.6 }}>
+                Your Brain has not updated in 14+ days. Either approve higher-quality content or check if the quality threshold is set too high.
+              </div>
+            )}
+            {qualityAnchors.slice(0, 3).map((anchor, i) => (
+              <div key={i} style={{ background: '#F9FAFB', borderRadius: 6, padding: '8px 12px', marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#374151', fontSize: 12, flex: 1 }}>{anchor.topic?.slice(0, 60)}{anchor.topic?.length > 60 ? '...' : ''}</span>
+                <span style={{ color: '#10B981', fontSize: 11, fontWeight: 700, flexShrink: 0, marginLeft: 8 }}>Risk {anchor.risk}/10</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Story Bank Health */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '18px 20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div style={{ color: '#111827', fontWeight: 700, fontSize: 14 }}>Story Bank</div>
+              <div style={{ background: health.isSeeded ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: health.isSeeded ? '#10B981' : '#EF4444', fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4 }}>
+                {health.isSeeded ? `${health.storyCount} stories` : 'Needs seeding'}
+              </div>
+            </div>
+            {!health.isSeeded ? (
+              <div>
+                <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 12 }}>Your Brain needs at least 5 stories to produce specific content consistently.</div>
+                <button onClick={() => setTab('seeding')}
+                  style={{ background: '#111827', color: '#FFF', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
+                  Run Seeding Sprint →
+                </button>
+              </div>
+            ) : (
+              <div>
+                <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 10 }}>{health.storyCount} stories loaded. Brain can reference real moments in every generation.</div>
+                {health.staleStoryCount > 0 && (
+                  <div style={{ background: 'rgba(245,158,11,0.06)', borderRadius: 8, padding: '10px 12px', color: '#92400E', fontSize: 12 }}>
+                    {health.staleStoryCount} stories unused for 60+ days. Consider refreshing them or adding new angles.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Pillar Usage */}
+          {Object.keys(health.pillarUsage).length > 0 && (
+            <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '18px 20px' }}>
+              <div style={{ color: '#111827', fontWeight: 700, fontSize: 14, marginBottom: 12 }}>Content Distribution</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {Object.entries(health.pillarUsage).sort((a, b) => b[1] - a[1]).map(([pillar, count]) => {
+                  const max = Math.max(...Object.values(health.pillarUsage));
+                  const pct = Math.round((count / max) * 100);
+                  return (
+                    <div key={pillar}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                        <span style={{ color: '#374151', fontSize: 12, fontWeight: 500 }}>{pillar}</span>
+                        <span style={{ color: '#9CA3AF', fontSize: 11 }}>{count} posts</span>
+                      </div>
+                      <div style={{ background: '#F3F4F6', borderRadius: 4, height: 6 }}>
+                        <div style={{ background: count < 2 ? '#F59E0B' : '#111827', height: '100%', borderRadius: 4, width: `${pct}%`, transition: 'width 0.5s' }}/>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {health.stalePillars.length > 0 && (
+                <div style={{ marginTop: 12, color: '#6B7280', fontSize: 12 }}>
+                  <span style={{ color: '#F59E0B', fontWeight: 700 }}>Yellow bars</span> = underused pillars. Consider mixing these into your next brief.
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const COMPONENT_MAP = {
   home: Home,
   onboard: Onboarding,
@@ -17013,6 +17718,7 @@ const COMPONENT_MAP = {
   stratreview: AIStrategyReview,
   library: ContentLibrary,
   smartbrief: SmartBrief,
+  brain: BrainBuilder,
   weeklybrief: WeeklyBriefAgent,
   trendmonitor: TrendMonitorAgent,
   approvalqueue: ApprovalQueueAgent,
