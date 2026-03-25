@@ -16143,8 +16143,7 @@ What ${clientName} can say or do that none of these competitors can — based on
         };
 
         // Parse key fields from response
-        const lines = res.split('
-');
+        const lines = res.split('\n');
         const hookLine = lines.find(l => l.toLowerCase().includes('hook') || l.toLowerCase().includes('opening'));
         const nicheLine = lines.find(l => l.toLowerCase().includes('niche') || l.toLowerCase().includes('topic') || l.toLowerCase().includes('content area'));
         const engLine = lines.find(l => l.toLowerCase().includes('engag') || l.toLowerCase().includes('perform') || l.toLowerCase().includes('view'));
