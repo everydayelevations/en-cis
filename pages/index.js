@@ -4700,6 +4700,7 @@ const SUB_NAV = {
   create: [
     { id:'smartbrief', label:'Smart Brief ✦' },
     { id:'brain', label:'Brain Builder 🧠' },
+    { id:'learning', label:'Learning Loop 🔁' },
     { id:'create', label:'Create Hub' },
     { id:'hooks', label:'Hook Workshop' },
     { id:'design', label:'Design Studio' },
@@ -16450,6 +16451,18 @@ function SmartBrief() {
   const [recentContent, setRecentContent] = React.useState([]);
   const [recentWinners, setRecentWinners] = React.useState([]);
 
+  // Pick up topic pre-selected from Learning Loop
+  const preselected = usePreselectedTopic();
+  React.useEffect(() => {
+    if (preselected) {
+      setTopic(preselected.topic || '');
+      if (preselected.format) setFormat(preselected.format);
+      if (preselected.pillar) setPillar(preselected.pillar);
+      if (preselected.platform) setPlatform(preselected.platform);
+      if (preselected.story) setOneThingToAdd('Use story: ' + preselected.story);
+    }
+  }, [preselected]);
+
   React.useEffect(() => {
     loadContext();
     setAddPrompt(ADD_PROMPTS[Math.floor(Math.random() * ADD_PROMPTS.length)]);
@@ -17659,6 +17672,530 @@ function BrainBuilder() {
   );
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PHASE 3: LEARNING LOOP
+// Winner pattern extraction from approved + reality-checked content.
+// Topic Generator weighted by past winners.
+// Insights dashboard — what the Brain has learned.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const WINNER_PATTERNS_KEY = 'encis_winner_patterns';
+const LEARNING_LOOP_KEY   = 'encis_learning_loop';
+const TOPIC_WEIGHTS_KEY   = 'encis_topic_weights';
+
+// Extract patterns from a set of winning content pieces
+const WINNER_PATTERN_PROMPT = (winners, clientName) => `You are a content pattern analyst.
+
+CREATOR: ${clientName || 'Jason Fricka'}
+
+WINNING CONTENT (pieces that outperformed or scored as quality anchors):
+${winners.map((w, i) => `${i + 1}. TITLE: ${w.title || w.topic || 'Untitled'}
+PLATFORM: ${w.platform || 'Unknown'}
+PILLAR: ${w.angle || 'Unknown'}
+PREVIEW: ${(w.preview || w.full_content || '').slice(0, 200)}
+RISK SCORE: ${w.risk || 'N/A'}
+`).join('\n')}
+
+Analyze what these winning pieces have in common. Find the real patterns — not surface-level observations.
+
+Return ONLY this JSON — no explanation, no markdown:
+{
+  "top_hook_patterns": [
+    { "pattern": "[description of hook pattern]", "example": "[example from the content]", "why_it_works": "[one sentence]" }
+  ],
+  "top_pillars": ["[pillar name]", "[pillar name]"],
+  "voice_signals": ["[specific voice characteristic that appears in winners]"],
+  "structural_patterns": ["[e.g. starts with tension, ends with reframe]"],
+  "what_to_make_more_of": "[one clear sentence about what to double down on]",
+  "what_to_avoid": "[one clear sentence about what is not working]",
+  "topic_angles_to_explore": ["[specific topic angle worth trying based on patterns]", "[another]", "[another]"]
+}`;
+
+// Weighted topic generation using winner patterns
+const WEIGHTED_TOPIC_PROMPT = (clientBrain, winnerPatterns, storyBank, recentContent) => `${clientBrain || ''}
+
+You are generating content topic ideas that follow the patterns of this creator's best-performing content.
+
+${winnerPatterns ? `WINNER PATTERNS (what has worked):
+- Top hook patterns: ${winnerPatterns.top_hook_patterns?.map(p => p.pattern).join(', ')}
+- Top pillars: ${winnerPatterns.top_pillars?.join(', ')}
+- What to make more of: ${winnerPatterns.what_to_make_more_of}
+- Topic angles to explore: ${winnerPatterns.topic_angles_to_explore?.join(', ')}` : 'No winner patterns yet — generating from strategy brain.'}
+
+${storyBank && storyBank.length > 0 ? `STORY BANK (real moments to draw from):
+${storyBank.slice(0, 5).map(s => `- ${s.title}: ${s.summary?.slice(0, 100)}`).join('\n')}` : ''}
+
+${recentContent && recentContent.length > 0 ? `RECENTLY CREATED (avoid repeating these angles):
+${recentContent.slice(0, 8).map(c => `- ${c.title || c.topic || ''} (${c.angle || ''})`).join('\n')}` : ''}
+
+Generate 5 specific, original content ideas. Each must:
+- Follow the winner patterns above
+- Reference real moments or specifics from the story bank when possible
+- NOT repeat recent content angles
+- Pass the anti-generic test: could NOT be posted by 1,000 other creators
+
+Return ONLY this JSON — no explanation, no markdown:
+{
+  "ideas": [
+    {
+      "title": "[the hook — first words spoken or written]",
+      "why_it_will_work": "[one sentence connecting to winner patterns]",
+      "format": "[Reel Script | Caption | Carousel | Email]",
+      "pillar": "[content pillar]",
+      "story_to_use": "[story bank title to reference, or null]",
+      "angle": "[specific angle — not just topic category]"
+    }
+  ]
+}`;
+
+// ── LEARNING LOOP COMPONENT ──────────────────────────────────────────────────
+
+function LearningLoop() {
+  const [activeClient] = useActiveClient();
+  const [tab, setTab] = React.useState('insights');
+
+  // Data
+  const [winners, setWinners] = React.useState([]);
+  const [patterns, setPatterns] = React.useState(null);
+  const [generatedTopics, setGeneratedTopics] = React.useState([]);
+  const [stories, setStories] = React.useState([]);
+  const [recentContent, setRecentContent] = React.useState([]);
+  const [realityChecks, setRealityChecks] = React.useState([]);
+
+  // Loading states
+  const [patternLoading, setPatternLoading] = React.useState(false);
+  const [topicLoading, setTopicLoading] = React.useState(false);
+  const [selectedTopic, setSelectedTopic] = React.useState(null);
+
+  React.useEffect(() => {
+    loadData();
+  }, [activeClient]);
+
+  const loadData = async () => {
+    try {
+      const clientId = activeClient?.id || 'jason';
+
+      // Load winner patterns from localStorage
+      const allPatterns = JSON.parse(localStorage.getItem(WINNER_PATTERNS_KEY) || '{}');
+      setPatterns(allPatterns[clientId] || null);
+
+      // Load story bank
+      const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
+      setStories(allStories[clientId] || []);
+
+      // Load reality check history
+      const checks = JSON.parse(localStorage.getItem('encis_reality_checks') || '[]');
+      setRealityChecks(checks.filter(c => c.answered));
+
+      // Load winners from Supabase (quality anchors + reality check winners)
+      const { data: winnerData } = await supabase
+        .from('saved_content')
+        .select('*')
+        .eq('client_id', clientId)
+        .or('notes.ilike.%winner%,notes.ilike.%outperformed%,notes.ilike.%risk:1%,notes.ilike.%risk:2%,notes.ilike.%risk:3%')
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      const { data: recentData } = await supabase
+        .from('saved_content')
+        .select('*')
+        .eq('client_id', clientId)
+        .order('created_at', { ascending: false })
+        .limit(15);
+
+      setWinners(winnerData || []);
+      setRecentContent(recentData || []);
+
+      // Also load quality anchors from localStorage as additional winners
+      const anchors = JSON.parse(localStorage.getItem(QUALITY_ANCHOR_KEY) || '[]');
+      const clientAnchors = anchors.filter(a => (a.clientId || 'jason') === clientId);
+      if (clientAnchors.length > 0 && (!winnerData || winnerData.length === 0)) {
+        setWinners(clientAnchors.map(a => ({
+          title: a.topic,
+          platform: a.platform,
+          angle: a.pillar,
+          preview: a.preview,
+          risk: a.risk,
+          notes: 'quality-anchor',
+        })));
+      }
+    } catch(e) { console.error('LearningLoop load:', e); }
+  };
+
+  const extractPatterns = async () => {
+    if (winners.length < 3) return;
+    setPatternLoading(true);
+    try {
+      const clientName = activeClient?.name || 'Jason';
+      const raw = await ai(WINNER_PATTERN_PROMPT(winners, clientName));
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const result = JSON.parse(clean);
+
+      // Save patterns
+      const clientId = activeClient?.id || 'jason';
+      const allPatterns = JSON.parse(localStorage.getItem(WINNER_PATTERNS_KEY) || '{}');
+      allPatterns[clientId] = { ...result, extractedAt: new Date().toISOString(), winnerCount: winners.length };
+      localStorage.setItem(WINNER_PATTERNS_KEY, JSON.stringify(allPatterns));
+      setPatterns(allPatterns[clientId]);
+    } catch(e) { console.error('extractPatterns:', e); }
+    setPatternLoading(false);
+  };
+
+  const generateWeightedTopics = async () => {
+    setTopicLoading(true);
+    setGeneratedTopics([]);
+    try {
+      const clientId = activeClient?.id || 'jason';
+      const client = activeClient;
+      const brain = client ? `CREATOR: ${client.name}\nVOICE: ${client.voice || ''}\nROLE: ${client.role || ''}` : '';
+
+      const raw = await ai(WEIGHTED_TOPIC_PROMPT(brain, patterns, stories, recentContent));
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const result = JSON.parse(clean);
+      setGeneratedTopics(result.ideas || []);
+    } catch(e) {
+      console.error('generateWeightedTopics:', e);
+      setGeneratedTopics([]);
+    }
+    setTopicLoading(false);
+  };
+
+  const useTopic = (topic) => {
+    // Store selected topic so Smart Brief can pick it up
+    try {
+      localStorage.setItem('encis_selected_topic', JSON.stringify({
+        topic: topic.title,
+        format: topic.format,
+        pillar: topic.pillar,
+        angle: topic.angle,
+        story: topic.story_to_use,
+        selectedAt: Date.now(),
+      }));
+    } catch {}
+    setSelectedTopic(topic.title);
+  };
+
+  // Reality check stats
+  const rcYes = realityChecks.filter(c => c.response === 'yes').length;
+  const rcSame = realityChecks.filter(c => c.response === 'same').length;
+  const rcNo = realityChecks.filter(c => c.response === 'no').length;
+  const rcTotal = realityChecks.length;
+
+  const tabs = [
+    { id: 'insights', label: 'Insights' },
+    { id: 'topics', label: 'Smart Topics' },
+    { id: 'reality', label: 'Reality Checks' },
+  ];
+
+  return (
+    <div style={{ maxWidth: 720, margin: '0 auto' }}>
+
+      {/* Header */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <div style={{ width: 3, height: 28, background: '#00C2FF', borderRadius: 2 }}/>
+          <h2 style={{ color: '#111827', margin: 0, fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>
+            Learning Loop
+          </h2>
+        </div>
+        <p style={{ color: '#6B7280', margin: 0, fontSize: 14, paddingLeft: 13 }}>
+          {winners.length} winners · {rcTotal} reality checks · patterns feed future topics
+        </p>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: '#F9FAFB', borderRadius: 10, padding: 4 }}>
+        {tabs.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            style={{ flex: 1, background: tab === t.id ? '#FFFFFF' : 'transparent', color: tab === t.id ? '#111827' : '#6B7280', border: 'none', borderRadius: 7, padding: '8px 4px', cursor: 'pointer', fontSize: 12, fontWeight: tab === t.id ? 700 : 500, boxShadow: tab === t.id ? '0 1px 4px rgba(0,0,0,0.08)' : 'none', transition: 'all 0.15s' }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── TAB: INSIGHTS ── */}
+      {tab === 'insights' && (
+        <div>
+          {winners.length < 3 ? (
+            <div style={{ background: '#F9FAFB', borderRadius: 12, padding: '32px 24px', textAlign: 'center' }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
+              <div style={{ color: '#111827', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Not enough data yet</div>
+              <p style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.7, marginBottom: 4 }}>
+                You need at least 3 winning content pieces to extract patterns.
+              </p>
+              <p style={{ color: '#6B7280', fontSize: 13 }}>
+                Winners come from: content with Generic Risk ≤ 3, or pieces marked "outperformed" in a 48hr reality check.
+              </p>
+              <div style={{ marginTop: 20, background: '#FFFFFF', borderRadius: 8, padding: '12px 16px', border: '1px solid #E5E7EB', textAlign: 'left' }}>
+                <div style={{ color: '#374151', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Current winner count: {winners.length}/3</div>
+                <div style={{ background: '#F3F4F6', borderRadius: 4, height: 6 }}>
+                  <div style={{ background: '#111827', height: '100%', borderRadius: 4, width: `${Math.min(100, (winners.length / 3) * 100)}%` }}/>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div>
+              {/* Extract / refresh patterns */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div style={{ color: '#6B7280', fontSize: 13 }}>
+                  {patterns ? `Patterns extracted from ${patterns.winnerCount} winners · ${new Date(patterns.extractedAt).toLocaleDateString()}` : `${winners.length} winners ready for analysis`}
+                </div>
+                <button onClick={extractPatterns} disabled={patternLoading}
+                  style={{ background: '#111827', color: '#FFF', border: 'none', borderRadius: 8, padding: '8px 16px', fontWeight: 700, cursor: patternLoading ? 'not-allowed' : 'pointer', fontSize: 12, opacity: patternLoading ? 0.7 : 1 }}>
+                  {patternLoading ? 'Analyzing...' : patterns ? 'Refresh Patterns' : 'Extract Patterns'}
+                </button>
+              </div>
+
+              {patternLoading && (
+                <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                  <div style={{ width: 32, height: 32, border: '2px solid #E5E7EB', borderTopColor: '#00C2FF', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }}/>
+                  <p style={{ color: '#6B7280', fontSize: 13 }}>Finding patterns in your winning content...</p>
+                </div>
+              )}
+
+              {patterns && !patternLoading && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+                  {/* What to make more of */}
+                  <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 12, padding: '16px 20px' }}>
+                    <div style={{ color: '#10B981', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Make more of this</div>
+                    <div style={{ color: '#111827', fontSize: 14, fontWeight: 600, lineHeight: 1.6 }}>{patterns.what_to_make_more_of}</div>
+                  </div>
+
+                  {/* What to avoid */}
+                  {patterns.what_to_avoid && (
+                    <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: 12, padding: '16px 20px' }}>
+                      <div style={{ color: '#EF4444', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Stop doing this</div>
+                      <div style={{ color: '#111827', fontSize: 14, fontWeight: 600, lineHeight: 1.6 }}>{patterns.what_to_avoid}</div>
+                    </div>
+                  )}
+
+                  {/* Top hook patterns */}
+                  {patterns.top_hook_patterns?.length > 0 && (
+                    <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '16px 20px' }}>
+                      <div style={{ color: '#111827', fontWeight: 700, fontSize: 14, marginBottom: 12 }}>Hook Patterns That Win</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {patterns.top_hook_patterns.map((p, i) => (
+                          <div key={i} style={{ background: '#F9FAFB', borderRadius: 8, padding: '12px 14px' }}>
+                            <div style={{ color: '#111827', fontWeight: 600, fontSize: 13, marginBottom: 4 }}>{p.pattern}</div>
+                            {p.example && <div style={{ color: '#6B7280', fontSize: 12, marginBottom: 4, fontStyle: 'italic' }}>"{p.example}"</div>}
+                            {p.why_it_works && <div style={{ color: '#374151', fontSize: 12 }}>{p.why_it_works}</div>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Voice signals */}
+                  {patterns.voice_signals?.length > 0 && (
+                    <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '16px 20px' }}>
+                      <div style={{ color: '#111827', fontWeight: 700, fontSize: 14, marginBottom: 10 }}>Your Voice Signals</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                        {patterns.voice_signals.map((s, i) => (
+                          <span key={i} style={{ background: '#F3F4F6', color: '#374151', fontSize: 12, padding: '5px 10px', borderRadius: 6 }}>{s}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Topic angles to explore */}
+                  {patterns.topic_angles_to_explore?.length > 0 && (
+                    <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '16px 20px' }}>
+                      <div style={{ color: '#111827', fontWeight: 700, fontSize: 14, marginBottom: 10 }}>Angles Worth Exploring</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {patterns.topic_angles_to_explore.map((a, i) => (
+                          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                            <span style={{ color: '#00C2FF', fontWeight: 700, flexShrink: 0 }}>→</span>
+                            <span style={{ color: '#374151', fontSize: 13 }}>{a}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Winner list */}
+              {winners.length > 0 && (
+                <div style={{ marginTop: 20 }}>
+                  <div style={{ color: '#9CA3AF', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+                    {winners.length} winning pieces
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {winners.slice(0, 8).map((w, i) => (
+                      <div key={i} style={{ background: '#F9FAFB', borderRadius: 8, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ color: '#374151', fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {w.title || w.topic || 'Untitled'}
+                          </div>
+                          {w.platform && <div style={{ color: '#9CA3AF', fontSize: 11, marginTop: 1 }}>{w.platform} · {w.angle || ''}</div>}
+                        </div>
+                        {w.risk && <span style={{ background: 'rgba(16,185,129,0.1)', color: '#10B981', fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, flexShrink: 0, marginLeft: 8 }}>Risk {w.risk}</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── TAB: SMART TOPICS ── */}
+      {tab === 'topics' && (
+        <div>
+          <div style={{ background: '#F9FAFB', borderRadius: 12, padding: '16px 20px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+            <div>
+              <div style={{ color: '#111827', fontWeight: 600, fontSize: 14 }}>Winner-weighted topic ideas</div>
+              <div style={{ color: '#6B7280', fontSize: 12, marginTop: 2 }}>
+                {patterns ? 'Weighted by your winner patterns + story bank' : 'Based on strategy brain (run Insights first for better results)'}
+              </div>
+            </div>
+            <button onClick={generateWeightedTopics} disabled={topicLoading}
+              style={{ background: '#111827', color: '#FFF', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, cursor: topicLoading ? 'not-allowed' : 'pointer', fontSize: 13, opacity: topicLoading ? 0.7 : 1 }}>
+              {topicLoading ? 'Generating...' : generatedTopics.length > 0 ? 'Regenerate' : 'Generate Topics'}
+            </button>
+          </div>
+
+          {topicLoading && (
+            <div style={{ textAlign: 'center', padding: '32px 0' }}>
+              <div style={{ width: 32, height: 32, border: '2px solid #E5E7EB', borderTopColor: '#00C2FF', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }}/>
+              <p style={{ color: '#6B7280', fontSize: 13 }}>Finding ideas that match your winner patterns...</p>
+            </div>
+          )}
+
+          {generatedTopics.length > 0 && !topicLoading && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {generatedTopics.map((topic, i) => (
+                <div key={i} style={{ background: '#FFFFFF', border: `1px solid ${selectedTopic === topic.title ? '#111827' : '#E5E7EB'}`, borderRadius: 12, padding: '16px 20px', transition: 'border-color 0.15s' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+                        <span style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, textTransform: 'uppercase' }}>{topic.format}</span>
+                        <span style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 10, padding: '2px 7px', borderRadius: 4 }}>{topic.pillar}</span>
+                        {topic.story_to_use && <span style={{ background: 'rgba(59,130,246,0.1)', color: '#3B82F6', fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4 }}>📖 {topic.story_to_use}</span>}
+                      </div>
+                      <div style={{ color: '#111827', fontWeight: 700, fontSize: 14, lineHeight: 1.5, marginBottom: 6 }}>{topic.title}</div>
+                      {topic.why_it_will_work && (
+                        <div style={{ color: '#6B7280', fontSize: 12, lineHeight: 1.5 }}>{topic.why_it_will_work}</div>
+                      )}
+                    </div>
+                    <button onClick={() => useTopic(topic)}
+                      style={{ background: selectedTopic === topic.title ? '#10B981' : '#111827', color: '#FFF', border: 'none', borderRadius: 8, padding: '8px 14px', fontWeight: 700, cursor: 'pointer', fontSize: 12, flexShrink: 0, whiteSpace: 'nowrap' }}>
+                      {selectedTopic === topic.title ? 'Loaded ✓' : 'Use This'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {selectedTopic && (
+                <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 10, padding: '12px 16px', marginTop: 4 }}>
+                  <div style={{ color: '#10B981', fontWeight: 700, fontSize: 13 }}>Topic loaded into Smart Brief</div>
+                  <div style={{ color: '#6B7280', fontSize: 12, marginTop: 2 }}>Go to Create → Smart Brief ✦ to generate this content</div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {generatedTopics.length === 0 && !topicLoading && (
+            <div style={{ textAlign: 'center', padding: '32px 24px', background: '#F9FAFB', borderRadius: 12 }}>
+              <div style={{ fontSize: 36, marginBottom: 12 }}>💡</div>
+              <div style={{ color: '#6B7280', fontSize: 14 }}>Hit Generate Topics to get ideas weighted by what has worked for you.</div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── TAB: REALITY CHECKS ── */}
+      {tab === 'reality' && (
+        <div>
+          {rcTotal === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 24px', background: '#F9FAFB', borderRadius: 12 }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>⏱</div>
+              <div style={{ color: '#111827', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>No reality checks yet</div>
+              <p style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.7 }}>
+                48 hours after you approve content in Smart Brief, a check-in appears on your Dashboard asking if it outperformed. Responses show here.
+              </p>
+            </div>
+          ) : (
+            <div>
+              {/* Stats */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 20 }}>
+                {[
+                  { label: 'Outperformed', count: rcYes, color: '#10B981', bg: 'rgba(16,185,129,0.08)' },
+                  { label: 'About same', count: rcSame, color: '#6B7280', bg: '#F9FAFB' },
+                  { label: 'Missed', count: rcNo, color: '#EF4444', bg: 'rgba(239,68,68,0.06)' },
+                ].map(s => (
+                  <div key={s.label} style={{ background: s.bg, borderRadius: 10, padding: '14px 16px', textAlign: 'center' }}>
+                    <div style={{ fontSize: 26, fontWeight: 800, color: s.color }}>{s.count}</div>
+                    <div style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 600, letterSpacing: 0.5, marginTop: 2 }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Win rate insight */}
+              {rcTotal >= 3 && (
+                <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 10, padding: '14px 18px', marginBottom: 16 }}>
+                  <div style={{ color: '#111827', fontSize: 13, fontWeight: 600 }}>
+                    {rcYes / rcTotal >= 0.6
+                      ? `Strong signal: ${Math.round(rcYes / rcTotal * 100)}% of your approved content is outperforming. Quality gate is working.`
+                      : rcYes / rcTotal >= 0.3
+                      ? `Mixed results: ${Math.round(rcYes / rcTotal * 100)}% outperforming. Consider tightening the Generic Risk threshold.`
+                      : `Low signal: only ${Math.round(rcYes / rcTotal * 100)}% outperforming. The Generic Risk gate may need recalibrating.`
+                    }
+                  </div>
+                </div>
+              )}
+
+              {/* Check history */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {realityChecks.slice().reverse().map((check, i) => (
+                  <div key={i} style={{ background: '#F9FAFB', borderRadius: 8, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ color: '#374151', fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {check.topic?.slice(0, 60)}{check.topic?.length > 60 ? '...' : ''}
+                      </div>
+                      <div style={{ color: '#9CA3AF', fontSize: 11, marginTop: 1 }}>
+                        {check.platform} · {new Date(check.dueAt - 48 * 60 * 60 * 1000).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <span style={{
+                      fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4, flexShrink: 0, marginLeft: 10,
+                      background: check.response === 'yes' ? 'rgba(16,185,129,0.1)' : check.response === 'no' ? 'rgba(239,68,68,0.08)' : '#F3F4F6',
+                      color: check.response === 'yes' ? '#10B981' : check.response === 'no' ? '#EF4444' : '#6B7280',
+                    }}>
+                      {check.response === 'yes' ? '🔥 Outperformed' : check.response === 'no' ? 'Missed' : 'Same'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Wire Smart Brief to pick up pre-selected topics from LearningLoop
+function usePreselectedTopic() {
+  const [topic, setTopic] = React.useState(null);
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem('encis_selected_topic');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Only use if selected in last 30 minutes
+        if (Date.now() - parsed.selectedAt < 30 * 60 * 1000) {
+          setTopic(parsed);
+          localStorage.removeItem('encis_selected_topic');
+        }
+      }
+    } catch {}
+  }, []);
+  return topic;
+}
+
 const COMPONENT_MAP = {
   home: Home,
   onboard: Onboarding,
@@ -17719,6 +18256,7 @@ const COMPONENT_MAP = {
   library: ContentLibrary,
   smartbrief: SmartBrief,
   brain: BrainBuilder,
+  learning: LearningLoop,
   weeklybrief: WeeklyBriefAgent,
   trendmonitor: TrendMonitorAgent,
   approvalqueue: ApprovalQueueAgent,
