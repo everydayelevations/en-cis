@@ -2421,6 +2421,18 @@ const DEFAULT_CLIENT = {
   angles: 'Resilience, Mindset, Everyday Wins, Outdoor/Colorado, Finance/Real Estate, Podcast/Growth, Family, Health/Fitness',
   colors: '#0A1628, #E94560, #FFFFFF',
   notes: 'HR Manager at Highland Cabinetry. Podcast host. Real estate agent. Colorado father. Endurance athlete.',
+  location: 'Colorado',
+  role: 'HR Manager, real estate agent, veteran, endurance athlete, mindset coach, dad',
+  trendNiches: [
+    { id: 'niche_1', label: 'HR Creator', query: 'viral HR manager content this week — workplace stories, hiring and firing realities, employee relations, what managers wish people knew' },
+    { id: 'niche_2', label: 'Real Estate Colorado', query: 'viral Colorado real estate agent content this week — market updates, VA loans, buyer and seller tips, building wealth on a W-2' },
+    { id: 'niche_3', label: 'Veteran Creator', query: 'viral veteran creator content this week — post-service identity, military to civilian transition, discipline applied to civilian life' },
+    { id: 'niche_4', label: 'Endurance Athlete', query: 'viral trail running ultramarathon Colorado content this week — training over 35, race prep, discipline as a life philosophy' },
+    { id: 'niche_5', label: 'Fatherhood', query: 'viral fatherhood content this week — working dad, present parenting, raising kids with discipline and values' },
+    { id: 'niche_6', label: 'Mindset & Discipline', query: 'viral discipline mindset content this week — accountability for working adults, doing hard things, showing up when no one is watching' },
+    { id: 'niche_7', label: 'Everyday Wins', query: 'viral everyday person transformation content this week — regular people winning, not celebrities or influencers, underdogs and grinders' },
+    { id: 'niche_8', label: 'Health & Wellness', query: 'viral health wellness content for working professionals in their 30s and 40s this week — longevity, recovery, performance for busy people' },
+  ],
   isDefault: true,
 };
 
@@ -2522,6 +2534,8 @@ function ClientMode({ setActiveClientExternal }) {
     {k:'name',l:'Client / Brand Name',ph:'e.g. Jane Smith Fitness'},
     {k:'handle',l:'Primary Handle',ph:'e.g. @janesmith'},
     {k:'platforms',l:'Platforms',ph:'e.g. Instagram, LinkedIn'},
+    {k:'location',l:'Location',ph:'e.g. Austin TX, Denver CO, NYC'},
+    {k:'role',l:'Role / Profession',ph:'e.g. Life coach, real estate agent, fitness trainer, HR manager'},
     {k:'voice',l:'Voice & Tone',ph:'e.g. Warm, motivational, no jargon. Speaks to busy moms...'},
     {k:'angles',l:'Content Angles',ph:'e.g. Weight loss, Meal prep, Mindset for moms...'},
     {k:'colors',l:'Brand Colors',ph:'e.g. #FF6B6B, #4ECDC4, #FFFFFF'},
@@ -4690,6 +4704,7 @@ const SUB_NAV = {
     { id:'comment', label:'Comment Responder' },
     { id:'abhook', label:'A/B Hook Tester' },
     { id:'repurpose', label:'Repurpose Agent' },
+    { id:'captionbatch', label:'Caption Batch' },
 
     { id:'podcast', label:'Podcast Prep' },
     { id:'dmscripts', label:'DM Scripts' },
@@ -4711,6 +4726,9 @@ const SUB_NAV = {
     { id:'trendmonitor', label:'Trend Monitor' },
     { id:'approvalqueue', label:'Approval Queue' },
     { id:'perfagent', label:'Performance Agent' },
+    { id:'clientreport', label:'Client Reports' },
+    { id:'onboarding', label:'Client Onboarding' },
+    { id:'compintel', label:'Competitor Intel' },
     { id:'abtests', label:'A/B Tests' },
     { id:'revenue', label:'Revenue Attribution' },
     { id:'pricing', label:'Pricing Calculator' },
@@ -14511,23 +14529,260 @@ const TREND_MONITOR_KEY = 'encis_trend_monitor';
 const TREND_MONITOR_DATE_KEY = 'encis_trend_monitor_date';
 
 const TREND_MONITOR_QUERIES = {
-  Emotional: (today) => `Today is ${today}. You are a viral content analyst. Find the single most viral piece of content THIS WEEK from creators covering mental health at work, stress management for professionals, self-talk and identity, burnout recovery, or the psychological cost of carrying responsibility for others. Audience: working parents in their 30s-40s, HR managers, professionals grinding but quietly struggling. Return ONLY: ACCOUNT: / PLATFORM: / HOOK: / WHY: / STEAL: [how an HR manager and dad in Colorado should use this] / VIEWS:`,
-  Physical: (today) => `Today is ${today}. You are a viral content analyst. Find the single most viral piece of content THIS WEEK from creators covering endurance athletics, training over 35, military fitness culture, morning routines and discipline, or recovering from physical setbacks. Audience: veterans and working professionals with real athletic goals — people who treat physical discipline as a proxy for life discipline. Return ONLY: ACCOUNT: / PLATFORM: / HOOK: / WHY: / STEAL: [how a Colorado endurance athlete and veteran should use this] / VIEWS:`,
-  Social: (today) => `Today is ${today}. You are a viral content analyst. Find the single most viral piece of content THIS WEEK from creators covering fatherhood, parenting under career pressure, veteran community building, or showing up for people who depend on you. Audience: dads in their 30s-40s balancing career and family, veterans building civilian identity. Return ONLY: ACCOUNT: / PLATFORM: / HOOK: / WHY: / STEAL: [how a Colorado dad and veteran should use this] / VIEWS:`,
-  Intellectual: (today) => `Today is ${today}. You are a viral content analyst. Find the single most viral piece of content THIS WEEK from creators covering AI tools for non-developers, learning systems for busy professionals, HR strategy, workforce intelligence, or the skill gap between school and real work. Audience: HR managers implementing AI, self-taught builders, practical learners who want intelligence not theory. Return ONLY: ACCOUNT: / PLATFORM: / HOOK: / WHY: / STEAL: [how an HR manager building AI tools should use this] / VIEWS:`,
-  Occupational: (today) => `Today is ${today}. You are a viral content analyst. Find the single most viral piece of content THIS WEEK from HR influencers, people managers, or workforce consultants covering HR management, hiring and firing realities, workplace culture, managing difficult people, or the real cost of leadership. Specific niches: HR creators on Instagram or TikTok targeting professionals 30-50. Return ONLY: ACCOUNT: / PLATFORM: / HOOK: / WHY: / STEAL: [how an HR Manager at a manufacturing company in Colorado should use this] / VIEWS:`,
-  Financial: (today) => `Today is ${today}. You are a viral content analyst. Find the single most viral piece of content THIS WEEK from real estate agents, mortgage educators, or wealth builders covering Colorado housing market, VA loans, veteran homebuying, first-time buyer education, or building wealth on a W-2. Specific niches: Colorado real estate social content, veteran real estate creators. Return ONLY: ACCOUNT: / PLATFORM: / HOOK: / WHY: / STEAL: [how a licensed Colorado real estate agent serving veterans and families should use this] / VIEWS:`,
-  Environmental: (today) => `Today is ${today}. You are a viral content analyst. Find the single most viral piece of content THIS WEEK from creators covering Colorado outdoor life, trail running or mountain cycling, training outside year-round, or using your physical environment as part of your identity. Audience: Colorado outdoor athletes who live their environment not just pass through it. Return ONLY: ACCOUNT: / PLATFORM: / HOOK: / WHY: / STEAL: [how a Colorado-based endurance athlete and content creator should use this] / VIEWS:`,
-  Spiritual: (today) => `Today is ${today}. You are a viral content analyst. Find the single most viral piece of content THIS WEEK from creators covering purpose-driven living, values-based decisions, why discipline matters beyond the obvious, veteran identity post-service, or legacy building for parents. Audience: people who want meaning not motivation, veterans building post-service identity, parents thinking about what they are passing on. Return ONLY: ACCOUNT: / PLATFORM: / HOOK: / WHY: / STEAL: [how a veteran, dad, and mindset coach in Colorado should use this] / VIEWS:`,
+  HR_Creator: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+
+Search for the single most viral piece of content posted THIS WEEK by HR managers, people managers, or HR influencers on Instagram, TikTok, or LinkedIn.
+
+Look specifically for content about: workplace stories, employee relations, hiring and firing realities, managing difficult people, HR policy gone wrong or right, what no one tells you about being in HR, the real cost of leadership, toxic workplace culture, or what managers wish employees knew.
+
+Target creators: HR professionals who post raw, real content — not corporate training accounts. Think creators with 10K-500K followers sharing real stories from inside companies.
+
+Return ONLY this exact format — nothing else:
+ACCOUNT: [creator handle]
+PLATFORM: [platform]
+HOOK: [exact opening line or title]
+WHY: [one sentence — the psychological reason it performed]
+STEAL: [one specific content idea Jason Fricka, HR Manager in Colorado, should post this week based on this trend]
+VIEWS: [approximate views/engagement or "trending"]`,
+
+  RealEstate_Colorado: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+
+Search for the single most viral piece of content posted THIS WEEK by real estate agents, mortgage professionals, or housing market commentators on Instagram, TikTok, or YouTube.
+
+Look specifically for content about: Colorado housing market updates, VA loans and veteran homebuying, first-time buyer mistakes, what agents won't tell you, the real math of renting vs buying, interest rate reality checks, how to buy in a competitive market, or wealth building through real estate on a regular income.
+
+Target creators: real estate agents who educate, not just sell. Authentic market commentary. State-specific content performs well — Colorado, Denver, or Front Range content especially relevant.
+
+Return ONLY this exact format — nothing else:
+ACCOUNT: [creator handle]
+PLATFORM: [platform]
+HOOK: [exact opening line or title]
+WHY: [one sentence — the psychological reason it performed]
+STEAL: [one specific content idea Jason Fricka, licensed Colorado real estate agent serving veterans and families, should post this week based on this trend]
+VIEWS: [approximate views/engagement or "trending"]`,
+
+  Veteran_Creator: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+
+Search for the single most viral piece of content posted THIS WEEK by veteran creators, military-to-civilian transition voices, or veteran entrepreneur/athlete accounts on Instagram, TikTok, or YouTube.
+
+Look specifically for content about: life after the military, rebuilding identity post-service, what the military taught you that civilians don't understand, veteran mental health without being heavy, discipline and standards from service applied to civilian life, or veteran community and brotherhood.
+
+Target creators: veterans who are now athletes, entrepreneurs, coaches, or creators — not military gear or recruitment content. Real post-service identity content.
+
+Return ONLY this exact format — nothing else:
+ACCOUNT: [creator handle]
+PLATFORM: [platform]
+HOOK: [exact opening line or title]
+WHY: [one sentence — the psychological reason it performed]
+STEAL: [one specific content idea Jason Fricka, Army veteran and mindset coach in Colorado, should post this week based on this trend]
+VIEWS: [approximate views/engagement or "trending"]`,
+
+  Endurance_Athlete: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+
+Search for the single most viral piece of content posted THIS WEEK by endurance athletes, trail runners, ultramarathon creators, or outdoor fitness accounts on Instagram, TikTok, or YouTube.
+
+Look specifically for content about: trail running or ultramarathon training, training over 35 or 40, running and cycling in Colorado or mountain terrain, the mental side of endurance training, race day preparation, training while working a full-time job, or using athletic discipline as a life philosophy.
+
+Target creators: real athletes who train hard and document it honestly — not fitness influencers selling aesthetics. People who run ultras, do triathlons, or train in the mountains.
+
+Return ONLY this exact format — nothing else:
+ACCOUNT: [creator handle]
+PLATFORM: [platform]
+HOOK: [exact opening line or title]
+WHY: [one sentence — the psychological reason it performed]
+STEAL: [one specific content idea Jason Fricka, endurance athlete training in Colorado, should post this week based on this trend]
+VIEWS: [approximate views/engagement or "trending"]`,
+
+  Fatherhood_Family: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+
+Search for the single most viral piece of content posted THIS WEEK by dad creators, fatherhood voices, or family/parenting accounts on Instagram, TikTok, or YouTube.
+
+Look specifically for content about: being a present dad while building a career, what fathers actually teach their kids, parenting with discipline and love, the hard moments of fatherhood no one posts, raising kids who are tough and kind, or the weight of being the provider and the protector simultaneously.
+
+Target creators: real dads posting authentic content — not parenting advice accounts or mommy blog adjacent. Men who are honest about the pressure and privilege of fatherhood.
+
+Return ONLY this exact format — nothing else:
+ACCOUNT: [creator handle]
+PLATFORM: [platform]
+HOOK: [exact opening line or title]
+WHY: [one sentence — the psychological reason it performed]
+STEAL: [one specific content idea Jason Fricka, Colorado dad and veteran, should post this week based on this trend]
+VIEWS: [approximate views/engagement or "trending"]`,
+
+  Mindset_Discipline: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+
+Search for the single most viral piece of content posted THIS WEEK by mindset, discipline, or accountability creators on Instagram, TikTok, or YouTube.
+
+Look specifically for content about: doing the hard thing when you don't feel like it, the gap between wanting to change and actually changing, discipline as identity not motivation, morning routine and daily standards, accountability culture, what separates people who grow from people who stay stuck, or the unglamorous reality of consistent effort.
+
+Target creators: coaches and creators who speak to working adults — not 22-year-old hustle culture bros. Voices that resonate with parents, professionals, and veterans who are building something real while life is already full.
+
+Return ONLY this exact format — nothing else:
+ACCOUNT: [creator handle]
+PLATFORM: [platform]
+HOOK: [exact opening line or title]
+WHY: [one sentence — the psychological reason it performed]
+STEAL: [one specific content idea Jason Fricka, mindset coach and Elevation Nation community builder, should post this week based on this trend]
+VIEWS: [approximate views/engagement or "trending"]`,
+
+  Everyday_Wins: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+
+Search for the single most viral piece of content posted THIS WEEK that celebrates ordinary people doing extraordinary things — not celebrities, not influencers, not people with massive platforms already.
+
+Look specifically for content about: the regular person who showed up when no one was watching, small wins that compound into big results, the working parent who trains at 5am, the person who built something real without going viral, underdog stories, or content that makes regular people feel seen and represented.
+
+Target creators: micro to mid-size creators (under 100K) whose content is blowing up precisely because it feels real and unpolished. Content that resonates with the Elevation Nation audience — everyday people who refuse to stay where they are.
+
+Return ONLY this exact format — nothing else:
+ACCOUNT: [creator handle]
+PLATFORM: [platform]
+HOOK: [exact opening line or title]
+WHY: [one sentence — the psychological reason it performed]
+STEAL: [one specific content idea for the Elevation Nation community — everyday people who refuse to stay where they are — that Jason should post this week]
+VIEWS: [approximate views/engagement or "trending"]`,
+
+  Health_Wellness_Pro: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+
+Search for the single most viral piece of content posted THIS WEEK by health, wellness, or longevity creators targeting working professionals in their 30s and 40s on Instagram, TikTok, or YouTube.
+
+Look specifically for content about: training and recovery for busy professionals, sleep optimization for high performers, nutrition for people who actually have jobs and families, mental health for men who don't talk about mental health, burnout prevention, or the long game of physical health — not 6-pack aesthetics but functional longevity.
+
+Target creators: doctors, coaches, and athletes who speak to professionals and parents — not fitness influencers targeting college students. Real health content for people with real lives and real responsibilities.
+
+Return ONLY this exact format — nothing else:
+ACCOUNT: [creator handle]
+PLATFORM: [platform]
+HOOK: [exact opening line or title]
+WHY: [one sentence — the psychological reason it performed]
+STEAL: [one specific content idea Jason Fricka, endurance athlete and HR manager in Colorado, should post this week about health and wellness for working professionals]
+VIEWS: [approximate views/engagement or "trending"]`,
 };
 
-const TREND_MONITOR_PROMPT = (angle) => {
-  const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
-  const queryFn = TREND_MONITOR_QUERIES[angle];
-  return queryFn ? queryFn(today) : `Today is ${today}. Find the most viral content this week in the "${angle}" space relevant to HR managers, real estate agents, endurance athletes, and veterans in Colorado. Return: ACCOUNT: / PLATFORM: / HOOK: / WHY: / STEAL: / VIEWS:`;
+// TREND_NICHES is now dynamic — pulled from active client profile
+// Falls back to Jason's default niches if client has none set
+const getClientTrendNiches = (client) => {
+  if (client?.trendNiches && client.trendNiches.length > 0) return client.trendNiches;
+  return DEFAULT_CLIENT.trendNiches;
 };
+
+const TREND_MONITOR_PROMPT = (niche, client) => {
+  const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+  const name = client?.name || 'the creator';
+  const role = client?.role || 'content creator';
+  const location = client?.location || '';
+  const locationStr = location ? `in ${location}` : '';
+
+  // If the niche has a custom query from the client profile, use it directly
+  if (niche.query) {
+    return `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+
+Search for the single most viral piece of content posted THIS WEEK matching this query:
+${niche.query}
+
+Return ONLY this exact format — nothing else:
+ACCOUNT: [creator handle or name]
+PLATFORM: [Instagram/TikTok/YouTube/X/LinkedIn]
+HOOK: [exact opening line or title that made it perform]
+WHY: [one sentence — the psychological reason it performed]
+STEAL: [one specific, actionable content idea ${name}, ${role} ${locationStr}, should post this week based on this trend]
+VIEWS: [approximate views/engagement count or "trending"]`;
+  }
+
+  // Fallback to the static query library if no custom query
+  const queryFn = TREND_MONITOR_QUERIES[niche.id];
+  if (queryFn) return queryFn(today);
+
+  return `Today is ${today}. Find the most viral content this week in the "${niche.label}" space. Return: ACCOUNT: / PLATFORM: / HOOK: / WHY: / STEAL: [specific idea for ${name}, ${role} ${locationStr}] / VIEWS:`;
+};
+
+
+function TrendNicheEditor({ client }) {
+  const [, saveClients] = useClients();
+  const [activeClient, setActiveClient] = useActiveClient();
+  const [open, setOpen] = useState(false);
+  const [niches, setNiches] = useState([]);
+  const [newLabel, setNewLabel] = useState('');
+  const [newQuery, setNewQuery] = useState('');
+
+  useEffect(() => {
+    setNiches(getClientTrendNiches(client));
+  }, [client]);
+
+  const save = () => {
+    const updated = { ...client, trendNiches: niches };
+    setActiveClient(updated);
+    saveClients(prev => prev.map(c => c.id === client.id ? updated : c));
+  };
+
+  const addNiche = () => {
+    if (!newLabel.trim() || !newQuery.trim()) return;
+    const updated = [...niches, { id: `niche_${Date.now()}`, label: newLabel.trim(), query: newQuery.trim() }];
+    setNiches(updated);
+    setNewLabel(''); setNewQuery('');
+  };
+
+  const removeNiche = (id) => setNiches(niches.filter(n => n.id !== id));
+  const updateNiche = (id, field, val) => setNiches(niches.map(n => n.id === id ? {...n, [field]: val} : n));
+
+  const isJason = client?.isDefault;
+
+  return (
+    <div style={{marginBottom:16}}>
+      <button onClick={()=>setOpen(!open)}
+        style={{background:'#F9FAFB',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer',width:'100%',textAlign:'left',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <span>🎯 Trend Niches — {niches.length} active for {client?.name || 'this client'}</span>
+        <span style={{fontSize:10}}>{open ? '▲ Close' : '▼ Customize'}</span>
+      </button>
+
+      {open && (
+        <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'16px',marginTop:8}}>
+          <p style={{color:'#6B7280',fontSize:12,margin:'0 0 12px',lineHeight:1.6}}>
+            These are the 8 niches scanned every time Trend Monitor runs for <strong>{client?.name}</strong>. Each niche is one Perplexity query. Edit the query to make it more specific. Add niches for new content areas. Remove ones that aren't relevant.
+          </p>
+
+          <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:16}}>
+            {niches.map((niche, i) => (
+              <div key={niche.id} style={{background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:8,padding:'12px'}}>
+                <div style={{display:'flex',gap:8,marginBottom:6,alignItems:'center'}}>
+                  <span style={{background:'#EEF2FF',color:'#2563EB',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700,minWidth:20,textAlign:'center'}}>{i+1}</span>
+                  <input value={niche.label} onChange={e=>updateNiche(niche.id,'label',e.target.value)}
+                    style={{background:'#fff',border:'1px solid #D1D5DB',borderRadius:6,padding:'5px 8px',color:'#111827',fontSize:12,fontWeight:700,width:160,boxSizing:'border-box'}}/>
+                  <button onClick={()=>removeNiche(niche.id)}
+                    style={{marginLeft:'auto',background:'transparent',color:'#D1D5DB',border:'none',cursor:'pointer',fontSize:16,padding:'2px 6px'}}>×</button>
+                </div>
+                <textarea value={niche.query} onChange={e=>updateNiche(niche.id,'query',e.target.value)} rows={2}
+                  style={{width:'100%',background:'#fff',border:'1px solid #D1D5DB',borderRadius:6,padding:'7px 10px',color:'#374151',fontSize:11,resize:'vertical',boxSizing:'border-box',fontFamily:'inherit',lineHeight:1.5}}/>
+              </div>
+            ))}
+          </div>
+
+          {niches.length < 10 && (
+            <div style={{background:'#F9FAFB',border:'1px dashed #D1D5DB',borderRadius:8,padding:'12px',marginBottom:12}}>
+              <div style={{fontSize:11,color:'#6B7280',fontWeight:700,marginBottom:6,textTransform:'uppercase',letterSpacing:1}}>Add New Niche</div>
+              <input value={newLabel} onChange={e=>setNewLabel(e.target.value)} placeholder="Niche label (e.g. Fitness Coach)"
+                style={{width:'100%',background:'#fff',border:'1px solid #D1D5DB',borderRadius:6,padding:'7px 10px',color:'#111827',fontSize:12,marginBottom:6,boxSizing:'border-box'}}/>
+              <textarea value={newQuery} onChange={e=>setNewQuery(e.target.value)} rows={2} placeholder="Search query (e.g. viral fitness coach content this week — HIIT, weight loss, gym motivation for busy moms)"
+                style={{width:'100%',background:'#fff',border:'1px solid #D1D5DB',borderRadius:6,padding:'7px 10px',color:'#374151',fontSize:11,resize:'vertical',boxSizing:'border-box',fontFamily:'inherit',lineHeight:1.5,marginBottom:6}}/>
+              <button onClick={addNiche} disabled={!newLabel.trim()||!newQuery.trim()}
+                style={{background:!newLabel.trim()||!newQuery.trim()?'#F3F4F6':'#2563EB',color:!newLabel.trim()||!newQuery.trim()?'#9CA3AF':'#fff',border:'none',borderRadius:6,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:!newLabel.trim()||!newQuery.trim()?'not-allowed':'pointer'}}>
+                Add Niche
+              </button>
+            </div>
+          )}
+
+          <button onClick={save}
+            style={{background:'linear-gradient(135deg,#00C2FF,#0096CC)',color:'#000D1A',border:'none',borderRadius:8,padding:'10px 24px',fontWeight:800,cursor:'pointer',fontSize:13,width:'100%'}}>
+            Save Niches for {client?.name}
+          </button>
+          {isJason && <p style={{color:'#6B7280',fontSize:11,margin:'8px 0 0',textAlign:'center'}}>Changes to your default niches are saved to your profile.</p>}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function TrendMonitorAgent() {
+  const [activeClient] = useActiveClient();
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [lastRun, setLastRun] = useState(null);
@@ -14544,7 +14799,33 @@ function TrendMonitorAgent() {
       const auto = localStorage.getItem('encis_trend_auto');
       if (auto) setAutoRunEnabled(JSON.parse(auto));
     } catch {}
+    // Check if cron ran more recently than last manual scan
+    checkCronResults();
   }, []);
+
+  const checkCronResults = async () => {
+    try {
+      const lastTs = parseInt(localStorage.getItem(TREND_MONITOR_DATE_KEY) || '0');
+      const { data } = await supabase
+        .from('agent_runs')
+        .select('output_text, created_at')
+        .eq('tool_name', 'trend_monitor_cron')
+        .order('created_at', { ascending: false })
+        .limit(1);
+      if (!data || data.length === 0) return;
+      const cronTime = new Date(data[0].created_at).getTime();
+      if (cronTime > lastTs) {
+        // Cron ran more recently — load its results
+        const cronAlerts = JSON.parse(data[0].output_text || '[]');
+        if (cronAlerts.length > 0) {
+          setAlerts(cronAlerts);
+          setLastRun(new Date(data[0].created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) + ' (auto)');
+          localStorage.setItem(TREND_MONITOR_KEY, data[0].output_text);
+          localStorage.setItem(TREND_MONITOR_DATE_KEY, cronTime.toString());
+        }
+      }
+    } catch(e) { /* silent */ }
+  };
 
   useEffect(() => {
     if (!autoRunEnabled) return;
@@ -14563,22 +14844,23 @@ function TrendMonitorAgent() {
   const runScan = async () => {
     setLoading(true); setProgress(0);
     const newAlerts = [];
-    for (let i = 0; i < ANGLES.length; i++) {
-      const angle = ANGLES[i];
-      setScanning(angle.label);
-      setProgress(Math.round((i / ANGLES.length) * 100));
+    const niches = getClientTrendNiches(activeClient);
+    for (let i = 0; i < niches.length; i++) {
+      const niche = niches[i];
+      setScanning(niche.label);
+      setProgress(Math.round((i / niches.length) * 100));
       try {
-        const res = await perp(TREND_MONITOR_PROMPT(angle.label));
-        if (res && res.length > 20) newAlerts.push(parseAlert(res, angle.label));
+        const res = await perp(TREND_MONITOR_PROMPT(niche, activeClient));
+        if (res && res.length > 20) newAlerts.push(parseAlert(res, niche.label));
         await new Promise(r => setTimeout(r, 600));
-      } catch(e) { console.error('Trend scan error', angle.label, e); }
+      } catch(e) { console.error('Trend scan error', niche.label, e); }
     }
     const timestamp = Date.now().toString();
     setAlerts(newAlerts);
     setLastRun(new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}));
     setProgress(100); setScanning(null);
     try { localStorage.setItem(TREND_MONITOR_KEY, JSON.stringify(newAlerts)); localStorage.setItem(TREND_MONITOR_DATE_KEY, timestamp); } catch {}
-    try { await supabase.from('agent_runs').insert([{ tool_name: 'trend_monitor', input_data: { angles: ANGLES.map(a => a.label) }, output_text: JSON.stringify(newAlerts.map(a => ({angle:a.angle,hook:a.hook,steal:a.steal}))), platform: 'multi' }]); } catch {}
+    try { await supabase.from('agent_runs').insert([{ tool_name: 'trend_monitor', input_data: { niches: TREND_NICHES.map(n => n.label) }, output_text: JSON.stringify(newAlerts.map(a => ({angle:a.angle,hook:a.hook,steal:a.steal}))), platform: 'multi' }]); } catch {}
     setLoading(false);
   };
 
@@ -14595,7 +14877,7 @@ function TrendMonitorAgent() {
   };
 
   const unseenCount = alerts.filter(a => !a.seen).length;
-  const angleColors = { Emotional:'#8B5CF6', Physical:'#EF4444', Social:'#10B981', Intellectual:'#F59E0B', Occupational:'#2563EB', Financial:'#059669', Environmental:'#0891B2', Spiritual:'#7C3AED' };
+  const angleColors = { 'HR Creator':'#2563EB', 'Real Estate':'#059669', 'Veteran':'#7C3AED', 'Endurance':'#EF4444', 'Fatherhood':'#F59E0B', 'Mindset':'#8B5CF6', 'Everyday Wins':'#10B981', 'Health & Wellness':'#0891B2' };
 
   return (
     <div>
@@ -14616,10 +14898,13 @@ function TrendMonitorAgent() {
           </button>
         </div>
       </div>
-      <div style={{background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px 16px',marginBottom:20,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:8}}>
+      <div style={{background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px 16px',marginBottom:12,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:8}}>
         <div style={{fontSize:12,color:'#6B7280'}}>{lastRun ? `Last scan: ${lastRun}` : 'Never scanned — hit Scan Now to start'}</div>
         <div style={{fontSize:11,color:'#6B7280'}}>Auto-scan runs every 20 hours when enabled</div>
       </div>
+
+      {/* Niche editor */}
+      <TrendNicheEditor client={activeClient}/>
       {loading && (
         <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'20px',marginBottom:16}}>
           <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
@@ -14631,9 +14916,9 @@ function TrendMonitorAgent() {
           </div>
           {scanning && <div style={{color:'#6B7280',fontSize:12}}>Scanning: <strong style={{color:'#00C2FF'}}>{scanning}</strong></div>}
           <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:12}}>
-            {ANGLES.map(a => (
-              <span key={a.id} style={{background:scanning===a.label?'rgba(0,194,255,0.15)':alerts.find(al=>al.angle===a.label)?'rgba(39,174,96,0.1)':'#F3F4F6',color:scanning===a.label?'#00C2FF':alerts.find(al=>al.angle===a.label)?'#27ae60':'#9CA3AF',borderRadius:4,padding:'3px 8px',fontSize:10,fontWeight:700}}>
-                {a.label}
+            {getClientTrendNiches(activeClient).map(n => (
+              <span key={n.id} style={{background:scanning===n.label?'rgba(0,194,255,0.15)':alerts.find(al=>al.angle===n.label)?'rgba(39,174,96,0.1)':'#F3F4F6',color:scanning===n.label?'#00C2FF':alerts.find(al=>al.angle===n.label)?'#27ae60':'#9CA3AF',borderRadius:4,padding:'3px 8px',fontSize:10,fontWeight:700}}>
+                {n.label}
               </span>
             ))}
           </div>
@@ -15146,6 +15431,866 @@ After all formats, add:
   );
 }
 
+
+function CaptionBatchAgent() {
+  const [activeClient] = useActiveClient();
+  const [topics, setTopics] = useState(['', '', '', '', '']);
+  const [platform, setPlatform] = useState('Instagram');
+  const [angle, setAngle] = useState('occupational');
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    try { const s = localStorage.getItem('encis_caption_batch'); if (s) setHistory(JSON.parse(s)); } catch {}
+  }, []);
+
+  const updateTopic = (i, val) => setTopics(topics.map((t, idx) => idx === i ? val : t));
+  const filledTopics = topics.filter(t => t.trim());
+
+  const run = async () => {
+    if (filledTopics.length === 0) return;
+    setLoading(true); setOut('');
+
+    const clientName = activeClient?.name || 'Jason Fricka';
+    const voice = activeClient?.voice || 'Direct, real, no corporate speak. Short sentences. High accountability energy.';
+    const angleLabel = ANGLES.find(a => a.id === angle)?.label || angle;
+
+    const prompt = `You are writing ${filledTopics.length} complete ${platform} captions for ${clientName}.
+
+Voice: ${voice}
+Content angle: ${angleLabel}
+Platform: ${platform}
+
+Write ALL ${filledTopics.length} captions now. Each one is complete and ready to post.
+
+${filledTopics.map((topic, i) => `TOPIC ${i + 1}: ${topic}`).join('
+')}
+
+For EACH topic write:
+
+---
+## CAPTION ${`0`.padStart(0)}[N]: [topic]
+
+**HOOK** (first line — stops the scroll):
+[exact opening line]
+
+**BODY**:
+[3-4 short punchy lines. Real. No filler. Each line earns its place.]
+
+**CTA**:
+[one direct call to action]
+
+**FULL CAPTION** (copy-paste ready):
+[Hook + body + CTA formatted exactly as it would appear posted]
+
+**HASHTAGS**:
+[10 relevant hashtags]
+
+---
+
+After all captions:
+
+## POSTING ORDER
+Recommend which to post first through fifth and why based on momentum and variety.`;
+
+    const res = await ai(prompt);
+    setOut(res);
+
+    const entry = { id: Date.now(), topics: filledTopics, platform, date: new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}), result: res };
+    const updated = [entry, ...history].slice(0, 10);
+    setHistory(updated);
+    try { localStorage.setItem('encis_caption_batch', JSON.stringify(updated)); } catch {}
+    await saveToSupabase({ type: 'caption-batch', title: `${filledTopics.length} captions — ${filledTopics[0].slice(0,40)}`, preview: res.slice(0,500), full: res, platform, angle: angleLabel });
+    setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}>
+        <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
+        <div>
+          <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800}}>Caption Batch Agent</h2>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Drop in up to 5 topics. Get 5 complete captions — hook, body, CTA, hashtags — all at once. One session, full week done.</p>
+        </div>
+      </div>
+
+      <Card>
+        <SecLabel>Platform</SecLabel>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+          {['Instagram','LinkedIn','Facebook','X','TikTok'].map(p => (
+            <button key={p} onClick={()=>setPlatform(p)}
+              style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:platform===p?'#2563EB':'#374151',border:'1px solid '+(platform===p?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:500}}>
+              {p}
+            </button>
+          ))}
+        </div>
+
+        <SecLabel>Content Angle</SecLabel>
+        <AngleGrid selected={angle} onSelect={setAngle}/>
+
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'16px 0 8px'}}>
+          <SecLabel style={{margin:0}}>Topics ({filledTopics.length} entered)</SecLabel>
+          <span style={{fontSize:11,color:'#6B7280'}}>Fill as many as you want — up to 5</span>
+        </div>
+
+        <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:16}}>
+          {topics.map((topic, i) => (
+            <div key={i} style={{display:'flex',gap:8,alignItems:'center'}}>
+              <span style={{color:'#2563EB',fontWeight:800,fontSize:13,minWidth:20,flexShrink:0}}>{i+1}.</span>
+              <input value={topic} onChange={e=>updateTopic(i,e.target.value)}
+                placeholder={i===0?'e.g. Why most people quit before they see results':i===1?'e.g. What 5am actually teaches you':i===2?'e.g. The real cost of playing it safe':i===3?'e.g. What I told my kid about hard work':' Another topic...'}
+                style={{flex:1,background:'#F9FAFB',border:'1px solid '+(topic.trim()?'#C7D2FE':'#D1D5DB'),borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
+            </div>
+          ))}
+        </div>
+
+        <button onClick={run} disabled={loading||filledTopics.length===0}
+          style={{background:filledTopics.length===0||loading?'#F3F4F6':'linear-gradient(135deg,#00C2FF,#0096CC)',color:filledTopics.length===0||loading?'#9CA3AF':'#000D1A',border:'none',borderRadius:8,padding:'12px 24px',fontWeight:800,cursor:filledTopics.length===0||loading?'not-allowed':'pointer',fontSize:14,width:'100%',boxShadow:filledTopics.length===0||loading?'none':'0 0 20px rgba(0,194,255,0.2)'}}>
+          {loading ? `Writing ${filledTopics.length} captions...` : `Generate ${filledTopics.length} Caption${filledTopics.length!==1?'s':''}`}
+        </button>
+      </Card>
+
+      {loading && <Spin/>}
+      {out && <DocOutput text={out} title={`Caption Batch — ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})}`}/>}
+
+      {history.length > 0 && (
+        <div style={{marginTop:24}}>
+          <div style={{fontSize:11,color:'#6B7280',fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',marginBottom:10}}>Batch History</div>
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+            {history.map(h => (
+              <div key={h.id} onClick={()=>setOut(h.result)}
+                style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px 16px',cursor:'pointer'}}>
+                <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{h.topics.length} captions — {h.platform}</div>
+                <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>{h.topics.slice(0,3).join(' · ')}{h.topics.length>3?' · ...':''}</div>
+                <div style={{color:'#9CA3AF',fontSize:10,marginTop:2}}>{h.date}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+function ClientReportingAgent() {
+  const [activeClient] = useActiveClient();
+  const [clients] = useClients();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const [report, setReport] = useState('');
+  const [period, setPeriod] = useState('week');
+  const [queued, setQueued] = useState(false);
+
+  useEffect(() => {
+    if (activeClient) setSelectedClient(activeClient);
+  }, [activeClient]);
+
+  useEffect(() => {
+    if (selectedClient) fetchClientContent(selectedClient);
+  }, [selectedClient]);
+
+  const fetchClientContent = async (client) => {
+    setFetching(true); setItems([]); setReport(''); setQueued(false);
+    try {
+      const { data } = await supabase
+        .from('saved_content')
+        .select('*')
+        .eq('client_id', client.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      setItems(data || []);
+    } catch(e) { console.error(e); }
+    setFetching(false);
+  };
+
+  const run = async () => {
+    if (!selectedClient || items.length === 0) return;
+    setLoading(true); setReport(''); setQueued(false);
+
+    const periodLabel = period === 'week' ? 'this week' : 'this month';
+    const viral = items.filter(i => i.perf_rating === 'viral');
+    const solid = items.filter(i => i.perf_rating === 'solid');
+    const flopped = items.filter(i => i.perf_rating === 'flopped');
+    const unrated = items.filter(i => !i.perf_rating);
+
+    const prompt = `You are writing a professional content performance report for a client.
+
+Client: ${selectedClient.name}
+Handle: ${selectedClient.handle || ''}
+Period: ${periodLabel}
+Report date: ${new Date().toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'})}
+
+Content data ${periodLabel}:
+- Total pieces generated: ${items.length}
+- Viral performers: ${viral.length} ${viral.slice(0,5).map(i=>`"${i.title?.slice(0,40)||'untitled'}"`).join(', ')}
+- Solid performers: ${solid.length} ${solid.slice(0,5).map(i=>`"${i.title?.slice(0,40)||'untitled'}"`).join(', ')}
+- Did not perform: ${flopped.length}
+- Awaiting performance data: ${unrated.length}
+- Platforms: ${[...new Set(items.map(i=>i.platform).filter(Boolean))].join(', ') || 'Various'}
+
+Write a professional but human client report. Sound like an expert consultant who genuinely cares about results — not a corporate bot.
+
+# Content Performance Report
+**${selectedClient.name} | ${periodLabel === 'this week' ? 'Weekly' : 'Monthly'} Report**
+*${new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})}*
+
+## Performance Summary
+2-3 sentences. What the numbers say at a high level. Be direct.
+
+## What Worked
+The top 2-3 performers and specifically why they worked. Name the content. Don't be vague.
+
+## What to Build On
+2-3 specific content recommendations for next week based on what performed. Exact topics and formats.
+
+## What to Adjust
+1-2 honest observations about what isn't working and why. Constructive but direct.
+
+## Next Week Focus
+One clear priority for the coming week. One sentence.
+
+## Your Numbers
+| Metric | This ${period === 'week' ? 'Week' : 'Month'} |
+|--------|------|
+| Content Pieces | ${items.length} |
+| Viral Performers | ${viral.length} |
+| Solid Performers | ${solid.length} |
+| Platforms Active | ${[...new Set(items.map(i=>i.platform).filter(Boolean))].length || 1} |`;
+
+    const res = await ai(prompt);
+    setReport(res);
+    setLoading(false);
+  };
+
+  const addToQueue = async () => {
+    if (!report) return;
+    const queueKey = 'encis_approval_queue';
+    try {
+      const existing = JSON.parse(localStorage.getItem(queueKey) || '[]');
+      const entry = {
+        id: Date.now(),
+        topic: `${period === 'week' ? 'Weekly' : 'Monthly'} Report — ${selectedClient.name}`,
+        type: 'Report',
+        platform: 'Email',
+        angle: 'Occupational',
+        content: report,
+        status: 'pending',
+        client: selectedClient.name,
+        date: new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}),
+        createdAt: Date.now(),
+      };
+      localStorage.setItem(queueKey, JSON.stringify([entry, ...existing]));
+      setQueued(true);
+    } catch {}
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}>
+        <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
+        <div>
+          <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800}}>Client Reporting Agent</h2>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Pulls content data for any client. Writes a professional performance report. Sends it to Approval Queue for your review.</p>
+        </div>
+      </div>
+
+      <Card>
+        <SecLabel>Select Client</SecLabel>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+          {clients.map(c => (
+            <button key={c.id} onClick={()=>setSelectedClient(c)}
+              style={{background:selectedClient?.id===c.id?'#EEF2FF':'#F9FAFB',color:selectedClient?.id===c.id?'#2563EB':'#374151',border:'1px solid '+(selectedClient?.id===c.id?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:selectedClient?.id===c.id?700:500}}>
+              {c.name}
+            </button>
+          ))}
+        </div>
+
+        <SecLabel>Report Period</SecLabel>
+        <div style={{display:'flex',gap:6,marginBottom:16}}>
+          {[['week','Weekly'],['month','Monthly']].map(([val,label]) => (
+            <button key={val} onClick={()=>setPeriod(val)}
+              style={{background:period===val?'#EEF2FF':'#F9FAFB',color:period===val?'#2563EB':'#374151',border:'1px solid '+(period===val?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'7px 16px',cursor:'pointer',fontSize:12,fontWeight:period===val?700:500}}>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {selectedClient && (
+          <div style={{background:'#F9FAFB',borderRadius:8,padding:'12px',marginBottom:16,display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
+            <div>
+              <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{selectedClient.name}</div>
+              <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>{fetching ? 'Loading content...' : `${items.length} pieces saved · ${items.filter(i=>i.perf_rating).length} rated`}</div>
+            </div>
+            {items.length === 0 && !fetching && (
+              <span style={{background:'rgba(239,68,68,0.1)',color:'#EF4444',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700}}>No content data yet</span>
+            )}
+          </div>
+        )}
+
+        <button onClick={run} disabled={loading||fetching||!selectedClient||items.length===0}
+          style={{background:loading||fetching||!selectedClient||items.length===0?'#F3F4F6':'linear-gradient(135deg,#00C2FF,#0096CC)',color:loading||fetching||!selectedClient||items.length===0?'#9CA3AF':'#000D1A',border:'none',borderRadius:8,padding:'12px 24px',fontWeight:800,cursor:loading||fetching||!selectedClient||items.length===0?'not-allowed':'pointer',fontSize:14,width:'100%'}}>
+          {loading ? 'Writing report...' : fetching ? 'Loading data...' : items.length===0 ? 'No content data for this client' : `Generate ${period==='week'?'Weekly':'Monthly'} Report`}
+        </button>
+      </Card>
+
+      {loading && <Spin/>}
+
+      {report && (
+        <div>
+          <DocOutput text={report} title={`${period==='week'?'Weekly':'Monthly'} Report — ${selectedClient?.name}`}/>
+          <div style={{marginTop:12}}>
+            <button onClick={addToQueue} disabled={queued}
+              style={{background:queued?'rgba(39,174,96,0.1)':'#2563EB',color:queued?'#27ae60':'#fff',border:queued?'1px solid rgba(39,174,96,0.3)':'none',borderRadius:8,padding:'10px 24px',fontWeight:800,cursor:queued?'default':'pointer',fontSize:13,width:'100%'}}>
+              {queued ? '✓ Added to Approval Queue' : 'Send to Approval Queue for Review'}
+            </button>
+            {queued && <p style={{color:'#6B7280',fontSize:12,textAlign:'center',margin:'8px 0 0'}}>Go to Optimize → Approval Queue to review and approve before sending.</p>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+const ONBOARDING_STEPS = [
+  { id: 'basics',   label: 'Basics',     desc: 'Name, handle, location, platforms' },
+  { id: 'audience', label: 'Audience',   desc: 'Who they serve and why' },
+  { id: 'voice',    label: 'Voice',      desc: 'How they sound and what to avoid' },
+  { id: 'goals',    label: 'Goals',      desc: 'What they want content to do' },
+  { id: 'niches',   label: 'Niches',     desc: 'What trends to monitor' },
+];
+
+function ClientOnboardingAgent() {
+  const [, saveClients] = useClients();
+  const [, setActiveClient] = useActiveClient();
+  const [step, setStep] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+  const [generatedProfile, setGeneratedProfile] = useState(null);
+
+  const [form, setForm] = useState({
+    name: '', handle: '', location: '', platforms: '',
+    role: '', businessType: '', offer: '',
+    audience: '', audiencePain: '', audienceWin: '',
+    tone: '', avoid: '', samples: '',
+    goals: '', cta: '', contentTypes: '',
+    nicheTopics: '',
+  });
+
+  const update = (k, v) => setForm(prev => ({...prev, [k]: v}));
+
+  const buildProfile = async () => {
+    setLoading(true);
+
+    // Step 1: Generate voice + niches via Claude
+    const prompt = `You are onboarding a new client for a content creation system. Based on their answers, build their complete profile.
+
+CLIENT ANSWERS:
+Name: ${form.name}
+Handle: ${form.handle}
+Location: ${form.location}
+Platforms: ${form.platforms}
+Role / Business: ${form.role} — ${form.businessType}
+Offer: ${form.offer}
+Audience: ${form.audience}
+Audience pain point: ${form.audiencePain}
+Audience win: ${form.audienceWin}
+Tone / voice: ${form.tone}
+What to avoid: ${form.avoid}
+Content samples or examples they like: ${form.samples}
+Content goals: ${form.goals}
+Primary CTA: ${form.cta}
+Content types they want: ${form.contentTypes}
+Niche topics to monitor: ${form.nicheTopics}
+
+Generate their complete onboarding package. Return as JSON only — no markdown, no explanation, just valid JSON:
+
+{
+  "voice": "2-3 sentence voice guide that captures exactly how this person sounds — tone, energy, what makes them distinct",
+  "notes": "Key context about this client in 2 sentences — role, audience, offer, what makes them different",
+  "angles": "6-8 content angles specific to this client separated by commas",
+  "trendNiches": [
+    { "id": "niche_1", "label": "Niche Name", "query": "specific perplexity search query to find viral content in this niche this week" },
+    { "id": "niche_2", "label": "Niche Name", "query": "specific perplexity search query" },
+    { "id": "niche_3", "label": "Niche Name", "query": "specific perplexity search query" },
+    { "id": "niche_4", "label": "Niche Name", "query": "specific perplexity search query" },
+    { "id": "niche_5", "label": "Niche Name", "query": "specific perplexity search query" },
+    { "id": "niche_6", "label": "Niche Name", "query": "specific perplexity search query" }
+  ],
+  "firstWeekBrief": "A 3-4 sentence content brief for their first week — what to post, what angle to lead with, what to establish first"
+}`;
+
+    const res = await ai(prompt);
+    let parsed = null;
+    try {
+      const clean = res.replace(/```json|```/g, '').trim();
+      parsed = JSON.parse(clean);
+    } catch(e) {
+      console.error('Parse error:', e);
+      parsed = { voice: form.tone, notes: `${form.role} in ${form.location}`, angles: form.nicheTopics, trendNiches: [], firstWeekBrief: '' };
+    }
+
+    // Build the full client object
+    const newClient = {
+      id: `client_${Date.now()}`,
+      name: form.name,
+      handle: form.handle,
+      location: form.location,
+      role: form.role,
+      platforms: form.platforms,
+      voice: parsed.voice || form.tone,
+      notes: parsed.notes || '',
+      angles: parsed.angles || '',
+      colors: '#2563EB, #FFFFFF, #111827',
+      trendNiches: parsed.trendNiches || [],
+      firstWeekBrief: parsed.firstWeekBrief || '',
+      onboardedAt: new Date().toISOString(),
+    };
+
+    setGeneratedProfile(newClient);
+    setLoading(false);
+    setDone(true);
+  };
+
+  const saveClient = () => {
+    if (!generatedProfile) return;
+    saveClients(prev => [...prev, generatedProfile]);
+    setActiveClient(generatedProfile);
+  };
+
+  const stepFields = {
+    basics: [
+      { k:'name', l:'Full Name or Brand Name', ph:'e.g. Sarah Johnson Fitness', required: true },
+      { k:'handle', l:'Primary Social Handle', ph:'e.g. @sarahjohnsonfitness' },
+      { k:'location', l:'City / State', ph:'e.g. Austin, TX' },
+      { k:'platforms', l:'Active Platforms', ph:'e.g. Instagram, TikTok, LinkedIn' },
+      { k:'role', l:'Role / Job Title', ph:'e.g. Life coach, real estate agent, fitness trainer' },
+      { k:'businessType', l:'Business Type', ph:'e.g. Online coaching, agency, local service, e-commerce' },
+      { k:'offer', l:'Main Offer or Service', ph:'e.g. 1:1 coaching $997, listing homes in Austin, selling protein supplements' },
+    ],
+    audience: [
+      { k:'audience', l:'Who is their audience?', ph:'e.g. Busy moms in their 30s who want to lose weight without giving up their lives', ta:true },
+      { k:'audiencePain', l:'What is their audience's biggest pain point?', ph:'e.g. They start and stop. Can't stay consistent. Feel like they're failing', ta:true },
+      { k:'audienceWin', l:'What does success look like for their audience?', ph:'e.g. Down 20 lbs, feel confident, able to keep up with their kids', ta:true },
+    ],
+    voice: [
+      { k:'tone', l:'How would you describe their voice and tone?', ph:'e.g. Warm, direct, real. Speaks like a friend not a guru. Never preachy.', ta:true },
+      { k:'avoid', l:'What should content never sound like?', ph:'e.g. Corporate, preachy, diet culture language, before/after body shaming', ta:true },
+      { k:'samples', l:'Any creators or content they want to sound like?', ph:'e.g. Sounds like Mel Robbins but less intense. Real like Gary Vee but warmer.' },
+    ],
+    goals: [
+      { k:'goals', l:'What should content accomplish?', ph:'e.g. Grow Instagram to 10K, generate leads for coaching, establish authority in Austin real estate', ta:true },
+      { k:'cta', l:'Primary call to action in content?', ph:'e.g. DM me the word READY, book a free call, subscribe to the newsletter' },
+      { k:'contentTypes', l:'What types of content do they want?', ph:'e.g. Reels, carousels, long captions, YouTube shorts, LinkedIn posts' },
+    ],
+    niches: [
+      { k:'nicheTopics', l:'What topics and communities should we monitor for trends?', ph:'e.g. Fitness for moms, postpartum health, work-life balance, mindset for women, nutrition myths — be as specific as possible', ta:true },
+    ],
+  };
+
+  const currentStep = ONBOARDING_STEPS[step];
+  const currentFields = stepFields[currentStep.id] || [];
+  const canProceed = currentFields.filter(f=>f.required).every(f => form[f.k]?.trim());
+
+  if (done && generatedProfile) {
+    return (
+      <div>
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}>
+          <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2}}/>
+          <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800}}>Client Onboarding Agent</h2>
+        </div>
+        <div style={{background:'rgba(39,174,96,0.08)',border:'1px solid rgba(39,174,96,0.2)',borderRadius:12,padding:'20px',marginBottom:20}}>
+          <div style={{fontSize:24,marginBottom:8}}>✅</div>
+          <div style={{color:'#27ae60',fontWeight:800,fontSize:16,marginBottom:4}}>{generatedProfile.name} is ready</div>
+          <div style={{color:'#6B7280',fontSize:13}}>Voice profile built. {generatedProfile.trendNiches?.length || 0} trend niches generated. First week brief ready.</div>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+          <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'16px'}}>
+            <div style={{fontSize:11,color:'#6B7280',fontWeight:700,textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Voice Profile</div>
+            <div style={{color:'#374151',fontSize:13,lineHeight:1.6}}>{generatedProfile.voice}</div>
+          </div>
+          <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'16px'}}>
+            <div style={{fontSize:11,color:'#6B7280',fontWeight:700,textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Content Angles</div>
+            <div style={{color:'#374151',fontSize:13,lineHeight:1.6}}>{generatedProfile.angles}</div>
+          </div>
+        </div>
+        {generatedProfile.trendNiches?.length > 0 && (
+          <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'16px',marginBottom:16}}>
+            <div style={{fontSize:11,color:'#6B7280',fontWeight:700,textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>Trend Niches ({generatedProfile.trendNiches.length})</div>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {generatedProfile.trendNiches.map(n => (
+                <span key={n.id} style={{background:'#EEF2FF',color:'#2563EB',borderRadius:6,padding:'4px 10px',fontSize:11,fontWeight:700}}>{n.label}</span>
+              ))}
+            </div>
+          </div>
+        )}
+        {generatedProfile.firstWeekBrief && (
+          <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'16px',marginBottom:16}}>
+            <div style={{fontSize:11,color:'#6B7280',fontWeight:700,textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>First Week Brief</div>
+            <div style={{color:'#374151',fontSize:13,lineHeight:1.6}}>{generatedProfile.firstWeekBrief}</div>
+          </div>
+        )}
+        <button onClick={saveClient}
+          style={{background:'linear-gradient(135deg,#00C2FF,#0096CC)',color:'#000D1A',border:'none',borderRadius:8,padding:'12px 24px',fontWeight:800,cursor:'pointer',fontSize:14,width:'100%'}}>
+          Add {generatedProfile.name} to Client Mode
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}>
+        <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
+        <div>
+          <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800}}>Client Onboarding Agent</h2>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Answer 5 sections. Agent builds their voice profile, content angles, and trend niches automatically. Onboard in 10 minutes.</p>
+        </div>
+      </div>
+
+      {/* Progress */}
+      <div style={{display:'flex',gap:4,marginBottom:20}}>
+        {ONBOARDING_STEPS.map((s, i) => (
+          <div key={s.id} style={{flex:1,height:4,borderRadius:2,background:i<=step?'#2563EB':'#E5E7EB',transition:'background 0.2s'}}/>
+        ))}
+      </div>
+      <div style={{marginBottom:20}}>
+        <div style={{color:'#111827',fontWeight:700,fontSize:16}}>{step+1}. {currentStep.label}</div>
+        <div style={{color:'#6B7280',fontSize:13,marginTop:2}}>{currentStep.desc}</div>
+      </div>
+
+      <Card>
+        {currentFields.map(field => (
+          <div key={field.k} style={{marginBottom:16}}>
+            <SecLabel>{field.l}{field.required && <span style={{color:'#EF4444',marginLeft:4}}>*</span>}</SecLabel>
+            {field.ta ? (
+              <textarea value={form[field.k]} onChange={e=>update(field.k,e.target.value)} rows={3} placeholder={field.ph}
+                style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box',fontFamily:'inherit',lineHeight:1.6}}/>
+            ) : (
+              <input value={form[field.k]} onChange={e=>update(field.k,e.target.value)} placeholder={field.ph}
+                style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
+            )}
+          </div>
+        ))}
+
+        <div style={{display:'flex',gap:8,marginTop:4}}>
+          {step > 0 && (
+            <button onClick={()=>setStep(step-1)}
+              style={{background:'#F9FAFB',color:'#374151',border:'1px solid #E5E7EB',borderRadius:8,padding:'11px 20px',fontWeight:700,cursor:'pointer',fontSize:13}}>
+              ← Back
+            </button>
+          )}
+          {step < ONBOARDING_STEPS.length - 1 ? (
+            <button onClick={()=>setStep(step+1)} disabled={!canProceed && step===0}
+              style={{flex:1,background:!canProceed&&step===0?'#F3F4F6':'#2563EB',color:!canProceed&&step===0?'#9CA3AF':'#fff',border:'none',borderRadius:8,padding:'11px 24px',fontWeight:800,cursor:!canProceed&&step===0?'not-allowed':'pointer',fontSize:13}}>
+              Next: {ONBOARDING_STEPS[step+1].label} →
+            </button>
+          ) : (
+            <button onClick={buildProfile} disabled={loading||!form.name.trim()}
+              style={{flex:1,background:loading||!form.name.trim()?'#F3F4F6':'linear-gradient(135deg,#00C2FF,#0096CC)',color:loading||!form.name.trim()?'#9CA3AF':'#000D1A',border:'none',borderRadius:8,padding:'11px 24px',fontWeight:800,cursor:loading||!form.name.trim()?'not-allowed':'pointer',fontSize:13}}>
+              {loading ? 'Building profile...' : 'Build Client Profile'}
+            </button>
+          )}
+        </div>
+        {loading && <Spin/>}
+      </Card>
+    </div>
+  );
+}
+
+
+const COMPETITOR_KEY = 'encis_competitor_intel';
+const COMPETITOR_HANDLES_KEY = 'encis_competitor_handles';
+
+function CompetitorIntelAgent() {
+  const [activeClient] = useActiveClient();
+  const [handles, setHandles] = useState(['', '', '', '', '']);
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [scanning, setScanning] = useState(null);
+  const [progress, setProgress] = useState(0);
+  const [lastRun, setLastRun] = useState(null);
+  const [gaps, setGaps] = useState('');
+  const [buildingGaps, setBuildingGaps] = useState(false);
+  const [autoRun, setAutoRun] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(COMPETITOR_HANDLES_KEY);
+      if (saved) {
+        const h = JSON.parse(saved);
+        const padded = [...h, ...Array(5).fill('')].slice(0, 5);
+        setHandles(padded);
+      }
+      const res = localStorage.getItem(COMPETITOR_KEY);
+      if (res) {
+        const d = JSON.parse(res);
+        setResults(d.results || []);
+        setLastRun(d.date || null);
+        setGaps(d.gaps || '');
+      }
+      const auto = localStorage.getItem('encis_competitor_auto');
+      if (auto) setAutoRun(JSON.parse(auto));
+    } catch {}
+    checkCronResults();
+  }, []);
+
+  const checkCronResults = async () => {
+    try {
+      const { data } = await supabase
+        .from('agent_runs')
+        .select('output_text, input_data, created_at')
+        .eq('tool_name', 'competitor_intel_cron')
+        .order('created_at', { ascending: false })
+        .limit(1);
+      if (!data || data.length === 0) return;
+      const cronDate = new Date(data[0].created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      if (data[0].output_text && data[0].output_text.length > 50) {
+        setGaps(data[0].output_text);
+        setLastRun(cronDate + ' (auto)');
+      }
+    } catch(e) { /* silent */ }
+  };
+
+  useEffect(() => {
+    if (!autoRun) return;
+    const lastTs = localStorage.getItem('encis_competitor_ts');
+    if (!lastTs) return;
+    const hoursSince = (Date.now() - parseInt(lastTs)) / (1000 * 60 * 60);
+    if (hoursSince > 48) runScan();
+  }, [autoRun]);
+
+  const filledHandles = handles.filter(h => h.trim());
+  const updateHandle = (i, val) => setHandles(handles.map((h, idx) => idx === i ? val : h));
+
+  const saveHandles = () => {
+    try { localStorage.setItem(COMPETITOR_HANDLES_KEY, JSON.stringify(filledHandles)); } catch {}
+  };
+
+  const buildGapAnalysis = async (competitorResults) => {
+    setBuildingGaps(true);
+    const clientName = activeClient?.name || 'Jason Fricka';
+    const clientRole = activeClient?.role || 'content creator';
+    const clientAngles = activeClient?.angles || '';
+
+    const prompt = `You are a content strategist doing competitive gap analysis.
+
+Creator being analyzed: ${clientName} — ${clientRole}
+Their content angles: ${clientAngles}
+
+Competitor content this week:
+${competitorResults.map(r => `
+COMPETITOR: ${r.handle}
+Top content: ${r.topContent}
+Hook style: ${r.hookStyle}
+What they own: ${r.niche}
+Engagement pattern: ${r.engagement}
+`).join('
+')}
+
+Produce a sharp gap analysis:
+
+# Competitor Intelligence Report
+**${clientName} | Week of ${new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})}**
+
+## What Competitors Are Owning
+2-3 content territories that competitors are consistently winning. Be specific about the topics and formats.
+
+## The Gaps They Are Leaving
+3-4 specific content angles or topics that NONE of your competitors are covering well. These are your opportunities.
+
+## Your Differentiation Edge
+What ${clientName} can say or do that none of these competitors can — based on their unique combination of experience, background, and audience.
+
+## This Week's Counter-Moves
+3 specific pieces of content to post this week that directly capitalize on competitor gaps. Include the hook for each.
+
+## Hooks to Steal and Improve
+2-3 hooks from competitors that are working — with improved versions tailored for ${clientName}.`;
+
+    const res = await ai(prompt);
+    setGaps(res);
+    setBuildingGaps(false);
+    return res;
+  };
+
+  const runScan = async () => {
+    if (filledHandles.length === 0) return;
+    saveHandles();
+    setLoading(true); setProgress(0); setResults([]); setGaps('');
+    const newResults = [];
+
+    for (let i = 0; i < filledHandles.length; i++) {
+      const handle = filledHandles[i].replace('@', '').trim();
+      setScanning(handle);
+      setProgress(Math.round((i / filledHandles.length) * 100));
+
+      try {
+        const query = `Find the most recent and highest performing content from @${handle} on Instagram, TikTok, YouTube, or LinkedIn this week. What are they posting, what hooks are they using, what topics are getting the most engagement, and what content territory do they seem to own?`;
+        const res = await perp(query);
+
+        const entry = {
+          id: Date.now() + i,
+          handle: `@${handle}`,
+          raw: res,
+          topContent: res.slice(0, 300),
+          hookStyle: '',
+          niche: '',
+          engagement: '',
+          scannedAt: Date.now(),
+        };
+
+        // Parse key fields from response
+        const lines = res.split('
+');
+        const hookLine = lines.find(l => l.toLowerCase().includes('hook') || l.toLowerCase().includes('opening'));
+        const nicheLine = lines.find(l => l.toLowerCase().includes('niche') || l.toLowerCase().includes('topic') || l.toLowerCase().includes('content area'));
+        const engLine = lines.find(l => l.toLowerCase().includes('engag') || l.toLowerCase().includes('perform') || l.toLowerCase().includes('view'));
+
+        if (hookLine) entry.hookStyle = hookLine.slice(0, 120);
+        if (nicheLine) entry.niche = nicheLine.slice(0, 120);
+        if (engLine) entry.engagement = engLine.slice(0, 120);
+
+        newResults.push(entry);
+        await new Promise(r => setTimeout(r, 800));
+      } catch(e) {
+        console.error('Competitor scan error', handle, e);
+        newResults.push({ id: Date.now() + i, handle: `@${handle}`, raw: 'Could not retrieve data for this handle.', topContent: '', hookStyle: '', niche: '', engagement: '', scannedAt: Date.now() });
+      }
+    }
+
+    setResults(newResults);
+    setProgress(100); setScanning(null);
+
+    // Build gap analysis from all results
+    const gapReport = await buildGapAnalysis(newResults);
+
+    const dateStr = new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
+    setLastRun(dateStr);
+
+    try {
+      localStorage.setItem(COMPETITOR_KEY, JSON.stringify({ results: newResults, gaps: gapReport, date: dateStr }));
+      localStorage.setItem('encis_competitor_ts', Date.now().toString());
+    } catch {}
+
+    try {
+      await supabase.from('agent_runs').insert([{
+        tool_name: 'competitor_intel',
+        input_data: { handles: filledHandles },
+        output_text: gapReport.slice(0, 1000),
+        platform: 'multi',
+      }]);
+    } catch {}
+
+    setLoading(false);
+  };
+
+  const toggleAutoRun = () => {
+    const next = !autoRun;
+    setAutoRun(next);
+    try { localStorage.setItem('encis_competitor_auto', JSON.stringify(next)); } catch {}
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20,flexWrap:'wrap',gap:12}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
+          <div>
+            <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800}}>Competitor Intelligence Agent</h2>
+            <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Enter up to 5 competitor handles. Agent pulls their content weekly and finds the gaps they're leaving for you to fill.</p>
+          </div>
+        </div>
+        <div style={{display:'flex',gap:8,alignItems:'center'}}>
+          <button onClick={toggleAutoRun}
+            style={{background:autoRun?'rgba(39,174,96,0.1)':'#F9FAFB',color:autoRun?'#27ae60':'#6B7280',border:'1px solid '+(autoRun?'rgba(39,174,96,0.3)':'#E5E7EB'),borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+            {autoRun ? '🟢 Auto-scan ON' : 'Auto-scan OFF'}
+          </button>
+          <button onClick={runScan} disabled={loading||filledHandles.length===0}
+            style={{background:loading||filledHandles.length===0?'#F9FAFB':'#2563EB',color:loading||filledHandles.length===0?'#9CA3AF':'#fff',border:'none',borderRadius:8,padding:'7px 18px',fontSize:12,fontWeight:700,cursor:loading||filledHandles.length===0?'not-allowed':'pointer'}}>
+            {loading ? 'Scanning...' : 'Scan Competitors'}
+          </button>
+        </div>
+      </div>
+
+      {/* Status bar */}
+      <div style={{background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px 16px',marginBottom:20,display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
+        <div style={{fontSize:12,color:'#6B7280'}}>{lastRun ? `Last scan: ${lastRun}` : 'No scans yet — add handles and hit Scan'}</div>
+        <div style={{fontSize:11,color:'#6B7280'}}>Auto-scan runs every 48 hours when enabled</div>
+      </div>
+
+      {/* Handle inputs */}
+      <Card style={{marginBottom:20}}>
+        <SecLabel>Competitor Handles (up to 5)</SecLabel>
+        <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:12}}>
+          {handles.map((h, i) => (
+            <div key={i} style={{display:'flex',gap:8,alignItems:'center'}}>
+              <span style={{color:'#6B7280',fontSize:13,minWidth:20,flexShrink:0}}>{i+1}.</span>
+              <input value={h} onChange={e=>updateHandle(i,e.target.value)}
+                placeholder={i===0?'e.g. @everydayelevations or everydayelevations':i===1?'Another competitor handle...':'Another handle...'}
+                style={{flex:1,background:'#F9FAFB',border:'1px solid '+(h.trim()?'#C7D2FE':'#D1D5DB'),borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
+            </div>
+          ))}
+        </div>
+        <p style={{color:'#6B7280',fontSize:11,margin:'0 0 12px',lineHeight:1.6}}>
+          Add handles of creators in your space — people posting about similar topics to you. The agent will analyze what they're doing and find the gaps they're leaving open.
+        </p>
+        <button onClick={runScan} disabled={loading||filledHandles.length===0}
+          style={{background:loading||filledHandles.length===0?'#F3F4F6':'linear-gradient(135deg,#00C2FF,#0096CC)',color:loading||filledHandles.length===0?'#9CA3AF':'#000D1A',border:'none',borderRadius:8,padding:'11px 24px',fontWeight:800,cursor:loading||filledHandles.length===0?'not-allowed':'pointer',fontSize:14,width:'100%'}}>
+          {loading ? `Scanning ${filledHandles.length} competitor${filledHandles.length!==1?'s':''}...` : `Scan ${filledHandles.length} Competitor${filledHandles.length!==1?'s':''}`}
+        </button>
+      </Card>
+
+      {/* Scanning progress */}
+      {loading && (
+        <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'20px',marginBottom:16}}>
+          <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+            <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{buildingGaps ? 'Building gap analysis...' : 'Scanning competitors...'}</div>
+            <div style={{color:'#6B7280',fontSize:12}}>{progress}%</div>
+          </div>
+          <div style={{height:6,background:'#F3F4F6',borderRadius:3,marginBottom:12}}>
+            <div style={{height:'100%',background:'#2563EB',borderRadius:3,width:`${progress}%`,transition:'width 0.3s'}}/>
+          </div>
+          {scanning && <div style={{color:'#6B7280',fontSize:12}}>Currently scanning: <strong style={{color:'#00C2FF'}}>@{scanning}</strong></div>}
+          <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:10}}>
+            {filledHandles.map(h => (
+              <span key={h} style={{background:scanning===h.replace('@','')?'rgba(0,194,255,0.15)':results.find(r=>r.handle===`@${h.replace('@','')}` )?'rgba(39,174,96,0.1)':'#F3F4F6',color:scanning===h.replace('@','')?'#00C2FF':results.find(r=>r.handle===`@${h.replace('@','')}` )?'#27ae60':'#9CA3AF',borderRadius:4,padding:'3px 8px',fontSize:10,fontWeight:700}}>
+                @{h.replace('@','')}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Competitor cards */}
+      {results.length > 0 && (
+        <div style={{marginBottom:20}}>
+          <div style={{fontSize:11,color:'#6B7280',fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',marginBottom:10}}>Competitor Snapshots</div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:10}}>
+            {results.map(r => (
+              <div key={r.id} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px'}}>
+                <div style={{color:'#111827',fontWeight:800,fontSize:14,marginBottom:8}}>{r.handle}</div>
+                {r.topContent && (
+                  <div style={{color:'#374151',fontSize:12,lineHeight:1.6,maxHeight:120,overflowY:'auto'}}>
+                    {r.topContent}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Gap analysis */}
+      {gaps && <DocOutput text={gaps} title="Competitor Intelligence Report"/>}
+    </div>
+  );
+}
+
 const COMPONENT_MAP = {
   home: Home,
   onboard: Onboarding,
@@ -15210,6 +16355,10 @@ const COMPONENT_MAP = {
   perfagent: ContentPerformanceAgent,
   abhook: ABHookTester,
   repurpose: RepurposeAgent,
+  captionbatch: CaptionBatchAgent,
+  clientreport: ClientReportingAgent,
+  onboarding: ClientOnboardingAgent,
+  compintel: CompetitorIntelAgent,
   onboardauto: OnboardingAutomation,
   clientcomms: ClientCommsTemplates,
   pricing: PricingCalculator,
