@@ -14446,7 +14446,7 @@ Written out and ready. First 2-3 words carry everything.
       <div style={{background:isMonday?'rgba(39,174,96,0.08)':'rgba(0,194,255,0.06)',border:`1px solid ${isMonday?'rgba(39,174,96,0.2)':'rgba(0,194,255,0.15)'}`,borderRadius:10,padding:'10px 16px',marginBottom:20,display:'flex',alignItems:'center',gap:10}}>
         <div style={{fontSize:18}}>{isMonday?'🟢':'📅'}</div>
         <div>
-          <div style={{color:isMonday?'#27ae60':'#00C2FF',fontWeight:700,fontSize:13}}>{isMonday?'It's Monday — run your brief now.':`Next Monday: ${daysUntilMonday} day${daysUntilMonday!==1?'s':''} away`}</div>
+          <div style={{color:isMonday?'#27ae60':'#00C2FF',fontWeight:700,fontSize:13}}>{isMonday?'It\'s Monday — run your brief now.':`Next Monday: ${daysUntilMonday} day${daysUntilMonday!==1?'s':''} away`}</div>
           <div style={{color:'#6B7280',fontSize:11,marginTop:1}}>{briefs.length > 0 ? `Last brief: ${briefs[0].date}` : 'No briefs run yet'}</div>
         </div>
       </div>
