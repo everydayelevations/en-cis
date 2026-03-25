@@ -2735,12 +2735,12 @@ function _OldHome({setNav,setSub}) {
         const groupTools = tools.filter(t => t.label === group);
         const groupColors = { STRATEGY:'#00C2FF', RESEARCH:'#00C2FF', CREATE:'#f5a623', OPTIMIZE:'#27ae60', AGENCY:'#9b59b6', YOUTUBE:'#ff4444' };
         const groupDescs = {
-          STRATEGY: 'Plan, position, and build your content foundation',
-          RESEARCH: 'Find what works before you create it',
-          CREATE: 'Generate content ready to film, post, or send',
-          OPTIMIZE: 'Measure, improve, and learn from what you publish',
-          AGENCY: 'Manage clients, deliverables, and reports',
-          YOUTUBE: 'Scripts, SEO, and channel growth built around the VIDIQ framework',
+          create:   'Generate scripts, captions, carousels, and emails',
+          discover: 'Find trends, research topics, and surface opportunities',
+          library:  'Review, approve, and find past content',
+          brain:    'Strategy profiles, voice, and client settings',
+          agents:   'Automated work running in the background',
+          insights: 'Measure, optimize, and learn from what you publish',
         };
         return (
           <div key={group} style={{marginBottom:32}}>
@@ -4668,90 +4668,74 @@ function ROIDashboard() {
 // MAIN APP
 // ═════════════════════════════════════════════════════════════════════════════
 const TOP_NAV = [
-  { id:'home', label:'Dashboard' },
-  { id:'strategy', label:'Strategy' },
-  { id:'research', label:'Research' },
-  { id:'create', label:'Create' },
-  { id:'optimize', label:'Optimize' },
-  { id:'agency', label:'Agency' },
-  { id:'youtube', label:'YouTube' },
+  // PRIMARY — daily use (prominent)
+  { id:'create',   label:'Create',   primary: true },
+  { id:'discover', label:'Discover', primary: true },
+  { id:'library',  label:'Library',  primary: true },
+  // SECONDARY — infrastructure (smaller)
+  { id:'brain',    label:'Brain',    primary: false },
+  { id:'agents',   label:'Agents',   primary: false },
+  { id:'insights', label:'Insights', primary: false },
 ];
 
 const SUB_NAV = {
-  strategy: [
-    { id:'onboard', label:'Onboarding' },
-    { id:'calendar', label:'Calendar' },
-    { id:'profile', label:'Profile Audit' },
-    { id:'magnet', label:'Lead Magnet' },
-    { id:'community', label:'Community' },
-    { id:'email', label:'Email Sequences' },
-    { id:'challenge', label:'Challenge Builder' },
-    { id:'campaign', label:'Campaign Builder' },
-    { id:'visualcal', label:'Visual Calendar' },
-    { id:'series', label:'Series Planner' },
-    { id:'storyarc', label:'Story Arc' },
-    { id:'bio', label:'Bio Suite' },
-  ],
-  research: [
-    { id:'research', label:'Research Hub' },
-    { id:'vault', label:'Prompt Vault' },
-    { id:'collab', label:'Collab Finder' },
-  ],
+  // ── PRIMARY ──────────────────────────────────────────────
   create: [
-    { id:'smartbrief', label:'Smart Brief ✦' },
-    { id:'brain', label:'Brain Builder 🧠' },
-    { id:'learning', label:'Learning Loop 🔁' },
-    { id:'create', label:'Create Hub' },
-    { id:'hooks', label:'Hook Workshop' },
-    { id:'design', label:'Design Studio' },
-    { id:'comment', label:'Comment Responder' },
-    { id:'abhook', label:'A/B Hook Tester' },
-    { id:'repurpose', label:'Repurpose Agent' },
+    { id:'smartbrief',   label:'Smart Brief ✦' },
+    { id:'brain',        label:'Brain Builder 🧠' },
+    { id:'learning',     label:'Learning Loop 🔁' },
+    { id:'create',       label:'Create Hub' },
+    { id:'hooks',        label:'Hook Workshop' },
     { id:'captionbatch', label:'Caption Batch' },
-
-    { id:'podcast', label:'Podcast Prep' },
-    { id:'dmscripts', label:'DM Scripts' },
-    { id:'videodirector', label:'Video Director' },
-    { id:'objections', label:'Objection Handler' },
-    { id:'guestprep', label:'Guest Prep Kit' },
-    { id:'contentbrief', label:'Content Brief' },
+    { id:'repurpose',    label:'Repurpose Agent' },
+    { id:'design',       label:'Carousel Studio' },
+    { id:'email',        label:'Email Sequences' },
+    { id:'dmscripts',    label:'DM Scripts' },
+    { id:'comment',      label:'Comment Responder' },
+    { id:'contentbrief', label:'Filming Brief' },
   ],
-  optimize: [
-    { id:'review', label:'Weekly Review' },
-    { id:'growth', label:'Growth Dashboard' },
-    { id:'memory', label:'Content Memory' },
-    { id:'schedule', label:'Schedule' },
-    { id:'gaps', label:'Gap Analyzer' },
-    { id:'predictor', label:'Predictor' },
-    { id:'stratreview', label:'Strategy Review' },
-    { id:'library', label:'Content Library' },
-    { id:'weeklybrief', label:'Weekly Brief Agent' },
+  discover: [
+    { id:'research',     label:'Research Hub' },
     { id:'trendmonitor', label:'Trend Monitor' },
-    { id:'approvalqueue', label:'Approval Queue' },
-    { id:'perfagent', label:'Performance Agent' },
+    { id:'compintel',    label:'Competitor Intel' },
+    { id:'vault',        label:'Prompt Vault' },
+    { id:'collab',       label:'Collab Finder' },
+  ],
+  library: [
+    { id:'libraryview',  label:'Content Library' },
+    { id:'approvalqueue',label:'Approval Queue' },
+    { id:'memory',       label:'Content Memory' },
+    { id:'abhook',       label:'A/B Hook Tester' },
+    { id:'abtests',      label:'A/B Tests' },
+  ],
+  // ── SECONDARY ────────────────────────────────────────────
+  brain: [
+    { id:'onboard',      label:'Strategy Builder' },
+    { id:'clients',      label:'Client Profiles' },
+    { id:'voice',        label:'Voice Fingerprint' },
+    { id:'persona',      label:'AI Persona' },
+    { id:'calendar',     label:'Content Calendar' },
+    { id:'visualcal',    label:'Visual Calendar' },
+  ],
+  agents: [
+    { id:'weeklybrief',  label:'Weekly Brief' },
+    { id:'perfagent',    label:'Performance Agent' },
     { id:'clientreport', label:'Client Reports' },
-    { id:'onboarding', label:'Client Onboarding' },
-    { id:'compintel', label:'Competitor Intel' },
-    { id:'abtests', label:'A/B Tests' },
-    { id:'revenue', label:'Revenue Attribution' },
-    { id:'pricing', label:'Pricing Calculator' },
+    { id:'onboarding',   label:'Client Onboarding' },
+    { id:'onboardauto',  label:'Auto Onboarding' },
+    { id:'compintel',    label:'Competitor Intel' },
   ],
-  agency: [
-    { id:'portal', label:'Client Portal' },
-    { id:'deliverable', label:'Deliverables' },
-    { id:'report', label:'Monthly Report' },
-    { id:'voice', label:'Voice Fingerprint' },
-    { id:'clients', label:'Client Profiles' },
-    { id:'tracker', label:'Collab Tracker' },
-    { id:'whitelabel', label:'White Label' },
-    { id:'persona', label:'AI Persona' },
-    { id:'transcript', label:'Transcripts' },
-    { id:'analytics', label:'Analytics Import' },
-    { id:'onboardauto', label:'Auto Onboarding' },
-    { id:'clientcomms', label:'Client Comms' },
-  ],
-  youtube: [
-    { id:'yttoolkit', label:'YouTube Toolkit' },
+  insights: [
+    { id:'growth',       label:'Growth Dashboard' },
+    { id:'review',       label:'Weekly Review' },
+    { id:'stratreview',  label:'Strategy Review' },
+    { id:'gaps',         label:'Gap Analyzer' },
+    { id:'predictor',    label:'Predictor' },
+    { id:'schedule',     label:'Schedule Optimizer' },
+    { id:'revenue',      label:'Revenue Attribution' },
+    { id:'analytics',    label:'Analytics Import' },
+    { id:'transcript',   label:'Transcripts' },
+    { id:'pricing',      label:'Pricing Calculator' },
   ],
 };
 
@@ -12122,7 +12106,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => { setNav('strategy'); setSub('onboard'); }}
+            <button onClick={() => { setNav('brain'); setSub('onboard'); }}
               style={{ background: D.accent, color: '#fff', border: 'none', borderRadius: 8, padding: '9px 18px', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
               + New Strategy
             </button>
@@ -12181,7 +12165,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
           <div style={cardStyle}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div style={labelStyle}>Opportunities</div>
-              <button onClick={() => { setNav('optimize'); setSub('gaps'); }}
+              <button onClick={() => { setNav('insights'); setSub('gaps'); }}
                 style={{ background: 'none', border: 'none', color: D.accent, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>View all</button>
             </div>
             {gapAngles.length > 0 ? (
@@ -12210,7 +12194,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
           <div style={cardStyle}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div style={labelStyle}>Recent Content</div>
-              <button onClick={() => { setNav('optimize'); setSub('memory'); }}
+              <button onClick={() => { setNav('library'); setSub('memory'); }}
                 style={{ background: 'none', border: 'none', color: D.accent, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>View all</button>
             </div>
             {recentContent.length > 0 ? (
@@ -12279,7 +12263,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
                 const isActive = activeClient?.id === c.id;
                 const pending = (() => { try { return JSON.parse(localStorage.getItem(CLIENT_DELIVERABLES_KEY)||'[]').filter(d=>d.clientId===c.id&&(d.status==='pending'||d.status==='in-progress')).length; } catch { return 0; } })();
                 return (
-                  <button key={c.id} onClick={() => { setNav('agency'); setSub('portal'); }}
+                  <button key={c.id} onClick={() => { setNav('brain'); setSub('portal'); }}
                     style={{ background: isActive?'#EEF2FF':'#F9FAFB', color: isActive?D.accent:D.text, border: '1px solid '+(isActive?'#C7D2FE':D.border), borderRadius: 7, padding: '6px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
                     {c.name}
                     {pending > 0 && <span style={{ background: '#f59e0b', color: '#fff', borderRadius: 10, padding: '1px 6px', fontSize: 9, fontWeight: 800 }}>{pending}</span>}
@@ -12294,15 +12278,15 @@ function IntelligenceDashboard({ setNav, setSub }) {
         {showTools && (
           <div style={cardStyle}>
             <div style={labelStyle}>All Tools</div>
-            {['strategy','research','create','optimize','agency','youtube'].map(group => {
-              const groupColor = { strategy:'#2563EB', research:'#2563EB', create:'#7c3aed', optimize:'#16a34a', agency:'#0891b2', youtube:'#dc2626' }[group];
+            {['create','discover','library','brain','agents','insights','youtube'].map(group => {
+              const groupColor = { create:'#7c3aed', discover:'#2563EB', library:'#0891b2', brain:'#2563EB', agents:'#16a34a', insights:'#16a34a' }[group] || '#6B7280';
               const allTools = [
-                {nav:'strategy',sub:'onboard',t:'90-Day Strategy'},{nav:'strategy',sub:'calendar',t:'Content Calendar'},{nav:'strategy',sub:'profile',t:'Profile Audit'},{nav:'strategy',sub:'magnet',t:'Lead Magnet'},{nav:'strategy',sub:'email',t:'Email Sequences'},{nav:'strategy',sub:'challenge',t:'Challenge Builder'},{nav:'strategy',sub:'campaign',t:'Campaign Builder'},{nav:'strategy',sub:'series',t:'Series Planner'},{nav:'strategy',sub:'bio',t:'Bio Suite'},
-                {nav:'research',sub:'research',t:'Research Hub'},{nav:'research',sub:'vault',t:'Prompt Vault'},{nav:'research',sub:'collab',t:'Collab Finder'},
-                {nav:'create',sub:'create',t:'Create Hub'},{nav:'create',sub:'hooks',t:'Hook Workshop'},{nav:'create',sub:'videodirector',t:'Video Director'},{nav:'create',sub:'objections',t:'Objection Handler'},{nav:'create',sub:'guestprep',t:'Guest Prep'},{nav:'create',sub:'dmscripts',t:'DM Scripts'},{nav:'create',sub:'comment',t:'Comment Responder'},{nav:'create',sub:'podcast',t:'Podcast Pre-Prod'},
-                {nav:'optimize',sub:'review',t:'Weekly Review'},{nav:'optimize',sub:'growth',t:'Growth Dashboard'},{nav:'optimize',sub:'memory',t:'Content Memory'},{nav:'optimize',sub:'schedule',t:'Schedule Optimizer'},{nav:'optimize',sub:'predictor',t:'Predictor'},{nav:'optimize',sub:'stratreview',t:'AI Strategy Review'},
-                {nav:'agency',sub:'portal',t:'Client Portal'},{nav:'agency',sub:'deliverable',t:'Deliverable Builder'},{nav:'agency',sub:'report',t:'Monthly Report'},{nav:'agency',sub:'voice',t:'Voice Fingerprint'},{nav:'agency',sub:'clients',t:'Client Profiles'},{nav:'agency',sub:'whitelabel',t:'White Label'},{nav:'agency',sub:'transcript',t:'Transcript Intel'},{nav:'agency',sub:'clientcomms',t:'Client Comms'},{nav:'agency',sub:'pricing',t:'Pricing Calc'},
-                {nav:'youtube',sub:'yttoolkit',t:'YouTube Toolkit'},
+                {nav:'create',sub:'smartbrief',t:'Smart Brief ✦'},{nav:'create',sub:'brain',t:'Brain Builder'},{nav:'create',sub:'learning',t:'Learning Loop'},{nav:'create',sub:'create',t:'Create Hub'},{nav:'create',sub:'hooks',t:'Hook Workshop'},{nav:'create',sub:'captionbatch',t:'Caption Batch'},{nav:'create',sub:'repurpose',t:'Repurpose Agent'},{nav:'create',sub:'design',t:'Carousel Studio'},{nav:'create',sub:'email',t:'Email Sequences'},{nav:'create',sub:'dmscripts',t:'DM Scripts'},{nav:'create',sub:'comment',t:'Comment Responder'},
+                {nav:'discover',sub:'research',t:'Research Hub'},{nav:'discover',sub:'trendmonitor',t:'Trend Monitor'},{nav:'discover',sub:'compintel',t:'Competitor Intel'},{nav:'discover',sub:'vault',t:'Prompt Vault'},{nav:'discover',sub:'collab',t:'Collab Finder'},
+                {nav:'library',sub:'libraryview',t:'Content Library'},{nav:'library',sub:'approvalqueue',t:'Approval Queue'},{nav:'library',sub:'memory',t:'Content Memory'},{nav:'library',sub:'abhook',t:'A/B Hook Tester'},
+                {nav:'brain',sub:'onboard',t:'Strategy Builder'},{nav:'brain',sub:'clients',t:'Client Profiles'},{nav:'brain',sub:'voice',t:'Voice Fingerprint'},{nav:'brain',sub:'persona',t:'AI Persona'},{nav:'brain',sub:'calendar',t:'Content Calendar'},{nav:'brain',sub:'visualcal',t:'Visual Calendar'},
+                {nav:'agents',sub:'weeklybrief',t:'Weekly Brief'},{nav:'agents',sub:'perfagent',t:'Performance Agent'},{nav:'agents',sub:'clientreport',t:'Client Reports'},{nav:'agents',sub:'onboarding',t:'Client Onboarding'},{nav:'agents',sub:'compintel',t:'Competitor Intel'},
+                {nav:'insights',sub:'growth',t:'Growth Dashboard'},{nav:'insights',sub:'review',t:'Weekly Review'},{nav:'insights',sub:'stratreview',t:'AI Strategy Review'},{nav:'insights',sub:'gaps',t:'Gap Analyzer'},{nav:'insights',sub:'predictor',t:'Predictor'},{nav:'insights',sub:'schedule',t:'Schedule Optimizer'},{nav:'insights',sub:'revenue',t:'Revenue Attribution'},{nav:'insights',sub:'pricing',t:'Pricing Calc'},
               ].filter(t => t.nav === group);
               if (!allTools.length) return null;
               return (
@@ -18254,6 +18238,7 @@ const COMPONENT_MAP = {
   visualcal: VisualCalendar,
   stratreview: AIStrategyReview,
   library: ContentLibrary,
+  libraryview: ContentLibrary,
   smartbrief: SmartBrief,
   brain: BrainBuilder,
   learning: LearningLoop,
@@ -18343,9 +18328,9 @@ export default function App() {
   const handleNav = (id) => {
     setNav(id);
     if(id === 'home') { setSub(null); return; }
-    if(id === 'youtube') { setSub('yttoolkit'); return; }
     const subs = SUB_NAV[id];
-    if(subs) setSub(subs[0].id);
+    if(subs && subs.length > 0) setSub(subs[0].id);
+    else setSub(null);
   };
 
   const ActiveComponent = sub
@@ -18444,16 +18429,26 @@ export default function App() {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: nav===n.id ? '#00C2FF' : 'rgba(0,194,255,0.5)',
-                  padding: '16px 12px',
+                  // Primary = full brightness, Secondary = muted
+                  color: nav===n.id
+                    ? '#00C2FF'
+                    : n.primary
+                      ? 'rgba(255,255,255,0.75)'
+                      : 'rgba(255,255,255,0.38)',
+                  padding: n.primary ? '16px 14px' : '16px 10px',
                   cursor: 'pointer',
-                  fontSize: 12,
-                  fontWeight: nav===n.id ? 700 : 500,
-                  letterSpacing: nav===n.id ? '0.02em' : '0',
+                  fontSize: n.primary ? 13 : 11,
+                  fontWeight: nav===n.id ? 700 : n.primary ? 500 : 400,
+                  letterSpacing: n.primary ? '0' : '0.04em',
+                  textTransform: n.primary ? 'none' : 'uppercase',
                   borderBottom: `2px solid ${nav===n.id ? '#00C2FF' : 'transparent'}`,
                   transition: 'all 0.15s',
                   whiteSpace: 'nowrap',
                   flexShrink: 0,
+                  // Divider before secondary section
+                  borderLeft: n.id === 'brain' ? '1px solid rgba(255,255,255,0.12)' : 'none',
+                  marginLeft: n.id === 'brain' ? 8 : 0,
+                  paddingLeft: n.id === 'brain' ? 14 : undefined,
                 }}>
                 {n.label}
               </button>
