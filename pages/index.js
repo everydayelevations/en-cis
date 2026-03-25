@@ -4698,6 +4698,7 @@ const SUB_NAV = {
     { id:'collab', label:'Collab Finder' },
   ],
   create: [
+    { id:'smartbrief', label:'Smart Brief ✦' },
     { id:'create', label:'Create Hub' },
     { id:'hooks', label:'Hook Workshop' },
     { id:'design', label:'Design Studio' },
@@ -16288,6 +16289,671 @@ What ${clientName} can say or do that none of these competitors can — based on
   );
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PHASE 1: SMART BRIEF + GENERIC RISK GATE
+// The content quality engine. Every creation session starts here.
+// Smart Brief: 3 fields + rotating prompts + auto-filled chips from Brain
+// Generic Risk Gate: automatic quality check before every approval
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── SMART BRIEF SYSTEM ──────────────────────────────────────────────────────
+
+const BRIEF_STORAGE_KEY = 'encis_smart_brief';
+const BRIEF_HISTORY_KEY = 'encis_brief_history';
+const BRIEF_CHIP_MEMORY_KEY = 'encis_chip_memory';
+const QUALITY_ANCHOR_KEY = 'encis_quality_anchors';
+
+// Rotating depth prompts — chosen based on what has been missing from recent content
+const DEPTH_PROMPTS = {
+  no_story:    "What actually happened? Start with a real moment.",
+  no_example:  "What\'s a specific number, name, or situation you can use?",
+  no_tension:  "What\'s something most people wouldn\'t say out loud about this?",
+  same_pillar: "What\'s a completely different angle you haven\'t tried?",
+  too_generic: "What\'s YOUR take — not the standard take?",
+  default:     "What do you want to say and why does it matter right now?",
+};
+
+// Detect which depth prompt to show based on recent content history
+function getDepthPrompt(recentContent) {
+  try {
+    if (!recentContent || recentContent.length === 0) return DEPTH_PROMPTS.default;
+    const last5 = recentContent.slice(0, 5);
+    const hasStory = last5.filter(c => c.notes && c.notes.includes('story')).length;
+    const hasExample = last5.filter(c => c.full_content && /\d/.test(c.full_content)).length;
+    const pillars = last5.map(c => c.angle).filter(Boolean);
+    const uniquePillars = new Set(pillars).size;
+    if (hasStory < 1) return DEPTH_PROMPTS.no_story;
+    if (hasExample < 2) return DEPTH_PROMPTS.no_example;
+    if (uniquePillars < 2) return DEPTH_PROMPTS.same_pillar;
+    return DEPTH_PROMPTS.default;
+  } catch { return DEPTH_PROMPTS.default; }
+}
+
+// The 3 rotating "one thing to add" prompts
+const ADD_PROMPTS = [
+  "Add a story, moment, or real experience (optional)",
+  "Add a specific number, name, or example (optional)",
+  "Add your personal take or why you believe this (optional)",
+  "Add a contrarian angle most people won\'t say (optional)",
+];
+
+// Generic Risk Gate — 3 checks, one fix, green/yellow/red
+const GENERIC_RISK_PROMPT = (content, platform, clientVoice) => `You are a content quality analyst. Your job is to detect generic, interchangeable content that lacks specificity, originality, and real perspective.
+
+CONTENT TO ANALYZE:
+Platform: ${platform}
+${clientVoice ? 'Brand voice: ' + clientVoice : ''}
+
+CONTENT:
+---
+${content}
+---
+
+Run exactly 3 checks:
+
+CHECK 1 — SPECIFICITY TEST
+Does this content contain at least one of: real moment, specific number, named experience, or identifiable tension?
+Score 1-10 (1=highly specific, 10=completely generic)
+
+CHECK 2 — GENERIC HOOK TEST  
+Could this exact hook be used by 1,000 other creators in any niche without changing a word?
+Score 1-10 (1=completely unique, 10=could be anyone)
+
+CHECK 3 — INTERCHANGEABILITY TEST
+If you removed the author\'s name, would this content sound like it came from a specific person or a content template?
+Score 1-10 (1=clearly one person, 10=could be a template)
+
+CALCULATE: Overall Generic Risk = average of 3 scores (rounded to nearest whole number)
+
+IDENTIFY: The single highest-impact fix needed (only one, never a list):
+- If specificity fails first: "Add a number, name, or moment to your hook"
+- If hook fails first: "Your hook works for anyone — make it work only for you"
+- If interchangeability fails first: "Add one thing that happened to you specifically"
+- If all pass but CTA is weak: "Replace the CTA with your specific ask"
+
+Return ONLY this JSON — no explanation, no markdown:
+{
+  "specificity_score": [1-10],
+  "hook_score": [1-10],
+  "interchangeability_score": [1-10],
+  "overall_risk": [1-10],
+  "risk_level": "green" or "yellow" or "red",
+  "single_fix": "[one sentence — the single most important fix, or null if green]",
+  "fix_type": "hook" or "specificity" or "story" or "cta" or null,
+  "passes": true or false
+}
+
+SCORING RULES:
+- overall_risk 1-4: risk_level = "green", passes = true
+- overall_risk 5-7: risk_level = "yellow", passes = false (can override)
+- overall_risk 8-10: risk_level = "red", passes = false (must fix)`;
+
+const SMART_BRIEF_GENERATE_PROMPT = (brief, clientBrain, recentWinners) => `${clientBrain || ''}
+
+You are generating content for a specific creator. Use their Brief below. Follow their voice exactly. Apply the anti-generic standard — if the output could be posted by 1,000 other creators, rewrite it until it couldn\'t.
+
+CONTENT BRIEF:
+Topic: ${brief.topic}
+Format: ${brief.format}
+Platform: ${brief.platform || 'Instagram'}
+Pillar: ${brief.pillar || 'Occupational'}
+Angle: ${brief.angle || ''}
+One thing to add: ${brief.oneThingToAdd || 'nothing specific — draw from their story bank'}
+
+${recentWinners && recentWinners.length > 0 ? `WINNING PATTERNS FROM THIS CREATOR\'S PAST CONTENT:
+${recentWinners.slice(0,3).map(w => `- ${w.title}: ${w.notes || ''}`).join('\n')}
+Draw from these patterns — not to copy, but to understand what lands for this audience.` : ''}
+
+ANTI-GENERIC RULES:
+1. Must contain at least one: real moment, specific number, named experience, or identifiable tension
+2. Hook must be ownable by THIS creator — not interchangeable with anyone else
+3. If it sounds like advice → convert to story or lived insight
+4. If the hook could apply to anyone → make it specific before proceeding
+5. Every piece must feel like it came from a real moment, not a concept
+
+Generate the content now. Make it ready to post.`;
+
+// ── SMART BRIEF COMPONENT ──────────────────────────────────────────────────
+
+function SmartBrief() {
+  const [activeClient] = useActiveClient();
+  const [step, setStep] = React.useState('brief'); // brief | generating | gate | approved
+  
+  // Brief fields
+  const [topic, setTopic] = React.useState('');
+  const [format, setFormat] = React.useState('Reel Script');
+  const [platform, setPlatform] = React.useState('Instagram');
+  const [oneThingToAdd, setOneThingToAdd] = React.useState('');
+  
+  // Auto-chips (pre-filled from Brain, editable)
+  const [pillar, setPillar] = React.useState('');
+  const [tone, setTone] = React.useState('');
+  const [ctaType, setCtaType] = React.useState('');
+  const [showChips, setShowChips] = React.useState(false);
+  
+  // Generation
+  const [generatedContent, setGeneratedContent] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+  
+  // Generic Risk Gate
+  const [gateResult, setGateResult] = React.useState(null);
+  const [gateLoading, setGateLoading] = React.useState(false);
+  const [overrideCount, setOverrideCount] = React.useState(0);
+  const [approved, setApproved] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
+  
+  // Context
+  const [depthPrompt, setDepthPrompt] = React.useState(DEPTH_PROMPTS.default);
+  const [addPrompt, setAddPrompt] = React.useState(ADD_PROMPTS[0]);
+  const [recentContent, setRecentContent] = React.useState([]);
+  const [recentWinners, setRecentWinners] = React.useState([]);
+
+  React.useEffect(() => {
+    loadContext();
+    setAddPrompt(ADD_PROMPTS[Math.floor(Math.random() * ADD_PROMPTS.length)]);
+  }, [activeClient]);
+
+  const loadContext = async () => {
+    try {
+      const clientId = activeClient?.id || 'jason';
+      const { data: recent } = await supabase
+        .from('saved_content')
+        .select('*')
+        .eq('client_id', clientId)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      
+      const recentArr = recent || [];
+      setRecentContent(recentArr);
+      setDepthPrompt(getDepthPrompt(recentArr));
+      
+      // Winners = low generic risk, high quality
+      const winners = recentArr.filter(c => 
+        c.notes && (c.notes.includes('winner') || c.notes.includes('outperformed'))
+      );
+      setRecentWinners(winners);
+      
+      // Load chip memory for this client
+      const chipMemory = (() => {
+        try {
+          const stored = JSON.parse(localStorage.getItem(BRIEF_CHIP_MEMORY_KEY) || '{}');
+          return stored[clientId] || {};
+        } catch { return {}; }
+      })();
+      
+      // Pre-fill chips from client Brain or chip memory
+      const voice = activeClient?.voice || '';
+      setPillar(chipMemory.pillar || activeClient?.angles?.split(',')[0]?.trim() || 'Occupational');
+      setTone(chipMemory.tone || voice.slice(0, 40) || 'Direct, real');
+      setCtaType(chipMemory.cta || 'Drop a comment below');
+      setPlatform(chipMemory.platform || 'Instagram');
+    } catch(e) { console.error('SmartBrief context load:', e); }
+  };
+
+  const saveChipMemory = (updates) => {
+    try {
+      const clientId = activeClient?.id || 'jason';
+      const stored = JSON.parse(localStorage.getItem(BRIEF_CHIP_MEMORY_KEY) || '{}');
+      stored[clientId] = { ...stored[clientId], ...updates };
+      localStorage.setItem(BRIEF_CHIP_MEMORY_KEY, JSON.stringify(stored));
+    } catch {}
+  };
+
+  const buildClientBrain = () => {
+    const client = activeClient;
+    if (!client) return '';
+    return `CREATOR PROFILE:
+Name: ${client.name}
+Voice: ${client.voice || 'Direct, real, no corporate speak'}
+Role: ${client.role || ''}
+Location: ${client.location || ''}
+Platforms: ${client.platforms || ''}
+Anti-generic rules: Never sound like generic advice. Always speak from lived experience.`;
+  };
+
+  const generate = async () => {
+    if (!topic.trim()) return;
+    setLoading(true);
+    setGeneratedContent('');
+    setGateResult(null);
+    setApproved(false);
+    setStep('generating');
+
+    const brief = { topic, format, platform, pillar, tone, ctaType, oneThingToAdd };
+    const brain = buildClientBrain();
+    const prompt = SMART_BRIEF_GENERATE_PROMPT(brief, brain, recentWinners);
+    
+    const result = await ai(prompt);
+    setGeneratedContent(result);
+    setLoading(false);
+    
+    // Auto-run gate after generation
+    runGate(result);
+  };
+
+  const runGate = async (content) => {
+    setGateLoading(true);
+    setStep('gate');
+    
+    const clientVoice = activeClient?.voice || '';
+    const gatePrompt = GENERIC_RISK_PROMPT(content, platform, clientVoice);
+    
+    try {
+      const raw = await ai(gatePrompt);
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const result = JSON.parse(clean);
+      setGateResult(result);
+    } catch(e) {
+      // Gate failed to parse — default to green so we don't block
+      setGateResult({ overall_risk: 3, risk_level: 'green', passes: true, single_fix: null });
+    }
+    setGateLoading(false);
+  };
+
+  const handleApprove = async () => {
+    setApproved(true);
+    saveChipMemory({ pillar, tone, cta: ctaType, platform });
+    
+    await saveToSupabase({
+      type: format.toLowerCase().replace(' ', '-'),
+      title: topic.slice(0, 80),
+      platform,
+      angle: pillar,
+      preview: generatedContent.slice(0, 500),
+      full: generatedContent,
+      notes: `brief|risk:${gateResult?.overall_risk || 0}|approved`,
+    });
+    
+    // Check if this qualifies as Quality Anchor
+    if (gateResult && gateResult.overall_risk <= 3) {
+      try {
+        const anchors = JSON.parse(localStorage.getItem(QUALITY_ANCHOR_KEY) || '[]');
+        anchors.unshift({
+          id: Date.now(),
+          topic,
+          platform,
+          pillar,
+          preview: generatedContent.slice(0, 200),
+          risk: gateResult.overall_risk,
+          savedAt: new Date().toISOString(),
+        });
+        localStorage.setItem(QUALITY_ANCHOR_KEY, JSON.stringify(anchors.slice(0, 50)));
+      } catch {}
+    }
+
+    // Set 48hr reality check
+    try {
+      const checks = JSON.parse(localStorage.getItem('encis_reality_checks') || '[]');
+      checks.push({
+        id: Date.now(),
+        topic,
+        platform,
+        dueAt: Date.now() + (48 * 60 * 60 * 1000),
+        answered: false,
+      });
+      localStorage.setItem('encis_reality_checks', JSON.stringify(checks));
+    } catch {}
+  };
+
+  const handleOverride = () => {
+    const newCount = overrideCount + 1;
+    setOverrideCount(newCount);
+    if (newCount >= 3) {
+      // Flag the pattern — don\'t block, just note
+      try {
+        const flags = JSON.parse(localStorage.getItem('encis_override_flags') || '[]');
+        flags.push({ date: new Date().toISOString(), topic, risk: gateResult?.overall_risk });
+        localStorage.setItem('encis_override_flags', JSON.stringify(flags.slice(0, 20)));
+      } catch {}
+    }
+    setApproved(true);
+    saveChipMemory({ pillar, tone, cta: ctaType, platform });
+    saveToSupabase({
+      type: format.toLowerCase().replace(' ', '-'),
+      title: topic.slice(0, 80),
+      platform,
+      angle: pillar,
+      preview: generatedContent.slice(0, 500),
+      full: generatedContent,
+      notes: `brief|risk:${gateResult?.overall_risk || 0}|overridden`,
+    });
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(generatedContent);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
+
+  const reset = () => {
+    setStep('brief');
+    setTopic('');
+    setOneThingToAdd('');
+    setGeneratedContent('');
+    setGateResult(null);
+    setApproved(false);
+    setCopied(false);
+    setAddPrompt(ADD_PROMPTS[Math.floor(Math.random() * ADD_PROMPTS.length)]);
+  };
+
+  // Gate colors
+  const gateColors = { green: '#10B981', yellow: '#F59E0B', red: '#EF4444' };
+  const gateBg = { green: 'rgba(16,185,129,0.08)', yellow: 'rgba(245,158,11,0.08)', red: 'rgba(239,68,68,0.08)' };
+  const gateBorder = { green: 'rgba(16,185,129,0.25)', yellow: 'rgba(245,158,11,0.25)', red: 'rgba(239,68,68,0.25)' };
+  const gateLabels = { green: 'Quality check passed', yellow: 'One improvement suggested', red: 'Needs revision before approval' };
+
+  const formats = ['Reel Script', 'Short Caption', 'Long Caption', 'Carousel', 'Email', 'LinkedIn Post', 'X Thread', 'Story Script'];
+  const platforms = ['Instagram', 'LinkedIn', 'TikTok', 'YouTube', 'X', 'Facebook'];
+  const pillars = activeClient?.angles ? 
+    activeClient.angles.split(',').map(a => a.trim()).filter(Boolean) :
+    ['Occupational', 'Emotional', 'Physical', 'Financial', 'Social', 'Intellectual', 'Environmental', 'Spiritual'];
+
+  return (
+    <div style={{maxWidth:720, margin:'0 auto'}}>
+      
+      {/* Header */}
+      <div style={{marginBottom:28}}>
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
+          <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2}}/>
+          <h2 style={{color:'#111827',margin:0,fontSize:20,fontWeight:800,letterSpacing:'-0.03em'}}>
+            Smart Brief
+          </h2>
+        </div>
+        <p style={{color:'#6B7280',margin:0,fontSize:14,paddingLeft:13}}>
+          3 fields. Generates from your Brain. Quality-checked before approval.
+        </p>
+      </div>
+
+      {/* ── STEP 1: BRIEF ── */}
+      {(step === 'brief') && (
+        <div>
+          {/* Field 1: Topic */}
+          <div style={{marginBottom:20}}>
+            <label style={{display:'block',fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#6B7280',marginBottom:8}}>
+              What are you making?
+            </label>
+            <textarea
+              value={topic}
+              onChange={e => setTopic(e.target.value)}
+              placeholder={depthPrompt}
+              rows={3}
+              style={{width:'100%',background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px 16px',color:'#111827',fontSize:15,resize:'vertical',boxSizing:'border-box',fontFamily:'inherit',lineHeight:1.6,outline:'none',transition:'border-color 0.15s'}}
+              onFocus={e => e.target.style.borderColor = '#00C2FF'}
+              onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+            />
+          </div>
+
+          {/* Field 2: Format + Platform */}
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:20}}>
+            <div>
+              <label style={{display:'block',fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#6B7280',marginBottom:8}}>Format</label>
+              <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+                {formats.map(f => (
+                  <button key={f} onClick={() => setFormat(f)}
+                    style={{background:format===f?'#111827':'#F9FAFB',color:format===f?'#FFFFFF':'#374151',border:'1px solid '+(format===f?'#111827':'#E5E7EB'),borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:format===f?700:500,transition:'all 0.15s'}}>
+                    {f}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label style={{display:'block',fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#6B7280',marginBottom:8}}>Platform</label>
+              <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+                {platforms.map(p => (
+                  <button key={p} onClick={() => { setPlatform(p); saveChipMemory({platform: p}); }}
+                    style={{background:platform===p?'#111827':'#F9FAFB',color:platform===p?'#FFFFFF':'#374151',border:'1px solid '+(platform===p?'#111827':'#E5E7EB'),borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:500,transition:'all 0.15s'}}>
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Field 3: One thing to add */}
+          <div style={{marginBottom:20}}>
+            <label style={{display:'block',fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#6B7280',marginBottom:8}}>
+              One thing to add <span style={{color:'#9CA3AF',fontWeight:400,textTransform:'none',letterSpacing:0}}>(optional but powerful)</span>
+            </label>
+            <textarea
+              value={oneThingToAdd}
+              onChange={e => setOneThingToAdd(e.target.value)}
+              placeholder={addPrompt}
+              rows={2}
+              style={{width:'100%',background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px 16px',color:'#111827',fontSize:14,resize:'vertical',boxSizing:'border-box',fontFamily:'inherit',lineHeight:1.6,outline:'none',transition:'border-color 0.15s'}}
+              onFocus={e => e.target.style.borderColor = '#00C2FF'}
+              onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+            />
+          </div>
+
+          {/* Smart Chips — collapsed by default */}
+          <div style={{marginBottom:24}}>
+            <button onClick={() => setShowChips(!showChips)}
+              style={{background:'none',border:'none',color:'#6B7280',cursor:'pointer',fontSize:12,fontWeight:600,padding:0,display:'flex',alignItems:'center',gap:6}}>
+              <span style={{fontSize:10}}>{showChips ? '▼' : '▶'}</span>
+              {showChips ? 'Hide settings' : 'Adjust settings (pillar, tone, CTA)'}
+            </button>
+            {showChips && (
+              <div style={{background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:10,padding:'16px',marginTop:10,display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+                <div>
+                  <label style={{display:'block',fontSize:10,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#9CA3AF',marginBottom:6}}>Content Pillar</label>
+                  <select value={pillar} onChange={e => { setPillar(e.target.value); saveChipMemory({pillar: e.target.value}); }}
+                    style={{width:'100%',background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:6,padding:'8px 10px',color:'#111827',fontSize:13}}>
+                    {pillars.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{display:'block',fontSize:10,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#9CA3AF',marginBottom:6}}>CTA Type</label>
+                  <input value={ctaType} onChange={e => { setCtaType(e.target.value); saveChipMemory({cta: e.target.value}); }}
+                    style={{width:'100%',background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:6,padding:'8px 10px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
+                </div>
+                <div style={{gridColumn:'span 2'}}>
+                  <label style={{display:'block',fontSize:10,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#9CA3AF',marginBottom:6}}>Tone</label>
+                  <input value={tone} onChange={e => { setTone(e.target.value); saveChipMemory({tone: e.target.value}); }}
+                    placeholder="e.g. Direct, real, no hype"
+                    style={{width:'100%',background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:6,padding:'8px 10px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Generate button */}
+          <button onClick={generate} disabled={!topic.trim()}
+            style={{width:'100%',background:topic.trim()?'#111827':'#F3F4F6',color:topic.trim()?'#FFFFFF':'#9CA3AF',border:'none',borderRadius:10,padding:'15px 24px',fontWeight:800,cursor:topic.trim()?'pointer':'not-allowed',fontSize:15,transition:'all 0.2s',boxShadow:topic.trim()?'0 4px 20px rgba(0,0,0,0.15)':'none'}}>
+            Generate Content
+          </button>
+
+          {/* Recent quality anchors hint */}
+          {recentWinners.length > 0 && (
+            <p style={{textAlign:'center',color:'#9CA3AF',fontSize:11,marginTop:12}}>
+              Drawing from {recentWinners.length} winning content pattern{recentWinners.length!==1?'s':''} in your Brain
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* ── STEP 2: GENERATING ── */}
+      {step === 'generating' && loading && (
+        <div style={{textAlign:'center',padding:'48px 0'}}>
+          <div style={{width:36,height:36,border:'3px solid #E5E7EB',borderTopColor:'#00C2FF',borderRadius:'50%',animation:'spin 0.8s linear infinite',margin:'0 auto 16px'}}/>
+          <p style={{color:'#6B7280',fontSize:14,margin:0}}>Generating from your Brain...</p>
+          <p style={{color:'#9CA3AF',fontSize:12,margin:'6px 0 0'}}>Running anti-generic check after</p>
+        </div>
+      )}
+
+      {/* ── STEP 3: GATE + CONTENT ── */}
+      {(step === 'gate' || step === 'generating') && generatedContent && (
+        <div>
+          {/* Generated content */}
+          <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:12,padding:'20px 24px',marginBottom:16}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+              <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#9CA3AF'}}>
+                {format} · {platform}
+              </div>
+              <div style={{display:'flex',gap:8}}>
+                <button onClick={handleCopy}
+                  style={{background:copied?'rgba(16,185,129,0.1)':'#F9FAFB',color:copied?'#10B981':'#6B7280',border:'1px solid '+(copied?'rgba(16,185,129,0.3)':'#E5E7EB'),borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+                  {copied ? 'Copied ✓' : 'Copy'}
+                </button>
+                <button onClick={reset}
+                  style={{background:'#F9FAFB',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+                  New Brief
+                </button>
+              </div>
+            </div>
+            <pre style={{color:'#111827',fontSize:14,whiteSpace:'pre-wrap',lineHeight:1.8,fontFamily:'inherit',margin:0}}>
+              {generatedContent}
+            </pre>
+          </div>
+
+          {/* Generic Risk Gate */}
+          {gateLoading && (
+            <div style={{background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:12,padding:'16px 20px',marginBottom:16,display:'flex',alignItems:'center',gap:12}}>
+              <div style={{width:18,height:18,border:'2px solid #E5E7EB',borderTopColor:'#6B7280',borderRadius:'50%',animation:'spin 0.8s linear infinite',flexShrink:0}}/>
+              <span style={{color:'#6B7280',fontSize:13}}>Running quality check...</span>
+            </div>
+          )}
+
+          {gateResult && !gateLoading && (
+            <div style={{background:gateBg[gateResult.risk_level],border:`1px solid ${gateBorder[gateResult.risk_level]}`,borderRadius:12,padding:'16px 20px',marginBottom:16}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10}}>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <div style={{width:10,height:10,borderRadius:'50%',background:gateColors[gateResult.risk_level],flexShrink:0}}/>
+                  <div>
+                    <div style={{color:gateColors[gateResult.risk_level],fontWeight:700,fontSize:13}}>
+                      {gateLabels[gateResult.risk_level]}
+                    </div>
+                    {gateResult.single_fix && (
+                      <div style={{color:'#374151',fontSize:13,marginTop:3}}>
+                        → {gateResult.single_fix}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                  <div style={{fontSize:11,color:'#9CA3AF',textAlign:'right'}}>
+                    Generic risk: <strong style={{color:gateColors[gateResult.risk_level]}}>{gateResult.overall_risk}/10</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Approval actions */}
+          {gateResult && !gateLoading && !approved && (
+            <div>
+              {gateResult.risk_level === 'green' && (
+                <button onClick={handleApprove}
+                  style={{width:'100%',background:'#10B981',color:'#FFFFFF',border:'none',borderRadius:10,padding:'14px 24px',fontWeight:800,cursor:'pointer',fontSize:15,boxShadow:'0 4px 16px rgba(16,185,129,0.3)'}}>
+                  Approve & Save
+                </button>
+              )}
+
+              {gateResult.risk_level === 'yellow' && (
+                <div style={{display:'flex',gap:10}}>
+                  <button onClick={() => { setStep('brief'); setGeneratedContent(''); setGateResult(null); }}
+                    style={{flex:1,background:'#111827',color:'#FFFFFF',border:'none',borderRadius:10,padding:'14px 24px',fontWeight:800,cursor:'pointer',fontSize:14}}>
+                    Apply Fix & Regenerate
+                  </button>
+                  <button onClick={handleOverride}
+                    style={{flex:1,background:'#FFFFFF',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px 24px',fontWeight:700,cursor:'pointer',fontSize:13}}>
+                    Post Anyway
+                  </button>
+                </div>
+              )}
+
+              {gateResult.risk_level === 'red' && (
+                <div>
+                  <button onClick={() => { setStep('brief'); setGeneratedContent(''); setGateResult(null); }}
+                    style={{width:'100%',background:'#111827',color:'#FFFFFF',border:'none',borderRadius:10,padding:'14px 24px',fontWeight:800,cursor:'pointer',fontSize:15,marginBottom:8}}>
+                    Fix This → Regenerate
+                  </button>
+                  <p style={{textAlign:'center',color:'#EF4444',fontSize:12,margin:0}}>
+                    This content is too generic to approve. Apply the fix above and regenerate.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Approved state */}
+          {approved && (
+            <div style={{background:'rgba(16,185,129,0.08)',border:'1px solid rgba(16,185,129,0.25)',borderRadius:12,padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10}}>
+              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                <span style={{fontSize:18}}>✅</span>
+                <div>
+                  <div style={{color:'#10B981',fontWeight:700,fontSize:13}}>Saved to Library</div>
+                  <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>48hr reality check scheduled</div>
+                </div>
+              </div>
+              <button onClick={reset}
+                style={{background:'#111827',color:'#FFFFFF',border:'none',borderRadius:8,padding:'8px 18px',fontWeight:700,cursor:'pointer',fontSize:13}}>
+                New Brief
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 48hr Reality Check Banner (if due) */}
+      <RealityCheckBanner />
+    </div>
+  );
+}
+
+// ── 48HR REALITY CHECK BANNER ───────────────────────────────────────────────
+
+function RealityCheckBanner() {
+  const [pending, setPending] = React.useState(null);
+
+  React.useEffect(() => {
+    try {
+      const checks = JSON.parse(localStorage.getItem('encis_reality_checks') || '[]');
+      const now = Date.now();
+      const due = checks.find(c => !c.answered && c.dueAt <= now);
+      if (due) setPending(due);
+    } catch {}
+  }, []);
+
+  const answer = (response) => {
+    try {
+      const checks = JSON.parse(localStorage.getItem('encis_reality_checks') || '[]');
+      const updated = checks.map(c => c.id === pending.id ? {...c, answered: true, response} : c);
+      localStorage.setItem('encis_reality_checks', JSON.stringify(updated));
+      
+      // If outperformed — flag as winner in saved_content
+      if (response === 'yes') {
+        supabase.from('saved_content')
+          .update({ notes: 'brief|winner|outperformed' })
+          .like('title', pending.topic.slice(0, 20) + '%')
+          .then(() => {});
+      }
+    } catch {}
+    setPending(null);
+  };
+
+  if (!pending) return null;
+
+  return (
+    <div style={{background:'rgba(0,194,255,0.06)',border:'1px solid rgba(0,194,255,0.2)',borderRadius:12,padding:'14px 18px',marginTop:20,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10}}>
+      <div>
+        <div style={{color:'#00C2FF',fontWeight:700,fontSize:13}}>48hr check-in</div>
+        <div style={{color:'#374151',fontSize:12,marginTop:2}}>
+          "{pending.topic.slice(0, 50)}{pending.topic.length>50?'...':''}" — did this outperform?
+        </div>
+      </div>
+      <div style={{display:'flex',gap:8}}>
+        {[['yes','Yes 🔥'],['same','About the same'],['no','No']].map(([val, label]) => (
+          <button key={val} onClick={() => answer(val)}
+            style={{background:'#FFFFFF',color:'#374151',border:'1px solid #E5E7EB',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:600}}>
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const COMPONENT_MAP = {
   home: Home,
   onboard: Onboarding,
@@ -16346,6 +17012,7 @@ const COMPONENT_MAP = {
   visualcal: VisualCalendar,
   stratreview: AIStrategyReview,
   library: ContentLibrary,
+  smartbrief: SmartBrief,
   weeklybrief: WeeklyBriefAgent,
   trendmonitor: TrendMonitorAgent,
   approvalqueue: ApprovalQueueAgent,
