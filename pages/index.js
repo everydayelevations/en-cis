@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import Head from 'next/head';
 import EighthAscentLogo from '../components/EighthAscentLogo';
 
@@ -147,7 +148,19 @@ async function ai(message, system='You are a helpful content strategist.') {
     body: JSON.stringify({ system, message })
   });
   const d = await res.json();
-  return d.text || d.result || d.error || 'No response';
+  const result = d.text || d.result || d.error || 'No response';
+  if (result && result !== 'No response' && !result.startsWith('Error')) {
+    try {
+      await saveToSupabase({
+        type: 'content',
+        title: message.slice(0, 80),
+        preview: result.slice(0, 500),
+        full: result,
+        notes: 'auto-saved',
+      });
+    } catch(e) { /* silent */ }
+  }
+  return result;
 }
 
 async function perp(query) {
@@ -261,6 +274,30 @@ const SaveButton = ({entry, style={}}) => {
       cursor: saving || saved ? 'default' : 'pointer',
       transition: 'all 0.2s',
       ...style,
+    }}>
+      {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save'}
+    </button>
+  );
+};
+
+const SaveButton = ({entry, style={}}) => {
+  const [saved, setSaved] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const handle = async () => {
+    if (saved || saving) return;
+    setSaving(true);
+    await saveToSupabase({...entry, full: entry.full || entry.preview || ''});
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  };
+  return (
+    <button onClick={handle} disabled={saving || saved} style={{
+      background: saved ? 'rgba(39,174,96,0.15)' : 'rgba(0,194,255,0.08)',
+      color: saved ? '#27ae60' : '#00C2FF',
+      border: `1px solid ${saved ? 'rgba(39,174,96,0.3)' : 'rgba(0,194,255,0.2)'}`,
+      borderRadius: 7, padding: '6px 14px', fontSize: 12, fontWeight: 700,
+      cursor: saving || saved ? 'default' : 'pointer', transition: 'all 0.2s', ...style,
     }}>
       {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save'}
     </button>
@@ -14089,6 +14126,8 @@ function ContentLibrary() {
   const [loading, setLoading] = React.useState(true);
   const [search, setSearch] = React.useState('');
   const [filter, setFilter] = React.useState('all');
+  const [expanded, setExpanded] = React.useState(null);
+  const [copied, setCopied] = React.useState(null);
 
   React.useEffect(() => { fetchItems(); }, []);
 
@@ -14099,7 +14138,7 @@ function ContentLibrary() {
         .from('saved_content')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(100);
+        .limit(200);
       if (!error) setItems(data || []);
     } catch(e) { console.error(e); }
     setLoading(false);
@@ -14108,6 +14147,13 @@ function ContentLibrary() {
   const deleteItem = async (id) => {
     await supabase.from('saved_content').delete().eq('id', id);
     setItems(prev => prev.filter(i => i.id !== id));
+    if (expanded === id) setExpanded(null);
+  };
+
+  const copyItem = (id, text) => {
+    navigator.clipboard.writeText(text || '');
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
   };
 
   const types = ['all', ...new Set(items.map(i => i.type).filter(Boolean))];
@@ -14121,7 +14167,7 @@ function ContentLibrary() {
   const typeColors = {
     script: '#1B4F72', caption: '#145A32', batch: '#7E5109',
     calendar: '#6E2F8E', profile: '#0A66C2', magnet: '#C0392B',
-    community: '#1A5276', default: '#2C3E50',
+    community: '#1A5276', content: '#2C3E50', default: '#2C3E50',
   };
 
   return (
@@ -14132,7 +14178,7 @@ function ContentLibrary() {
           <div>
             <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800}}>Content Library</h2>
             <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>
-              {items.length > 0 ? `${items.length} pieces saved to Supabase` : 'Saved content appears here'}
+              {loading ? 'Loading...' : `${items.length} pieces saved`}
             </p>
           </div>
         </div>
@@ -14143,9 +14189,24 @@ function ContentLibrary() {
       </div>
 
       {items.length > 0 && (
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:16}}>
+          {[
+            ['Total', items.length, '#00C2FF'],
+            ['Auto-saved', items.filter(i=>i.notes==='auto-saved').length, '#6B7280'],
+            ['Manually saved', items.filter(i=>i.notes!=='auto-saved').length, '#27ae60'],
+          ].map(([label, val, color]) => (
+            <div key={label} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:8,padding:'10px 14px',textAlign:'center'}}>
+              <div style={{fontSize:20,fontWeight:800,color}}>{val}</div>
+              <div style={{fontSize:10,color:'#6B7280',marginTop:2,textTransform:'uppercase',letterSpacing:1}}>{label}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {items.length > 0 && (
         <div style={{display:'flex',gap:10,marginBottom:16,flexWrap:'wrap'}}>
           <input value={search} onChange={e=>setSearch(e.target.value)}
-            placeholder="Search saved content..."
+            placeholder="Search content..."
             style={{flex:1,minWidth:200,background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'8px 12px',color:'#111827',fontSize:13}}/>
           <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
             {types.map(t => (
@@ -14158,62 +14219,87 @@ function ContentLibrary() {
         </div>
       )}
 
-      {loading && (
-        <div style={{textAlign:'center',padding:'3rem',color:'#6B7280',fontSize:13}}>
-          Loading from Supabase...
-        </div>
-      )}
+      {loading && <div style={{textAlign:'center',padding:'3rem',color:'#6B7280',fontSize:13}}>Loading from Supabase...</div>}
 
       {!loading && items.length === 0 && (
         <div style={{textAlign:'center',padding:'4rem 2rem',background:'#FFFFFF',borderRadius:16,border:'1px solid #E5E7EB'}}>
           <div style={{fontSize:32,marginBottom:12}}>📭</div>
           <div style={{color:'#111827',fontWeight:700,fontSize:18,marginBottom:8}}>Nothing saved yet</div>
-          <div style={{color:'#6B7280',fontSize:14}}>Generate content in any tool and hit Save — it shows up here.</div>
+          <div style={{color:'#6B7280',fontSize:14}}>Generate content in any tool — it auto-saves here instantly.</div>
         </div>
       )}
 
       {!loading && filtered.length > 0 && (
         <div style={{display:'flex',flexDirection:'column',gap:10}}>
-          {filtered.map(item => (
-            <div key={item.id} style={{
-              background:'#FFFFFF',
-              border:'1px solid #E5E7EB',
-              borderLeft:`3px solid ${typeColors[item.type]||typeColors.default}`,
-              borderRadius:10,
-              padding:'14px 16px',
-            }}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12,flexWrap:'wrap'}}>
-                <div style={{flex:1}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
-                    <span style={{background:typeColors[item.type]||typeColors.default,color:'#fff',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700,textTransform:'uppercase'}}>
-                      {item.type||'content'}
-                    </span>
-                    <span style={{color:'#6B7280',fontSize:11}}>
-                      {new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
-                    </span>
-                    {item.platform && <span style={{background:'#F9FAFB',color:'#6B7280',borderRadius:4,padding:'2px 7px',fontSize:10}}>{item.platform}</span>}
-                    {item.client_name && <span style={{background:'#F9FAFB',color:'#6B7280',borderRadius:4,padding:'2px 7px',fontSize:10}}>👤 {item.client_name}</span>}
-                  </div>
-                  <div style={{color:'#111827',fontWeight:600,fontSize:13,marginBottom:4}}>{item.title||'Untitled'}</div>
-                  {item.content_preview && (
-                    <div style={{color:'#6B7280',fontSize:12,lineHeight:1.6}}>
-                      {item.content_preview.slice(0,200)}{item.content_preview.length>200?'...':''}
+          {filtered.map(item => {
+            const isExpanded = expanded === item.id;
+            const fullText = item.full_content || item.content_preview || '';
+            const isAuto = item.notes === 'auto-saved';
+            return (
+              <div key={item.id} style={{
+                background:'#FFFFFF',
+                border:`1px solid ${isExpanded ? '#C7D2FE' : '#E5E7EB'}`,
+                borderLeft:`3px solid ${typeColors[item.type]||typeColors.default}`,
+                borderRadius:10,
+                overflow:'hidden',
+              }}>
+                <div style={{padding:'14px 16px'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12,flexWrap:'wrap'}}>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:6,flexWrap:'wrap'}}>
+                        <span style={{background:typeColors[item.type]||typeColors.default,color:'#fff',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700,textTransform:'uppercase'}}>
+                          {item.type||'content'}
+                        </span>
+                        {isAuto && <span style={{background:'rgba(0,194,255,0.1)',color:'#00C2FF',borderRadius:4,padding:'1px 6px',fontSize:9,fontWeight:700,letterSpacing:1}}>AUTO</span>}
+                        <span style={{color:'#6B7280',fontSize:11}}>
+                          {new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+                        </span>
+                        {item.platform && <span style={{background:'#F9FAFB',color:'#6B7280',borderRadius:4,padding:'2px 7px',fontSize:10}}>{item.platform}</span>}
+                        {item.client_name && <span style={{background:'#F9FAFB',color:'#6B7280',borderRadius:4,padding:'2px 7px',fontSize:10}}>👤 {item.client_name}</span>}
+                      </div>
+                      <div style={{color:'#111827',fontWeight:600,fontSize:13,marginBottom:4,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                        {item.title||'Untitled'}
+                      </div>
+                      {!isExpanded && item.content_preview && (
+                        <div style={{color:'#6B7280',fontSize:12,lineHeight:1.6}}>
+                          {item.content_preview.slice(0,140)}{item.content_preview.length>140?'...':''}
+                        </div>
+                      )}
                     </div>
-                  )}
+                    <div style={{display:'flex',gap:6,flexShrink:0,alignItems:'center'}}>
+                      <button onClick={()=>setExpanded(isExpanded ? null : item.id)}
+                        style={{background:isExpanded?'#EEF2FF':'#F9FAFB',color:isExpanded?'#2563EB':'#6B7280',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 10px',fontSize:11,fontWeight:700,cursor:'pointer'}}>
+                        {isExpanded ? 'Collapse' : 'Preview'}
+                      </button>
+                      <button onClick={()=>copyItem(item.id, fullText)}
+                        style={{background:copied===item.id?'rgba(39,174,96,0.1)':'#F9FAFB',color:copied===item.id?'#27ae60':'#6B7280',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 10px',fontSize:11,fontWeight:700,cursor:'pointer'}}>
+                        {copied===item.id?'Copied!':'Copy'}
+                      </button>
+                      <button onClick={()=>deleteItem(item.id)}
+                        style={{background:'transparent',color:'#D1D5DB',border:'none',borderRadius:6,padding:'5px 8px',fontSize:14,cursor:'pointer'}}>
+                        ×
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div style={{display:'flex',gap:8,flexShrink:0}}>
-                  <button onClick={()=>navigator.clipboard.writeText(item.full_content||item.content_preview||'')}
-                    style={{background:'#F9FAFB',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 10px',fontSize:11,fontWeight:700,cursor:'pointer'}}>
-                    Copy
-                  </button>
-                  <button onClick={()=>deleteItem(item.id)}
-                    style={{background:'transparent',color:'#D1D5DB',border:'none',borderRadius:6,padding:'5px 8px',fontSize:14,cursor:'pointer'}}>
-                    ×
-                  </button>
-                </div>
+                {isExpanded && (
+                  <div style={{borderTop:'1px solid #E5E7EB',background:'#F9FAFB'}}>
+                    <div style={{padding:'16px',maxHeight:400,overflowY:'auto'}}>
+                      <pre style={{color:'#111827',fontSize:12,whiteSpace:'pre-wrap',lineHeight:1.7,fontFamily:'inherit',margin:0}}>
+                        {fullText || 'No content stored.'}
+                      </pre>
+                    </div>
+                    <div style={{padding:'10px 16px',borderTop:'1px solid #E5E7EB',display:'flex',gap:8}}>
+                      <button onClick={()=>copyItem(item.id, fullText)}
+                        style={{background:'#2563EB',color:'#fff',border:'none',borderRadius:6,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+                        {copied===item.id?'Copied!':'Copy Full Content'}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
           {filtered.length===0 && items.length>0 && (
             <div style={{textAlign:'center',padding:'2rem',color:'#6B7280',fontSize:13}}>No results match your filter.</div>
           )}
