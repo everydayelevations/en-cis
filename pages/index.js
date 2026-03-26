@@ -6387,128 +6387,387 @@ function CommentResponder() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // HOOK TESTER
 // ═════════════════════════════════════════════════════════════════════════════
-const HOOK_TEST_PROMPT = (hooks, topic) => `
+const HOOK_TEST_PROMPT = (hooks, topic, platform) => `
 ${VOICE}
 
-Topic: ${topic}
+You are a viral content strategist who has analyzed thousands of hooks across Instagram, TikTok, YouTube, and LinkedIn. Your job is to score hook variations with brutal honesty and build the best possible version.
 
-You are a viral content strategist who has analyzed thousands of hooks. Score and improve each of these hook variations.
+Topic: ${topic}
+Platform: ${platform}
 
 HOOKS TO TEST:
 ${hooks.map((h,i) => `${i+1}. ${h}`).join('\n')}
 
-For EACH hook, provide:
+Return ONLY valid JSON. No markdown fences, no preamble. Exact structure:
 
-**HOOK [N]: [quote the hook]**
-Score: [X/10]
-Scroll-Stop Power: [1-10] : does the first word make them stop?
-Curiosity Gap: [1-10] : does it create an itch they need to scratch?
-Specificity: [1-10] : is it concrete or vague?
-Weakness: [one sentence : the exact problem]
-Rewrite: [improved version that fixes the weakness]
+{
+  "scores": [
+    {
+      "n": 1,
+      "hook": "exact hook text",
+      "total": 8,
+      "scroll_stop": 7,
+      "curiosity_gap": 9,
+      "specificity": 8,
+      "weakness": "one sentence - the exact problem with this hook",
+      "rewrite": "improved version fixing the weakness"
+    }
+  ],
+  "winner_n": 2,
+  "winner_reason": "one sentence why this one wins",
+  "optimal_hook": "best possible hook combining strongest elements",
+  "optimal_why": ["psychological reason it works", "format/structure reason", "why the first word earns the stop"]
+}`;
 
----
+const HOOK_GENERATE_PROMPT = (topic, platform, style) => `
+${VOICE}
 
-After scoring all hooks:
+You are a hook writer who has studied what stops the scroll on ${platform}. Generate 5 distinct hook variations for this topic.
 
-**WINNER:** Hook [N] : [one sentence why it wins]
+Topic: ${topic}
+Platform: ${platform}
+Style direction: ${style}
 
-**THE OPTIMAL HOOK:**
-[Best possible version combining the strongest elements from all of them]
+Rules:
+- Every hook must be completable in under 3 seconds when spoken
+- No hype words: transform, unlock, game-changer, crush it
+- Each hook must use a different angle/format
+- Write for Jason's voice: direct, real, short sentences, accountability energy
 
-**Why This Wins:**
-[3 specific reasons : psychology, format, first word]`;
+Return ONLY valid JSON. No markdown fences, no preamble:
+
+{
+  "hooks": [
+    {"type": "Pattern Interrupt", "hook": "hook text here"},
+    {"type": "Specific Number", "hook": "hook text here"},
+    {"type": "Confession", "hook": "hook text here"},
+    {"type": "Contrarian Take", "hook": "hook text here"},
+    {"type": "Direct Challenge", "hook": "hook text here"}
+  ]
+}`;
+
+const HOOK_HISTORY_KEY = 'eighthascent_hook_history';
 
 function HookTester() {
+  const [activeClient] = useActiveClient();
   const [topic, setTopic] = useState('');
+  const [platform, setPlatform] = useState('Instagram');
+  const [mode, setMode] = useState('write'); // 'write' | 'generate'
+  const [style, setStyle] = useState('Mix of styles');
   const [hooks, setHooks] = useState(['', '', '']);
-  const [out, setOut] = useState('');
+  const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [view, setView] = useState('tester'); // 'tester' | 'history'
+  const [selectedHistory, setSelectedHistory] = useState(null);
+
+  useEffect(() => {
+    try { const s = localStorage.getItem(HOOK_HISTORY_KEY); if (s) setHistory(JSON.parse(s)); } catch {}
+  }, []);
 
   const addHook = () => { if (hooks.length < 6) setHooks([...hooks, '']); };
   const removeHook = (i) => { if (hooks.length > 2) setHooks(hooks.filter((_,idx) => idx !== i)); };
   const updateHook = (i, val) => setHooks(hooks.map((h,idx) => idx === i ? val : h));
+  const filledHooks = hooks.filter(h => h.trim());
 
-  const run = async () => {
-    const filledHooks = hooks.filter(h => h.trim());
-    if (!topic || filledHooks.length < 2) return;
-    setLoading(true); setOut('');
-    const res = await ai(HOOK_TEST_PROMPT(filledHooks, topic));
-    setOut(res);
+  const generateHooks = async () => {
+    if (!topic.trim()) return;
+    setGenerating(true);
+    try {
+      const raw = await ai(HOOK_GENERATE_PROMPT(topic, platform, style));
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const data = JSON.parse(clean);
+      if (data.hooks) {
+        setHooks(data.hooks.map(h => h.hook).concat(['', '']).slice(0, 6));
+        setMode('write');
+      }
+    } catch(e) { console.error('Generate hooks error:', e); }
+    setGenerating(false);
+  };
+
+  const runTest = async () => {
+    if (!topic.trim() || filledHooks.length < 2) return;
+    setLoading(true); setResults(null);
+    try {
+      const raw = await ai(HOOK_TEST_PROMPT(filledHooks, topic, platform));
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const data = JSON.parse(clean);
+      setResults(data);
+      const entry = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
+        topic,
+        platform,
+        hooks: filledHooks,
+        winner: data.optimal_hook,
+        winner_n: data.winner_n,
+        scores: data.scores,
+      };
+      const updated = [entry, ...history].slice(0, 20);
+      setHistory(updated);
+      try { localStorage.setItem(HOOK_HISTORY_KEY, JSON.stringify(updated)); } catch {}
+    } catch(e) { console.error('Hook test error:', e); }
     setLoading(false);
   };
 
-  const filledCount = hooks.filter(h => h.trim()).length;
+  const scoreColor = (n) => n >= 8 ? '#27ae60' : n >= 6 ? '#f39c12' : '#E94560';
+  const scoreBar = (n) => {
+    const pct = (n / 10) * 100;
+    const color = scoreColor(n);
+    return (
+      <div style={{display:'flex',alignItems:'center',gap:8,flex:1}}>
+        <div style={{flex:1,height:5,background:'#E5E7EB',borderRadius:3,overflow:'hidden'}}>
+          <div style={{width:`${pct}%`,height:'100%',background:color,borderRadius:3,transition:'width 0.4s'}}/>
+        </div>
+        <span style={{color,fontWeight:800,fontSize:12,minWidth:20}}>{n}</span>
+      </div>
+    );
+  };
+
+  const platforms = ['Instagram','TikTok','YouTube','LinkedIn','Facebook','X'];
+  const styleOptions = ['Mix of styles','Confession/Vulnerability','Contrarian/Challenge','Specific Numbers','Pattern Interrupt','Story opener'];
 
   return (
     <div>
-      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
-        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
-        <div>
-          <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Hook Tester</h2>
-          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Write 2-6 hook variations : AI scores each one and builds the best version.</p>
+      {/* Header */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20,flexWrap:'wrap',gap:12}}>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
+          <div>
+            <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>A/B Hook Tester</h2>
+            <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Test before you post. Same content, wrong hook = invisible.</p>
+          </div>
         </div>
-      </div>
-
-      <div style={{background:'rgba(233,69,96,0.06)',border:'1px solid rgba(233,69,96,0.15)',borderRadius:10,padding:'12px 16px',marginBottom:20,fontSize:13,color:'rgba(255,255,255,0.8)',lineHeight:1.7}}>
-        Your hook is 80% of the result. Same video, different hook = 10x difference in views. Test before you post.
-      </div>
-
-      <Card>
-        <SecLabel>What's the video about?</SecLabel>
-        <input value={topic} onChange={e=>setTopic(e.target.value)}
-          placeholder="e.g. Why most people quit before they see results"
-          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
-            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,
-            marginBottom:20,boxSizing:'border-box'}}/>
-
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-          <SecLabel style={{margin:0}}>Your Hook Variations ({filledCount} entered, 2 minimum)</SecLabel>
-          {hooks.length < 6 && (
-            <button onClick={addHook}
-              style={{background:'#FFFFFF',color:'#6B7280',border:'none',
-                borderRadius:6,padding:'4px 12px',cursor:'pointer',fontSize:12}}>
-              + Add Hook
+        <div style={{display:'flex',gap:8}}>
+          {history.length > 0 && (
+            <button onClick={()=>setView(view==='history'?'tester':'history')}
+              style={{background:view==='history'?'#EEF2FF':'#F9FAFB',color:view==='history'?'#2563EB':'#6B7280',border:'1px solid #E5E7EB',borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+              History ({history.length})
+            </button>
+          )}
+          {view==='history' && (
+            <button onClick={()=>{setView('tester');setSelectedHistory(null);}}
+              style={{background:'#2563EB',color:'#fff',border:'none',borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+              + New Test
             </button>
           )}
         </div>
+      </div>
 
-        <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
-          {hooks.map((hook, i) => (
-            <div key={i} style={{display:'flex',gap:8,alignItems:'center'}}>
-              <span style={{color:'#2563EB',fontWeight:800,fontSize:13,minWidth:20}}>{i+1}.</span>
-              <input value={hook} onChange={e=>updateHook(i,e.target.value)}
-                placeholder={i === 0 ? 'e.g. Nobody told me this about getting out...' :
-                             i === 1 ? 'e.g. I spent 3 years doing it wrong. Here\'s the truth.' :
-                             'Another hook variation...'}
-                style={{flex:1,background:'#F9FAFB',border:'1px solid #D1D5DB',
-                  borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
-              {hooks.length > 2 && (
-                <button onClick={() => removeHook(i)}
-                  style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',
-                    borderRadius:6,padding:'4px 8px',fontSize:16,cursor:'pointer',flexShrink:0}}>×</button>
+      {/* Tip banner */}
+      <div style={{background:'rgba(0,194,255,0.06)',border:'1px solid rgba(0,194,255,0.15)',borderRadius:10,padding:'10px 16px',marginBottom:20,fontSize:13,color:'#374151',lineHeight:1.6}}>
+        <strong style={{color:'#00C2FF'}}>The 80% rule:</strong> Same video, different hook = 10x difference in views. Test before you film.
+      </div>
+
+      {/* History View */}
+      {view === 'history' && (
+        <div>
+          {selectedHistory ? (
+            <div>
+              <button onClick={()=>setSelectedHistory(null)} style={{background:'#F9FAFB',color:'#6B7280',border:'none',borderRadius:6,padding:'6px 14px',fontSize:12,cursor:'pointer',marginBottom:16}}>← Back to history</button>
+              <div style={{background:'#fff',border:'1px solid #E5E7EB',borderRadius:12,padding:'20px 24px'}}>
+                <div style={{fontSize:15,fontWeight:800,color:'#111827',marginBottom:4}}>{selectedHistory.topic}</div>
+                <div style={{fontSize:12,color:'#6B7280',marginBottom:16}}>{selectedHistory.platform} · {selectedHistory.date}</div>
+                {selectedHistory.scores && selectedHistory.scores.map((s,i) => (
+                  <div key={i} style={{background: s.n === selectedHistory.winner_n ? 'rgba(39,174,96,0.06)' : '#F9FAFB', border:`1px solid ${s.n === selectedHistory.winner_n ? 'rgba(39,174,96,0.25)' : '#E5E7EB'}`,borderRadius:8,padding:'12px 16px',marginBottom:8}}>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12}}>
+                      <div style={{fontSize:13,fontWeight:600,color:'#111827',flex:1}}>{s.n === selectedHistory.winner_n ? '🏆 ' : ''}{s.hook}</div>
+                      <div style={{background:scoreColor(s.total),color:'#fff',fontWeight:900,fontSize:13,borderRadius:6,padding:'3px 10px',flexShrink:0}}>{s.total}/10</div>
+                    </div>
+                  </div>
+                ))}
+                <div style={{background:'rgba(0,194,255,0.06)',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'14px 16px',marginTop:12}}>
+                  <div style={{fontSize:11,fontWeight:700,color:'#00C2FF',textTransform:'uppercase',letterSpacing:1,marginBottom:6}}>Optimal Hook</div>
+                  <div style={{fontSize:14,fontWeight:700,color:'#111827'}}>{selectedHistory.winner}</div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              {history.map(h => (
+                <div key={h.id} onClick={()=>setSelectedHistory(h)}
+                  style={{background:'#fff',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px 16px',cursor:'pointer',display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:700,color:'#111827',fontSize:14,marginBottom:3}}>{h.topic}</div>
+                    <div style={{fontSize:12,color:'#6B7280'}}>{h.hooks.length} hooks tested · {h.platform} · {h.date}</div>
+                  </div>
+                  <div style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',fontSize:11,fontWeight:700,padding:'4px 10px',borderRadius:6,flexShrink:0,whiteSpace:'nowrap'}}>
+                    #{h.winner_n} won
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Main Tester View */}
+      {view === 'tester' && (
+        <div>
+          <Card>
+            {/* Topic + Platform */}
+            <SecLabel>What is this content about?</SecLabel>
+            <input value={topic} onChange={e=>setTopic(e.target.value)}
+              placeholder="e.g. Why most people quit before they see results"
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,marginBottom:16,boxSizing:'border-box'}}/>
+
+            <SecLabel>Platform</SecLabel>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:20}}>
+              {platforms.map(p => (
+                <button key={p} onClick={()=>setPlatform(p)}
+                  style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:platform===p?'#2563EB':'#374151',border:'1px solid '+(platform===p?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:500}}>
+                  {p}
+                </button>
+              ))}
+            </div>
+
+            {/* Mode Toggle */}
+            <div style={{display:'flex',gap:0,marginBottom:20,borderRadius:8,overflow:'hidden',border:'1px solid #E5E7EB'}}>
+              <button onClick={()=>setMode('write')}
+                style={{flex:1,padding:'9px 0',fontSize:13,fontWeight:700,cursor:'pointer',border:'none',background:mode==='write'?'#2563EB':'#F9FAFB',color:mode==='write'?'#fff':'#6B7280',transition:'all 0.15s'}}>
+                ✏️ Write my own hooks
+              </button>
+              <button onClick={()=>setMode('generate')}
+                style={{flex:1,padding:'9px 0',fontSize:13,fontWeight:700,cursor:'pointer',border:'none',borderLeft:'1px solid #E5E7EB',background:mode==='generate'?'#2563EB':'#F9FAFB',color:mode==='generate'?'#fff':'#6B7280',transition:'all 0.15s'}}>
+                ✨ Generate hooks for me
+              </button>
+            </div>
+
+            {/* Generate Mode */}
+            {mode === 'generate' && (
+              <div>
+                <SecLabel>Style direction</SecLabel>
+                <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
+                  {styleOptions.map(s => (
+                    <button key={s} onClick={()=>setStyle(s)}
+                      style={{background:style===s?'#EEF2FF':'#F9FAFB',color:style===s?'#2563EB':'#374151',border:'1px solid '+(style===s?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:style===s?700:500}}>
+                      {s}
+                    </button>
+                  ))}
+                </div>
+                <button onClick={generateHooks} disabled={generating || !topic.trim()}
+                  style={{width:'100%',background:!topic.trim()||generating?'#F3F4F6':'linear-gradient(135deg,#00C2FF,#0096CC)',color:!topic.trim()||generating?'#9CA3AF':'#000D1A',border:'none',borderRadius:8,padding:'11px 0',fontWeight:800,cursor:!topic.trim()||generating?'not-allowed':'pointer',fontSize:13,marginBottom:16}}>
+                  {generating ? 'Generating 5 hooks...' : 'Generate 5 Hook Variations'}
+                </button>
+                {hooks.some(h=>h.trim()) && (
+                  <div style={{fontSize:12,color:'#6B7280',marginBottom:8,fontStyle:'italic'}}>Hooks generated — edit any below then hit Test.</div>
+                )}
+              </div>
+            )}
+
+            {/* Hook Inputs */}
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+              <SecLabel style={{margin:0}}>Hook Variations ({filledHooks.length} entered{mode==='write'?', 2 minimum':''})</SecLabel>
+              {hooks.length < 6 && (
+                <button onClick={addHook}
+                  style={{background:'#F9FAFB',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:6,padding:'4px 12px',cursor:'pointer',fontSize:12}}>
+                  + Add Hook
+                </button>
               )}
             </div>
-          ))}
-        </div>
 
-        <RedBtn onClick={run} disabled={loading || !topic || filledCount < 2}>
-          {loading ? 'Testing hooks...' : `Test ${filledCount} Hook${filledCount!==1?'s':''}`}
-        </RedBtn>
-      </Card>
-      {loading && <Spin/>}
-      {out && (
-        <div>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-            <span style={{color:'#111827',fontWeight:700,fontSize:14}}>Hook Analysis</span>
-            <CopyBtn text={out}/>
-          </div>
-          <Output text={out}/>
+            <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:20}}>
+              {hooks.map((hook, i) => (
+                <div key={i} style={{display:'flex',gap:8,alignItems:'center'}}>
+                  <span style={{color:'#2563EB',fontWeight:800,fontSize:13,minWidth:20,flexShrink:0}}>{i+1}.</span>
+                  <input value={hook} onChange={e=>updateHook(i,e.target.value)}
+                    placeholder={i===0?'e.g. Nobody told me this when I got out...' : i===1?'e.g. I spent 3 years doing it wrong. Here\'s what changed.' : 'Another hook variation...'}
+                    style={{flex:1,background:'#F9FAFB',border:'1px solid '+(hook.trim()?'#C7D2FE':'#D1D5DB'),borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
+                  {hooks.length > 2 && (
+                    <button onClick={()=>removeHook(i)}
+                      style={{background:'transparent',color:'#9CA3AF',border:'none',borderRadius:6,padding:'4px 8px',fontSize:18,cursor:'pointer',flexShrink:0,lineHeight:1}}>×</button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <button onClick={runTest} disabled={loading || !topic.trim() || filledHooks.length < 2}
+              style={{background:!topic.trim()||loading||filledHooks.length<2?'#F3F4F6':'linear-gradient(135deg,#00C2FF,#0096CC)',color:!topic.trim()||loading||filledHooks.length<2?'#9CA3AF':'#000D1A',border:'none',borderRadius:8,padding:'12px 24px',fontWeight:800,cursor:!topic.trim()||loading||filledHooks.length<2?'not-allowed':'pointer',fontSize:14,width:'100%',boxShadow:!topic.trim()||loading||filledHooks.length<2?'none':'0 0 20px rgba(0,194,255,0.2)'}}>
+              {loading ? 'Scoring hooks...' : `Test ${filledHooks.length} Hook${filledHooks.length!==1?'s':''}`}
+            </button>
+          </Card>
+
+          {loading && <Spin/>}
+
+          {/* Results */}
+          {results && (
+            <div style={{marginTop:20}}>
+              {/* Score Cards */}
+              <div style={{fontSize:11,fontWeight:700,color:'#6B7280',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:12}}>Hook Scores</div>
+              <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
+                {results.scores && results.scores.map((s) => {
+                  const isWinner = s.n === results.winner_n;
+                  return (
+                    <div key={s.n} style={{background:isWinner?'rgba(39,174,96,0.04)':'#fff',border:`1px solid ${isWinner?'rgba(39,174,96,0.3)':'#E5E7EB'}`,borderRadius:12,padding:'16px 20px',position:'relative'}}>
+                      {isWinner && (
+                        <div style={{position:'absolute',top:-1,right:16,background:'#27ae60',color:'#fff',fontSize:10,fontWeight:800,padding:'3px 10px',borderRadius:'0 0 6px 6px',letterSpacing:1,textTransform:'uppercase'}}>
+                          Winner
+                        </div>
+                      )}
+                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12,marginBottom:12}}>
+                        <div style={{flex:1}}>
+                          <span style={{color:'#2563EB',fontWeight:800,fontSize:12,marginRight:8}}>#{s.n}</span>
+                          <span style={{color:'#111827',fontWeight:600,fontSize:14}}>{s.hook}</span>
+                        </div>
+                        <div style={{background:scoreColor(s.total),color:'#fff',fontWeight:900,fontSize:15,borderRadius:8,padding:'4px 12px',flexShrink:0}}>
+                          {s.total}/10
+                        </div>
+                      </div>
+                      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'8px 16px',marginBottom:12}}>
+                        {[['Scroll-Stop',s.scroll_stop],['Curiosity Gap',s.curiosity_gap],['Specificity',s.specificity]].map(([label,val])=>(
+                          <div key={label}>
+                            <div style={{fontSize:10,color:'#6B7280',fontWeight:600,marginBottom:3}}>{label}</div>
+                            {scoreBar(val)}
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{background:'#F9FAFB',borderRadius:6,padding:'8px 12px',marginBottom:s.rewrite?8:0}}>
+                        <span style={{fontSize:11,fontWeight:700,color:'#E94560'}}>Weakness: </span>
+                        <span style={{fontSize:12,color:'#374151'}}>{s.weakness}</span>
+                      </div>
+                      {s.rewrite && (
+                        <div style={{background:'rgba(37,99,235,0.04)',border:'1px solid rgba(37,99,235,0.15)',borderRadius:6,padding:'8px 12px'}}>
+                          <span style={{fontSize:11,fontWeight:700,color:'#2563EB'}}>Rewrite: </span>
+                          <span style={{fontSize:12,color:'#111827',fontStyle:'italic'}}>{s.rewrite}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Optimal Hook */}
+              <div style={{background:'rgba(0,194,255,0.06)',border:'2px solid rgba(0,194,255,0.3)',borderRadius:12,padding:'20px 24px'}}>
+                <div style={{fontSize:11,fontWeight:700,color:'#00C2FF',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:8}}>The Optimal Hook</div>
+                <div style={{fontSize:17,fontWeight:800,color:'#111827',marginBottom:16,lineHeight:1.4}}>{results.optimal_hook}</div>
+                <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginBottom:12}}>
+                  <CopyBtn text={results.optimal_hook}/>
+                </div>
+                {results.winner_reason && (
+                  <div style={{fontSize:12,color:'#6B7280',marginBottom:12,paddingTop:12,borderTop:'1px solid #E5E7EB'}}>
+                    <strong style={{color:'#374151'}}>Why #{results.winner_n} wins: </strong>{results.winner_reason}
+                  </div>
+                )}
+                {results.optimal_why && (
+                  <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                    {results.optimal_why.map((reason,i) => (
+                      <div key={i} style={{display:'flex',gap:8,alignItems:'flex-start'}}>
+                        <span style={{color:'#00C2FF',fontWeight:800,flexShrink:0,fontSize:12}}>{i+1}.</span>
+                        <span style={{color:'#374151',fontSize:12,lineHeight:1.6}}>{reason}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 }
+
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // EMAIL SEQUENCE BUILDER
