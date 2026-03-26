@@ -14246,256 +14246,352 @@ function BioSuite() {
 
 
 function ContentLibrary() {
+  const [activeClient] = useActiveClient();
   const [items, setItems] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [search, setSearch] = React.useState('');
-  const [filter, setFilter] = React.useState('all');
+  const [filterType, setFilterType] = React.useState('all');
+  const [filterPlatform, setFilterPlatform] = React.useState('all');
+  const [filterTier, setFilterTier] = React.useState('all'); // all | winner | solid | weak | unrated
+  const [filterPillar, setFilterPillar] = React.useState('all');
+  const [sortBy, setSortBy] = React.useState('newest'); // newest | oldest | winners
+  const [ratings, setRatings] = React.useState({});
+  const [expandedId, setExpandedId] = React.useState(null);
+  const [copyId, setCopyId] = React.useState(null);
 
-  React.useEffect(() => { fetchItems(); }, []);
+  React.useEffect(() => { fetchItems(); }, [activeClient]);
+
+  const clientId = (() => {
+    try {
+      const id = localStorage.getItem('encis_active_client');
+      return id || 'jason';
+    } catch { return 'jason'; }
+  })();
 
   const fetchItems = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('saved_content')
         .select('*')
+        .eq('client_id', clientId)
         .order('created_at', { ascending: false })
-        .eq('client_id', (() => { try { const c = JSON.parse(localStorage.getItem('encis_active_client') || 'null'); return c?.id || 'jason'; } catch { return 'jason'; } })())
         .limit(200);
-      if (!error) setItems(data || []);
-    } catch(e) { console.error(e); }
+      setItems(data || []);
+
+      // Load local ratings overlay
+      const stored = JSON.parse(localStorage.getItem('encis_lib_ratings') || '{}');
+      setRatings(stored[clientId] || {});
+    } catch(e) { console.error('Library fetch:', e); }
     setLoading(false);
   };
 
-  const deleteItem = async (id) => {
-    await supabase.from('saved_content').delete().eq('id', id);
-    setItems(prev => prev.filter(i => i.id !== id));
+  const rateItem = async (id, tier) => {
+    // Save locally
+    const stored = JSON.parse(localStorage.getItem('encis_lib_ratings') || '{}');
+    stored[clientId] = { ...(stored[clientId] || {}), [id]: tier };
+    localStorage.setItem('encis_lib_ratings', JSON.stringify(stored));
+    setRatings(stored[clientId]);
+
+    // Update Supabase
+    try {
+      const item = items.find(i => i.id === id);
+      const baseNotes = (item?.notes || '').replace(/tier:[^|]*/g, '').replace(/winner|outperformed/g, '').trim();
+      const newNotes = [baseNotes, 'tier:' + tier, tier === 'winner' ? 'winner' : ''].filter(Boolean).join('|');
+      await supabase.from('saved_content').update({ perf_rating: tier, notes: newNotes }).eq('id', id);
+      setItems(prev => prev.map(i => i.id === id ? { ...i, perf_rating: tier } : i));
+    } catch {}
   };
 
+  const deleteItem = async (id) => {
+    try {
+      await supabase.from('saved_content').delete().eq('id', id);
+      setItems(prev => prev.filter(i => i.id !== id));
+    } catch {}
+  };
+
+  const copyItem = (text, id) => {
+    navigator.clipboard.writeText(text || '');
+    setCopyId(id);
+    setTimeout(() => setCopyId(null), 2000);
+  };
+
+  // Derived data
+  const platforms = ['all', ...new Set(items.map(i => i.platform).filter(Boolean))];
   const types = ['all', ...new Set(items.map(i => i.type).filter(Boolean))];
+  const pillars = ['all', ...new Set(items.map(i => i.angle).filter(Boolean))];
+
+  const getItemTier = (item) => {
+    const localRating = ratings[item.id];
+    if (localRating) return localRating;
+    if (item.perf_rating) return item.perf_rating;
+    if (item.notes?.includes('winner') || item.notes?.includes('outperformed')) return 'winner';
+    if (item.notes?.includes('risk:1') || item.notes?.includes('risk:2') || item.notes?.includes('risk:3')) return 'solid';
+    return 'unrated';
+  };
 
   const filtered = items.filter(item => {
-    if (filter !== 'all' && item.type !== filter) return false;
-    if (search && !JSON.stringify(item).toLowerCase().includes(search.toLowerCase())) return false;
+    if (filterType !== 'all' && item.type !== filterType) return false;
+    if (filterPlatform !== 'all' && item.platform !== filterPlatform) return false;
+    if (filterPillar !== 'all' && item.angle !== filterPillar) return false;
+    if (filterTier !== 'all' && getItemTier(item) !== filterTier) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      const haystack = [item.title, item.content_preview, item.platform, item.angle, item.type].join(' ').toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
     return true;
   });
 
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortBy === 'newest') return new Date(b.created_at) - new Date(a.created_at);
+    if (sortBy === 'oldest') return new Date(a.created_at) - new Date(b.created_at);
+    if (sortBy === 'winners') {
+      const tierOrder = { winner: 0, solid: 1, unrated: 2, weak: 3 };
+      return (tierOrder[getItemTier(a)] ?? 2) - (tierOrder[getItemTier(b)] ?? 2);
+    }
+    return 0;
+  });
+
+  // Stats
+  const winnerCount = items.filter(i => getItemTier(i) === 'winner').length;
+  const solidCount = items.filter(i => getItemTier(i) === 'solid').length;
+  const unratedCount = items.filter(i => getItemTier(i) === 'unrated').length;
+
+  const tierConfig = {
+    winner: { label: '🔥 Winner', color: '#10B981', bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.25)' },
+    solid:  { label: '✓ Solid',  color: '#2563EB', bg: 'rgba(37,99,235,0.08)',  border: 'rgba(37,99,235,0.2)' },
+    weak:   { label: '✗ Weak',   color: '#EF4444', bg: 'rgba(239,68,68,0.06)',  border: 'rgba(239,68,68,0.15)' },
+    unrated:{ label: 'Unrated',  color: '#9CA3AF', bg: '#F9FAFB',               border: '#E5E7EB' },
+  };
+
   const typeColors = {
-    script: '#1B4F72', caption: '#145A32', batch: '#7E5109',
-    calendar: '#6E2F8E', profile: '#0A66C2', magnet: '#C0392B',
-    community: '#1A5276', default: '#2C3E50',
+    script: '#7C3AED', caption: '#2563EB', carousel: '#0891B2',
+    email: '#D97706', reel: '#DB2777', default: '#6B7280',
   };
 
   return (
-    <div>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20,flexWrap:'wrap',gap:12}}>
-        <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2}}/>
-          <div>
-            <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800}}>Content Library</h2>
-            <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>
-              {items.length > 0 ? `${items.length} pieces saved to Supabase` : 'Saved content appears here'}
-            </p>
-          </div>
+    <div style={{ maxWidth: 900, margin: '0 auto' }}>
+
+      {/* Header */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <div style={{ width: 3, height: 28, background: '#00C2FF', borderRadius: 2 }}/>
+          <h2 style={{ color: '#111827', margin: 0, fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>
+            Content Library
+          </h2>
         </div>
-        <button onClick={fetchItems}
-          style={{background:'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
-          Refresh
-        </button>
+        <p style={{ color: '#6B7280', margin: 0, fontSize: 14, paddingLeft: 13 }}>
+          {items.length} pieces saved · {winnerCount} winners · {unratedCount} unrated
+        </p>
       </div>
 
+      {/* Stats row */}
       {items.length > 0 && (
-        <div style={{display:'flex',gap:10,marginBottom:16,flexWrap:'wrap'}}>
-          <input value={search} onChange={e=>setSearch(e.target.value)}
-            placeholder="Search saved content..."
-            style={{flex:1,minWidth:200,background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'8px 12px',color:'#111827',fontSize:13}}/>
-          <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
-            {types.map(t => (
-              <button key={t} onClick={()=>setFilter(t)}
-                style={{background:filter===t?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:filter===t?700:400,textTransform:'capitalize'}}>
-                {t}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 20 }}>
+          {[
+            { label: 'Total', val: items.length, color: '#111827', filter: 'all' },
+            { label: '🔥 Winners', val: winnerCount, color: '#10B981', filter: 'winner' },
+            { label: '✓ Solid', val: solidCount, color: '#2563EB', filter: 'solid' },
+            { label: 'Unrated', val: unratedCount, color: '#9CA3AF', filter: 'unrated' },
+          ].map(s => (
+            <button key={s.label} onClick={() => setFilterTier(filterTier === s.filter ? 'all' : s.filter)}
+              style={{ background: filterTier === s.filter ? '#111827' : '#FFFFFF', border: '1px solid ' + (filterTier === s.filter ? '#111827' : '#E5E7EB'), borderRadius: 10, padding: '12px 8px', cursor: 'pointer', textAlign: 'center', transition: 'all 0.15s' }}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: filterTier === s.filter ? '#FFFFFF' : s.color }}>{s.val}</div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.5, color: filterTier === s.filter ? 'rgba(255,255,255,0.7)' : '#9CA3AF', marginTop: 2 }}>{s.label}</div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Search + Filters */}
+      {items.length > 0 && (
+        <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', marginBottom: 16 }}>
+          {/* Search */}
+          <input
+            value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Search titles, content, platform, pillar..."
+            style={{ width: '100%', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: '10px 14px', color: '#111827', fontSize: 14, boxSizing: 'border-box', outline: 'none', marginBottom: 12 }}
+            onFocus={e => e.target.style.borderColor = '#00C2FF'}
+            onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+          />
+
+          {/* Filter row */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            {/* Sort */}
+            <select value={sortBy} onChange={e => setSortBy(e.target.value)}
+              style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 6, padding: '6px 10px', color: '#374151', fontSize: 12, cursor: 'pointer' }}>
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="winners">Winners first</option>
+            </select>
+
+            {/* Platform */}
+            {platforms.length > 2 && (
+              <select value={filterPlatform} onChange={e => setFilterPlatform(e.target.value)}
+                style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 6, padding: '6px 10px', color: '#374151', fontSize: 12, cursor: 'pointer' }}>
+                {platforms.map(p => <option key={p} value={p}>{p === 'all' ? 'All platforms' : p}</option>)}
+              </select>
+            )}
+
+            {/* Type */}
+            {types.length > 2 && (
+              <select value={filterType} onChange={e => setFilterType(e.target.value)}
+                style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 6, padding: '6px 10px', color: '#374151', fontSize: 12, cursor: 'pointer' }}>
+                {types.map(t => <option key={t} value={t}>{t === 'all' ? 'All types' : t}</option>)}
+              </select>
+            )}
+
+            {/* Pillar */}
+            {pillars.length > 2 && (
+              <select value={filterPillar} onChange={e => setFilterPillar(e.target.value)}
+                style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 6, padding: '6px 10px', color: '#374151', fontSize: 12, cursor: 'pointer' }}>
+                {pillars.map(p => <option key={p} value={p}>{p === 'all' ? 'All pillars' : p}</option>)}
+              </select>
+            )}
+
+            {/* Clear filters */}
+            {(search || filterType !== 'all' || filterPlatform !== 'all' || filterTier !== 'all' || filterPillar !== 'all') && (
+              <button onClick={() => { setSearch(''); setFilterType('all'); setFilterPlatform('all'); setFilterTier('all'); setFilterPillar('all'); }}
+                style={{ background: 'none', border: '1px solid #E5E7EB', borderRadius: 6, padding: '6px 10px', color: '#9CA3AF', fontSize: 12, cursor: 'pointer' }}>
+                Clear ×
               </button>
-            ))}
+            )}
+
+            <div style={{ marginLeft: 'auto', color: '#9CA3AF', fontSize: 12 }}>
+              {sorted.length} of {items.length}
+            </div>
           </div>
         </div>
       )}
 
+      {/* Loading */}
       {loading && (
-        <div style={{textAlign:'center',padding:'3rem',color:'#6B7280',fontSize:13}}>
-          Loading from Supabase...
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>
+          <div style={{ width: 32, height: 32, border: '2px solid #E5E7EB', borderTopColor: '#00C2FF', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }}/>
+          <p style={{ color: '#6B7280', fontSize: 13 }}>Loading from Supabase...</p>
         </div>
       )}
 
+      {/* Empty state */}
       {!loading && items.length === 0 && (
-        <div style={{textAlign:'center',padding:'4rem 2rem',background:'#FFFFFF',borderRadius:16,border:'1px solid #E5E7EB'}}>
-          <div style={{fontSize:32,marginBottom:12}}>📭</div>
-          <div style={{color:'#111827',fontWeight:700,fontSize:18,marginBottom:8}}>Nothing saved yet</div>
-          <div style={{color:'#6B7280',fontSize:14}}>Generate content in any tool and hit Save — it shows up here.</div>
+        <div style={{ textAlign: 'center', padding: '56px 24px', background: '#F9FAFB', borderRadius: 12 }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>📭</div>
+          <div style={{ color: '#111827', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Nothing saved yet</div>
+          <div style={{ color: '#6B7280', fontSize: 14 }}>Generate content in Smart Brief or Create Hub — it saves here automatically.</div>
         </div>
       )}
 
-      {!loading && filtered.length > 0 && (
-        <div style={{display:'flex',flexDirection:'column',gap:10}}>
-          {filtered.map(item => (
-            <div key={item.id} style={{
-              background:'#FFFFFF',
-              border:'1px solid #E5E7EB',
-              borderLeft:`3px solid ${typeColors[item.type]||typeColors.default}`,
-              borderRadius:10,
-              padding:'14px 16px',
-            }}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12,flexWrap:'wrap'}}>
-                <div style={{flex:1}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
-                    <span style={{background:typeColors[item.type]||typeColors.default,color:'#fff',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700,textTransform:'uppercase'}}>
-                      {item.type||'content'}
-                    </span>
-                    <span style={{color:'#6B7280',fontSize:11}}>
-                      {new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
-                    </span>
-                    {item.platform && <span style={{background:'#F9FAFB',color:'#6B7280',borderRadius:4,padding:'2px 7px',fontSize:10}}>{item.platform}</span>}
-                    {item.client_name && <span style={{background:'#F9FAFB',color:'#6B7280',borderRadius:4,padding:'2px 7px',fontSize:10}}>👤 {item.client_name}</span>}
-                  </div>
-                  <div style={{color:'#111827',fontWeight:600,fontSize:13,marginBottom:4}}>{item.title||'Untitled'}</div>
-                  {item.content_preview && (
-                    <div style={{color:'#6B7280',fontSize:12,lineHeight:1.6}}>
-                      {item.content_preview.slice(0,200)}{item.content_preview.length>200?'...':''}
+      {/* No results */}
+      {!loading && items.length > 0 && sorted.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '32px', color: '#9CA3AF', fontSize: 14 }}>
+          No content matches your filters.
+        </div>
+      )}
+
+      {/* Content grid */}
+      {!loading && sorted.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {sorted.map(item => {
+            const tier = getItemTier(item);
+            const tc = tierConfig[tier] || tierConfig.unrated;
+            const isExpanded = expandedId === item.id;
+            const typeColor = typeColors[item.type?.toLowerCase()] || typeColors.default;
+
+            return (
+              <div key={item.id}
+                style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderLeft: '3px solid ' + typeColor, borderRadius: 10, overflow: 'hidden', transition: 'border-color 0.15s' }}>
+
+                {/* Item header — always visible */}
+                <div style={{ padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: 12 }}
+                  onClick={() => setExpandedId(isExpanded ? null : item.id)}>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    {/* Tags row */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 6 }}>
+                      {item.type && (
+                        <span style={{ background: typeColor, color: '#FFF', fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                          {item.type}
+                        </span>
+                      )}
+                      {item.platform && (
+                        <span style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 10, padding: '2px 6px', borderRadius: 4 }}>
+                          {item.platform}
+                        </span>
+                      )}
+                      {item.angle && (
+                        <span style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 10, padding: '2px 6px', borderRadius: 4 }}>
+                          {item.angle}
+                        </span>
+                      )}
+                      {tier !== 'unrated' && (
+                        <span style={{ background: tc.bg, color: tc.color, border: '1px solid ' + tc.border, fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4 }}>
+                          {tc.label}
+                        </span>
+                      )}
                     </div>
-                  )}
+
+                    {/* Title */}
+                    <div style={{ color: '#111827', fontSize: 13, fontWeight: 600, lineHeight: 1.5, marginBottom: 3 }}>
+                      {item.title || 'Untitled'}
+                    </div>
+
+                    {/* Date + preview */}
+                    <div style={{ color: '#9CA3AF', fontSize: 11 }}>
+                      {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {item.content_preview && ' · ' + item.content_preview.slice(0, 60) + '...'}
+                    </div>
+                  </div>
+
+                  {/* Tier rating buttons */}
+                  <div style={{ display: 'flex', gap: 4, flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+                    {['winner', 'solid', 'weak'].map(t => (
+                      <button key={t} onClick={() => rateItem(item.id, t)}
+                        title={t.charAt(0).toUpperCase() + t.slice(1)}
+                        style={{ background: tier === t ? tierConfig[t].bg : '#F9FAFB', border: '1px solid ' + (tier === t ? tierConfig[t].border : '#E5E7EB'), borderRadius: 5, padding: '4px 7px', cursor: 'pointer', fontSize: 11, fontWeight: tier === t ? 700 : 400, color: tier === t ? tierConfig[t].color : '#9CA3AF', transition: 'all 0.12s' }}>
+                        {t === 'winner' ? '🔥' : t === 'solid' ? '✓' : '✗'}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Expand chevron */}
+                  <div style={{ color: '#D1D5DB', fontSize: 12, flexShrink: 0, marginTop: 2 }}>
+                    {isExpanded ? '▲' : '▼'}
+                  </div>
                 </div>
-                <div style={{display:'flex',gap:8,flexShrink:0}}>
-                  <button onClick={()=>navigator.clipboard.writeText(item.full_content||item.content_preview||'')}
-                    style={{background:'#F9FAFB',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 10px',fontSize:11,fontWeight:700,cursor:'pointer'}}>
-                    Copy
-                  </button>
-                  <button onClick={()=>deleteItem(item.id)}
-                    style={{background:'transparent',color:'#D1D5DB',border:'none',borderRadius:6,padding:'5px 8px',fontSize:14,cursor:'pointer'}}>
-                    ×
-                  </button>
-                </div>
+
+                {/* Expanded content */}
+                {isExpanded && (
+                  <div style={{ borderTop: '1px solid #F3F4F6', padding: '14px 16px', background: '#FAFAFA' }}>
+                    {item.full_content || item.content_preview ? (
+                      <pre style={{ color: '#374151', fontSize: 13, whiteSpace: 'pre-wrap', lineHeight: 1.75, fontFamily: 'inherit', margin: '0 0 14px', maxHeight: 320, overflowY: 'auto' }}>
+                        {item.full_content || item.content_preview}
+                      </pre>
+                    ) : (
+                      <p style={{ color: '#9CA3AF', fontSize: 13, marginBottom: 14 }}>No content preview available.</p>
+                    )}
+
+                    {/* Action buttons */}
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      <button onClick={() => copyItem(item.full_content || item.content_preview, item.id)}
+                        style={{ background: copyId === item.id ? 'rgba(16,185,129,0.1)' : '#F3F4F6', color: copyId === item.id ? '#10B981' : '#374151', border: '1px solid ' + (copyId === item.id ? 'rgba(16,185,129,0.3)' : '#E5E7EB'), borderRadius: 6, padding: '7px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                        {copyId === item.id ? 'Copied ✓' : 'Copy'}
+                      </button>
+                      <button onClick={() => deleteItem(item.id)}
+                        style={{ background: 'none', border: '1px solid #FCA5A5', borderRadius: 6, padding: '7px 14px', cursor: 'pointer', fontSize: 12, color: '#EF4444', fontWeight: 500 }}>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
-          {filtered.length===0 && items.length>0 && (
-            <div style={{textAlign:'center',padding:'2rem',color:'#6B7280',fontSize:13}}>No results match your filter.</div>
-          )}
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
-
-
-const ABHookTester = () => {
-  const [topic, setTopic] = useState('');
-  const [platform, setPlatform] = useState('Instagram');
-  const [hooks, setHooks] = useState(['', '', '']);
-  const [out, setOut] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [saved, setSaved] = useState([]);
-
-  useEffect(() => {
-    try { const s = localStorage.getItem('encis_ab_hooks'); if (s) setSaved(JSON.parse(s)); } catch {}
-  }, []);
-
-  const addHook = () => { if (hooks.length < 6) setHooks([...hooks, '']); };
-  const removeHook = (i) => { if (hooks.length > 2) setHooks(hooks.filter((_, idx) => idx !== i)); };
-  const updateHook = (i, val) => setHooks(hooks.map((h, idx) => idx === i ? val : h));
-
-  const run = async () => {
-    const filled = hooks.filter(h => h.trim());
-    if (!topic || filled.length < 2) return;
-    setLoading(true); setOut('');
-    const prompt = `You are a viral content strategist who has analyzed thousands of hooks.
-Topic: "${topic}" | Platform: ${platform}
-Score each hook variation below. Be direct and specific.
-HOOKS:
-${filled.map((h, i) => `${i + 1}. ${h}`).join('\n')}
-For EACH hook:
-**HOOK [N]:** [quote the hook]
-**Score:** [X/10]
-**Scroll-Stop Power:** [1-10]
-**Curiosity Gap:** [1-10]
-**Specificity:** [1-10]
-**Weakness:** [one sentence]
-**Rewrite:** [improved version]
----
-After all hooks:
-**WINNER:** Hook [N] — [one sentence why]
-**THE OPTIMAL HOOK:** [best possible version combining strongest elements]
-**Why This Wins:** [3 specific reasons]`;
-    const res = await ai(prompt);
-    setOut(res);
-    const entry = { id: Date.now(), topic, platform, hooks: filled, result: res, date: new Date().toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) };
-    const updated = [entry, ...saved].slice(0, 20);
-    setSaved(updated);
-    try { localStorage.setItem('encis_ab_hooks', JSON.stringify(updated)); } catch {}
-    setLoading(false);
-  };
-
-  const filledCount = hooks.filter(h => h.trim()).length;
-
-  return (
-    <div>
-      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}>
-        <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2}}/>
-        <div>
-          <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800}}>A/B Hook Tester</h2>
-          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Write 2-6 hook variations. Each gets scored and rewritten. The winner gets built into the optimal version.</p>
-        </div>
-      </div>
-      <Card>
-        <SecLabel>What is the video about?</SecLabel>
-        <input value={topic} onChange={e=>setTopic(e.target.value)} placeholder="e.g. Why most people quit before they see results"
-          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,marginBottom:16,boxSizing:'border-box'}}/>
-        <SecLabel>Platform</SecLabel>
-        <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:16}}>
-          {['Instagram','TikTok','YouTube','X','LinkedIn'].map(p => (
-            <button key={p} onClick={()=>setPlatform(p)}
-              style={{background:platform===p?'#EEF2FF':'#F9FAFB',color:platform===p?'#2563EB':'#374151',border:'1px solid '+(platform===p?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:platform===p?700:500}}>
-              {p}
-            </button>
-          ))}
-        </div>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-          <SecLabel style={{margin:0}}>Hook Variations ({filledCount} entered)</SecLabel>
-          {hooks.length < 6 && <button onClick={addHook} style={{background:'#F9FAFB',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:6,padding:'4px 12px',cursor:'pointer',fontSize:12}}>+ Add Hook</button>}
-        </div>
-        <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:16}}>
-          {hooks.map((hook, i) => (
-            <div key={i} style={{display:'flex',gap:8,alignItems:'center'}}>
-              <span style={{color:'#2563EB',fontWeight:800,fontSize:13,minWidth:20}}>{i+1}.</span>
-              <input value={hook} onChange={e=>updateHook(i,e.target.value)} placeholder={i===0?'Your first hook...':i===1?'Your second hook...':'Another variation...'}
-                style={{flex:1,background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
-              {hooks.length > 2 && <button onClick={()=>removeHook(i)} style={{background:'transparent',color:'#D1D5DB',border:'none',fontSize:16,cursor:'pointer'}}>×</button>}
-            </div>
-          ))}
-        </div>
-        <RedBtn onClick={run} disabled={loading||!topic||filledCount<2}>
-          {loading ? 'Scoring hooks...' : `Score ${filledCount} Hook${filledCount!==1?'s':''}`}
-        </RedBtn>
-      </Card>
-      {loading && <Spin/>}
-      {out && <DocOutput text={out} title={`Hook Test: ${topic}`}/>}
-      {saved.length > 0 && (
-        <div style={{marginTop:24}}>
-          <div style={{fontSize:11,color:'#6B7280',fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',marginBottom:10}}>Test History</div>
-          <div style={{display:'flex',flexDirection:'column',gap:8}}>
-            {saved.map(s => (
-              <div key={s.id} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px 16px',cursor:'pointer'}} onClick={()=>setOut(s.result)}>
-                <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{s.topic}</div>
-                <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>{s.platform} · {s.hooks.length} hooks · {s.date}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-
-const WEEKLY_BRIEF_KEY = 'encis_weekly_briefs';
 
 function WeeklyBriefAgent() {
   const [activeClient] = useActiveClient();
