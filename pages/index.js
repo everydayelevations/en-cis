@@ -329,7 +329,7 @@ const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
     if (line.startsWith('- ') || line.startsWith('* ')) return (
       <div key={idx} style={{display:'flex',gap:10,marginBottom:6,paddingLeft:4}}>
         <span style={{color:'#2563EB',fontSize:12,marginTop:3,flexShrink:0}}>▸</span>
-        <span style={{color:'rgba(255,255,255,0.85)',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^[-*]\s/,''))}</span>
+        <span style={{color:'#374151',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^[-*]\s/,''))}</span>
       </div>
     );
     // Bold-only lines (labels)
@@ -381,7 +381,7 @@ const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
       </div>
 
       {/* Rendered strategy */}
-      <div style={{background:'rgba(12,20,32,0.9)',border:'1px solid #E5E7EB',borderRadius:14,padding:'28px 32px',boxShadow:'0 4px 40px rgba(0,0,0,0.5)'}}>
+      <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:14,padding:'28px 32px',boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
         {lines.map((line, idx) => renderLine(line, idx))}
       </div>
     </div>
@@ -455,7 +455,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
       const css = [
         '@page { margin: 0.75in; size: letter; }',
         '* { box-sizing: border-box; margin: 0; padding: 0; }',
-        "body { font-family: 'DM Sans', -apple-system, sans-serif; color: #111; line-height: 1.7; font-size: 13px; }",
+        "body { font-family: 'DM Sans', -apple-system, sans-serif; color: #111827; line-height: 1.7; font-size: 14px; background: #F8FAFC; }",
         '.cover { background: #0A1628; color: #F1F5F9; padding: 48px 40px 40px; }',
         '.cover-agency { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: ' + accentColor + '; margin-bottom: 32px; }',
         '.cover-title { font-size: 36px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; color: #fff; margin-bottom: 8px; }',
@@ -522,7 +522,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
     if (line.startsWith('## ')) {
       sectionCounter++;
       return (
-        <div key={idx} style={{display:'flex',alignItems:'center',gap:10,background:'rgba(8,13,20,0.9)',borderRadius:6,padding:'9px 14px',marginTop:24,marginBottom:12}}>
+        <div key={idx} style={{display:'flex',alignItems:'center',gap:10,background:'#F9FAFB',borderRadius:6,padding:'9px 14px',marginTop:24,marginBottom:12}}>
           <div style={{background:'#2563EB',color:'#000D1A',fontSize:9,fontWeight:900,width:20,height:20,borderRadius:3,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{sectionCounter}</div>
           <div style={{fontSize:11,fontWeight:800,color:'#111827',letterSpacing:2,textTransform:'uppercase'}}>{line.slice(3)}</div>
         </div>
@@ -531,7 +531,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
     if (line.startsWith('### ')) return <div key={idx} style={{fontSize:13,fontWeight:700,color:'#00C2FF',marginTop:18,marginBottom:8,paddingLeft:12,borderLeft:'3px solid #00C2FF'}}>{line.slice(4)}</div>;
     if (line.startsWith('#### ')) return <div key={idx} style={{fontSize:12,fontWeight:700,color:'rgba(255,255,255,0.7)',marginTop:12,marginBottom:6,textTransform:'uppercase',letterSpacing:1}}>{line.slice(5)}</div>;
     if (/^\d+\.\s/.test(line)) return <div key={idx} style={{display:'flex',gap:10,marginBottom:7,paddingLeft:4}}><span style={{color:'#2563EB',fontWeight:800,fontSize:13,minWidth:20,flexShrink:0}}>{line.match(/^\d+/)[0]}.</span><span style={{color:'rgba(255,255,255,0.88)',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^\d+\.\s/,''))}</span></div>;
-    if (line.startsWith('- ') || line.startsWith('* ')) return <div key={idx} style={{display:'flex',gap:10,marginBottom:6,paddingLeft:4}}><span style={{color:'#2563EB',fontSize:12,marginTop:3,flexShrink:0}}>▸</span><span style={{color:'rgba(255,255,255,0.85)',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^[-*]\s/,''))}</span></div>;
+    if (line.startsWith('- ') || line.startsWith('* ')) return <div key={idx} style={{display:'flex',gap:10,marginBottom:6,paddingLeft:4}}><span style={{color:'#2563EB',fontSize:12,marginTop:3,flexShrink:0}}>▸</span><span style={{color:'#374151',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^[-*]\s/,''))}</span></div>;
     if (line.startsWith('**') && line.endsWith('**') && line.length > 4) return <div key={idx} style={{color:'#111827',fontWeight:700,fontSize:13,marginTop:12,marginBottom:4}}>{line.replace(/\*\*/g,'')}</div>;
     if (line === '---') return <div key={idx} style={{borderTop:'1px solid rgba(255,255,255,0.1)',margin:'20px 0'}}/>;
     if (!line.trim()) return <div key={idx} style={{height:8}}/>;
@@ -557,7 +557,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
           </button>
         </div>
       )}
-      <div style={{background:'rgba(12,20,32,0.9)',border:'1px solid #E5E7EB',borderRadius:14,padding:'28px 32px',boxShadow:'0 4px 40px rgba(0,0,0,0.5)'}}>
+      <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:14,padding:'28px 32px',boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
         {text.split('\n').map((line, idx) => renderLine(line, idx))}
       </div>
     </div>
@@ -565,8 +565,8 @@ function DocOutput({text, title='Document', showDownload=true}) {
 }
 
 const Output = ({text}) => text ? (
-  <div style={{marginTop:16,background:'rgba(8,13,20,0.8)',borderRadius:10,padding:'1rem',
-    position:'relative',border:'1px solid #E5E7EB',boxShadow:'0 2px 16px rgba(0,0,0,0.3)'}}>
+  <div style={{marginTop:16,background:'#FFFFFF',borderRadius:10,padding:'1rem',
+    position:'relative',border:'1px solid #E5E7EB',boxShadow:'0 1px 8px rgba(0,0,0,0.06)'}}>
     <div style={{position:'absolute',top:8,right:8}}><CopyBtn text={text}/></div>
     <pre style={{color:'#111827',fontSize:13,whiteSpace:'pre-wrap',margin:0,lineHeight:1.7,
       fontFamily:'inherit',paddingRight:80}}>{text}</pre>
@@ -5313,7 +5313,7 @@ function CollabTracker() {
                     onChange={e => save(contacts.map(c => c.id===contact.id ? {...c,status:e.target.value,updatedAt:Date.now()} : c))}
                     style={{background:'rgba(0,0,0,0.4)',color:statusText[contact.status],border:`1px solid ${statusColors[contact.status]}`,
                       borderRadius:6,padding:'4px 8px',fontSize:11,fontWeight:700,cursor:'pointer',textTransform:'capitalize'}}>
-                    {statuses.map(s => <option key={s} value={s} style={{color:'#F1F5F9',background:'#080D14'}}>{s}</option>)}
+                    {statuses.map(s => <option key={s} value={s} style={{color:'#F1F5F9',background:'#FFFFFF'}}>{s}</option>)}
                   </select>
                   <div style={{display:'flex',gap:6}}>
                     <button onClick={() => { setForm({...contact}); setEditId(contact.id); setShowForm(true); }}
@@ -6790,7 +6790,7 @@ function DMScriptLibrary() {
                 </div>
               </div>
               <div style={{padding:'14px 16px',maxHeight:200,overflowY:'auto'}}>
-                <pre style={{color:'rgba(255,255,255,0.7)',fontSize:12,whiteSpace:'pre-wrap',
+                <pre style={{color:'#374151',fontSize:12,whiteSpace:'pre-wrap',
                   margin:0,lineHeight:1.7,fontFamily:'inherit'}}>{s.script}</pre>
               </div>
             </div>
@@ -7511,7 +7511,7 @@ function ClientPortal() {
                 </div>
                 <select value={d.status} onChange={e=>updateDeliverableStatus(d.id,e.target.value)}
                   style={{background:'rgba(0,0,0,0.4)',color:statusText[d.status]||'#111827',border:`1px solid ${statusColors[d.status]}`,borderRadius:5,padding:'4px 8px',fontSize:11,fontWeight:700,cursor:'pointer',textTransform:'capitalize'}}>
-                  {statuses.map(s=><option key={s} value={s} style={{color:'#fff',background:'#080D14',textTransform:'capitalize'}}>{s.replace('-',' ')}</option>)}
+                  {statuses.map(s=><option key={s} value={s} style={{color:'#fff',background:'#FFFFFF',textTransform:'capitalize'}}>{s.replace('-',' ')}</option>)}
                 </select>
                 <button onClick={()=>removeDeliverable(d.id)} style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',cursor:'pointer',fontSize:14}}>×</button>
               </div>
@@ -7532,7 +7532,7 @@ function ClientPortal() {
             {[...clientNotes].reverse().map(n => (
               <div key={n.id} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:8,padding:'10px 14px',display:'flex',gap:10,alignItems:'flex-start'}}>
                 <div style={{flex:1}}>
-                  <div style={{color:'rgba(255,255,255,0.85)',fontSize:13,lineHeight:1.5}}>{n.text}</div>
+                  <div style={{color:'#374151',fontSize:13,lineHeight:1.5}}>{n.text}</div>
                   <div style={{color:'#6B7280',fontSize:11,marginTop:4}}>{n.date}</div>
                 </div>
                 <button onClick={()=>removeNote(focusClient.id,n.id)} style={{background:'transparent',color:'rgba(255,255,255,0.2)',border:'none',cursor:'pointer',fontSize:12}}>×</button>
@@ -9730,7 +9730,7 @@ function VisualCalendar() {
                     <div style={{color:'#6B7280',fontSize:10,marginTop:1}}>{p.platform} · {p.format}</div>
                   </div>
                   <select value={p.status} onChange={e=>updateStatus(selectedDate,p.id,e.target.value)} style={{background:'rgba(0,0,0,0.4)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:4,padding:'3px 6px',fontSize:10,cursor:'pointer'}}>
-                    {['planned','approved','published','needs_edit'].map(s=><option key={s} value={s} style={{background:'#080D14'}}>{s.replace('_',' ')}</option>)}
+                    {['planned','approved','published','needs_edit'].map(s=><option key={s} value={s} style={{background:'#FFFFFF'}}>{s.replace('_',' ')}</option>)}
                   </select>
                   <button onClick={()=>removePost(selectedDate,p.id)} style={{background:'none',border:'none',color:'rgba(255,255,255,0.2)',cursor:'pointer',fontSize:14}}>×</button>
                 </div>
@@ -19392,7 +19392,7 @@ class ErrorBoundary extends React.Component {
   componentDidCatch(error, info) { console.error('SIGNAL Error:', error, info); }
   render() {
     if (this.state.hasError) return (
-      <div style={{minHeight:'100vh',background:'#080D14',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'DM Sans,sans-serif'}}>
+      <div style={{minHeight:'100vh',background:'#FFFFFF',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'DM Sans,sans-serif'}}>
         <div style={{background:'#FFFFFF',border:'1px solid #D1D5DB',borderRadius:16,padding:40,maxWidth:480,textAlign:'center'}}>
           <h2 style={{color:'#F1F5F9',fontWeight:900,fontSize:22,letterSpacing:'-0.03em',marginBottom:8}}>Something went wrong</h2>
           <p style={{color:'#5A6A82',fontSize:14,marginBottom:20}}>SIGNAL hit an unexpected error. Your data is safe in localStorage.</p>
@@ -19478,7 +19478,7 @@ export default function App() {
             letter-spacing: -0.01em;
           }
           textarea, input, select { outline: none; color-scheme: light; font-family: 'DM Sans', sans-serif; }
-          textarea:focus, input:focus { border-color: #00C2FF !important; box-shadow: 0 0 0 2px rgba(0,194,255,0.08); }
+          textarea:focus, input:focus { border-color: #00C2FF !important; outline: none !important; box-shadow: 0 0 0 2px rgba(0,194,255,0.08); }
           select:focus { border-color: #00C2FF !important; }
           button { font-family: 'DM Sans', sans-serif; }
           @keyframes spin { to { transform: rotate(360deg); } }
@@ -19500,7 +19500,7 @@ export default function App() {
             .signal-subnav-inner { gap: 0 !important; padding-bottom: 1px; }
             .signal-subnav-btn { padding: 8px 12px !important; font-size: 10px !important; flex-shrink: 0; }
             /* Main content full-width */
-            .signal-main { padding: 1rem 12px !important; }
+            .signal-main { padding: 1rem 12px !important; background: #F8FAFC !important; }
             /* Cards tighter on mobile */
             .signal-card { padding: 1rem !important; }
             /* Grids collapse to single column */
