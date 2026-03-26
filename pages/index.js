@@ -325,7 +325,6 @@ const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
       </div>
     );
     
-    let items
     if (line.startsWith('- ') || line.startsWith('* ')) return (
       <div key={idx} style={{display:'flex',gap:10,marginBottom:6,paddingLeft:4}}>
         <span style={{color:'#2563EB',fontSize:12,marginTop:3,flexShrink:0}}>▸</span>
@@ -529,13 +528,13 @@ function DocOutput({text, title='Document', showDownload=true}) {
       );
     }
     if (line.startsWith('### ')) return <div key={idx} style={{fontSize:13,fontWeight:700,color:'#00C2FF',marginTop:18,marginBottom:8,paddingLeft:12,borderLeft:'3px solid #00C2FF'}}>{line.slice(4)}</div>;
-    if (line.startsWith('#### ')) return <div key={idx} style={{fontSize:12,fontWeight:700,color:'rgba(255,255,255,0.7)',marginTop:12,marginBottom:6,textTransform:'uppercase',letterSpacing:1}}>{line.slice(5)}</div>;
-    if (/^\d+\.\s/.test(line)) return <div key={idx} style={{display:'flex',gap:10,marginBottom:7,paddingLeft:4}}><span style={{color:'#2563EB',fontWeight:800,fontSize:13,minWidth:20,flexShrink:0}}>{line.match(/^\d+/)[0]}.</span><span style={{color:'rgba(255,255,255,0.88)',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^\d+\.\s/,''))}</span></div>;
+    if (line.startsWith('#### ')) return <div key={idx} style={{fontSize:12,fontWeight:700,color:'#6B7280',marginTop:12,marginBottom:6,textTransform:'uppercase',letterSpacing:1}}>{line.slice(5)}</div>;
+    if (/^\d+\.\s/.test(line)) return <div key={idx} style={{display:'flex',gap:10,marginBottom:7,paddingLeft:4}}><span style={{color:'#2563EB',fontWeight:800,fontSize:13,minWidth:20,flexShrink:0}}>{line.match(/^\d+/)[0]}.</span><span style={{color:'#374151',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^\d+\.\s/,''))}</span></div>;
     if (line.startsWith('- ') || line.startsWith('* ')) return <div key={idx} style={{display:'flex',gap:10,marginBottom:6,paddingLeft:4}}><span style={{color:'#2563EB',fontSize:12,marginTop:3,flexShrink:0}}>▸</span><span style={{color:'#374151',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^[-*]\s/,''))}</span></div>;
     if (line.startsWith('**') && line.endsWith('**') && line.length > 4) return <div key={idx} style={{color:'#111827',fontWeight:700,fontSize:13,marginTop:12,marginBottom:4}}>{line.replace(/\*\*/g,'')}</div>;
-    if (line === '---') return <div key={idx} style={{borderTop:'1px solid rgba(255,255,255,0.1)',margin:'20px 0'}}/>;
+    if (line === '---') return <div key={idx} style={{borderTop:'1px solid #E5E7EB',margin:'20px 0'}}/>;
     if (!line.trim()) return <div key={idx} style={{height:8}}/>;
-    return <div key={idx} style={{color:'rgba(255,255,255,0.82)',fontSize:13,lineHeight:1.75,marginBottom:6}}>{renderInline(line)}</div>;
+    return <div key={idx} style={{color:'#374151',fontSize:13,lineHeight:1.75,marginBottom:6}}>{renderInline(line)}</div>;
   };
 
   const renderInline = (txt) => {
