@@ -12040,273 +12040,412 @@ function OnboardingFlow({ onComplete }) {
 function IntelligenceDashboard({ setNav, setSub }) {
   const [activeClient] = useActiveClient();
   const [clients] = useClients();
-  const [metrics, setMetrics] = useState(null);
-  const [recentContent, setRecentContent] = useState([]);
-  const [trendCount, setTrendCount] = useState(0);
-  const [pendingDeliverables, setPendingDeliverables] = useState(0);
-  const [gapAngles, setGapAngles] = useState([]);
-  const [weeklyGrowth, setWeeklyGrowth] = useState(null);
-  const [topPerformer, setTopPerformer] = useState(null);
-  const [showTools, setShowTools] = useState(false);
 
-  useEffect(() => {
-    try {
-      const roi = JSON.parse(localStorage.getItem('encis_roi_weeks') || '[]');
-      if (roi.length >= 2) {
-        const latest = roi[0]; const prev = roi[1];
-        const growth = prev.followers > 0 ? Math.round(((latest.followers - prev.followers) / prev.followers) * 100) : null;
-        setMetrics(latest); setWeeklyGrowth(growth);
-      } else if (roi.length === 1) setMetrics(roi[0]);
-    } catch {}
-    try {
-      const log = JSON.parse(localStorage.getItem(MEMORY_KEY) || '[]');
-      setRecentContent(log.slice(0, 6));
-      const viral = log.filter(e => e.perf === String.fromCodePoint(0x1F525));
-      if (viral.length > 0) setTopPerformer(viral[0]);
-      const angleCounts = {};
-      ANGLES.forEach(a => { angleCounts[a.id] = 0; });
-      log.forEach(e => { if (e.angle && angleCounts[e.angle] !== undefined) angleCounts[e.angle]++; });
-      setGapAngles([...ANGLES].sort((a, b) => (angleCounts[a.id]||0) - (angleCounts[b.id]||0)).slice(0, 3));
-    } catch {}
-    try { const alerts = JSON.parse(localStorage.getItem('encis_trend_alerts') || '[]'); setTrendCount(alerts.length); } catch {}
-    try { const dels = JSON.parse(localStorage.getItem(CLIENT_DELIVERABLES_KEY) || '[]'); setPendingDeliverables(dels.filter(d => d.status === 'pending' || d.status === 'in-progress').length); } catch {}
+  // Data
+  const [trendAlerts, setTrendAlerts] = React.useState([]);
+  const [pendingQueue, setPendingQueue] = React.useState(0);
+  const [recentContent, setRecentContent] = React.useState([]);
+  const [topWinner, setTopWinner] = React.useState(null);
+  const [storyPrompt, setStoryPrompt] = React.useState('');
+  const [storyAnswer, setStoryAnswer] = React.useState('');
+  const [storySaved, setStorySaved] = React.useState(false);
+  const [stalePillars, setStalePillars] = React.useState([]);
+  const [brainSeeded, setBrainSeeded] = React.useState(true);
+  const [realityCheckDue, setRealityCheckDue] = React.useState(null);
+  const [greeting, setGreeting] = React.useState('Good morning');
+
+  // Story prompts — rotates daily
+  const STORY_PROMPTS = [
+    "What happened at work this week that most people would not have the stomach for?",
+    "What did you get wrong recently that you now see clearly?",
+    "What does showing up early look like when you actually do not want to be there?",
+    "What is something you did for a client that they never knew happened?",
+    "What did you learn this week that changed how you see something?",
+    "What is a conversation you had recently that stuck with you?",
+    "What is something you are still figuring out that you are not comfortable admitting?",
+    "What does discipline cost you that people never see?",
+    "What moment this week made you remember why you do this work?",
+    "What did you build or fix this week that took longer than it should have?",
+  ];
+
+  React.useEffect(() => {
+    const h = new Date().getHours();
+    setGreeting(h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening');
+
+    // Pick story prompt — rotates by day of year
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+    setStoryPrompt(STORY_PROMPTS[dayOfYear % STORY_PROMPTS.length]);
+
+    loadDashData();
   }, [activeClient]);
 
-  const D = {
-    bg: '#F7F9FC', card: '#FFFFFF', text: '#111827', muted: '#6B7280',
-    accent: '#2563EB', border: '#E5E7EB',
-    shadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+  const loadDashData = async () => {
+    try {
+      const clientId = activeClient?.id || 'jason';
+
+      // Trend alerts
+      const stored = localStorage.getItem('encis_trend_alerts');
+      if (stored) {
+        const alerts = JSON.parse(stored);
+        setTrendAlerts(Array.isArray(alerts) ? alerts.filter(a => !a.seen).slice(0, 3) : []);
+      }
+
+      // Approval queue
+      const queueKey = 'encis_approval_queue_' + clientId;
+      const queue = JSON.parse(localStorage.getItem(queueKey) || '[]');
+      setPendingQueue(queue.filter(q => q.status === 'pending').length);
+
+      // Recent content + top winner
+      const { data } = await supabase
+        .from('saved_content')
+        .select('*')
+        .eq('client_id', clientId)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      const recent = data || [];
+      setRecentContent(recent.slice(0, 5));
+      const winner = recent.find(c => c.notes && (c.notes.includes('winner') || c.notes.includes('outperformed')));
+      setTopWinner(winner || null);
+
+      // Brain health — stale pillars
+      const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
+      setBrainSeeded((allStories[clientId] || []).length >= 3);
+
+      // Reality check due
+      const checks = JSON.parse(localStorage.getItem('encis_reality_checks') || '[]');
+      const due = checks.find(c => !c.answered && c.dueAt <= Date.now());
+      setRealityCheckDue(due || null);
+
+      // Pillar staleness from recent content
+      const pillarUsage = {};
+      recent.slice(0, 15).forEach(c => {
+        if (c.angle) pillarUsage[c.angle] = (pillarUsage[c.angle] || 0) + 1;
+      });
+      const stale = Object.entries(pillarUsage).filter(([_, v]) => v < 2).map(([k]) => k);
+      setStalePillars(stale.slice(0, 2));
+    } catch(e) { console.error('Dashboard load:', e); }
   };
 
-  const wl = (() => { try { return JSON.parse(localStorage.getItem('encis_whitelabel') || 'null'); } catch { return null; } })();
-  const greeting = new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 17 ? 'Good afternoon' : 'Good evening';
+  const saveStoryAnswer = () => {
+    if (!storyAnswer.trim()) return;
+    try {
+      const clientId = activeClient?.id || 'jason';
+      const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
+      const newStory = {
+        id: Date.now(),
+        title: storyAnswer.slice(0, 40),
+        story_type: 'personal',
+        summary: storyAnswer,
+        key_lesson: '',
+        emotional_theme: 'personal',
+        audience_relevance: '',
+        reusable_hooks: [],
+        best_formats: ['Reel Script'],
+        proof_type: 'personal experience',
+        clientId,
+        savedAt: new Date().toISOString(),
+        lastUsed: null,
+        usageCount: 0,
+        sourceQuestion: storyPrompt,
+        rawAnswer: storyAnswer,
+      };
+      allStories[clientId] = [newStory, ...(allStories[clientId] || [])];
+      localStorage.setItem(STORY_BANK_KEY, JSON.stringify(allStories));
+      setStorySaved(true);
+      setTimeout(() => { setStoryAnswer(''); setStorySaved(false); }, 2000);
+    } catch {}
+  };
+
+  const answerRealityCheck = (response) => {
+    try {
+      const checks = JSON.parse(localStorage.getItem('encis_reality_checks') || '[]');
+      const updated = checks.map(c => c.id === realityCheckDue.id ? { ...c, answered: true, response } : c);
+      localStorage.setItem('encis_reality_checks', JSON.stringify(updated));
+      if (response === 'yes') {
+        supabase.from('saved_content')
+          .update({ notes: 'brief|winner|outperformed' })
+          .like('title', (realityCheckDue.topic || '').slice(0, 20) + '%')
+          .then(() => {});
+      }
+    } catch {}
+    setRealityCheckDue(null);
+  };
+
+  const go = (nav, sub) => { setNav(nav); if (sub) setSub(sub); };
+
   const firstName = activeClient?.name?.split(' ')[0] || 'Jason';
   const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
-  const kpis = [
-    { label: 'Followers', val: metrics?.followers ? Number(metrics.followers).toLocaleString() : null, growth: weeklyGrowth, nav: 'optimize', sub: 'roi' },
-    { label: 'Reach',     val: metrics?.reach ? Number(metrics.reach).toLocaleString() : null, nav: 'optimize', sub: 'roi' },
-    { label: 'Leads',     val: metrics?.leads || null, nav: 'optimize', sub: 'roi' },
-    { label: 'Revenue',   val: metrics?.revenue ? '$'+metrics.revenue : null, nav: 'optimize', sub: 'revenue' },
-    { label: 'Content',   val: recentContent.length || null, nav: 'optimize', sub: 'memory' },
-  ];
+  // Colors
+  const C = {
+    bg: '#F8FAFC', card: '#FFFFFF', border: '#E5E7EB',
+    text: '#111827', muted: '#6B7280', subtle: '#9CA3AF',
+    accent: '#00C2FF', blue: '#2563EB', green: '#10B981',
+    yellow: '#F59E0B', red: '#EF4444',
+  };
 
-  const cardStyle = { background: D.card, border: '1px solid '+D.border, borderRadius: 12, padding: '20px 24px', boxShadow: D.shadow };
-  const labelStyle = { fontSize: 10, fontWeight: 700, color: D.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 };
+  const Card = ({ children, style = {}, onClick }) => (
+    <div onClick={onClick}
+      style={{ background: C.card, border: '1px solid ' + C.border, borderRadius: 12, padding: '18px 20px', cursor: onClick ? 'pointer' : 'default', transition: onClick ? 'border-color 0.15s' : 'none', ...style }}
+      onMouseEnter={onClick ? e => e.currentTarget.style.borderColor = '#111827' : undefined}
+      onMouseLeave={onClick ? e => e.currentTarget.style.borderColor = C.border : undefined}>
+      {children}
+    </div>
+  );
+
+  const SectionLabel = ({ children }) => (
+    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: C.subtle, marginBottom: 10 }}>
+      {children}
+    </div>
+  );
 
   return (
-    <div style={{ background: D.bg, minHeight: '100vh', margin: '-1.5rem -16px', padding: '20px 16px', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
-      <div style={{ maxWidth: 1060, margin: '0 auto' }}>
+    <div style={{ background: C.bg, minHeight: '100vh' }}>
+      <div style={{ maxWidth: 820, margin: '0 auto', padding: '28px 20px 60px' }}>
 
-        {/* HEADER */}
-        <div className="signal-tool-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-          <div>
-            <div style={{ fontSize: 12, color: D.muted, marginBottom: 4 }}>{dateStr}</div>
-            <h1 style={{ fontSize: 26, fontWeight: 800, color: D.text, margin: 0, letterSpacing: '-0.03em', lineHeight: 1.2 }}>{greeting}, {firstName}.</h1>
-            <p style={{ fontSize: 13, color: D.muted, margin: '4px 0 0' }}>
-              {!metrics ? 'Log your first week of metrics to activate your dashboard.' : 'Last logged: '+(metrics.week||'this week')}
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => { setNav('brain'); setSub('onboard'); }}
-              style={{ background: D.accent, color: '#fff', border: 'none', borderRadius: 8, padding: '9px 18px', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
-              + New Strategy
-            </button>
-            <button onClick={() => setShowTools(s => !s)}
-              style={{ background: D.card, color: D.muted, border: '1px solid '+D.border, borderRadius: 8, padding: '9px 16px', fontWeight: 600, cursor: 'pointer', fontSize: 13 }}>
-              {showTools ? 'Hide Tools' : 'All Tools'}
-            </button>
-          </div>
+        {/* ── HEADER ── */}
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ color: C.muted, fontSize: 13, marginBottom: 4 }}>{dateStr}</div>
+          <h1 style={{ color: C.text, fontSize: 26, fontWeight: 900, letterSpacing: '-0.04em', margin: 0, lineHeight: 1.2 }}>
+            {greeting}, {firstName}.
+          </h1>
+          {activeClient && !activeClient.isDefault && (
+            <div style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(0,194,255,0.08)', border: '1px solid rgba(0,194,255,0.2)', borderRadius: 20, padding: '4px 12px' }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: C.accent }}/>
+              <span style={{ color: C.accent, fontSize: 12, fontWeight: 700 }}>{activeClient.name}</span>
+            </div>
+          )}
         </div>
 
-        {/* KPI ROW */}
-        <div className="signal-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 10, marginBottom: 18 }}>
-          {kpis.map(k => {
-            const empty = k.val === null || k.val === undefined;
-            return (
-              <div key={k.label} onClick={() => { setNav(k.nav); setSub(k.sub); }}
-                style={{ ...cardStyle, padding: '16px 18px', cursor: 'pointer', opacity: empty ? 0.6 : 1 }}>
-                <div style={labelStyle}>{k.label}</div>
-                {empty
-                  ? <div style={{ fontSize: 12, color: D.accent, fontWeight: 600 }}>+ Add data</div>
-                  : <div style={{ fontSize: 24, fontWeight: 800, color: D.text, letterSpacing: '-0.04em', lineHeight: 1.1 }}>{k.val}</div>
-                }
-                {!empty && k.growth !== null && k.growth !== undefined && (
-                  <div style={{ fontSize: 11, color: k.growth >= 0 ? '#16a34a' : '#dc2626', fontWeight: 600, marginTop: 3 }}>
-                    {k.growth >= 0 ? '+' : ''}{k.growth}% this week
-                  </div>
-                )}
+        {/* ── REALITY CHECK BANNER ── */}
+        {realityCheckDue && (
+          <div style={{ background: 'rgba(0,194,255,0.06)', border: '1px solid rgba(0,194,255,0.2)', borderRadius: 12, padding: '14px 18px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+            <div>
+              <div style={{ color: C.accent, fontWeight: 700, fontSize: 13 }}>48hr check-in</div>
+              <div style={{ color: C.muted, fontSize: 12, marginTop: 2 }}>
+                "{(realityCheckDue.topic || '').slice(0, 55)}{(realityCheckDue.topic || '').length > 55 ? '...' : ''}" — did this outperform?
               </div>
-            );
-          })}
-        </div>
-
-        {/* EXECUTION HUB + OPPORTUNITIES */}
-        <div className="signal-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
-          <div style={cardStyle}>
-            <div style={labelStyle}>Execution Hub</div>
-            <div className="signal-exec-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              {[
-                { label: 'Create Content', nav: 'create',   sub: 'create'   },
-                { label: 'Write Caption',  nav: 'create',   sub: 'create'   },
-                { label: 'Run Research',   nav: 'research', sub: 'research' },
-                { label: 'Plan Week',      nav: 'optimize', sub: 'review'   },
-                { label: 'Log Metrics',    nav: 'optimize', sub: 'growth'   },
-                { label: 'Weekly Review',  nav: 'optimize', sub: 'review'   },
-              ].map(a => (
-                <button key={a.label} onClick={() => { setNav(a.nav); setSub(a.sub); }}
-                  style={{ background: '#F3F4F6', border: '1px solid '+D.border, borderRadius: 8, padding: '10px 14px', cursor: 'pointer', textAlign: 'left', fontSize: 12, fontWeight: 600, color: D.text, transition: 'all 0.15s' }}
-                  onMouseEnter={e => { e.currentTarget.style.background='#EEF2FF'; e.currentTarget.style.color=D.accent; e.currentTarget.style.borderColor='#C7D2FE'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background='#F3F4F6'; e.currentTarget.style.color=D.text; e.currentTarget.style.borderColor=D.border; }}>
-                  {a.label}
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {[['yes', '🔥 Yes'], ['same', 'Same'], ['no', 'No']].map(([val, label]) => (
+                <button key={val} onClick={() => answerRealityCheck(val)}
+                  style={{ background: '#FFFFFF', color: C.text, border: '1px solid ' + C.border, borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                  {label}
                 </button>
               ))}
             </div>
           </div>
+        )}
 
-          <div style={cardStyle}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <div style={labelStyle}>Opportunities</div>
-              <button onClick={() => { setNav('insights'); setSub('gaps'); }}
-                style={{ background: 'none', border: 'none', color: D.accent, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>View all</button>
-            </div>
-            {gapAngles.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {gapAngles.map(a => (
-                  <div key={a.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#F9FAFB', borderRadius: 8, border: '1px solid '+D.border }}>
-                    <div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: D.text }}>{a.label}</div>
-                      <div style={{ fontSize: 11, color: D.muted, marginTop: 1 }}>Under-used in your mix</div>
-                    </div>
-                    <button onClick={() => { setNav('create'); setSub('create'); }}
-                      style={{ background: D.accent, color: '#fff', border: 'none', borderRadius: 6, padding: '5px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-                      Create
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{ color: D.muted, fontSize: 12, padding: '20px 0', textAlign: 'center' }}>Rate content in Content Memory to unlock opportunities.</div>
-            )}
-          </div>
-        </div>
+        {/* ── 4 QUESTIONS GRID ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
 
-        {/* RECENT CONTENT + TOP PERFORMER */}
-        <div className="signal-grid-2" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14, marginBottom: 14 }}>
-          <div style={cardStyle}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <div style={labelStyle}>Recent Content</div>
-              <button onClick={() => { setNav('library'); setSub('memory'); }}
-                style={{ background: 'none', border: 'none', color: D.accent, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>View all</button>
-            </div>
-            {recentContent.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {recentContent.slice(0,5).map((e,idx) => (
-                  <div key={e.id||idx} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0', borderBottom: idx < 4 ? '1px solid '+D.border : 'none' }}>
-                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: e.perf ? '#16a34a' : D.border, flexShrink: 0 }}/>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: D.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.title||e.topic||'Untitled'}</div>
-                      <div style={{ fontSize: 10, color: D.muted, marginTop: 1 }}>{e.type} · {e.date}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{ color: D.muted, fontSize: 12, padding: '20px 0', textAlign: 'center' }}>Generate content to build your history.</div>
-            )}
-          </div>
-
-          <div style={cardStyle}>
-            <div style={labelStyle}>Top Performer</div>
-            {topPerformer ? (
+          {/* Q1: What should I make next? */}
+          <Card onClick={() => go('create', 'smartbrief')}>
+            <SectionLabel>What should I make next?</SectionLabel>
+            {trendAlerts.length > 0 ? (
               <div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>Viral</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: D.text, lineHeight: 1.4, marginBottom: 4 }}>{topPerformer.title||topPerformer.topic||'Untitled'}</div>
-                <div style={{ fontSize: 11, color: D.muted, marginBottom: 14 }}>{topPerformer.type} · {topPerformer.date}</div>
-                <button onClick={() => { setNav('create'); setSub('create'); }}
-                  style={{ background: D.accent, color: '#fff', border: 'none', borderRadius: 6, padding: '7px 14px', fontSize: 11, fontWeight: 700, cursor: 'pointer', width: '100%' }}>
-                  Repurpose This
-                </button>
+                <div style={{ color: C.text, fontSize: 13, fontWeight: 600, lineHeight: 1.5, marginBottom: 8 }}>
+                  {trendAlerts[0].account || trendAlerts[0].angle || 'Trend signal'}
+                </div>
+                <div style={{ color: C.muted, fontSize: 12, lineHeight: 1.5, marginBottom: 10 }}>
+                  {(trendAlerts[0].steal || trendAlerts[0].text || '').slice(0, 80)}...
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <span style={{ background: 'rgba(239,68,68,0.1)', color: C.red, fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4 }}>
+                    {trendAlerts.length} trend{trendAlerts.length !== 1 ? 's' : ''} waiting
+                  </span>
+                </div>
               </div>
             ) : (
-              <div style={{ color: D.muted, fontSize: 12, textAlign: 'center', padding: '20px 0' }}>Rate a post in Content Memory.</div>
+              <div>
+                <div style={{ color: C.text, fontSize: 13, fontWeight: 600, marginBottom: 6 }}>Open Smart Brief</div>
+                <div style={{ color: C.muted, fontSize: 12 }}>3 fields. Quality-checked. Ready to post.</div>
+              </div>
             )}
-          </div>
+            <div style={{ marginTop: 12, color: C.accent, fontSize: 12, fontWeight: 700 }}>Create → Smart Brief ✦ →</div>
+          </Card>
+
+          {/* Q2: What needs review? */}
+          <Card onClick={() => go('library', 'approvalqueue')}>
+            <SectionLabel>What needs review?</SectionLabel>
+            {pendingQueue > 0 ? (
+              <div>
+                <div style={{ fontSize: 32, fontWeight: 900, color: C.text, lineHeight: 1, marginBottom: 6 }}>{pendingQueue}</div>
+                <div style={{ color: C.muted, fontSize: 13 }}>piece{pendingQueue !== 1 ? 's' : ''} waiting in Approval Queue</div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ color: C.green, fontWeight: 700, fontSize: 14, marginBottom: 4 }}>Queue is clear ✓</div>
+                <div style={{ color: C.muted, fontSize: 12 }}>Nothing waiting for approval right now.</div>
+              </div>
+            )}
+            <div style={{ marginTop: 12, color: C.accent, fontSize: 12, fontWeight: 700 }}>Library → Approval Queue →</div>
+          </Card>
+
+          {/* Q3: What is working? */}
+          <Card onClick={() => go('insights', 'growth')}>
+            <SectionLabel>What is working?</SectionLabel>
+            {topWinner ? (
+              <div>
+                <div style={{ color: C.text, fontSize: 13, fontWeight: 600, lineHeight: 1.5, marginBottom: 4 }}>
+                  {topWinner.title?.slice(0, 60)}{(topWinner.title || '').length > 60 ? '...' : ''}
+                </div>
+                <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+                  {topWinner.platform && <span style={{ background: '#F3F4F6', color: C.muted, fontSize: 10, padding: '2px 6px', borderRadius: 4 }}>{topWinner.platform}</span>}
+                  <span style={{ background: 'rgba(16,185,129,0.1)', color: C.green, fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4 }}>Winner 🔥</span>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ color: C.muted, fontSize: 13, lineHeight: 1.6 }}>
+                  No winners flagged yet. Approve content and answer 48hr check-ins to build your pattern library.
+                </div>
+              </div>
+            )}
+            <div style={{ marginTop: 12, color: C.accent, fontSize: 12, fontWeight: 700 }}>Insights → Growth Dashboard →</div>
+          </Card>
+
+          {/* Q4: Where do I start right now? */}
+          <Card>
+            <SectionLabel>Where do I start right now?</SectionLabel>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {!brainSeeded && (
+                <button onClick={() => go('create', 'brain')}
+                  style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: C.red, fontSize: 12, fontWeight: 600 }}>Seed your story bank</span>
+                  <span style={{ color: C.red, fontSize: 11 }}>→</span>
+                </button>
+              )}
+              <button onClick={() => go('create', 'smartbrief')}
+                style={{ background: '#111827', border: 'none', borderRadius: 8, padding: '10px 12px', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: '#FFF', fontSize: 12, fontWeight: 700 }}>Generate content now</span>
+                <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>→</span>
+              </button>
+              <button onClick={() => go('discover', 'discover')}
+                style={{ background: '#F9FAFB', border: '1px solid ' + C.border, borderRadius: 8, padding: '8px 12px', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: C.text, fontSize: 12, fontWeight: 600 }}>Check what is trending</span>
+                <span style={{ color: C.muted, fontSize: 11 }}>→</span>
+              </button>
+              {stalePillars.length > 0 && (
+                <button onClick={() => go('create', 'smartbrief')}
+                  style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', textAlign: 'left' }}>
+                  <span style={{ color: '#92400E', fontSize: 12, fontWeight: 600 }}>
+                    Underused: {stalePillars.join(', ')}
+                  </span>
+                </button>
+              )}
+            </div>
+          </Card>
         </div>
 
-        {/* FIRST STEPS */}
-        {!metrics && recentContent.length === 0 && (
-          <div style={{ ...cardStyle, marginBottom: 14 }}>
-            <div style={{ ...labelStyle, color: D.accent }}>Get Started — Your First 3 Moves</div>
-            <div className="signal-grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
-              {[
-                { num:'1', title:'Build your strategy', desc:'90-Day Strategy Builder generates your complete content foundation.', nav:'strategy', sub:'onboard', cta:'Build Strategy' },
-                { num:'2', title:'Log your first metric', desc:'Add your current follower count so SIGNAL can track growth.', nav:'optimize', sub:'roi', cta:'Log Metrics' },
-                { num:'3', title:'Write your first script', desc:'Script Engine generates a camera-ready script in under 60 seconds.', nav:'create', sub:'create', cta:'Write Script' },
-              ].map(step => (
-                <div key={step.num} onClick={() => { setNav(step.nav); setSub(step.sub); }}
-                  style={{ background: '#F9FAFB', borderRadius: 8, padding: '16px', cursor: 'pointer', border: '1px solid '+D.border }}>
-                  <div style={{ width: 24, height: 24, borderRadius: 6, background: D.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, color: '#fff', marginBottom: 10 }}>{step.num}</div>
-                  <div style={{ color: D.text, fontWeight: 700, fontSize: 12, marginBottom: 4 }}>{step.title}</div>
-                  <div style={{ color: D.muted, fontSize: 11, lineHeight: 1.5, marginBottom: 10 }}>{step.desc}</div>
-                  <div style={{ color: D.accent, fontSize: 11, fontWeight: 700 }}>{step.cta} →</div>
+        {/* ── STORY PROMPT OF THE DAY ── */}
+        <Card style={{ marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+            <div style={{ fontSize: 22, flexShrink: 0, marginTop: 2 }}>✍️</div>
+            <div style={{ flex: 1 }}>
+              <SectionLabel>Story prompt of the day</SectionLabel>
+              <div style={{ color: C.text, fontSize: 14, fontWeight: 600, lineHeight: 1.6, marginBottom: 12 }}>
+                {storyPrompt}
+              </div>
+              {!storySaved ? (
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <textarea
+                    value={storyAnswer}
+                    onChange={e => setStoryAnswer(e.target.value)}
+                    placeholder="Write 2-3 sentences. Raw is better than polished..."
+                    rows={2}
+                    style={{ flex: 1, background: '#F9FAFB', border: '1px solid ' + C.border, borderRadius: 8, padding: '10px 12px', color: C.text, fontSize: 13, resize: 'none', fontFamily: 'inherit', lineHeight: 1.6, outline: 'none' }}
+                    onFocus={e => e.target.style.borderColor = C.accent}
+                    onBlur={e => e.target.style.borderColor = C.border}
+                  />
+                  <button onClick={saveStoryAnswer} disabled={!storyAnswer.trim()}
+                    style={{ background: storyAnswer.trim() ? '#111827' : '#F3F4F6', color: storyAnswer.trim() ? '#FFF' : C.subtle, border: 'none', borderRadius: 8, padding: '0 16px', fontWeight: 700, cursor: storyAnswer.trim() ? 'pointer' : 'not-allowed', fontSize: 13, flexShrink: 0 }}>
+                    Save
+                  </button>
                 </div>
+              ) : (
+                <div style={{ color: C.green, fontWeight: 700, fontSize: 13 }}>✓ Saved to story bank</div>
+              )}
+            </div>
+          </div>
+        </Card>
+
+        {/* ── RECENT CONTENT + QUICK ACTIONS ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+
+          {/* Recent content */}
+          <Card>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <SectionLabel>Recent content</SectionLabel>
+              <button onClick={() => go('library', 'libraryview')}
+                style={{ background: 'none', border: 'none', color: C.accent, cursor: 'pointer', fontSize: 11, fontWeight: 700 }}>View all →</button>
+            </div>
+            {recentContent.length === 0 ? (
+              <div style={{ color: C.subtle, fontSize: 13 }}>Generate content to build your library.</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {recentContent.map((item, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: item.notes?.includes('winner') ? C.green : C.border, flexShrink: 0 }}/>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ color: C.text, fontSize: 12, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {item.title || item.topic || 'Untitled'}
+                      </div>
+                      <div style={{ color: C.subtle, fontSize: 10, marginTop: 1 }}>{item.platform || ''}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+
+          {/* Quick actions */}
+          <Card>
+            <SectionLabel>Quick actions</SectionLabel>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+              {[
+                { label: 'Smart Brief', sub: 'Create your next piece', nav: 'create', subnav: 'smartbrief', icon: '✦' },
+                { label: 'Trend Monitor', sub: 'See what is viral now', nav: 'agents', subnav: 'trendmonitor', icon: '📡' },
+                { label: 'Brain Builder', sub: 'Add a story or check health', nav: 'create', subnav: 'brain', icon: '🧠' },
+                { label: 'Learning Loop', sub: 'Extract winner patterns', nav: 'create', subnav: 'learning', icon: '🔁' },
+                { label: 'New Client Setup', sub: 'Upload intake or guided', nav: 'brain', subnav: 'dualonboard', icon: '📄' },
+              ].map((a, i) => (
+                <button key={i} onClick={() => go(a.nav, a.subnav)}
+                  style={{ background: '#F9FAFB', border: '1px solid ' + C.border, borderRadius: 8, padding: '9px 12px', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 10, transition: 'border-color 0.15s' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = '#111827'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = C.border}>
+                  <span style={{ fontSize: 14, flexShrink: 0 }}>{a.icon}</span>
+                  <div>
+                    <div style={{ color: C.text, fontSize: 12, fontWeight: 700 }}>{a.label}</div>
+                    <div style={{ color: C.subtle, fontSize: 11 }}>{a.sub}</div>
+                  </div>
+                </button>
               ))}
             </div>
-          </div>
-        )}
+          </Card>
+        </div>
 
-        {/* CLIENT SWITCHER */}
+        {/* ── CLIENT SWITCHER ── */}
         {clients.length > 1 && (
-          <div style={{ ...cardStyle, marginBottom: 14 }}>
-            <div style={labelStyle}>Clients</div>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {clients.map(c => {
-                const isActive = activeClient?.id === c.id;
-                const pending = (() => { try { return JSON.parse(localStorage.getItem(CLIENT_DELIVERABLES_KEY)||'[]').filter(d=>d.clientId===c.id&&(d.status==='pending'||d.status==='in-progress')).length; } catch { return 0; } })();
-                return (
-                  <button key={c.id} onClick={() => { setNav('brain'); setSub('portal'); }}
-                    style={{ background: isActive?'#EEF2FF':'#F9FAFB', color: isActive?D.accent:D.text, border: '1px solid '+(isActive?'#C7D2FE':D.border), borderRadius: 7, padding: '6px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ marginTop: 14 }}>
+            <Card>
+              <SectionLabel>Switch client</SectionLabel>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {clients.map(c => (
+                  <button key={c.id} onClick={() => {
+                    try {
+                      localStorage.setItem('encis_active_client', c.id);
+                      window.location.reload();
+                    } catch {}
+                  }}
+                    style={{ background: activeClient?.id === c.id ? '#111827' : '#F9FAFB', color: activeClient?.id === c.id ? '#FFF' : C.text, border: '1px solid ' + (activeClient?.id === c.id ? '#111827' : C.border), borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontSize: 12, fontWeight: activeClient?.id === c.id ? 700 : 500 }}>
                     {c.name}
-                    {pending > 0 && <span style={{ background: '#f59e0b', color: '#fff', borderRadius: 10, padding: '1px 6px', fontSize: 9, fontWeight: 800 }}>{pending}</span>}
+                    {activeClient?.id === c.id && <span style={{ marginLeft: 4, opacity: 0.6 }}>●</span>}
                   </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* ALL TOOLS */}
-        {showTools && (
-          <div style={cardStyle}>
-            <div style={labelStyle}>All Tools</div>
-            {['create','discover','library','brain','agents','insights','youtube'].map(group => {
-              const groupColor = { create:'#7c3aed', discover:'#2563EB', library:'#0891b2', brain:'#2563EB', agents:'#16a34a', insights:'#16a34a' }[group] || '#6B7280';
-              const allTools = [
-                {nav:'create',sub:'smartbrief',t:'Smart Brief ✦'},{nav:'create',sub:'brain',t:'Brain Builder'},{nav:'create',sub:'learning',t:'Learning Loop'},{nav:'create',sub:'create',t:'Create Hub'},{nav:'create',sub:'hooks',t:'Hook Workshop'},{nav:'create',sub:'captionbatch',t:'Caption Batch'},{nav:'create',sub:'repurpose',t:'Repurpose Agent'},{nav:'create',sub:'design',t:'Carousel Studio'},{nav:'create',sub:'email',t:'Email Sequences'},{nav:'create',sub:'dmscripts',t:'DM Scripts'},{nav:'create',sub:'comment',t:'Comment Responder'},
-                {nav:'discover',sub:'research',t:'Research Hub'},{nav:'discover',sub:'trendmonitor',t:'Trend Monitor'},{nav:'discover',sub:'compintel',t:'Competitor Intel'},{nav:'discover',sub:'vault',t:'Prompt Vault'},{nav:'discover',sub:'collab',t:'Collab Finder'},
-                {nav:'library',sub:'libraryview',t:'Content Library'},{nav:'library',sub:'approvalqueue',t:'Approval Queue'},{nav:'library',sub:'memory',t:'Content Memory'},{nav:'library',sub:'abhook',t:'A/B Hook Tester'},
-                {nav:'brain',sub:'onboard',t:'Strategy Builder'},{nav:'brain',sub:'clients',t:'Client Profiles'},{nav:'brain',sub:'voice',t:'Voice Fingerprint'},{nav:'brain',sub:'persona',t:'AI Persona'},{nav:'brain',sub:'calendar',t:'Content Calendar'},{nav:'brain',sub:'visualcal',t:'Visual Calendar'},
-                {nav:'agents',sub:'weeklybrief',t:'Weekly Brief'},{nav:'agents',sub:'perfagent',t:'Performance Agent'},{nav:'agents',sub:'clientreport',t:'Client Reports'},{nav:'agents',sub:'onboarding',t:'Client Onboarding'},{nav:'agents',sub:'compintel',t:'Competitor Intel'},
-                {nav:'insights',sub:'growth',t:'Growth Dashboard'},{nav:'insights',sub:'review',t:'Weekly Review'},{nav:'insights',sub:'stratreview',t:'AI Strategy Review'},{nav:'insights',sub:'gaps',t:'Gap Analyzer'},{nav:'insights',sub:'predictor',t:'Predictor'},{nav:'insights',sub:'schedule',t:'Schedule Optimizer'},{nav:'insights',sub:'revenue',t:'Revenue Attribution'},{nav:'insights',sub:'pricing',t:'Pricing Calc'},
-              ].filter(t => t.nav === group);
-              if (!allTools.length) return null;
-              return (
-                <div key={group} style={{ marginBottom: 14 }}>
-                  <div style={{ fontSize: 9, color: groupColor, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>{group.toUpperCase()}</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {allTools.map(tool => (
-                      <button key={tool.sub} onClick={() => { setNav(tool.nav); setSub(tool.sub); setShowTools(false); }}
-                        style={{ background: '#F3F4F6', border: '1px solid '+D.border, borderRadius: 6, padding: '5px 12px', cursor: 'pointer', fontSize: 11, fontWeight: 600, color: D.text }}
-                        onMouseEnter={e => { e.currentTarget.style.background='#EEF2FF'; e.currentTarget.style.color=D.accent; }}
-                        onMouseLeave={e => { e.currentTarget.style.background='#F3F4F6'; e.currentTarget.style.color=D.text; }}>
-                        {tool.t}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+                ))}
+              </div>
+            </Card>
           </div>
         )}
 
@@ -12315,9 +12454,6 @@ function IntelligenceDashboard({ setNav, setSub }) {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// FEATURE 8: TREND ALERT NOTIFICATIONS (Web Push API free)
-// ═════════════════════════════════════════════════════════════════════════════
 function useTrendNotifications() {
   const [permission, setPermission] = useState('default');
 
