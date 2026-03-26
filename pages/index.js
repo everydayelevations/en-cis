@@ -5784,6 +5784,7 @@ const SUB_NAV = {
     { id:'visualcal',    label:'Visual Calendar' },
   ],
   agents: [
+    { id:'contentengine', label:'Content Engine' },
     { id:'weeklybrief',  label:'Weekly Brief' },
     { id:'perfagent',    label:'Performance Agent' },
     { id:'clientreport', label:'Client Reports' },
@@ -21976,6 +21977,519 @@ function DualOnboarding() {
   );
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONTENT ENGINE AGENT
+// Standalone hub: Brain-connected, format-aware, full pipeline.
+// Format first → topic → generate → risk gate → story extract → approve.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const CE_FORMATS = [
+  { id:'reel',      label:'Reel Script',    icon:'🎬', platform:'Instagram', desc:'Hook + spoken script + CTA + caption' },
+  { id:'carousel',  label:'Carousel',       icon:'📱', platform:'Instagram', desc:'Cover slide + body slides + CTA slide' },
+  { id:'caption',   label:'Caption Post',   icon:'✍️', platform:'Instagram', desc:'Hook + body + CTA + hashtags' },
+  { id:'email',     label:'Email',          icon:'📧', platform:'Email',     desc:'Subject + preview + body + CTA' },
+  { id:'linkedin',  label:'LinkedIn Post',  icon:'💼', platform:'LinkedIn',  desc:'Hook + long-form body + CTA' },
+  { id:'thread',    label:'Thread / X',     icon:'🔁', platform:'X',         desc:'5-7 tweet thread with hook' },
+  { id:'youtube',   label:'YouTube Script', icon:'▶️', platform:'YouTube',   desc:'Intro + body sections + CTA' },
+  { id:'shortpost', label:'Short Post',     icon:'⚡', platform:'Instagram', desc:'Punchy single post under 150 chars' },
+];
+
+const CE_PROMPT = (format, topic, detail, brain, stories, winners) => {
+  const voiceBlock = brain ? `CREATOR BRAIN:
+Name: ${brain.clientName || 'Creator'}
+Niche: ${brain.niche_summary || ''}
+Voice: ${brain.voice_profile?.description || ''}
+Energy: ${brain.voice_profile?.energy || ''}
+Banned phrases: ${brain.voice_profile?.banned_phrases?.join(', ') || 'none'}
+Anti-generic rules: ${brain.anti_generic_rules?.join(' | ') || 'Never generic. Always lived experience.'}
+Transformation promise: ${brain.transformation_promise || ''}` : '';
+
+  const storyHint = stories?.length > 0
+    ? `\nSTORY BANK (use one if relevant):\n${stories.slice(0, 3).map(s => `- ${s.title}: ${s.summary} → ${s.key_lesson}`).join('\n')}`
+    : '';
+
+  const winnerHint = winners?.length > 0
+    ? `\nWINNER PATTERNS:\n${winners.slice(0, 2).map(w => `- ${w.title}: ${w.notes || ''}`).join('\n')}`
+    : '';
+
+  const formatInstructions = {
+    reel: `Write a complete Reel Script:
+**HOOK** (first 3 seconds spoken on camera):
+[exact words]
+
+**SCRIPT** (spoken, 45-90 seconds):
+[full spoken script, natural rhythm, short punchy sentences]
+
+**ON-SCREEN TEXT** (3-4 overlays):
+[text 1]
+[text 2]
+[text 3]
+
+**CTA** (spoken):
+[exact words]
+
+**CAPTION** (full, with hashtags):
+[complete caption]`,
+
+    carousel: `Write a complete Carousel:
+**COVER SLIDE:**
+[headline that stops the scroll]
+
+**SLIDE 2:** [headline] | [one supporting line]
+**SLIDE 3:** [headline] | [one supporting line]
+**SLIDE 4:** [headline] | [one supporting line]
+**SLIDE 5:** [headline] | [one supporting line]
+
+**CTA SLIDE:**
+[exact CTA text]
+
+**CAPTION:**
+[full caption with hashtags]`,
+
+    caption: `Write a complete Caption Post:
+**HOOK** (first line — stops the scroll):
+[exact opening line]
+
+**BODY** (3-5 short punchy lines):
+[body]
+
+**CTA:**
+[direct call to action]
+
+**HASHTAGS:**
+[10 relevant hashtags]`,
+
+    email: `Write a complete Email:
+**SUBJECT LINE:** [compelling, under 50 chars]
+**PREVIEW TEXT:** [45-60 chars]
+
+**BODY:**
+[full email — reads like a real person, not a newsletter]
+
+**CTA:**
+[one clear action]`,
+
+    linkedin: `Write a complete LinkedIn Post:
+**HOOK** (first line — drives the click to expand):
+[exact hook]
+
+**BODY** (200-350 words, with line breaks every 2-3 lines):
+[full post]
+
+**CTA:**
+[LinkedIn-appropriate close]`,
+
+    thread: `Write a complete Thread:
+Tweet 1 (hook — makes them want to read all):
+Tweet 2:
+Tweet 3:
+Tweet 4:
+Tweet 5:
+Tweet 6 (CTA):`,
+
+    youtube: `Write a complete YouTube Script:
+**HOOK** (first 30 seconds — keeps them from clicking away):
+[exact script]
+
+**INTRO** (30-60 seconds):
+[exact script]
+
+**MAIN CONTENT** (section by section with headers):
+[full script]
+
+**OUTRO + CTA:**
+[exact script]`,
+
+    shortpost: `Write a punchy Short Post (under 150 characters):
+[post text — no hashtags, no filler, just the thing]
+
+Then write 2 alternate versions below it.`,
+  };
+
+  return `${voiceBlock}
+${storyHint}
+${winnerHint}
+
+ANTI-GENERIC STANDARD:
+If 1,000 creators could post this — rewrite it until they couldn't.
+Must contain at least one: real moment, specific number, named experience, or identifiable tension.
+Hook must be ownable by THIS creator — not interchangeable with anyone else.
+If it sounds like advice → convert to story or lived insight.
+
+TOPIC: ${topic}
+${detail ? 'ADDITIONAL DETAIL: ' + detail : ''}
+
+${formatInstructions[format] || formatInstructions.caption}
+
+Generate now. Make it ready to post.`;
+};
+
+function ContentEngine() {
+  const [activeClient] = useActiveClient();
+  const [format, setFormat] = React.useState(null);
+  const [topic, setTopic] = React.useState('');
+  const [detail, setDetail] = React.useState('');
+  const [step, setStep] = React.useState('format'); // format | brief | generating | gate | approved
+  const [output, setOutput] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+
+  // Brain data
+  const [brain, setBrain] = React.useState(null);
+  const [stories, setStories] = React.useState([]);
+  const [winners, setWinners] = React.useState([]);
+
+  // Risk gate
+  const [gateResult, setGateResult] = React.useState(null);
+  const [gateLoading, setGateLoading] = React.useState(false);
+  const [approved, setApproved] = React.useState(false);
+  const [overrides, setOverrides] = React.useState(0);
+
+  // Story suggestion from brain
+  const [storyPrompt, setStoryPrompt] = React.useState('');
+
+  const clientId = activeClient?.id || 'jason';
+
+  React.useEffect(() => { loadBrainData(); }, [activeClient]);
+
+  const loadBrainData = async () => {
+    try {
+      const brains = JSON.parse(localStorage.getItem(BRAIN_KEY) || '{}');
+      const b = brains[clientId] || null;
+      setBrain(b);
+
+      const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
+      const clientStories = allStories[clientId] || [];
+      setStories(clientStories);
+
+      // Pick a random story as a prompt
+      if (clientStories.length > 0) {
+        const s = clientStories[Math.floor(Math.random() * clientStories.length)];
+        setStoryPrompt(s.title || s.summary?.slice(0, 60) || '');
+      }
+
+      // Load recent winners
+      const { data } = await supabase.from('saved_content').select('*')
+        .eq('client_id', clientId)
+        .or('notes.ilike.%winner%,notes.ilike.%outperformed%')
+        .order('created_at', { ascending: false }).limit(5);
+      setWinners(data || []);
+    } catch(e) { console.error('ContentEngine brain load:', e); }
+  };
+
+  const selectFormat = (f) => {
+    setFormat(f);
+    setStep('brief');
+    setOutput(''); setGateResult(null); setApproved(false); setOverrides(0);
+  };
+
+  const generate = async () => {
+    if (!topic.trim()) return;
+    setLoading(true); setStep('generating'); setOutput(''); setGateResult(null); setApproved(false);
+    const prompt = CE_PROMPT(format.id, topic, detail, brain, stories, winners);
+    const result = await ai(prompt);
+    setOutput(result);
+    setLoading(false);
+    runGate(result);
+  };
+
+  const runGate = async (content) => {
+    setGateLoading(true); setStep('gate');
+    try {
+      const raw = await ai(GENERIC_RISK_PROMPT(content, format?.platform || 'Instagram', activeClient?.voice || ''));
+      const clean = raw.replace(/```json|```/g, '').trim();
+      setGateResult(JSON.parse(clean));
+    } catch(e) { console.error('Gate error:', e); }
+    setGateLoading(false);
+  };
+
+  const handleApprove = async () => {
+    setApproved(true);
+    await saveToSupabase({
+      type: format?.id || 'content',
+      title: topic.slice(0, 80),
+      platform: format?.platform || 'Instagram',
+      angle: brain?.content_pillars?.[0]?.name || '',
+      preview: output.slice(0, 500),
+      full: output,
+      notes: `engine|risk:${gateResult?.overall_risk || 0}|approved`,
+    });
+    try {
+      const anchors = JSON.parse(localStorage.getItem(QUALITY_ANCHOR_KEY) || '[]');
+      anchors.unshift({ id: Date.now(), topic, platform: format?.platform, preview: output.slice(0, 200), risk: gateResult?.overall_risk, savedAt: new Date().toISOString() });
+      localStorage.setItem(QUALITY_ANCHOR_KEY, JSON.stringify(anchors.slice(0, 50)));
+    } catch {}
+  };
+
+  const reset = () => {
+    setStep('format'); setFormat(null); setTopic(''); setDetail('');
+    setOutput(''); setGateResult(null); setApproved(false); setOverrides(0);
+  };
+
+  const regenerate = () => {
+    setStep('brief'); setOutput(''); setGateResult(null); setApproved(false);
+  };
+
+  const gateColors = { green:'#10B981', yellow:'#F59E0B', red:'#EF4444' };
+  const gateBg = { green:'rgba(16,185,129,0.06)', yellow:'rgba(245,158,11,0.06)', red:'rgba(239,68,68,0.06)' };
+  const gateBorder = { green:'rgba(16,185,129,0.2)', yellow:'rgba(245,158,11,0.2)', red:'rgba(239,68,68,0.2)' };
+
+  const pillars = brain?.content_pillars?.map(p => p.name) || [];
+
+  return (
+    <div>
+      {/* Header */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20,flexWrap:'wrap',gap:12}}>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
+          <div>
+            <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Content Engine</h2>
+            <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Format first. Brain-connected. Full quality pipeline.</p>
+          </div>
+        </div>
+        {step !== 'format' && (
+          <button onClick={reset} style={{background:'#F9FAFB',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+            ← Start Over
+          </button>
+        )}
+      </div>
+
+      {/* Brain status bar */}
+      {brain && (
+        <div style={{background:'rgba(0,194,255,0.04)',border:'1px solid rgba(0,194,255,0.12)',borderRadius:10,padding:'10px 16px',marginBottom:20,display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+          <div style={{fontSize:11,fontWeight:700,color:'#00C2FF',textTransform:'uppercase',letterSpacing:'0.08em'}}>Brain Active</div>
+          <div style={{fontSize:12,color:'#6B7280'}}>
+            {brain.niche_summary?.slice(0, 60) || activeClient?.name}
+          </div>
+          {stories.length > 0 && <div style={{fontSize:11,color:'#9CA3AF'}}>{stories.length} stories · {pillars.length} pillars</div>}
+          {storyPrompt && (
+            <div style={{marginLeft:'auto',fontSize:11,color:'#B45309',background:'rgba(245,158,11,0.08)',border:'1px solid rgba(245,158,11,0.2)',borderRadius:6,padding:'3px 10px',cursor:'pointer'}}
+              onClick={() => setDetail('Use this story: ' + storyPrompt)}>
+              📖 Story prompt: {storyPrompt.slice(0, 40)}...
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── STEP 1: FORMAT PICKER ── */}
+      {step === 'format' && (
+        <div>
+          <div style={{fontSize:11,fontWeight:700,color:'#6B7280',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:14}}>Choose your format</div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:10}}>
+            {CE_FORMATS.map(f => (
+              <button key={f.id} onClick={() => selectFormat(f)}
+                style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:12,padding:'16px',textAlign:'left',cursor:'pointer',transition:'all 0.12s'}}
+                onMouseEnter={e => { e.currentTarget.style.borderColor='#00C2FF'; e.currentTarget.style.background='rgba(0,194,255,0.03)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor='#E5E7EB'; e.currentTarget.style.background='#FFFFFF'; }}>
+                <div style={{fontSize:22,marginBottom:8}}>{f.icon}</div>
+                <div style={{fontSize:13,fontWeight:800,color:'#111827',marginBottom:3}}>{f.label}</div>
+                <div style={{fontSize:11,color:'#9CA3AF',lineHeight:1.5}}>{f.desc}</div>
+                <div style={{marginTop:8,fontSize:10,fontWeight:700,color:'#00C2FF',textTransform:'uppercase',letterSpacing:1}}>{f.platform}</div>
+              </button>
+            ))}
+          </div>
+
+          {/* Pillar suggestions from Brain */}
+          {pillars.length > 0 && (
+            <div style={{marginTop:24}}>
+              <div style={{fontSize:11,fontWeight:700,color:'#6B7280',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:10}}>Your Content Pillars — tap to pre-fill topic</div>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                {pillars.map((p, i) => (
+                  <button key={i} onClick={() => { setTopic(p); setStep('brief'); setFormat(CE_FORMATS[0]); }}
+                    style={{background:'rgba(0,194,255,0.06)',color:'#00C2FF',border:'1px solid rgba(0,194,255,0.2)',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:600,textAlign:'left'}}>
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── STEP 2: BRIEF ── */}
+      {step === 'brief' && format && (
+        <Card>
+          {/* Format badge + change */}
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
+            <div style={{display:'flex',alignItems:'center',gap:10}}>
+              <span style={{fontSize:20}}>{format.icon}</span>
+              <div>
+                <div style={{fontSize:14,fontWeight:800,color:'#111827'}}>{format.label}</div>
+                <div style={{fontSize:11,color:'#6B7280'}}>{format.platform} · {format.desc}</div>
+              </div>
+            </div>
+            <button onClick={() => setStep('format')}
+              style={{background:'#F9FAFB',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 12px',fontSize:11,cursor:'pointer'}}>
+              Change format
+            </button>
+          </div>
+
+          <SecLabel>What's this piece about?<span style={{color:'#DC2626',marginLeft:3}}>*</span></SecLabel>
+          <input value={topic} onChange={e => setTopic(e.target.value)}
+            placeholder="e.g. Why most people quit before they see results"
+            style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,marginBottom:16,boxSizing:'border-box'}}
+            onKeyDown={e => { if (e.key === 'Enter' && topic.trim()) generate(); }}/>
+
+          <SecLabel>Add anything specific (optional)</SecLabel>
+          <textarea value={detail} onChange={e => setDetail(e.target.value)} rows={2}
+            placeholder={storyPrompt ? `Story prompt: "${storyPrompt}" — or type your own angle` : 'Specific angle, personal story, stat to include, or CTA goal...'}
+            style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:20,boxSizing:'border-box',fontFamily:'inherit',lineHeight:1.6}}/>
+
+          {/* Story bank quick-add */}
+          {stories.length > 0 && (
+            <div style={{marginBottom:20}}>
+              <div style={{fontSize:11,fontWeight:700,color:'#B45309',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:8}}>📖 Use a story from your bank</div>
+              <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                {stories.slice(0, 3).map((s, i) => (
+                  <button key={i} onClick={() => setDetail('Use this story: ' + s.title + ' — ' + s.summary?.slice(0, 100))}
+                    style={{background:'rgba(245,158,11,0.04)',border:'1px solid rgba(245,158,11,0.15)',borderRadius:8,padding:'8px 12px',textAlign:'left',cursor:'pointer',display:'flex',justifyContent:'space-between',alignItems:'center',gap:8}}>
+                    <div>
+                      <div style={{fontSize:12,fontWeight:700,color:'#92400E'}}>{s.title}</div>
+                      <div style={{fontSize:11,color:'#9CA3AF',marginTop:1}}>{s.key_lesson?.slice(0, 70)}</div>
+                    </div>
+                    <span style={{fontSize:11,color:'#B45309',flexShrink:0}}>Use →</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button onClick={generate} disabled={!topic.trim() || loading}
+            style={{width:'100%',background:!topic.trim()?'#F3F4F6':'linear-gradient(135deg,#00C2FF,#0096CC)',color:!topic.trim()?'#9CA3AF':'#000D1A',border:'none',borderRadius:8,padding:'12px 0',fontWeight:900,cursor:!topic.trim()?'not-allowed':'pointer',fontSize:14,boxShadow:topic.trim()?'0 0 20px rgba(0,194,255,0.2)':'none'}}>
+            Generate {format.label} →
+          </button>
+        </Card>
+      )}
+
+      {/* ── GENERATING ── */}
+      {step === 'generating' && loading && (
+        <div>
+          <Card>
+            <div style={{textAlign:'center',padding:'20px 0',color:'#6B7280'}}>
+              <div style={{fontSize:13,fontWeight:600,marginBottom:4}}>Writing your {format?.label}...</div>
+              <div style={{fontSize:11,color:'#9CA3AF'}}>Applying voice · checking specificity · building structure</div>
+            </div>
+          </Card>
+          <Spin/>
+        </div>
+      )}
+
+      {/* ── OUTPUT + GATE ── */}
+      {(step === 'gate' || step === 'approved') && output && (
+        <div>
+          {/* Content preview */}
+          <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:12,padding:'20px 24px',marginBottom:16}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <span style={{fontSize:16}}>{format?.icon}</span>
+                <div style={{fontSize:13,fontWeight:700,color:'#111827'}}>{format?.label}</div>
+                <span style={{background:'#F3F4F6',color:'#6B7280',fontSize:10,padding:'2px 7px',borderRadius:4}}>{format?.platform}</span>
+              </div>
+              <CopyBtn text={output}/>
+            </div>
+            <pre style={{color:'#374151',fontSize:13,whiteSpace:'pre-wrap',lineHeight:1.75,fontFamily:'inherit',margin:0,maxHeight:400,overflowY:'auto'}}>
+              {output}
+            </pre>
+          </div>
+
+          {/* Risk Gate */}
+          {gateLoading && (
+            <div style={{background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px 16px',marginBottom:12,fontSize:12,color:'#6B7280'}}>
+              Running quality check...
+            </div>
+          )}
+
+          {gateResult && !gateLoading && !approved && (
+            <div>
+              <div style={{background:gateBg[gateResult.risk_level],border:`1px solid ${gateBorder[gateResult.risk_level]}`,borderRadius:12,padding:'14px 18px',marginBottom:12}}>
+                <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}>
+                  <div style={{display:'flex',alignItems:'flex-start',gap:10}}>
+                    <div style={{width:10,height:10,borderRadius:'50%',background:gateColors[gateResult.risk_level],flexShrink:0,marginTop:2}}/>
+                    <div>
+                      <div style={{color:gateColors[gateResult.risk_level],fontWeight:700,fontSize:13,marginBottom:gateResult.single_fix?4:0}}>
+                        {gateResult.risk_level === 'green' ? 'Passes quality check' : gateResult.risk_level === 'yellow' ? 'One fix needed' : 'Too generic — must fix'}
+                      </div>
+                      {gateResult.single_fix && (
+                        <div style={{color:'#374151',fontSize:13}}>→ {gateResult.single_fix}</div>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{fontSize:11,color:'#9CA3AF',flexShrink:0}}>
+                    Risk: <strong style={{color:gateColors[gateResult.risk_level]}}>{gateResult.overall_risk}/10</strong>
+                  </div>
+                </div>
+              </div>
+
+              {gateResult.risk_level === 'green' && (
+                <button onClick={handleApprove}
+                  style={{width:'100%',background:'#10B981',color:'#fff',border:'none',borderRadius:10,padding:'13px 0',fontWeight:900,cursor:'pointer',fontSize:14,boxShadow:'0 4px 16px rgba(16,185,129,0.25)',marginBottom:8}}>
+                  Approve & Save →
+                </button>
+              )}
+
+              {gateResult.risk_level === 'yellow' && (
+                <div style={{display:'flex',gap:10,marginBottom:8}}>
+                  <button onClick={regenerate}
+                    style={{flex:1,background:'#111827',color:'#fff',border:'none',borderRadius:10,padding:'12px 0',fontWeight:800,cursor:'pointer',fontSize:13}}>
+                    Apply Fix & Regenerate
+                  </button>
+                  <button onClick={() => { setOverrides(o => o+1); if (overrides >= 2) handleApprove(); }}
+                    style={{flex:1,background:'#fff',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px 0',fontWeight:700,cursor:'pointer',fontSize:13}}>
+                    Post Anyway {overrides > 0 ? `(${3-overrides} left)` : ''}
+                  </button>
+                </div>
+              )}
+
+              {gateResult.risk_level === 'red' && (
+                <div style={{marginBottom:8}}>
+                  <button onClick={regenerate}
+                    style={{width:'100%',background:'#111827',color:'#fff',border:'none',borderRadius:10,padding:'13px 0',fontWeight:900,cursor:'pointer',fontSize:14,marginBottom:6}}>
+                    Fix This → Regenerate
+                  </button>
+                  <div style={{textAlign:'center',fontSize:11,color:'#EF4444'}}>Content is too generic. Apply the fix and regenerate.</div>
+                </div>
+              )}
+
+              {gateResult.risk_level !== 'red' && (
+                <button onClick={handleApprove}
+                  style={{width:'100%',background:'#F9FAFB',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:8,padding:'10px 0',cursor:'pointer',fontSize:12,fontWeight:600}}>
+                  Save to Library Without Approval
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Approved state */}
+          {approved && (
+            <div>
+              <div style={{background:'rgba(16,185,129,0.08)',border:'1px solid rgba(16,185,129,0.25)',borderRadius:12,padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10,marginBottom:0}}>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <span style={{fontSize:18}}>✅</span>
+                  <div>
+                    <div style={{color:'#10B981',fontWeight:700,fontSize:13}}>Saved to Library</div>
+                    <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>Content Engine · {format?.label} · {format?.platform}</div>
+                  </div>
+                </div>
+                <button onClick={reset}
+                  style={{background:'#111827',color:'#fff',border:'none',borderRadius:8,padding:'7px 16px',fontWeight:700,cursor:'pointer',fontSize:12}}>
+                  New Piece
+                </button>
+              </div>
+
+              {/* Story Extractor fires automatically */}
+              <StoryExtractorCard
+                content={output}
+                topic={topic}
+                platform={format?.platform || 'Instagram'}
+                clientId={clientId}
+              />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const COMPONENT_MAP = {
   home: Home,
   onboard: Onboarding,
@@ -22043,6 +22557,7 @@ const COMPONENT_MAP = {
   smartbrief: SmartBrief,
   brain: BrainBuilder,
   learning: LearningLoop,
+  contentengine: ContentEngine,
   weeklybrief: WeeklyBriefAgent,
   trendmonitor: TrendMonitorAgent,
   approvalqueue: ApprovalQueueAgent,
