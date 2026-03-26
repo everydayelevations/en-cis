@@ -1881,9 +1881,189 @@ async function saveToSupabase(entry) {
       client_name: entry.client || clientId,
       notes: entry.notes || null,
       client_id: clientId,
+      workflow_status: entry.workflow_status || 'approved',
+      exported_at: entry.exported_at || null,
+      scheduled_at: entry.scheduled_at || null,
+      posted_at: entry.posted_at || null,
+      scheduled_date: entry.scheduled_date || null,
+      design_pack: entry.design_pack ? JSON.stringify(entry.design_pack) : null,
+      repurpose_parent_id: entry.repurpose_parent_id || null,
+      assignee: entry.assignee || null,
     }]);
   } catch(e) { console.error('Supabase save error:', e); }
 }
+
+// ─── PHASE 8: WORKFLOW STATUS HELPERS ─────────────────────────────────────────
+const P8_STATUS_COLORS = {
+  approved:  { bg:'rgba(16,185,129,0.08)',  color:'#10B981', border:'rgba(16,185,129,0.25)',  label:'Approved'  },
+  exported:  { bg:'rgba(37,99,235,0.08)',   color:'#2563EB', border:'rgba(37,99,235,0.25)',   label:'Exported'  },
+  scheduled: { bg:'rgba(245,158,11,0.08)',  color:'#D97706', border:'rgba(245,158,11,0.25)',  label:'Scheduled' },
+  posted:    { bg:'rgba(139,92,246,0.08)',  color:'#7C3AED', border:'rgba(139,92,246,0.25)',  label:'Posted'    },
+  archived:  { bg:'rgba(107,114,128,0.08)', color:'#6B7280', border:'rgba(107,114,128,0.2)',  label:'Archived'  },
+};
+
+const P8_WORKFLOW_KEY = 'eighthascent_workflow';
+
+function useWorkflowStatus(itemId) {
+  const getAll = () => { try { return JSON.parse(localStorage.getItem(P8_WORKFLOW_KEY) || '{}'); } catch { return {}; } };
+  const get = () => getAll()[itemId] || { status: 'approved', exported_at: null, scheduled_at: null, posted_at: null, scheduled_date: null, assignee: null, design_pack: null };
+  const set = (updates) => {
+    const all = getAll();
+    all[itemId] = { ...get(), ...updates };
+    try { localStorage.setItem(P8_WORKFLOW_KEY, JSON.stringify(all)); } catch {}
+    // Sync to Supabase async
+    try { supabase.from('saved_content').update(updates).eq('id', itemId); } catch {}
+    return all[itemId];
+  };
+  return { get, set };
+}
+
+// ─── PHASE 8: DESIGN PACK PROMPT ──────────────────────────────────────────────
+const DESIGN_PACK_PROMPT = (item, content) => `
+You are a creative director and content strategist building a visual-ready Design Pack for a social media content piece.
+
+Creator: Jason Fricka | @everydayelevations | Colorado | Voice: Direct, real, accountability energy. No hype.
+Platform: ${item.platform || 'Instagram'}
+Content Type: ${item.type || 'Content'}
+Topic/Title: ${item.title || 'Untitled'}
+Pillar: ${item.angle || 'General'}
+
+FULL CONTENT:
+---
+${content}
+---
+
+Extract and structure this into a complete Design Pack. Return ONLY valid JSON, no markdown fences:
+
+{
+  "title": "short descriptive title",
+  "platform": "${item.platform || 'Instagram'}",
+  "format": "${item.type || 'Content'}",
+  "pillar": "${item.angle || 'General'}",
+  "hook": "the exact opening hook line",
+  "body_summary": "2-3 sentence summary of core message",
+  "cta": "the exact call to action",
+  "visual_direction": "specific visual concept - what this should look like on screen",
+  "design_tone": "e.g. Raw and real, high contrast. Dark bg, white text. No stock photos.",
+  "color_palette": "suggested colors matching the mood",
+  "thumbnail_options": ["option 1 text overlay", "option 2 text overlay", "option 3 text overlay"],
+  "format_breakdown": {
+    "type": "${item.type || 'content'}",
+    "sections": []
+  },
+  "on_screen_text": ["key text overlay 1", "key text overlay 2", "key text overlay 3"],
+  "caption_ready": "full caption ready to paste",
+  "hashtag_set": "#tag1 #tag2 #tag3 #tag4 #tag5",
+  "integration_notes": "any notes for design handoff"
+}
+
+For format_breakdown sections:
+- If type contains 'script' or 'reel': include hook, spoken_script, on_screen_text array, shot_list array, broll_suggestions array, scene_breakdown array, cta, caption
+- If type contains 'carousel': include cover_hook, slides array (each with headline and body), cta_slide, caption, visual_direction
+- If type contains 'caption': include hook, caption_body, cta, visual_concept, image_overlay_text
+- If type contains 'email': include subject_line, preview_text, body_sections array, cta, banner_direction
+- Default: include key_points array, main_message, supporting_points array, cta`;
+
+// ─── PHASE 8: REPURPOSE PROMPT ─────────────────────────────────────────────────
+const P8_REPURPOSE_PROMPT = (content, sourceType, targetFormat, platform, client) => `
+${client && !client.isDefault ? 'CLIENT: ' + client.name + '. Voice: ' + (client.voice || 'Authentic, direct.') : VOICE}
+${CONTENT_SOP}
+
+You are repurposing existing approved content into a new format.
+
+SOURCE TYPE: ${sourceType}
+TARGET FORMAT: ${targetFormat}
+TARGET PLATFORM: ${platform}
+
+ORIGINAL CONTENT:
+---
+${content}
+---
+
+RULES:
+- Preserve the core idea and specific details exactly
+- Preserve voice and tone - no corporate speak, no hype words
+- Preserve any personal story elements if they are central
+- Adapt STRUCTURE to match ${targetFormat} format
+- Do NOT add new ideas or claims not in the original
+- Keep Jason's specificity - no vague generalities
+
+${targetFormat === 'Reel' ? `Write a complete Reel Script:
+**HOOK** (spoken in first 3 seconds):
+[exact words]
+
+**SCRIPT** (spoken, 45-90 seconds total):
+[full spoken script with natural pauses]
+
+**ON-SCREEN TEXT** (3-5 overlays):
+[text 1]
+[text 2]
+[text 3]
+
+**CTA** (spoken):
+[exact words]
+
+**CAPTION** (with hook + hashtags):
+[full caption]` : ''}
+
+${targetFormat === 'Carousel' ? `Write a complete Carousel:
+**COVER SLIDE:**
+[headline - stops the scroll]
+
+**SLIDE 2:** [headline] / [supporting line]
+**SLIDE 3:** [headline] / [supporting line]
+**SLIDE 4:** [headline] / [supporting line]
+**SLIDE 5:** [headline] / [supporting line]
+
+**CTA SLIDE:**
+[exact CTA text]
+
+**CAPTION:**
+[full caption with hashtags]` : ''}
+
+${targetFormat === 'Caption' ? `Write a complete Caption Post:
+**HOOK** (first line):
+[stops the scroll]
+
+**BODY** (3-5 short punchy lines):
+[body copy]
+
+**CTA:**
+[direct call to action]
+
+**HASHTAGS:**
+[10 relevant hashtags]` : ''}
+
+${targetFormat === 'Email' ? `Write a complete Email:
+**SUBJECT LINE:** [compelling, under 50 chars]
+**PREVIEW TEXT:** [45-60 chars]
+
+**BODY:**
+[full email - reads like a real person wrote it]
+
+**CTA:**
+[one clear action]` : ''}
+
+${targetFormat === 'Thread' ? `Write a complete Thread (5-7 tweets):
+Tweet 1 (hook):
+Tweet 2:
+Tweet 3:
+Tweet 4:
+Tweet 5:
+Tweet 6 (CTA):` : ''}
+
+${targetFormat === 'Short Post' ? `Write a punchy Short Post (under 150 chars):
+[post text - no hashtags needed]` : ''}
+
+${targetFormat === 'Long Post' ? `Write a complete Long Form Post (400-600 words):
+**HOOK:**
+[opening line]
+
+**BODY:**
+[full story + value + insight]
+
+**CLOSE + CTA:**
+[closing and call to action]` : ''}`;
 
 function logToMemory(entry) {
   if (_memorySave) _memorySave(entry);
@@ -12937,238 +13117,755 @@ function AutoVoiceUpdateBanner({ activeClient }) {
 // First-time user setup shown once, stored in localStorage
 // 4 steps: Welcome Brand Setup Voice First Strategy
 // ═════════════════════════════════════════════════════════════════════════════
-function OnboardingFlow({ onComplete }) {
-  const [step, setStep] = useState(0);
-  const [form, setForm] = useState({
-    name: 'Jason Fricka',
-    handle: '@everydayelevations',
-    platforms: ['Instagram', 'YouTube'],
-    niche: '',
-    goals: '',
-    voice: '',
-  });
-  const [animating, setAnimating] = useState(false);
+// ─── UNIVERSAL CLIENT ONBOARDING SYSTEM ──────────────────────────────────────
+// Phase: Universal Brain Onboarding
+// Works for any creator niche. No hardcoded industries.
+// Produces a full Brain Profile that powers Smart Brief, story bank, voice consistency.
 
-  const next = () => {
-    setAnimating(true);
-    setTimeout(() => { setStep(s => s + 1); setAnimating(false); }, 200);
+const UNIVERSAL_BRAIN_PROMPT = (inputs, path) => `
+You are a content intelligence system building a complete Brain Profile for a creator.
+Extract and infer everything you can. Be specific. Never generic.
+
+PATH: ${path === 'upload' ? 'Content uploaded for analysis' : 'Guided form answers'}
+
+RAW INPUTS:
+${JSON.stringify(inputs, null, 2)}
+
+Return ONLY valid JSON. No markdown fences. No preamble. Exact structure:
+
+{
+  "audience_summary": "1-2 sentences: who they serve, what those people want, what they fear",
+  "niche_summary": "1 sentence: their exact space — specific, not a category name",
+  "positioning": "how they are different from everyone else in their space — what makes them the only logical choice",
+  "voice_profile": {
+    "description": "3-5 sentences describing exactly how they communicate — rhythm, energy, word choices, what they never say",
+    "tone_patterns": ["pattern 1", "pattern 2", "pattern 3"],
+    "sentence_style": "short/punchy | conversational | teaching | storytelling | mix",
+    "energy": "e.g. calm authority | fierce accountability | quiet confidence | warm directness",
+    "banned_phrases": ["phrase they should never use", "another phrase"],
+    "signature_phrases": ["phrase they naturally use", "another"]
+  },
+  "content_pillars": [
+    {
+      "name": "specific ownable pillar name — not generic like Motivation or Tips",
+      "description": "what this pillar covers and why it matters to their audience",
+      "sample_topics": ["specific topic idea", "another specific topic", "another"]
+    }
+  ],
+  "story_bank": [
+    {
+      "summary": "1-2 sentence story summary",
+      "lesson": "the transferable insight from this story",
+      "use_case": "what content format this story works best in",
+      "emotional_theme": "the emotional core of the story"
+    }
+  ],
+  "topic_clusters": ["specific topic area 1", "specific topic area 2", "specific topic area 3", "specific topic area 4", "specific topic area 5"],
+  "cta_style": "how they naturally ask for action — soft/story-close | direct ask | community invite | question prompt",
+  "preferred_formats": ["format 1", "format 2", "format 3"],
+  "anti_generic_rules": ["rule 1: never do X because...", "rule 2: always include Y because...", "rule 3"],
+  "transformation_promise": "the before/after their content creates for their audience",
+  "first_week_topics": [
+    { "topic": "specific filmable topic", "angle": "which pillar", "format": "Reel | Carousel | Caption", "why": "why this one first" }
+  ],
+  "completion_score": "strong | moderate | weak"
+}
+
+PILLAR RULES — CRITICAL:
+- Pillars must reflect what they ACTUALLY talk about
+- Never use: Motivation, Tips, Lifestyle, Wellness, Mindset (alone), Fitness (alone)
+- Good pillars are specific: "First-generation homebuyer mistakes", "What military taught me about civilian leadership", "The real math of fat loss after 40"
+- Generate 4-6 pillars minimum based on their actual input
+
+STORY RULES:
+- Only extract stories that have a real moment, not just topics
+- If upload path: identify narrative moments in their existing content
+- Each story needs a hook potential, a lesson, and a use case
+
+VOICE RULES:
+- If upload path: analyze sentence length, word choices, energy level, what they repeat
+- If guided path: infer from how they answered — their answers ARE the voice sample
+- Banned phrases should be specific to their niche, not generic
+
+COMPLETION:
+- strong: enough specifics to generate great content immediately
+- moderate: good enough to start, Brain should be refined
+- weak: minimal input, flag what is missing`;
+
+const UPLOAD_EXTRACT_PROMPT = (text) => `
+You are analyzing uploaded content from a creator to extract their brand profile.
+The content may be social posts, captions, website copy, emails, or notes.
+
+UPLOADED CONTENT:
+---
+${text.slice(0, 6000)}
+---
+
+Extract as much as possible. Return ONLY valid JSON, no fences:
+
+{
+  "what_they_do": "what this person does — specific",
+  "who_they_serve": "who their audience is — specific",
+  "niche": "their exact niche — not a category",
+  "location": "if mentioned",
+  "voice_sample": "3-4 sentences written in their exact voice style, capturing rhythm and energy",
+  "tone_patterns": ["pattern 1", "pattern 2", "pattern 3"],
+  "recurring_themes": ["theme 1", "theme 2", "theme 3", "theme 4"],
+  "cta_patterns": ["how they ask for action 1", "how they ask for action 2"],
+  "stories_detected": [
+    { "summary": "brief description of narrative moment found", "lesson": "implied lesson", "use_case": "content format" }
+  ],
+  "positioning_signals": ["signal 1 — something they emphasize", "signal 2"],
+  "banned_language": ["word or phrase they clearly avoid or that would feel off-brand"],
+  "offers_or_goals": ["thing 1 they promote or want", "thing 2"],
+  "content_formats_used": ["format they seem to use"],
+  "confidence": "high | medium | low"
+}`;
+
+const OB_STEPS_GUIDED = [
+  { id: 'identity',   label: 'Identity',   icon: '👤' },
+  { id: 'audience',   label: 'Audience',   icon: '🎯' },
+  { id: 'voice',      label: 'Voice',      icon: '🎙️' },
+  { id: 'direction',  label: 'Direction',  icon: '🧭' },
+  { id: 'stories',    label: 'Stories',    icon: '📖' },
+  { id: 'action',     label: 'Action',     icon: '⚡' },
+];
+
+function OnboardingFlow({ onComplete }) {
+  const [path, setPath] = React.useState(null);         // null | 'guided' | 'upload'
+  const [guidedStep, setGuidedStep] = React.useState(0);
+  const [building, setBuilding] = React.useState(false);
+  const [brain, setBrain] = React.useState(null);
+  const [error, setError] = React.useState('');
+
+  // Upload path
+  const [uploadText, setUploadText] = React.useState('');
+  const [fileName, setFileName] = React.useState('');
+  const [extracting, setExtracting] = React.useState(false);
+  const [extracted, setExtracted] = React.useState(null);
+  const fileRef = React.useRef(null);
+
+  // Guided form — all free text, no dropdowns
+  const [g, setG] = React.useState({
+    // Identity
+    what_you_do: '', who_you_help: '', location: '', space: '',
+    // Audience
+    want_more_of: '', struggling_with: '', want_right_now: '', repeated_questions: '',
+    // Voice
+    how_you_communicate: '', not_sound_like: '', voice_sample: '',
+    // Direction
+    content_type: '', known_for: '', topics: '',
+    // Stories
+    why_started: '', shaping_moment: '', stuck_with_you: '', what_they_dont_see: '',
+    // Action
+    cta_goal: '',
+    // Friction (optional, shown in final step)
+    friction: '', easier: '',
+  });
+
+  const setField = (k, v) => setG(prev => ({ ...prev, [k]: v }));
+
+  const fldStyle = {
+    width: '100%', background: '#F9FAFB', border: '1px solid #D1D5DB',
+    borderRadius: 8, padding: '10px 12px', color: '#111827', fontSize: 13,
+    boxSizing: 'border-box', fontFamily: 'inherit', lineHeight: 1.6,
+  };
+  const taStyle = { ...fldStyle, resize: 'vertical' };
+
+  const Q = ({ label, sub, children, required }) => (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: sub ? 4 : 8 }}>
+        {label}{required && <span style={{ color: '#DC2626', marginLeft: 3 }}>*</span>}
+      </div>
+      {sub && <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 8 }}>{sub}</div>}
+      {children}
+    </div>
+  );
+
+  const stepContent = [
+    // Step 0: Identity
+    <div key="identity">
+      <Q label="What do you do?" required>
+        <input value={g.what_you_do} onChange={e => setField('what_you_do', e.target.value)}
+          placeholder="e.g. I help first-time homebuyers navigate the process without getting ripped off"
+          style={fldStyle} />
+      </Q>
+      <Q label="Who do you help?" required>
+        <input value={g.who_you_help} onChange={e => setField('who_you_help', e.target.value)}
+          placeholder="e.g. Working-class families who think buying a home is out of reach"
+          style={fldStyle} />
+      </Q>
+      <Q label="What space are you in?" sub="Describe it in your own words — not a category label">
+        <input value={g.space} onChange={e => setField('space', e.target.value)}
+          placeholder="e.g. The gap between where someone is stuck and where they know they could be"
+          style={fldStyle} />
+      </Q>
+      <Q label="Where are you based? (optional)">
+        <input value={g.location} onChange={e => setField('location', e.target.value)}
+          placeholder="e.g. Denver, CO" style={fldStyle} />
+      </Q>
+    </div>,
+
+    // Step 1: Audience
+    <div key="audience">
+      <Q label="Who do you want more of?" sub="Paint a picture of your ideal person" required>
+        <textarea value={g.want_more_of} onChange={e => setField('want_more_of', e.target.value)}
+          rows={3} placeholder="e.g. Working professionals in their 30s who feel stuck in the same patterns. They work hard but feel invisible. They want to build something that matters."
+          style={taStyle} />
+      </Q>
+      <Q label="What are they struggling with?">
+        <textarea value={g.struggling_with} onChange={e => setField('struggling_with', e.target.value)}
+          rows={2} placeholder="e.g. They know what they should do but can't stay consistent. The gap between knowing and doing is killing them."
+          style={taStyle} />
+      </Q>
+      <Q label="What do they want right now?">
+        <input value={g.want_right_now} onChange={e => setField('want_right_now', e.target.value)}
+          placeholder="e.g. A clear path. Something that actually works. To feel like they are making progress."
+          style={fldStyle} />
+      </Q>
+      <Q label="What questions do people ask you repeatedly?">
+        <textarea value={g.repeated_questions} onChange={e => setField('repeated_questions', e.target.value)}
+          rows={2} placeholder="e.g. How do I stay consistent? Is it too late to start? How did you get through the hard part?"
+          style={taStyle} />
+      </Q>
+    </div>,
+
+    // Step 2: Voice
+    <div key="voice">
+      <Q label="How do you naturally communicate?" sub="Describe your communication style the way a friend would" required>
+        <textarea value={g.how_you_communicate} onChange={e => setField('how_you_communicate', e.target.value)}
+          rows={2} placeholder="e.g. Direct. I don't sugarcoat. Short sentences. I say what most people think but won't say out loud."
+          style={taStyle} />
+      </Q>
+      <Q label="What do you NOT want your content to sound like?">
+        <textarea value={g.not_sound_like} onChange={e => setField('not_sound_like', e.target.value)}
+          rows={2} placeholder="e.g. Motivational poster quotes. Corporate speak. Fake hype. Things that sound good but mean nothing."
+          style={taStyle} />
+      </Q>
+      <Q label="Write 2–3 sentences the way you'd normally talk" sub="Don't think about it. Just write.">
+        <textarea value={g.voice_sample} onChange={e => setField('voice_sample', e.target.value)}
+          rows={3} placeholder="e.g. Most people quit before they see results. Not because they lack talent — because nobody told them the work looks like nothing for a long time. That middle part is where everything gets decided."
+          style={taStyle} />
+      </Q>
+    </div>,
+
+    // Step 3: Direction
+    <div key="direction">
+      <Q label="What kind of content do you want to create?" required>
+        <textarea value={g.content_type} onChange={e => setField('content_type', e.target.value)}
+          rows={2} placeholder="e.g. Short videos with real stories. Behind-the-scenes of the work. Honest breakdowns of what actually goes into the result."
+          style={taStyle} />
+      </Q>
+      <Q label="What do you want to be known for?">
+        <input value={g.known_for} onChange={e => setField('known_for', e.target.value)}
+          placeholder="e.g. The person who gives you the real version, not the highlight reel"
+          style={fldStyle} />
+      </Q>
+      <Q label="What topics matter to you most?">
+        <textarea value={g.topics} onChange={e => setField('topics', e.target.value)}
+          rows={2} placeholder="e.g. Accountability. The cost of staying comfortable. What discipline actually looks like on a regular Tuesday."
+          style={taStyle} />
+      </Q>
+    </div>,
+
+    // Step 4: Stories
+    <div key="stories">
+      <div style={{ background: 'rgba(0,194,255,0.05)', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 10, padding: '12px 16px', marginBottom: 20, fontSize: 13, color: '#374151', lineHeight: 1.7 }}>
+        Stories are your most powerful content. These get saved to your story bank and used in everything.
+      </div>
+      <Q label="Why did you start what you do?">
+        <textarea value={g.why_started} onChange={e => setField('why_started', e.target.value)}
+          rows={2} placeholder="e.g. I spent 4 years trying to figure out what I was supposed to do after the military. Nobody handed me a map. I built one."
+          style={taStyle} />
+      </Q>
+      <Q label="What is a moment that shaped you?">
+        <textarea value={g.shaping_moment} onChange={e => setField('shaping_moment', e.target.value)}
+          rows={2} placeholder="e.g. My first real estate deal fell apart 3 days before closing. I almost quit. I didn't. That decision changed everything."
+          style={taStyle} />
+      </Q>
+      <Q label="What is a situation that stuck with you?">
+        <textarea value={g.stuck_with_you} onChange={e => setField('stuck_with_you', e.target.value)}
+          rows={2} placeholder="e.g. A client told me my content was the only thing that made them feel like they weren't crazy for trying."
+          style={taStyle} />
+      </Q>
+      <Q label="What do most people NOT see about your work?">
+        <textarea value={g.what_they_dont_see} onChange={e => setField('what_they_dont_see', e.target.value)}
+          rows={2} placeholder="e.g. The 5am training sessions nobody films. The client calls that go 45 minutes over. The days where nothing works but you show up anyway."
+          style={taStyle} />
+      </Q>
+    </div>,
+
+    // Step 5: Action + Friction
+    <div key="action">
+      <Q label="What do you want people to do after seeing your content?" required>
+        <textarea value={g.cta_goal} onChange={e => setField('cta_goal', e.target.value)}
+          rows={2} placeholder="e.g. Follow for more. DM me the word START. Save this for when you need it. Book a call. Join the community."
+          style={taStyle} />
+      </Q>
+      <Q label="What has stopped you from posting consistently? (optional)" sub="Be honest — this helps the system understand your friction">
+        <textarea value={g.friction} onChange={e => setField('friction', e.target.value)}
+          rows={2} placeholder="e.g. I don't know what to say. I start and abandon it. I don't want to look stupid. I can't stay consistent."
+          style={taStyle} />
+      </Q>
+      <Q label="What would make this easier? (optional)">
+        <input value={g.easier} onChange={e => setField('easier', e.target.value)}
+          placeholder="e.g. If someone just told me what to post and when"
+          style={fldStyle} />
+      </Q>
+    </div>,
+  ];
+
+  const stepRequired = [
+    () => g.what_you_do.trim() && g.who_you_help.trim(),
+    () => g.want_more_of.trim(),
+    () => g.how_you_communicate.trim(),
+    () => g.content_type.trim(),
+    () => true, // stories optional
+    () => g.cta_goal.trim(),
+  ];
+
+  const canAdvance = stepRequired[guidedStep]?.() ?? true;
+
+  // Upload path: handle file
+  const handleFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = ev => setUploadText(ev.target.result);
+    reader.readAsText(file);
   };
 
-  const finish = () => {
+  // Extract from upload
+  const runExtract = async () => {
+    if (!uploadText.trim()) return;
+    setExtracting(true);
     try {
-      localStorage.setItem(ONBOARDING_DONE_KEY, '1');
-      // Save form data into the default client profile
-      if (form.name || form.niche || form.voice || form.goals) {
-        const updatedClient = {
-          id: 'jason',
-          name: form.name || 'Jason Fricka',
-          handle: form.handle || '@everydayelevations',
-          platforms: Array.isArray(form.platforms) ? form.platforms.join(', ') : form.platforms,
-          voice: form.voice || 'Direct, real, no corporate speak. High accountability energy.',
-          niche: form.niche || '',
-          goals: form.goals || '',
-          angles: 'Resilience, Mindset, Everyday Wins, Outdoor/Colorado, Finance/Real Estate, Podcast/Personal Growth, Family/Life Lessons, Health/Physical Wellness',
-          colors: '#0A1628, #00C2FF, #FFFFFF',
-          notes: form.niche ? 'Set up via onboarding. Niche: ' + form.niche : 'HR Manager at Highland Cabinetry. Podcast host. Real estate agent. Colorado father.',
-          isDefault: true,
-          onboardedAt: new Date().toISOString(),
-        };
-        localStorage.setItem(ACTIVE_CLIENT_KEY, JSON.stringify(updatedClient));
-        // Also save voice fingerprint seed if voice was entered
-        if (form.voice) {
-          const fps = JSON.parse(localStorage.getItem(VOICE_KEY) || '{}');
-          fps['jason'] = {
-            tone: form.voice,
-            clientName: form.name || 'Jason Fricka',
-            seedOnly: true,
-            createdAt: new Date().toISOString(),
-          };
-          try { localStorage.setItem(VOICE_KEY, JSON.stringify(fps)); } catch {}
-        }
+      const raw = await ai(UPLOAD_EXTRACT_PROMPT(uploadText));
+      const clean = raw.replace(/```json|```/g, '').trim();
+      setExtracted(JSON.parse(clean));
+    } catch(e) { console.error('Extract error:', e); }
+    setExtracting(false);
+  };
+
+  // Build Brain from either path
+  const buildBrain = async () => {
+    setBuilding(true); setBrain(null); setError('');
+    try {
+      const inputs = path === 'guided' ? g : { ...extracted, uploaded_text_sample: uploadText.slice(0, 2000) };
+      const raw = await ai(UNIVERSAL_BRAIN_PROMPT(inputs, path));
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(clean);
+      setBrain(parsed);
+    } catch(e) {
+      console.error('Brain build error:', e);
+      setError('Brain generation failed. Check your inputs and try again.');
+    }
+    setBuilding(false);
+  };
+
+  // Save Brain and complete onboarding
+  const saveBrainAndComplete = () => {
+    if (!brain) return;
+
+    const clientId = 'jason'; // first-run is always the primary user
+    const name = g.what_you_do ? g.what_you_do.slice(0, 30) : (extracted?.what_they_do?.slice(0, 30) || 'My Brand');
+    const voice = brain.voice_profile?.description || '';
+    const angles = brain.content_pillars?.map(p => p.name).join(', ') || '';
+
+    // Save active client with Brain data
+    const updatedClient = {
+      id: clientId,
+      name: 'Jason Fricka',
+      handle: '@everydayelevations',
+      platforms: 'Instagram, YouTube, Facebook, LinkedIn',
+      voice,
+      angles,
+      niche: brain.niche_summary || '',
+      notes: brain.positioning || '',
+      audience: brain.audience_summary || '',
+      isDefault: true,
+      onboardedAt: new Date().toISOString(),
+    };
+
+    try { localStorage.setItem(ACTIVE_CLIENT_KEY, JSON.stringify(updatedClient)); } catch {}
+
+    // Save Brain to BRAIN_KEY
+    try {
+      const brains = JSON.parse(localStorage.getItem(BRAIN_KEY) || '{}');
+      brains[clientId] = {
+        ...brain,
+        clientId,
+        builtAt: new Date().toISOString(),
+        source: path,
+        completion_score: brain.completion_score || 'moderate',
+      };
+      localStorage.setItem(BRAIN_KEY, JSON.stringify(brains));
+    } catch {}
+
+    // Save voice fingerprint
+    try {
+      const fps = JSON.parse(localStorage.getItem(VOICE_KEY) || '{}');
+      fps[clientId] = {
+        tone: voice,
+        patterns: brain.voice_profile?.tone_patterns || [],
+        banned: brain.voice_profile?.banned_phrases || [],
+        clientName: 'Jason Fricka',
+        createdAt: new Date().toISOString(),
+      };
+      localStorage.setItem(VOICE_KEY, JSON.stringify(fps));
+    } catch {}
+
+    // Save stories to story bank
+    if (brain.story_bank?.length > 0) {
+      try {
+        const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
+        allStories[clientId] = brain.story_bank.map((s, i) => ({
+          id: Date.now() + i,
+          title: s.summary?.slice(0, 50) || 'Story ' + (i + 1),
+          story_type: 'personal',
+          summary: s.summary || '',
+          key_lesson: s.lesson || '',
+          emotional_theme: s.emotional_theme || 'personal',
+          audience_relevance: s.use_case || '',
+          reusable_hooks: [],
+          best_formats: ['Reel Script', 'Caption'],
+          proof_type: 'personal experience',
+          clientId,
+          savedAt: new Date().toISOString(),
+        }));
+        localStorage.setItem(STORY_BANK_KEY, JSON.stringify(allStories));
+      } catch {}
+    }
+
+    // Save chip memory for SmartBrief pre-fill
+    try {
+      const chipMemory = JSON.parse(localStorage.getItem(BRIEF_CHIP_MEMORY_KEY) || '{}');
+      chipMemory[clientId] = {
+        pillar: brain.content_pillars?.[0]?.name || '',
+        tone: brain.voice_profile?.energy || '',
+        cta: brain.cta_style || '',
+        platform: 'Instagram',
+      };
+      localStorage.setItem(BRIEF_CHIP_MEMORY_KEY, JSON.stringify(chipMemory));
+    } catch {}
+
+    // Sync to Supabase async
+    try {
+      supabase.from('strategy_profiles').upsert({
+        client_id: clientId,
+        client_name: 'Jason Fricka',
+        source: path,
+        brain_json: brain,
+        pillars: brain.content_pillars || [],
+        voice_profile: brain.voice_profile || {},
+        audience: brain.audience_summary || '',
+        completion: brain.completion_score || 'moderate',
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'client_id' });
+
+      if (brain.story_bank?.length > 0) {
+        supabase.from('story_bank').insert(brain.story_bank.map(s => ({
+          client_id: clientId,
+          title: s.summary?.slice(0, 40) || 'Story',
+          story_type: 'personal',
+          summary: s.summary || '',
+          key_lesson: s.lesson || '',
+          emotional_theme: s.emotional_theme || 'personal',
+          audience_relevance: s.use_case || '',
+          reusable_hooks: [],
+          best_formats: ['Reel Script'],
+          proof_type: 'personal experience',
+          saved_at: new Date().toISOString(),
+        })));
       }
-    } catch(e) { console.error('Onboarding save error:', e); }
+    } catch(e) { console.error('Supabase sync:', e); }
+
+    localStorage.setItem(ONBOARDING_DONE_KEY, '1');
     onComplete();
   };
 
-  const togglePlatform = (p) => setForm(f => ({
-    ...f,
-    platforms: f.platforms.includes(p) ? f.platforms.filter(x => x !== p) : [...f.platforms, p]
-  }));
+  // ── Styles ──
+  const C = { navy: '#080D14', card: '#FFFFFF', border: '#E5E7EB', accent: '#00C2FF', red: '#DC2626', text: '#111827', sub: '#6B7280' };
+  const Pill = ({ active, onClick, children }) => (
+    <button onClick={onClick}
+      style={{ background: active ? '#EEF2FF' : '#F9FAFB', color: active ? '#2563EB' : '#6B7280', border: '1px solid ' + (active ? '#C7D2FE' : '#E5E7EB'), borderRadius: 8, padding: '8px 18px', cursor: 'pointer', fontSize: 13, fontWeight: active ? 700 : 500, transition: 'all 0.15s' }}>
+      {children}
+    </button>
+  );
 
-  const steps = [
-    {
-      title: "Welcome to 8th Ascent",
-      sub: "The content intelligence platform thatl you'll need. Let's get you set up in 2 minutes.",
-      content: (
-        <div style={{ textAlign: 'center', padding: '20px 0' }}>
-          <div style={{
-            width: 80, height: 80, borderRadius: '50%',
-            background: 'linear-gradient(135deg, #00C2FF, #0096CC)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 20px', fontSize: 36, boxShadow: '0 0 40px rgba(0,194,255,0.3)'
-          }}></div>
-          <p style={{ color: '#374151', fontSize: 14, lineHeight: 1.8, maxWidth: 380, margin: '0 auto' }}>
-            8th Ascent is pre-loaded with your brand identity, voice, and goals. Every tool knows who you are before you start.
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, marginTop: 28 }}>
-            {[['60', 'Tools'], ['0', 'Subscriptions\nNeeded'], ['AI', 'Powered']].map(([n, l]) => (
-              <div key={l} style={{ background: 'rgba(0,194,255,0.06)', border: '1px solid #D1D5DB', borderRadius: 10, padding: '14px 8px', textAlign: 'center' }}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#00C2FF', letterSpacing: '-0.04em' }}>{n}</div>
-                <div style={{ fontSize: 10, color: '#6B7280', marginTop: 4, textTransform: 'uppercase', letterSpacing: 1, whiteSpace: 'pre-line' }}>{l}</div>
-              </div>
-            ))}
+  // ─────────────── PATH SELECTION ───────────────────────────────────────────
+  if (!path) return (
+    <div style={{ position: 'fixed', inset: 0, background: C.navy, zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div style={{ width: '100%', maxWidth: 560 }}>
+        <div style={{ textAlign: 'center', marginBottom: 40 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.accent, letterSpacing: 3, textTransform: 'uppercase', marginBottom: 16 }}>8th Ascent</div>
+          <div style={{ fontSize: 28, fontWeight: 900, color: '#F1F5F9', letterSpacing: '-0.04em', lineHeight: 1.2, marginBottom: 12 }}>
+            Let's build your Brain.
+          </div>
+          <div style={{ fontSize: 14, color: '#8B9AB4', lineHeight: 1.7, maxWidth: 420, margin: '0 auto' }}>
+            Your Brain powers every tool. Content that sounds like you. Topics your audience actually cares about. Done in under 5 minutes.
           </div>
         </div>
-      )
-    },
-    {
-      title: "Your Brand",
-      sub: "Tell 8th Ascent who you are. This gets injected into every tool automatically.",
-      content: (
-        <div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
-            <div>
-              <SecLabel>Your Name</SecLabel>
-              <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                style={{ width: '100%', background: '#F9FAFB', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: '#111827', fontSize: 13, boxSizing: 'border-box' }} />
-            </div>
-            <div>
-              <SecLabel>Primary Handle</SecLabel>
-              <input value={form.handle} onChange={e => setForm(f => ({ ...f, handle: e.target.value }))} placeholder="@handle"
-                style={{ width: '100%', background: '#F9FAFB', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: '#111827', fontSize: 13, boxSizing: 'border-box' }} />
-            </div>
-          </div>
-          <SecLabel>Active Platforms</SecLabel>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-            {PLATFORMS.map(p => (
-              <button key={p} onClick={() => togglePlatform(p)}
-                style={{ background: form.platforms.includes(p) ?'#EEF2FF':'#F9FAFB', color: form.platforms.includes(p) ? '#000D1A' : '#111827', border: 'none', borderRadius: 7, padding: '7px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>
-                {p}
-              </button>
-            ))}
-          </div>
-          <SecLabel>Your Niche</SecLabel>
-          <input value={form.niche} onChange={e => setForm(f => ({ ...f, niche: e.target.value }))}
-            placeholder="e.g. Mindset coaching, Colorado real estate, endurance athlete"
-            style={{ width: '100%', background: '#F9FAFB', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: '#111827', fontSize: 13, marginBottom: 14, boxSizing: 'border-box' }} />
-          <SecLabel>Primary Content Goal</SecLabel>
-          <input value={form.goals} onChange={e => setForm(f => ({ ...f, goals: e.target.value }))}
-            placeholder="e.g. Grow to 10K Instagram followers, generate real estate leads"
-            style={{ width: '100%', background: '#F9FAFB', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: '#111827', fontSize: 13, boxSizing: 'border-box' }} />
-        </div>
-      )
-    },
-    {
-      title: "Your Voice",
-      sub: "How do you actually talk? Three sentences is enough. This is what separates 8th Ascent from every other AI tool.",
-      content: (
-        <div>
-          <div style={{ background: 'rgba(0,194,255,0.06)', border: '1px solid #D1D5DB', borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 12, color: 'rgba(0,194,255,0.8)', lineHeight: 1.7 }}>
-            Don't describe your voice. Just write like you talk. "I keep it real. No hype. I'm talking to someone who actually wants to do the work." That's all it needs.
-          </div>
-          <SecLabel>Write 2-3 sentences in your actual voice</SecLabel>
-          <textarea value={form.voice} onChange={e => setForm(f => ({ ...f, voice: e.target.value }))} rows={5}
-            placeholder="Just write naturally. Like you're talking to a friend who follows you. Don't overthink it..."
-            style={{ width: '100%', background: '#F9FAFB', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 8, padding: '10px 12px', color: '#111827', fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }} />
-          <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {['Direct, no fluff', 'Motivating but real', 'Storyteller', 'Data-driven', 'Conversational', 'Authority-first'].map(style => (
-              <button key={style} onClick={() => setForm(f => ({ ...f, voice: f.voice ? f.voice + ' ' + style.toLowerCase() + '.' : style + '.' }))}
-                style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 6, padding: '7px 10px', cursor: 'pointer', color: '#6B7280', fontSize: 11, textAlign: 'left' }}>
-                + {style}
-              </button>
-            ))}
-          </div>
-        </div>
-      )
-    },
-    {
-      title: "You're ready.",
-      sub: "8th Ascent knows who you are. Every tool is pre-loaded with your context.",
-      content: (
-        <div style={{ textAlign: 'center', padding: '10px 0' }}>
-          
-          <p style={{ color: '#374151', fontSize: 14, lineHeight: 1.8, marginBottom: 24 }}>
-            Start with the <strong style={{ color: '#00C2FF' }}>90-Day Strategy Builder</strong> to generate your full content foundation, or jump straight to <strong style={{ color: '#00C2FF' }}>Script Engine</strong> to create your first piece.
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 300, margin: '0 auto' }}>
-            {[
-              { label: 'Build 90-Day Strategy', sub: 'Recommended first step' },
-              { label: 'Write a Script', sub: 'Start creating immediately' },
-              { label: 'Run a Profile Audit', sub: 'See where you stand' },
-            ].map(item => (
-              <div key={item.label} style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 8, padding: '10px 14px', textAlign: 'left' }}>
-                <div style={{ color: '#111827', fontWeight: 700, fontSize: 12 }}>{item.label}</div>
-                <div style={{ color: '#6B7280', fontSize: 11, marginTop: 2 }}>{item.sub}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )
-    },
-  ];
 
-  const current = steps[step];
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          {[
+            { key: 'guided', icon: '✏️', title: 'Answer a few questions', sub: 'Takes 4–5 minutes. Works for any niche.' },
+            { key: 'upload', icon: '📄', title: 'Upload your content', sub: 'Past posts, captions, notes. AI extracts everything.' },
+          ].map(opt => (
+            <button key={opt.key} onClick={() => setPath(opt.key)}
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '24px 20px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = C.accent; e.currentTarget.style.background = 'rgba(0,194,255,0.06)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}>
+              <div style={{ fontSize: 28, marginBottom: 12 }}>{opt.icon}</div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#F1F5F9', marginBottom: 6 }}>{opt.title}</div>
+              <div style={{ fontSize: 12, color: '#8B9AB4', lineHeight: 1.6 }}>{opt.sub}</div>
+            </button>
+          ))}
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: 24 }}>
+          <button onClick={() => { localStorage.setItem(ONBOARDING_DONE_KEY, '1'); onComplete(); }}
+            style={{ background: 'none', border: 'none', color: '#5A6A82', fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}>
+            Skip for now
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ─────────────── BRAIN RESULT ─────────────────────────────────────────────
+  if (brain) return (
+    <div style={{ position: 'fixed', inset: 0, background: C.navy, zIndex: 10000, overflowY: 'auto', padding: '32px 24px' }}>
+      <div style={{ maxWidth: 620, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div style={{ fontSize: 36, marginBottom: 12 }}>🧠</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#F1F5F9', letterSpacing: '-0.03em', marginBottom: 8 }}>Your Brain is ready.</div>
+          <div style={{ fontSize: 13, color: '#8B9AB4' }}>
+            {brain.completion_score === 'strong' ? 'Strong profile. You can create content immediately.' :
+             brain.completion_score === 'moderate' ? 'Good foundation. Add more stories to strengthen it over time.' :
+             'Basic profile built. Your Brain will improve as you create content.'}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
+          {/* Niche + Positioning */}
+          {brain.niche_summary && (
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '16px 20px' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: C.accent, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Your Space</div>
+              <div style={{ fontSize: 14, color: '#F1F5F9', lineHeight: 1.6 }}>{brain.niche_summary}</div>
+            </div>
+          )}
+
+          {/* Voice */}
+          {brain.voice_profile?.description && (
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '16px 20px' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Voice Profile</div>
+              <div style={{ fontSize: 13, color: '#CBD5E1', lineHeight: 1.7 }}>{brain.voice_profile.description}</div>
+              {brain.voice_profile.banned_phrases?.length > 0 && (
+                <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {brain.voice_profile.banned_phrases.slice(0, 4).map((p, i) => (
+                    <span key={i} style={{ background: 'rgba(220,38,38,0.1)', color: '#FCA5A5', borderRadius: 5, padding: '2px 8px', fontSize: 11 }}>✕ {p}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Pillars */}
+          {brain.content_pillars?.length > 0 && (
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '16px 20px' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Content Pillars ({brain.content_pillars.length})</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {brain.content_pillars.map((p, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981', flexShrink: 0, marginTop: 5 }} />
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#F1F5F9' }}>{p.name}</div>
+                      {p.description && <div style={{ fontSize: 11, color: '#8B9AB4', marginTop: 2, lineHeight: 1.5 }}>{p.description}</div>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Stories */}
+          {brain.story_bank?.length > 0 && (
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '16px 20px' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>{brain.story_bank.length} Stories Extracted → Saved to Story Bank</div>
+              {brain.story_bank.slice(0, 3).map((s, i) => (
+                <div key={i} style={{ borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.06)' : 'none', paddingBottom: i < 2 ? 8 : 0, marginBottom: i < 2 ? 8 : 0 }}>
+                  <div style={{ fontSize: 12, color: '#CBD5E1', lineHeight: 1.6 }}>{s.summary}</div>
+                  {s.lesson && <div style={{ fontSize: 11, color: '#8B9AB4', marginTop: 2 }}>→ {s.lesson}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* First week topics */}
+          {brain.first_week_topics?.length > 0 && (
+            <div style={{ background: 'rgba(0,194,255,0.06)', border: '1px solid rgba(0,194,255,0.2)', borderRadius: 12, padding: '16px 20px' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: C.accent, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Start Here — First Week Topics</div>
+              {brain.first_week_topics.map((t, i) => (
+                <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 8, alignItems: 'flex-start' }}>
+                  <span style={{ background: C.accent, color: '#000D1A', fontSize: 10, fontWeight: 900, borderRadius: 4, padding: '2px 6px', flexShrink: 0, marginTop: 1 }}>{t.format}</span>
+                  <div>
+                    <div style={{ fontSize: 13, color: '#F1F5F9', fontWeight: 600 }}>{t.topic}</div>
+                    {t.why && <div style={{ fontSize: 11, color: '#8B9AB4', marginTop: 1 }}>{t.why}</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {error && <div style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: 8, padding: '12px 16px', fontSize: 13, color: '#FCA5A5', marginBottom: 16 }}>{error}</div>}
+
+        <button onClick={saveBrainAndComplete}
+          style={{ width: '100%', background: 'linear-gradient(135deg,#00C2FF,#0096CC)', color: '#000D1A', border: 'none', borderRadius: 10, padding: '14px 0', fontWeight: 900, cursor: 'pointer', fontSize: 15, letterSpacing: '-0.01em', boxShadow: '0 0 30px rgba(0,194,255,0.25)' }}>
+          Save Brain & Start Creating →
+        </button>
+      </div>
+    </div>
+  );
+
+  // ─────────────── BUILDING BRAIN ───────────────────────────────────────────
+  if (building) return (
+    <div style={{ position: 'fixed', inset: 0, background: C.navy, zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div style={{ textAlign: 'center', maxWidth: 400 }}>
+        <div style={{ fontSize: 48, marginBottom: 20 }}>🧠</div>
+        <div style={{ fontSize: 20, fontWeight: 900, color: '#F1F5F9', marginBottom: 12, letterSpacing: '-0.03em' }}>Building your Brain...</div>
+        <div style={{ fontSize: 13, color: '#8B9AB4', lineHeight: 1.8 }}>
+          Extracting voice profile<br/>
+          Generating content pillars<br/>
+          Identifying stories<br/>
+          Building topic clusters
+        </div>
+      </div>
+    </div>
+  );
+
+  // ─────────────── UPLOAD PATH ──────────────────────────────────────────────
+  if (path === 'upload') return (
+    <div style={{ position: 'fixed', inset: 0, background: C.navy, zIndex: 10000, overflowY: 'auto', padding: '32px 24px' }}>
+      <div style={{ maxWidth: 580, margin: '0 auto' }}>
+        <button onClick={() => setPath(null)} style={{ background: 'none', border: 'none', color: '#5A6A82', fontSize: 13, cursor: 'pointer', marginBottom: 24 }}>← Back</button>
+
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ fontSize: 20, fontWeight: 900, color: '#F1F5F9', letterSpacing: '-0.03em', marginBottom: 8 }}>Upload your content</div>
+          <div style={{ fontSize: 13, color: '#8B9AB4', lineHeight: 1.7 }}>Paste or upload any content you have created — social posts, captions, website copy, emails, notes. The more you give, the more accurate your Brain.</div>
+        </div>
+
+        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 20, marginBottom: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#8B9AB4', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Paste Content</div>
+          <textarea value={uploadText} onChange={e => setUploadText(e.target.value)} rows={10}
+            placeholder="Paste your posts, captions, website copy, bios, emails, notes — anything you have written..."
+            style={{ width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '12px', color: '#F1F5F9', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit', lineHeight: 1.7 }} />
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+          <span style={{ fontSize: 12, color: '#5A6A82' }}>or upload a file</span>
+          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+        </div>
+
+        <div onClick={() => fileRef.current?.click()}
+          style={{ border: '1px dashed rgba(0,194,255,0.3)', borderRadius: 10, padding: '20px', textAlign: 'center', cursor: 'pointer', marginBottom: 20, background: fileName ? 'rgba(0,194,255,0.04)' : 'transparent' }}>
+          <input ref={fileRef} type="file" accept=".txt,.md,.csv,.doc,.docx" onChange={handleFile} style={{ display: 'none' }} />
+          <div style={{ fontSize: 13, color: fileName ? '#00C2FF' : '#5A6A82' }}>
+            {fileName ? '✓ ' + fileName : 'Drop .txt, .md, or .csv file here'}
+          </div>
+        </div>
+
+        {extracted && (
+          <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 10, padding: '14px 16px', marginBottom: 20 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#10B981', marginBottom: 8 }}>✓ Content analyzed</div>
+            <div style={{ fontSize: 12, color: '#CBD5E1', lineHeight: 1.7 }}>
+              <strong style={{ color: '#F1F5F9' }}>Space:</strong> {extracted.niche || extracted.what_they_do || 'Detected'}<br />
+              <strong style={{ color: '#F1F5F9' }}>Themes:</strong> {(extracted.recurring_themes || []).join(', ')}<br />
+              <strong style={{ color: '#F1F5F9' }}>Stories found:</strong> {extracted.stories_detected?.length || 0}
+            </div>
+          </div>
+        )}
+
+        {error && <div style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: 8, padding: '12px 16px', fontSize: 13, color: '#FCA5A5', marginBottom: 16 }}>{error}</div>}
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {!extracted && (
+            <button onClick={runExtract} disabled={extracting || !uploadText.trim()}
+              style={{ background: !uploadText.trim() || extracting ? 'rgba(255,255,255,0.06)' : 'rgba(0,194,255,0.1)', color: !uploadText.trim() || extracting ? '#5A6A82' : '#00C2FF', border: '1px solid ' + (!uploadText.trim() || extracting ? 'rgba(255,255,255,0.08)' : 'rgba(0,194,255,0.3)'), borderRadius: 8, padding: '11px 0', fontWeight: 700, cursor: !uploadText.trim() || extracting ? 'not-allowed' : 'pointer', fontSize: 13 }}>
+              {extracting ? 'Analyzing content...' : 'Analyze My Content'}
+            </button>
+          )}
+          <button onClick={buildBrain} disabled={building || !uploadText.trim()}
+            style={{ background: !uploadText.trim() ? 'rgba(255,255,255,0.06)' : 'linear-gradient(135deg,#00C2FF,#0096CC)', color: !uploadText.trim() ? '#5A6A82' : '#000D1A', border: 'none', borderRadius: 8, padding: '12px 0', fontWeight: 900, cursor: !uploadText.trim() ? 'not-allowed' : 'pointer', fontSize: 14 }}>
+            {building ? 'Building Brain...' : 'Build My Brain →'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ─────────────── GUIDED PATH ──────────────────────────────────────────────
+  const isLastStep = guidedStep === OB_STEPS_GUIDED.length - 1;
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 999,
-      background: 'rgba(8,13,20,0.96)',
-      backdropFilter: 'blur(20px)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: 16,
-    }}>
-      <div style={{
-        background: '#FFFFFF',
-        border: '1px solid rgba(0,194,255,0.15)',
-        borderRadius: 20,
-        width: '100%', maxWidth: 520,
-        boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
-        overflow: 'hidden',
-        opacity: animating ? 0 : 1,
-        transform: animating ? 'translateY(8px)' : 'translateY(0)',
-        transition: 'all 0.2s ease',
-      }}>
-        {/* Progress bar */}
-        <div style={{ height: 3, background: 'rgba(0,194,255,0.1)' }}>
-          <div style={{ height: '100%', background: '#00C2FF', width: `${((step + 1) / steps.length) * 100}%`, transition: 'width 0.4s ease' }} />
+    <div style={{ position: 'fixed', inset: 0, background: C.navy, zIndex: 10000, overflowY: 'auto', padding: '32px 24px' }}>
+      <div style={{ maxWidth: 580, margin: '0 auto' }}>
+
+        {/* Progress */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 32 }}>
+          {OB_STEPS_GUIDED.map((s, i) => (
+            <React.Fragment key={s.id}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, background: i < guidedStep ? '#10B981' : i === guidedStep ? '#00C2FF' : 'rgba(255,255,255,0.06)', color: i < guidedStep ? '#fff' : i === guidedStep ? '#000D1A' : '#5A6A82', flexShrink: 0, transition: 'all 0.2s' }}>
+                  {i < guidedStep ? '✓' : i + 1}
+                </div>
+                <span style={{ fontSize: 11, color: i === guidedStep ? '#F1F5F9' : '#5A6A82', fontWeight: i === guidedStep ? 700 : 400, display: 'none', '@media(min-width:500px)': { display: 'block' } }}>{s.label}</span>
+              </div>
+              {i < OB_STEPS_GUIDED.length - 1 && <div style={{ flex: 1, height: 2, background: i < guidedStep ? '#10B981' : 'rgba(255,255,255,0.06)', borderRadius: 1, transition: 'background 0.3s' }} />}
+            </React.Fragment>
+          ))}
         </div>
 
-        <div style={{ padding: '28px 32px 24px' }}>
-          {/* Step indicator */}
-          <div style={{ display: 'flex', gap: 6, marginBottom: 20 }}>
-            {steps.map((_, i) => (
-              <div key={i} style={{ height: 4, flex: 1, borderRadius: 2, background: i <= step ? '#00C2FF' : 'rgba(255,255,255,0.08)', transition: 'all 0.3s' }} />
-            ))}
+        {/* Step header */}
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.accent, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
+            {OB_STEPS_GUIDED[guidedStep].icon} {OB_STEPS_GUIDED[guidedStep].label}
           </div>
+          <div style={{ fontSize: 20, fontWeight: 900, color: '#F1F5F9', letterSpacing: '-0.03em' }}>
+            {['Who are you?', 'Who do you serve?', 'How do you sound?', 'What do you create?', 'What are your stories?', 'What happens next?'][guidedStep]}
+          </div>
+        </div>
 
-          <h2 style={{ color: '#111827', fontSize: 22, fontWeight: 900, letterSpacing: '-0.03em', marginBottom: 6 }}>
-            {current.title}
-          </h2>
-          <p style={{ color: '#6B7280', fontSize: 13, marginBottom: 24, lineHeight: 1.6 }}>
-            {current.sub}
-          </p>
+        {/* Form card */}
+        <div style={{ background: '#FFFFFF', borderRadius: 14, padding: '24px', marginBottom: 20, boxShadow: '0 4px 24px rgba(0,0,0,0.3)' }}>
+          {stepContent[guidedStep]}
+        </div>
 
-          {current.content}
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 28 }}>
-            <button onClick={() => step > 0 ? setStep(s => s - 1) : null}
-              style={{ background: 'none', border: 'none', color: step > 0 ? '#6B7280' : 'transparent', cursor: step > 0 ? 'pointer' : 'default', fontSize: 13, padding: '8px 0' }}>
-              Back
+        {/* Nav */}
+        <div style={{ display: 'flex', gap: 10 }}>
+          {guidedStep > 0 && (
+            <button onClick={() => setGuidedStep(s => s - 1)}
+              style={{ background: 'rgba(255,255,255,0.06)', color: '#8B9AB4', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '11px 20px', fontWeight: 600, cursor: 'pointer', fontSize: 13 }}>
+              ← Back
             </button>
-            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-              {step < steps.length - 1 && (
-                <button onClick={() => setStep(s => s + 1)}
-                  style={{ background: 'none', border: 'none', color: '#6B7280', cursor: 'pointer', fontSize: 12, padding: '8px 12px' }}>
-                  Skip
-                </button>
-              )}
-              <button onClick={step === steps.length - 1 ? finish : next}
-                style={{ background: 'linear-gradient(135deg, #00C2FF, #0096CC)', color: '#000D1A', border: 'none', borderRadius: 10, padding: '10px 24px', fontWeight: 800, cursor: 'pointer', fontSize: 14, boxShadow: '0 0 20px rgba(0,194,255,0.3)' }}>
-                {step === steps.length - 1 ? 'Start Using 8th Ascent →' : 'Continue →'}
-              </button>
-            </div>
-          </div>
+          )}
+          <button onClick={() => {
+            if (isLastStep) { buildBrain(); }
+            else { setGuidedStep(s => s + 1); }
+          }} disabled={!canAdvance}
+            style={{ flex: 1, background: !canAdvance ? 'rgba(255,255,255,0.06)' : isLastStep ? 'linear-gradient(135deg,#00C2FF,#0096CC)' : 'rgba(0,194,255,0.1)', color: !canAdvance ? '#5A6A82' : isLastStep ? '#000D1A' : '#00C2FF', border: '1px solid ' + (!canAdvance ? 'rgba(255,255,255,0.06)' : 'rgba(0,194,255,0.3)'), borderRadius: 8, padding: '12px 0', fontWeight: 900, cursor: !canAdvance ? 'not-allowed' : 'pointer', fontSize: 14, transition: 'all 0.15s' }}>
+            {isLastStep ? 'Build My Brain →' : 'Next →'}
+          </button>
         </div>
+
+        {guidedStep === 0 && (
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <button onClick={() => setPath(null)} style={{ background: 'none', border: 'none', color: '#5A6A82', fontSize: 12, cursor: 'pointer' }}>← Switch to upload path</button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -15395,34 +16092,52 @@ function ContentLibrary() {
   const [search, setSearch] = React.useState('');
   const [filterType, setFilterType] = React.useState('all');
   const [filterPlatform, setFilterPlatform] = React.useState('all');
-  const [filterTier, setFilterTier] = React.useState('all'); // all | winner | solid | weak | unrated
+  const [filterTier, setFilterTier] = React.useState('all');
   const [filterPillar, setFilterPillar] = React.useState('all');
-  const [sortBy, setSortBy] = React.useState('newest'); // newest | oldest | winners
+  const [sortBy, setSortBy] = React.useState('newest');
   const [ratings, setRatings] = React.useState({});
   const [expandedId, setExpandedId] = React.useState(null);
   const [copyId, setCopyId] = React.useState(null);
+  const [toast, setToast] = React.useState(null);
+
+  // Phase 8 state
+  const [workflowData, setWorkflowData] = React.useState({});
+  const [designPackModal, setDesignPackModal] = React.useState(null); // item
+  const [designPackResult, setDesignPackResult] = React.useState(null);
+  const [designPackLoading, setDesignPackLoading] = React.useState(false);
+  const [repurposeModal, setRepurposeModal] = React.useState(null); // item
+  const [repurposeTarget, setRepurposeTarget] = React.useState('Reel');
+  const [repurposePlatform, setRepurposePlatform] = React.useState('Instagram');
+  const [repurposeResult, setRepurposeResult] = React.useState('');
+  const [repurposeLoading, setRepurposeLoading] = React.useState(false);
+  const [copyMenuId, setCopyMenuId] = React.useState(null);
 
   React.useEffect(() => { fetchItems(); }, [activeClient]);
+  React.useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(P8_WORKFLOW_KEY) || '{}');
+      setWorkflowData(stored);
+    } catch {}
+  }, []);
 
   const clientId = (() => {
-    try {
-      const id = localStorage.getItem('encis_active_client');
-      return id || 'jason';
-    } catch { return 'jason'; }
+    try { const id = localStorage.getItem('encis_active_client'); return id || 'jason'; } catch { return 'jason'; }
   })();
+
+  const isAgency = activeClient && !activeClient.isDefault;
+
+  const showToast = (msg, color) => {
+    setToast({ msg, color: color || '#10B981' });
+    setTimeout(() => setToast(null), 2500);
+  };
 
   const fetchItems = async () => {
     setLoading(true);
     try {
       const { data } = await supabase
-        .from('saved_content')
-        .select('*')
-        .eq('client_id', clientId)
-        .order('created_at', { ascending: false })
-        .limit(200);
+        .from('saved_content').select('*').eq('client_id', clientId)
+        .order('created_at', { ascending: false }).limit(200);
       setItems(data || []);
-
-      // Load local ratings overlay
       const stored = JSON.parse(localStorage.getItem('encis_lib_ratings') || '{}');
       setRatings(stored[clientId] || {});
     } catch(e) { console.error('Library fetch:', e); }
@@ -15430,13 +16145,10 @@ function ContentLibrary() {
   };
 
   const rateItem = async (id, tier) => {
-    // Save locally
     const stored = JSON.parse(localStorage.getItem('encis_lib_ratings') || '{}');
     stored[clientId] = { ...(stored[clientId] || {}), [id]: tier };
     localStorage.setItem('encis_lib_ratings', JSON.stringify(stored));
     setRatings(stored[clientId]);
-
-    // Update Supabase
     try {
       const item = items.find(i => i.id === id);
       const baseNotes = (item?.notes || '').replace(/tier:[^|]*/g, '').replace(/winner|outperformed/g, '').trim();
@@ -15447,26 +16159,207 @@ function ContentLibrary() {
   };
 
   const deleteItem = async (id) => {
-    try {
-      await supabase.from('saved_content').delete().eq('id', id);
-      setItems(prev => prev.filter(i => i.id !== id));
-    } catch {}
+    try { await supabase.from('saved_content').delete().eq('id', id); setItems(prev => prev.filter(i => i.id !== id)); } catch {}
   };
 
-  const copyItem = (text, id) => {
+  const copyItem = (text, id, label) => {
     navigator.clipboard.writeText(text || '');
     setCopyId(id);
+    showToast((label || 'Content') + ' copied');
     setTimeout(() => setCopyId(null), 2000);
   };
 
-  // Derived data
+  // ── Phase 8: Workflow status helpers ──────────────────────────────────────
+  const getWorkflow = (id) => workflowData[id] || { status: 'approved' };
+
+  const setWorkflow = (id, updates) => {
+    const all = { ...workflowData };
+    all[id] = { ...(all[id] || { status: 'approved' }), ...updates };
+    setWorkflowData(all);
+    try { localStorage.setItem(P8_WORKFLOW_KEY, JSON.stringify(all)); } catch {}
+    try { supabase.from('saved_content').update(updates).eq('id', id); } catch {}
+  };
+
+  const markStatus = (id, status) => {
+    const now = new Date().toISOString();
+    const updates = { status };
+    if (status === 'exported') updates.exported_at = now;
+    if (status === 'scheduled') updates.scheduled_at = now;
+    if (status === 'posted') updates.posted_at = now;
+    setWorkflow(id, updates);
+    showToast('Marked as ' + status, P8_STATUS_COLORS[status]?.color);
+  };
+
+  // ── Phase 8: Smart copy actions by content type ────────────────────────────
+  const getCopyActions = (item) => {
+    const content = item.full_content || item.content_preview || '';
+    const type = (item.type || '').toLowerCase();
+    const actions = [{ label: 'Full Content', fn: () => copyItem(content, item.id, 'Full content') }];
+
+    // Extract sections from content
+    const lines = content.split('\n');
+    const findSection = (keywords) => {
+      for (let i = 0; i < lines.length; i++) {
+        const l = lines[i].toLowerCase();
+        if (keywords.some(k => l.includes(k))) {
+          const out = [];
+          for (let j = i + 1; j < Math.min(i + 8, lines.length); j++) {
+            if (lines[j].startsWith('**') && lines[j].endsWith('**') && j !== i + 1) break;
+            if (lines[j].startsWith('##') && j !== i + 1) break;
+            out.push(lines[j]);
+          }
+          return out.join('\n').trim() || lines[i + 1]?.trim() || '';
+        }
+      }
+      return '';
+    };
+
+    const hook = findSection(['hook', '**hook**']);
+    const cta = findSection(['cta', '**cta**', 'call to action']);
+    const caption = findSection(['caption', '**caption**', 'full caption']);
+
+    if (hook) actions.push({ label: 'Hook', fn: () => copyItem(hook, item.id, 'Hook') });
+    if (cta) actions.push({ label: 'CTA', fn: () => copyItem(cta, item.id, 'CTA') });
+
+    if (type.includes('script') || type.includes('reel')) {
+      const script = findSection(['script', '**script**', 'spoken']);
+      if (script) actions.push({ label: 'Script', fn: () => copyItem(script, item.id, 'Script') });
+    }
+    if (type.includes('carousel')) {
+      const slides = findSection(['slide', '**slide']);
+      if (slides) actions.push({ label: 'Slides', fn: () => copyItem(slides, item.id, 'Slides') });
+    }
+    if (type.includes('email')) {
+      const subject = findSection(['subject', '**subject']);
+      const body = findSection(['body', '**body**', 'email body']);
+      if (subject) actions.push({ label: 'Subject Line', fn: () => copyItem(subject, item.id, 'Subject line') });
+      if (body) actions.push({ label: 'Email Body', fn: () => copyItem(body, item.id, 'Email body') });
+    }
+    if (caption) actions.push({ label: 'Caption', fn: () => copyItem(caption, item.id, 'Caption') });
+
+    return actions;
+  };
+
+  // ── Phase 8: Design Pack generator ────────────────────────────────────────
+  const generateDesignPack = async (item) => {
+    setDesignPackModal(item);
+    setDesignPackResult(null);
+    setDesignPackLoading(true);
+    const content = item.full_content || item.content_preview || '';
+    try {
+      const raw = await ai(DESIGN_PACK_PROMPT(item, content));
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const pack = JSON.parse(clean);
+      setDesignPackResult(pack);
+      setWorkflow(item.id, { design_pack: JSON.stringify(pack), status: 'exported', exported_at: new Date().toISOString() });
+      showToast('Design Pack ready');
+    } catch(e) {
+      console.error('Design pack error:', e);
+      setDesignPackResult({ error: true, raw });
+    }
+    setDesignPackLoading(false);
+  };
+
+  const downloadDesignPack = (pack, format, title) => {
+    let content, type, ext;
+    if (format === 'json') {
+      content = JSON.stringify(pack, null, 2);
+      type = 'application/json'; ext = 'json';
+    } else {
+      const lines = [];
+      lines.push('DESIGN PACK: ' + (pack.title || title));
+      lines.push('Platform: ' + pack.platform + ' | Format: ' + pack.format + ' | Pillar: ' + pack.pillar);
+      lines.push('');
+      lines.push('HOOK: ' + pack.hook);
+      lines.push('');
+      lines.push('BODY SUMMARY: ' + pack.body_summary);
+      lines.push('');
+      lines.push('CTA: ' + pack.cta);
+      lines.push('');
+      lines.push('VISUAL DIRECTION: ' + pack.visual_direction);
+      lines.push('DESIGN TONE: ' + pack.design_tone);
+      lines.push('COLOR PALETTE: ' + pack.color_palette);
+      lines.push('');
+      lines.push('THUMBNAIL OPTIONS:');
+      (pack.thumbnail_options || []).forEach((t, i) => lines.push('  ' + (i + 1) + '. ' + t));
+      lines.push('');
+      lines.push('ON-SCREEN TEXT:');
+      (pack.on_screen_text || []).forEach(t => lines.push('  - ' + t));
+      lines.push('');
+      lines.push('CAPTION READY:');
+      lines.push(pack.caption_ready || '');
+      lines.push('');
+      lines.push('HASHTAGS: ' + (pack.hashtag_set || ''));
+      if (pack.format_breakdown?.sections?.length) {
+        lines.push('');
+        lines.push('FORMAT BREAKDOWN:');
+        pack.format_breakdown.sections.forEach(s => {
+          if (typeof s === 'string') lines.push('  - ' + s);
+          else lines.push('  - ' + JSON.stringify(s));
+        });
+      }
+      lines.push('');
+      lines.push('INTEGRATION NOTES: ' + (pack.integration_notes || ''));
+      content = lines.join('\n');
+      type = 'text/plain'; ext = 'txt';
+    }
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = (pack.title || title || 'design-pack').replace(/\s+/g, '-') + '.' + ext;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Downloaded as .' + ext);
+  };
+
+  // ── Phase 8: Repurpose engine ──────────────────────────────────────────────
+  const runRepurpose = async () => {
+    if (!repurposeModal) return;
+    setRepurposeLoading(true); setRepurposeResult('');
+    const content = repurposeModal.full_content || repurposeModal.content_preview || '';
+    const res = await ai(P8_REPURPOSE_PROMPT(content, repurposeModal.type, repurposeTarget, repurposePlatform, activeClient));
+    setRepurposeResult(res);
+    setRepurposeLoading(false);
+  };
+
+  const saveRepurposed = async (asDraft) => {
+    if (!repurposeResult || !repurposeModal) return;
+    await saveToSupabase({
+      type: repurposeTarget.toLowerCase(),
+      title: repurposeModal.title + ' → ' + repurposeTarget,
+      platform: repurposePlatform,
+      angle: repurposeModal.angle,
+      preview: repurposeResult.slice(0, 500),
+      full: repurposeResult,
+      notes: asDraft ? 'repurposed|draft' : 'repurposed|approved via queue',
+      repurpose_parent_id: repurposeModal.id,
+      workflow_status: asDraft ? 'approved' : 'approved',
+    });
+    showToast('Saved as ' + (asDraft ? 'draft' : 'approved'));
+    setRepurposeModal(null); setRepurposeResult('');
+    setTimeout(() => fetchItems(), 800);
+  };
+
+  // Derived
   const platforms = ['all', ...new Set(items.map(i => i.platform).filter(Boolean))];
   const types = ['all', ...new Set(items.map(i => i.type).filter(Boolean))];
   const pillars = ['all', ...new Set(items.map(i => i.angle).filter(Boolean))];
 
+  const typeColors = {
+    script:'#7C3AED', reel:'#7C3AED', caption:'#2563EB', carousel:'#0891B2',
+    email:'#D97706', hook:'#DC2626', 'hook pack':'#DC2626',
+    linkedin:'#0077B5', thread:'#1DA1F2', default:'#6B7280'
+  };
+  const tierConfig = {
+    winner: { bg:'rgba(255,183,0,0.12)', color:'#B45309', border:'rgba(255,183,0,0.3)', label:'🔥 Winner' },
+    solid:  { bg:'rgba(16,185,129,0.08)', color:'#059669', border:'rgba(16,185,129,0.2)', label:'✓ Solid'  },
+    weak:   { bg:'rgba(239,68,68,0.08)',  color:'#DC2626', border:'rgba(239,68,68,0.2)',  label:'✗ Weak'   },
+    unrated:{ bg:'#F9FAFB', color:'#9CA3AF', border:'#E5E7EB', label:'Unrated' },
+  };
+
   const getItemTier = (item) => {
-    const localRating = ratings[item.id];
-    if (localRating) return localRating;
+    const lr = ratings[item.id];
+    if (lr) return lr;
     if (item.perf_rating) return item.perf_rating;
     if (item.notes?.includes('winner') || item.notes?.includes('outperformed')) return 'winner';
     if (item.notes?.includes('risk:1') || item.notes?.includes('risk:2') || item.notes?.includes('risk:3')) return 'solid';
@@ -15479,9 +16372,8 @@ function ContentLibrary() {
     if (filterPillar !== 'all' && item.angle !== filterPillar) return false;
     if (filterTier !== 'all' && getItemTier(item) !== filterTier) return false;
     if (search) {
-      const q = search.toLowerCase();
-      const haystack = [item.title, item.content_preview, item.platform, item.angle, item.type].join(' ').toLowerCase();
-      if (!haystack.includes(q)) return false;
+      const hay = [item.title, item.content_preview, item.platform, item.angle, item.type].join(' ').toLowerCase();
+      if (!hay.includes(search.toLowerCase())) return false;
     }
     return true;
   });
@@ -15490,145 +16382,294 @@ function ContentLibrary() {
     if (sortBy === 'newest') return new Date(b.created_at) - new Date(a.created_at);
     if (sortBy === 'oldest') return new Date(a.created_at) - new Date(b.created_at);
     if (sortBy === 'winners') {
-      const tierOrder = { winner: 0, solid: 1, unrated: 2, weak: 3 };
-      return (tierOrder[getItemTier(a)] ?? 2) - (tierOrder[getItemTier(b)] ?? 2);
+      const order = { winner: 0, solid: 1, unrated: 2, weak: 3 };
+      return (order[getItemTier(a)] ?? 2) - (order[getItemTier(b)] ?? 2);
     }
     return 0;
   });
 
-  // Stats
-  const winnerCount = items.filter(i => getItemTier(i) === 'winner').length;
-  const solidCount = items.filter(i => getItemTier(i) === 'solid').length;
-  const unratedCount = items.filter(i => getItemTier(i) === 'unrated').length;
+  const totalWinners = items.filter(i => getItemTier(i) === 'winner').length;
+  const totalSolid = items.filter(i => getItemTier(i) === 'solid').length;
+  const totalUnrated = items.filter(i => getItemTier(i) === 'unrated').length;
 
-  const tierConfig = {
-    winner: { label: '🔥 Winner', color: '#10B981', bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.25)' },
-    solid:  { label: '✓ Solid',  color: '#2563EB', bg: 'rgba(37,99,235,0.08)',  border: 'rgba(37,99,235,0.2)' },
-    weak:   { label: '✗ Weak',   color: '#EF4444', bg: 'rgba(239,68,68,0.06)',  border: 'rgba(239,68,68,0.15)' },
-    unrated:{ label: 'Unrated',  color: '#9CA3AF', bg: '#F9FAFB',               border: '#E5E7EB' },
-  };
-
-  const typeColors = {
-    script: '#7C3AED', caption: '#2563EB', carousel: '#0891B2',
-    email: '#D97706', reel: '#DB2777', default: '#6B7280',
-  };
+  const repurposeFormats = ['Reel','Carousel','Caption','Email','Thread','Short Post','Long Post'];
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto' }}>
+    <div style={{ position: 'relative' }}>
 
-      {/* Header */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-          <div style={{ width: 3, height: 28, background: '#00C2FF', borderRadius: 2 }}/>
-          <h2 style={{ color: '#111827', margin: 0, fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>
-            Content Library
-          </h2>
-        </div>
-        <p style={{ color: '#6B7280', margin: 0, fontSize: 14, paddingLeft: 13 }}>
-          {items.length} pieces saved · {winnerCount} winners · {unratedCount} unrated
-        </p>
-      </div>
-
-      {/* Stats row */}
-      {items.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 20 }}>
-          {[
-            { label: 'Total', val: items.length, color: '#111827', filter: 'all' },
-            { label: '🔥 Winners', val: winnerCount, color: '#10B981', filter: 'winner' },
-            { label: '✓ Solid', val: solidCount, color: '#2563EB', filter: 'solid' },
-            { label: 'Unrated', val: unratedCount, color: '#9CA3AF', filter: 'unrated' },
-          ].map(s => (
-            <button key={s.label} onClick={() => setFilterTier(filterTier === s.filter ? 'all' : s.filter)}
-              style={{ background: filterTier === s.filter ? '#111827' : '#FFFFFF', border: '1px solid ' + (filterTier === s.filter ? '#111827' : '#E5E7EB'), borderRadius: 10, padding: '12px 8px', cursor: 'pointer', textAlign: 'center', transition: 'all 0.15s' }}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: filterTier === s.filter ? '#FFFFFF' : s.color }}>{s.val}</div>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.5, color: filterTier === s.filter ? 'rgba(255,255,255,0.7)' : '#9CA3AF', marginTop: 2 }}>{s.label}</div>
-            </button>
-          ))}
+      {/* Toast notification */}
+      {toast && (
+        <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', background: '#111827', color: '#fff', padding: '10px 20px', borderRadius: 8, fontSize: 13, fontWeight: 600, zIndex: 9999, boxShadow: '0 4px 20px rgba(0,0,0,0.25)', borderLeft: '3px solid ' + (toast.color || '#10B981') }}>
+          {toast.msg}
         </div>
       )}
 
-      {/* Search + Filters */}
-      {items.length > 0 && (
-        <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', marginBottom: 16 }}>
-          {/* Search */}
-          <input
-            value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="Search titles, content, platform, pillar..."
-            style={{ width: '100%', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: '10px 14px', color: '#111827', fontSize: 14, boxSizing: 'border-box', outline: 'none', marginBottom: 12 }}
-            onFocus={e => e.target.style.borderColor = '#00C2FF'}
-            onBlur={e => e.target.style.borderColor = '#E5E7EB'}
-          />
-
-          {/* Filter row */}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-            {/* Sort */}
-            <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-              style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 6, padding: '6px 10px', color: '#374151', fontSize: 12, cursor: 'pointer' }}>
-              <option value="newest">Newest first</option>
-              <option value="oldest">Oldest first</option>
-              <option value="winners">Winners first</option>
-            </select>
-
-            {/* Platform */}
-            {platforms.length > 2 && (
-              <select value={filterPlatform} onChange={e => setFilterPlatform(e.target.value)}
-                style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 6, padding: '6px 10px', color: '#374151', fontSize: 12, cursor: 'pointer' }}>
-                {platforms.map(p => <option key={p} value={p}>{p === 'all' ? 'All platforms' : p}</option>)}
-              </select>
-            )}
-
-            {/* Type */}
-            {types.length > 2 && (
-              <select value={filterType} onChange={e => setFilterType(e.target.value)}
-                style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 6, padding: '6px 10px', color: '#374151', fontSize: 12, cursor: 'pointer' }}>
-                {types.map(t => <option key={t} value={t}>{t === 'all' ? 'All types' : t}</option>)}
-              </select>
-            )}
-
-            {/* Pillar */}
-            {pillars.length > 2 && (
-              <select value={filterPillar} onChange={e => setFilterPillar(e.target.value)}
-                style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 6, padding: '6px 10px', color: '#374151', fontSize: 12, cursor: 'pointer' }}>
-                {pillars.map(p => <option key={p} value={p}>{p === 'all' ? 'All pillars' : p}</option>)}
-              </select>
-            )}
-
-            {/* Clear filters */}
-            {(search || filterType !== 'all' || filterPlatform !== 'all' || filterTier !== 'all' || filterPillar !== 'all') && (
-              <button onClick={() => { setSearch(''); setFilterType('all'); setFilterPlatform('all'); setFilterTier('all'); setFilterPillar('all'); }}
-                style={{ background: 'none', border: '1px solid #E5E7EB', borderRadius: 6, padding: '6px 10px', color: '#9CA3AF', fontSize: 12, cursor: 'pointer' }}>
-                Clear ×
-              </button>
-            )}
-
-            <div style={{ marginLeft: 'auto', color: '#9CA3AF', fontSize: 12 }}>
-              {sorted.length} of {items.length}
+      {/* Design Pack Modal */}
+      {designPackModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9000, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '20px 16px', overflowY: 'auto' }}
+          onClick={() => { setDesignPackModal(null); setDesignPackResult(null); }}>
+          <div style={{ background: '#fff', borderRadius: 14, width: '100%', maxWidth: 680, padding: 28, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
+            onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: '#111827' }}>Design Pack</div>
+                <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{designPackModal.title || 'Untitled'} · {designPackModal.platform}</div>
+              </div>
+              <button onClick={() => { setDesignPackModal(null); setDesignPackResult(null); }}
+                style={{ background: 'none', border: 'none', fontSize: 20, color: '#9CA3AF', cursor: 'pointer' }}>×</button>
             </div>
+
+            {designPackLoading && (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#6B7280' }}>
+                <div style={{ fontSize: 24, marginBottom: 12 }}>⚙️</div>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>Building design pack...</div>
+                <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 4 }}>Extracting hook, copy, visual direction, format breakdown</div>
+              </div>
+            )}
+
+            {designPackResult && !designPackResult.error && (
+              <div>
+                {/* Action bar */}
+                <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+                  <button onClick={() => navigator.clipboard.writeText(JSON.stringify(designPackResult, null, 2)).then(() => showToast('JSON copied'))}
+                    style={{ background: '#EEF2FF', color: '#2563EB', border: '1px solid #C7D2FE', borderRadius: 7, padding: '7px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                    Copy JSON
+                  </button>
+                  <button onClick={() => downloadDesignPack(designPackResult, 'json', designPackModal.title)}
+                    style={{ background: '#F9FAFB', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 7, padding: '7px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                    Download JSON
+                  </button>
+                  <button onClick={() => downloadDesignPack(designPackResult, 'txt', designPackModal.title)}
+                    style={{ background: '#F9FAFB', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 7, padding: '7px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                    Download TXT
+                  </button>
+                </div>
+
+                {/* Pack sections */}
+                {[
+                  { label: 'Hook', value: designPackResult.hook, accent: '#DC2626' },
+                  { label: 'Body Summary', value: designPackResult.body_summary, accent: '#2563EB' },
+                  { label: 'CTA', value: designPackResult.cta, accent: '#7C3AED' },
+                  { label: 'Visual Direction', value: designPackResult.visual_direction, accent: '#0891B2' },
+                  { label: 'Design Tone', value: designPackResult.design_tone, accent: '#6B7280' },
+                  { label: 'Color Palette', value: designPackResult.color_palette, accent: '#D97706' },
+                ].filter(s => s.value).map(section => (
+                  <div key={section.label} style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: section.accent, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>{section.label}</div>
+                    <div style={{ background: '#F9FAFB', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#111827', lineHeight: 1.6, borderLeft: '3px solid ' + section.accent }}>
+                      {section.value}
+                    </div>
+                  </div>
+                ))}
+
+                {designPackResult.thumbnail_options?.length > 0 && (
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Thumbnail Options</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {designPackResult.thumbnail_options.map((t, i) => (
+                        <div key={i} style={{ background: '#111827', color: '#F1F5F9', borderRadius: 8, padding: '10px 14px', fontSize: 13, fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span>{t}</span>
+                          <button onClick={() => copyItem(t, null, 'Thumbnail text')}
+                            style={{ background: 'rgba(255,255,255,0.1)', color: '#F1F5F9', border: 'none', borderRadius: 5, padding: '3px 10px', fontSize: 11, cursor: 'pointer' }}>Copy</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {designPackResult.on_screen_text?.length > 0 && (
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>On-Screen Text Overlays</div>
+                    {designPackResult.on_screen_text.map((t, i) => (
+                      <div key={i} style={{ background: '#F9FAFB', borderRadius: 6, padding: '7px 12px', fontSize: 12, color: '#374151', marginBottom: 5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>{t}</span>
+                        <button onClick={() => copyItem(t, null, 'Text overlay')}
+                          style={{ background: '#EEF2FF', color: '#2563EB', border: 'none', borderRadius: 4, padding: '2px 8px', fontSize: 10, cursor: 'pointer', marginLeft: 8 }}>Copy</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {designPackResult.caption_ready && (
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Caption Ready</div>
+                    <div style={{ background: '#F9FAFB', borderRadius: 8, padding: '12px 14px', fontSize: 13, color: '#374151', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
+                      {designPackResult.caption_ready}
+                    </div>
+                    <button onClick={() => copyItem(designPackResult.caption_ready, null, 'Caption')}
+                      style={{ marginTop: 6, background: '#EEF2FF', color: '#2563EB', border: 'none', borderRadius: 6, padding: '5px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                      Copy Caption
+                    </button>
+                  </div>
+                )}
+
+                {designPackResult.format_breakdown?.sections?.length > 0 && (
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Format Breakdown</div>
+                    {designPackResult.format_breakdown.sections.map((s, i) => (
+                      <div key={i} style={{ background: '#F9FAFB', borderRadius: 7, padding: '8px 12px', fontSize: 12, color: '#374151', lineHeight: 1.6, marginBottom: 6 }}>
+                        {typeof s === 'string' ? s : JSON.stringify(s)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {designPackResult?.error && (
+              <div style={{ background: '#FEF2F2', borderRadius: 8, padding: 16, fontSize: 13, color: '#DC2626' }}>
+                Could not parse design pack. Raw output available — click Copy to grab it.
+                <button onClick={() => copyItem(designPackResult.raw, null, 'Raw output')}
+                  style={{ marginLeft: 12, background: '#FEE2E2', color: '#DC2626', border: 'none', borderRadius: 5, padding: '4px 10px', fontSize: 11, cursor: 'pointer' }}>Copy Raw</button>
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* Loading */}
-      {loading && (
-        <div style={{ textAlign: 'center', padding: '40px 0' }}>
-          <div style={{ width: 32, height: 32, border: '2px solid #E5E7EB', borderTopColor: '#00C2FF', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }}/>
-          <p style={{ color: '#6B7280', fontSize: 13 }}>Loading from Supabase...</p>
+      {/* Repurpose Modal */}
+      {repurposeModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9000, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '20px 16px', overflowY: 'auto' }}
+          onClick={() => { setRepurposeModal(null); setRepurposeResult(''); }}>
+          <div style={{ background: '#fff', borderRadius: 14, width: '100%', maxWidth: 680, padding: 28, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
+            onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: '#111827' }}>Repurpose Content</div>
+                <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{repurposeModal.title || 'Untitled'} → new format</div>
+              </div>
+              <button onClick={() => { setRepurposeModal(null); setRepurposeResult(''); }}
+                style={{ background: 'none', border: 'none', fontSize: 20, color: '#9CA3AF', cursor: 'pointer' }}>×</button>
+            </div>
+
+            {!repurposeResult && !repurposeLoading && (
+              <div>
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Target Format</div>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    {repurposeFormats.map(f => (
+                      <button key={f} onClick={() => setRepurposeTarget(f)}
+                        style={{ background: repurposeTarget === f ? '#EEF2FF' : '#F9FAFB', color: repurposeTarget === f ? '#2563EB' : '#374151', border: '1px solid ' + (repurposeTarget === f ? '#C7D2FE' : '#E5E7EB'), borderRadius: 6, padding: '7px 14px', cursor: 'pointer', fontSize: 12, fontWeight: repurposeTarget === f ? 700 : 500 }}>
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Platform</div>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    {['Instagram','TikTok','YouTube','LinkedIn','X','Facebook','Email'].map(p => (
+                      <button key={p} onClick={() => setRepurposePlatform(p)}
+                        style={{ background: repurposePlatform === p ? '#EEF2FF' : '#F9FAFB', color: repurposePlatform === p ? '#2563EB' : '#374151', border: '1px solid ' + (repurposePlatform === p ? '#C7D2FE' : '#E5E7EB'), borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontSize: 12, fontWeight: repurposePlatform === p ? 700 : 500 }}>
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button onClick={runRepurpose}
+                  style={{ width: '100%', background: 'linear-gradient(135deg,#00C2FF,#0096CC)', color: '#000D1A', border: 'none', borderRadius: 8, padding: '12px 0', fontWeight: 800, cursor: 'pointer', fontSize: 14 }}>
+                  Repurpose into {repurposeTarget} →
+                </button>
+              </div>
+            )}
+
+            {repurposeLoading && (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#6B7280' }}>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>Repurposing into {repurposeTarget}...</div>
+                <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 4 }}>Preserving voice and core idea</div>
+              </div>
+            )}
+
+            {repurposeResult && !repurposeLoading && (
+              <div>
+                <div style={{ background: 'rgba(0,194,255,0.06)', border: '1px solid rgba(0,194,255,0.2)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 12, color: '#374151' }}>
+                  <strong style={{ color: '#00C2FF' }}>Original:</strong> {repurposeModal.type} → <strong style={{ color: '#00C2FF' }}>Repurposed:</strong> {repurposeTarget} for {repurposePlatform}
+                </div>
+                <pre style={{ background: '#F9FAFB', borderRadius: 10, padding: '16px', fontSize: 13, color: '#374151', whiteSpace: 'pre-wrap', lineHeight: 1.75, fontFamily: 'inherit', maxHeight: 360, overflowY: 'auto', marginBottom: 16 }}>
+                  {repurposeResult}
+                </pre>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <button onClick={() => copyItem(repurposeResult, null, 'Repurposed content')}
+                    style={{ background: '#F3F4F6', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 7, padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                    Copy
+                  </button>
+                  <button onClick={() => saveRepurposed(true)}
+                    style={{ background: '#EEF2FF', color: '#2563EB', border: '1px solid #C7D2FE', borderRadius: 7, padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                    Save as Draft
+                  </button>
+                  <button onClick={() => saveRepurposed(false)}
+                    style={{ background: 'rgba(16,185,129,0.1)', color: '#10B981', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 7, padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                    Approve & Save
+                  </button>
+                  <button onClick={() => setRepurposeResult('')}
+                    style={{ background: 'none', color: '#9CA3AF', border: '1px solid #E5E7EB', borderRadius: 7, padding: '8px 16px', fontSize: 12, cursor: 'pointer' }}>
+                    Try Different Format
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Empty state */}
-      {!loading && items.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '56px 24px', background: '#F9FAFB', borderRadius: 12 }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}></div>
-          <div style={{ color: '#111827', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Nothing saved yet</div>
-          <div style={{ color: '#6B7280', fontSize: 14 }}>Generate content in Smart Brief or Create Hub - it saves here automatically.</div>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 3, height: 28, background: '#00C2FF', borderRadius: 2 }} />
+          <div>
+            <h2 style={{ color: '#111827', margin: 0, fontSize: 18, fontWeight: 800, letterSpacing: '-0.03em' }}>Content Library</h2>
+            <p style={{ color: '#6B7280', margin: '4px 0 0', fontSize: 13 }}>{items.length} pieces · {totalWinners} winners · {totalSolid} solid · {totalUnrated} unrated</p>
+          </div>
         </div>
-      )}
+        <button onClick={fetchItems}
+          style={{ background: '#F9FAFB', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: 8, padding: '7px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+          ↻ Refresh
+        </button>
+      </div>
 
-      {/* No results */}
-      {!loading && items.length > 0 && sorted.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '32px', color: '#9CA3AF', fontSize: 14 }}>
-          No content matches your filters.
+      {/* Stats row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 16 }}>
+        {[
+          ['Total', items.length, '#6B7280', 'all'],
+          ['Winners', totalWinners, '#B45309', 'winner'],
+          ['Solid', totalSolid, '#059669', 'solid'],
+          ['Unrated', totalUnrated, '#9CA3AF', 'unrated'],
+        ].map(([label, val, color, tier]) => (
+          <div key={label} onClick={() => setFilterTier(filterTier === tier ? 'all' : tier)}
+            style={{ background: filterTier === tier ? '#EEF2FF' : '#FFFFFF', border: '1px solid ' + (filterTier === tier ? '#C7D2FE' : '#E5E7EB'), borderRadius: 10, padding: '12px', textAlign: 'center', cursor: 'pointer', transition: 'all 0.12s' }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color }}>{val}</div>
+            <div style={{ fontSize: 10, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 }}>{label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Search + filters */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search content..."
+          style={{ flex: 1, minWidth: 160, background: '#F9FAFB', border: '1px solid #D1D5DB', borderRadius: 8, padding: '8px 12px', color: '#111827', fontSize: 13, boxSizing: 'border-box' }} />
+        <select value={filterType} onChange={e => setFilterType(e.target.value)}
+          style={{ background: '#F9FAFB', border: '1px solid #D1D5DB', borderRadius: 8, padding: '8px 10px', color: '#374151', fontSize: 12 }}>
+          {types.map(t => <option key={t} value={t}>{t === 'all' ? 'All Types' : t}</option>)}
+        </select>
+        <select value={filterPlatform} onChange={e => setFilterPlatform(e.target.value)}
+          style={{ background: '#F9FAFB', border: '1px solid #D1D5DB', borderRadius: 8, padding: '8px 10px', color: '#374151', fontSize: 12 }}>
+          {platforms.map(p => <option key={p} value={p}>{p === 'all' ? 'All Platforms' : p}</option>)}
+        </select>
+        <select value={sortBy} onChange={e => setSortBy(e.target.value)}
+          style={{ background: '#F9FAFB', border: '1px solid #D1D5DB', borderRadius: 8, padding: '8px 10px', color: '#374151', fontSize: 12 }}>
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="winners">Winners First</option>
+        </select>
+      </div>
+
+      {loading && <div style={{ textAlign: 'center', padding: 32, color: '#9CA3AF', fontSize: 13 }}>Loading library...</div>}
+
+      {!loading && sorted.length === 0 && (
+        <div style={{ textAlign: 'center', padding: 32, color: '#9CA3AF', fontSize: 14 }}>
+          {items.length === 0 ? 'No content saved yet. Approve content in the queue to see it here.' : 'No content matches your filters.'}
         </div>
       )}
 
@@ -15640,90 +16681,144 @@ function ContentLibrary() {
             const tc = tierConfig[tier] || tierConfig.unrated;
             const isExpanded = expandedId === item.id;
             const typeColor = typeColors[item.type?.toLowerCase()] || typeColors.default;
+            const wf = getWorkflow(item.id);
+            const wfConfig = P8_STATUS_COLORS[wf.status] || P8_STATUS_COLORS.approved;
+            const copyActions = getCopyActions(item);
 
             return (
               <div key={item.id}
-                style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderLeft: '3px solid ' + typeColor, borderRadius: 10, overflow: 'hidden', transition: 'border-color 0.15s' }}>
+                style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderLeft: '3px solid ' + typeColor, borderRadius: 10, overflow: 'visible', transition: 'border-color 0.15s' }}>
 
-                {/* Item header - always visible */}
+                {/* Card header */}
                 <div style={{ padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: 12 }}
                   onClick={() => setExpandedId(isExpanded ? null : item.id)}>
-
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    {/* Tags row */}
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 6 }}>
-                      {item.type && (
-                        <span style={{ background: typeColor, color: '#FFF', fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                          {item.type}
-                        </span>
-                      )}
-                      {item.platform && (
-                        <span style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 10, padding: '2px 6px', borderRadius: 4 }}>
-                          {item.platform}
-                        </span>
-                      )}
-                      {item.angle && (
-                        <span style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 10, padding: '2px 6px', borderRadius: 4 }}>
-                          {item.angle}
-                        </span>
-                      )}
-                      {tier !== 'unrated' && (
-                        <span style={{ background: tc.bg, color: tc.color, border: '1px solid ' + tc.border, fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4 }}>
-                          {tc.label}
-                        </span>
+                      {item.type && <span style={{ background: typeColor, color: '#FFF', fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>{item.type}</span>}
+                      {item.platform && <span style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 10, padding: '2px 6px', borderRadius: 4 }}>{item.platform}</span>}
+                      {item.angle && <span style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 10, padding: '2px 6px', borderRadius: 4 }}>{item.angle}</span>}
+                      {tier !== 'unrated' && <span style={{ background: tc.bg, color: tc.color, border: '1px solid ' + tc.border, fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4 }}>{tc.label}</span>}
+                      {/* Workflow status badge */}
+                      {wf.status && wf.status !== 'approved' && (
+                        <span style={{ background: wfConfig.bg, color: wfConfig.color, border: '1px solid ' + wfConfig.border, fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4, textTransform: 'uppercase' }}>{wfConfig.label}</span>
                       )}
                     </div>
-
-                    {/* Title */}
-                    <div style={{ color: '#111827', fontSize: 13, fontWeight: 600, lineHeight: 1.5, marginBottom: 3 }}>
-                      {item.title || 'Untitled'}
-                    </div>
-
-                    {/* Date + preview */}
+                    <div style={{ color: '#111827', fontSize: 13, fontWeight: 600, lineHeight: 1.5, marginBottom: 3 }}>{item.title || 'Untitled'}</div>
                     <div style={{ color: '#9CA3AF', fontSize: 11 }}>
                       {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      {item.content_preview && ' · ' + item.content_preview.slice(0, 60) + '...'}
+                      {item.content_preview && ' · ' + item.content_preview.slice(0, 55) + '...'}
                     </div>
                   </div>
 
-                  {/* Tier rating buttons */}
+                  {/* Tier buttons */}
                   <div style={{ display: 'flex', gap: 4, flexShrink: 0 }} onClick={e => e.stopPropagation()}>
                     {['winner', 'solid', 'weak'].map(t => (
-                      <button key={t} onClick={() => rateItem(item.id, t)}
-                        title={t.charAt(0).toUpperCase() + t.slice(1)}
+                      <button key={t} onClick={() => rateItem(item.id, t)} title={t.charAt(0).toUpperCase() + t.slice(1)}
                         style={{ background: tier === t ? tierConfig[t].bg : '#F9FAFB', border: '1px solid ' + (tier === t ? tierConfig[t].border : '#E5E7EB'), borderRadius: 5, padding: '4px 7px', cursor: 'pointer', fontSize: 11, fontWeight: tier === t ? 700 : 400, color: tier === t ? tierConfig[t].color : '#9CA3AF', transition: 'all 0.12s' }}>
                         {t === 'winner' ? '🔥' : t === 'solid' ? '✓' : '✗'}
                       </button>
                     ))}
                   </div>
-
-                  {/* Expand chevron */}
-                  <div style={{ color: '#D1D5DB', fontSize: 12, flexShrink: 0, marginTop: 2 }}>
-                    {isExpanded ? '▲' : '▼'}
-                  </div>
+                  <div style={{ color: '#D1D5DB', fontSize: 12, flexShrink: 0, marginTop: 2 }}>{isExpanded ? '▲' : '▼'}</div>
                 </div>
 
                 {/* Expanded content */}
                 {isExpanded && (
                   <div style={{ borderTop: '1px solid #F3F4F6', padding: '14px 16px', background: '#FAFAFA' }}>
                     {item.full_content || item.content_preview ? (
-                      <pre style={{ color: '#374151', fontSize: 13, whiteSpace: 'pre-wrap', lineHeight: 1.75, fontFamily: 'inherit', margin: '0 0 14px', maxHeight: 320, overflowY: 'auto' }}>
+                      <pre style={{ color: '#374151', fontSize: 13, whiteSpace: 'pre-wrap', lineHeight: 1.75, fontFamily: 'inherit', margin: '0 0 16px', maxHeight: 320, overflowY: 'auto' }}>
                         {item.full_content || item.content_preview}
                       </pre>
                     ) : (
-                      <p style={{ color: '#9CA3AF', fontSize: 13, marginBottom: 14 }}>No content preview available.</p>
+                      <p style={{ color: '#9CA3AF', fontSize: 13, marginBottom: 16 }}>No content preview available.</p>
                     )}
 
-                    {/* Action buttons */}
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      <button onClick={() => copyItem(item.full_content || item.content_preview, item.id)}
-                        style={{ background: copyId === item.id ? 'rgba(16,185,129,0.1)' : '#F3F4F6', color: copyId === item.id ? '#10B981' : '#374151', border: '1px solid ' + (copyId === item.id ? 'rgba(16,185,129,0.3)' : '#E5E7EB'), borderRadius: 6, padding: '7px 14px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
-                        {copyId === item.id ? 'Copied ✓' : 'Copy'}
-                      </button>
-                      <button onClick={() => deleteItem(item.id)}
-                        style={{ background: 'none', border: '1px solid #FCA5A5', borderRadius: 6, padding: '7px 14px', cursor: 'pointer', fontSize: 12, color: '#EF4444', fontWeight: 500 }}>
-                        Delete
-                      </button>
+                    {/* ── PHASE 8 ACTION BAR ── */}
+                    <div style={{ borderTop: '1px solid #E5E7EB', paddingTop: 14 }}>
+
+                      {/* Row 1: Primary export actions */}
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+
+                        {/* Smart Copy dropdown */}
+                        <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
+                          <button onClick={() => setCopyMenuId(copyMenuId === item.id ? null : item.id)}
+                            style={{ background: '#F3F4F6', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 7, padding: '7px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
+                            Copy ▾
+                          </button>
+                          {copyMenuId === item.id && (
+                            <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 100, minWidth: 160, overflow: 'hidden' }}>
+                              {copyActions.map((action, i) => (
+                                <button key={i} onClick={() => { action.fn(); setCopyMenuId(null); }}
+                                  style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', borderBottom: i < copyActions.length - 1 ? '1px solid #F3F4F6' : 'none', padding: '9px 14px', fontSize: 12, color: '#374151', cursor: 'pointer', fontWeight: 500 }}
+                                  onMouseEnter={e => e.target.style.background = '#F9FAFB'}
+                                  onMouseLeave={e => e.target.style.background = 'none'}>
+                                  {action.label}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Design Pack */}
+                        <button onClick={() => generateDesignPack(item)}
+                          style={{ background: 'rgba(0,194,255,0.08)', color: '#00C2FF', border: '1px solid rgba(0,194,255,0.2)', borderRadius: 7, padding: '7px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>
+                          Design Pack
+                        </button>
+
+                        {/* Repurpose */}
+                        <button onClick={() => { setRepurposeModal(item); setRepurposeResult(''); setRepurposeLoading(false); }}
+                          style={{ background: 'rgba(124,58,237,0.08)', color: '#7C3AED', border: '1px solid rgba(124,58,237,0.2)', borderRadius: 7, padding: '7px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>
+                          Repurpose
+                        </button>
+                      </div>
+
+                      {/* Row 2: Workflow status actions */}
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                        {wf.status !== 'scheduled' && wf.status !== 'posted' && wf.status !== 'archived' && (
+                          <button onClick={() => markStatus(item.id, 'scheduled')}
+                            style={{ background: 'rgba(245,158,11,0.08)', color: '#D97706', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 6, padding: '5px 11px', cursor: 'pointer', fontSize: 11, fontWeight: 700 }}>
+                            Mark Scheduled
+                          </button>
+                        )}
+                        {wf.status !== 'posted' && wf.status !== 'archived' && (
+                          <button onClick={() => markStatus(item.id, 'posted')}
+                            style={{ background: 'rgba(139,92,246,0.08)', color: '#7C3AED', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 6, padding: '5px 11px', cursor: 'pointer', fontSize: 11, fontWeight: 700 }}>
+                            Mark Posted
+                          </button>
+                        )}
+                        {wf.status !== 'archived' && (
+                          <button onClick={() => markStatus(item.id, 'archived')}
+                            style={{ background: '#F9FAFB', color: '#9CA3AF', border: '1px solid #E5E7EB', borderRadius: 6, padding: '5px 11px', cursor: 'pointer', fontSize: 11 }}>
+                            Archive
+                          </button>
+                        )}
+                        {isAgency && (
+                          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 10, color: '#9CA3AF' }}>Assignee:</span>
+                            <input defaultValue={wf.assignee || ''}
+                              onBlur={e => setWorkflow(item.id, { assignee: e.target.value })}
+                              placeholder="name"
+                              style={{ background: '#F3F4F6', border: '1px solid #E5E7EB', borderRadius: 5, padding: '3px 8px', fontSize: 11, color: '#374151', width: 90 }} />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Workflow timestamps */}
+                      {(wf.exported_at || wf.scheduled_at || wf.posted_at) && (
+                        <div style={{ marginTop: 8, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                          {wf.exported_at && <span style={{ fontSize: 10, color: '#9CA3AF' }}>Exported {new Date(wf.exported_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+                          {wf.scheduled_at && <span style={{ fontSize: 10, color: '#D97706' }}>Scheduled {new Date(wf.scheduled_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+                          {wf.posted_at && <span style={{ fontSize: 10, color: '#7C3AED' }}>Posted {new Date(wf.posted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+                        </div>
+                      )}
+
+                      {/* Delete */}
+                      <div style={{ marginTop: 10, borderTop: '1px solid #F3F4F6', paddingTop: 10 }}>
+                        <button onClick={() => deleteItem(item.id)}
+                          style={{ background: 'none', border: '1px solid #FCA5A5', borderRadius: 6, padding: '5px 12px', cursor: 'pointer', fontSize: 11, color: '#EF4444', fontWeight: 500 }}>
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -17857,11 +18952,15 @@ function SmartBrief() {
         } catch { return {}; }
       })();
       
-      // Pre-fill chips from client Brain or chip memory
+      // Pre-fill chips — priority: chip memory → Brain → activeClient → defaults
       const voice = activeClient?.voice || '';
-      setPillar(chipMemory.pillar || activeClient?.angles?.split(',')[0]?.trim() || 'Occupational');
-      setTone(chipMemory.tone || voice.slice(0, 40) || 'Direct, real');
-      setCtaType(chipMemory.cta || 'Drop a comment below');
+      const brain = (() => { try { const b = JSON.parse(localStorage.getItem(BRAIN_KEY) || '{}'); return b[clientId] || null; } catch { return null; } })();
+      const brainPillar = brain?.content_pillars?.[0]?.name || '';
+      const brainVoiceEnergy = brain?.voice_profile?.energy || brain?.voice_profile?.description?.slice(0, 50) || '';
+      const brainCta = brain?.cta_style || '';
+      setPillar(chipMemory.pillar || brainPillar || activeClient?.angles?.split(',')[0]?.trim() || 'Occupational');
+      setTone(chipMemory.tone || brainVoiceEnergy || voice.slice(0, 40) || 'Direct, real');
+      setCtaType(chipMemory.cta || brainCta || 'Drop a comment below');
       setPlatform(chipMemory.platform || 'Instagram');
     } catch(e) { console.error('SmartBrief context load:', e); }
   };
@@ -17878,6 +18977,25 @@ function SmartBrief() {
   const buildClientBrain = () => {
     const client = activeClient;
     if (!client) return '';
+    // Pull from Brain if available
+    const storedBrain = (() => { try { const b = JSON.parse(localStorage.getItem(BRAIN_KEY) || '{}'); return b[client.id] || null; } catch { return null; } })();
+    if (storedBrain) {
+      const pillars = storedBrain.content_pillars?.map(p => p.name).join(', ') || '';
+      const antiGeneric = storedBrain.anti_generic_rules?.join(' | ') || '';
+      const voice = storedBrain.voice_profile?.description || client.voice || '';
+      const banned = storedBrain.voice_profile?.banned_phrases?.join(', ') || '';
+      return `CREATOR PROFILE:
+Name: ${client.name}
+Voice: ${voice}
+Niche: ${storedBrain.niche_summary || client.niche || ''}
+Positioning: ${storedBrain.positioning || ''}
+Content Pillars: ${pillars}
+Transformation Promise: ${storedBrain.transformation_promise || ''}
+Anti-generic rules: ${antiGeneric || 'Never sound like generic advice. Always speak from lived experience.'}
+${banned ? 'Banned phrases: ' + banned : ''}
+Role: ${client.role || ''}
+Location: ${client.location || ''}`;
+    }
     return `CREATOR PROFILE:
 Name: ${client.name}
 Voice: ${client.voice || 'Direct, real, no corporate speak'}
