@@ -4695,6 +4695,7 @@ const SUB_NAV = {
     { id:'contentbrief', label:'Filming Brief' },
   ],
   discover: [
+    { id:'discover',     label:'Discover Hub' },
     { id:'research',     label:'Research Hub' },
     { id:'trendmonitor', label:'Trend Monitor' },
     { id:'compintel',    label:'Competitor Intel' },
@@ -18180,6 +18181,271 @@ function usePreselectedTopic() {
   return topic;
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PHASE 5: DISCOVER HUB + INLINE RESEARCH IN CREATE FLOW
+// Unified Discover landing page that shows trend alerts + content gaps
+// inline so creators get research context without leaving the Create flow.
+// ═══════════════════════════════════════════════════════════════════════════
+
+function DiscoverHub() {
+  const [activeClient] = useActiveClient();
+  const [trendAlerts, setTrendAlerts] = React.useState([]);
+  const [gaps, setGaps] = React.useState([]);
+  const [winnerPatterns, setWinnerPatterns] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
+  const [gapLoading, setGapLoading] = React.useState(false);
+  const [selectedAlert, setSelectedAlert] = React.useState(null);
+  const [usedTopic, setUsedTopic] = React.useState(null);
+
+  React.useEffect(() => { loadData(); }, [activeClient]);
+
+  const loadData = () => {
+    try {
+      // Load trend alerts from localStorage cache
+      const stored = localStorage.getItem('encis_trend_alerts');
+      if (stored) {
+        const alerts = JSON.parse(stored);
+        setTrendAlerts(Array.isArray(alerts) ? alerts.slice(0, 12) : []);
+      }
+      // Load winner patterns
+      const clientId = activeClient?.id || 'jason';
+      const patterns = JSON.parse(localStorage.getItem(WINNER_PATTERNS_KEY) || '{}');
+      setWinnerPatterns(patterns[clientId] || null);
+    } catch(e) { console.error('DiscoverHub load:', e); }
+  };
+
+  const generateGaps = async () => {
+    setGapLoading(true);
+    setGaps([]);
+    try {
+      const clientId = activeClient?.id || 'jason';
+      const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
+      const stories = allStories[clientId] || [];
+      const client = activeClient;
+
+      const prompt = `${client ? 'CREATOR: ' + client.name + '\nVOICE: ' + (client.voice || '') + '\nROLE: ' + (client.role || '') : ''}
+
+You are identifying content gap opportunities for this creator.
+
+${winnerPatterns ? 'WHAT HAS WORKED: ' + winnerPatterns.what_to_make_more_of : ''}
+${stories.length > 0 ? 'STORY BANK THEMES: ' + stories.slice(0, 5).map(s => s.emotional_theme).join(', ') : ''}
+
+CURRENT TRENDS (from recent scans):
+${trendAlerts.slice(0, 5).map(a => '- ' + (a.title || a.account || '') + ' (' + (a.angle || '') + ')').join('\n')}
+
+Identify 4 specific content gap opportunities — things the market is underserving that this creator could own.
+
+Return ONLY this JSON:
+{
+  "gaps": [
+    {
+      "opportunity": "[specific content angle nobody is doing well]",
+      "why_it_works": "[one sentence — why this creator specifically can own it]",
+      "hook": "[first line of a piece using this angle]",
+      "format": "[Reel Script | Caption | Carousel]"
+    }
+  ]
+}`;
+
+      const raw = await ai(prompt);
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const result = JSON.parse(clean);
+      setGaps(result.gaps || []);
+    } catch(e) { console.error('generateGaps:', e); }
+    setGapLoading(false);
+  };
+
+  const useTopic = (hook, format) => {
+    try {
+      localStorage.setItem('encis_selected_topic', JSON.stringify({
+        topic: hook,
+        format: format || 'Reel Script',
+        selectedAt: Date.now(),
+      }));
+      setUsedTopic(hook);
+    } catch {}
+  };
+
+  const unseenCount = trendAlerts.filter(a => !a.seen).length;
+
+  return (
+    <div style={{ maxWidth: 760, margin: '0 auto' }}>
+
+      {/* Header */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <div style={{ width: 3, height: 28, background: '#00C2FF', borderRadius: 2 }}/>
+          <h2 style={{ color: '#111827', margin: 0, fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>
+            Discover
+          </h2>
+        </div>
+        <p style={{ color: '#6B7280', margin: 0, fontSize: 14, paddingLeft: 13 }}>
+          Trends, gaps, and opportunities — surface what to create before you sit down to create it.
+        </p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+
+        {/* ── TREND ALERTS ── */}
+        <div style={{ gridColumn: 'span 2' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ color: '#111827', fontWeight: 700, fontSize: 15 }}>Trend Alerts</div>
+              {unseenCount > 0 && (
+                <span style={{ background: '#EF4444', color: '#FFF', fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 10 }}>
+                  {unseenCount} new
+                </span>
+              )}
+            </div>
+            <span style={{ color: '#9CA3AF', fontSize: 12 }}>
+              {trendAlerts.length > 0 ? `${trendAlerts.length} alerts` : 'Run Trend Monitor in Agents to scan'}
+            </span>
+          </div>
+
+          {trendAlerts.length === 0 ? (
+            <div style={{ background: '#F9FAFB', borderRadius: 12, padding: '20px 24px', textAlign: 'center' }}>
+              <div style={{ color: '#9CA3AF', fontSize: 13, marginBottom: 8 }}>No trend alerts yet</div>
+              <div style={{ color: '#6B7280', fontSize: 12 }}>Go to Agents → Trend Monitor to scan your niches</div>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 8 }}>
+              {trendAlerts.slice(0, 6).map((alert, i) => (
+                <div key={i}
+                  onClick={() => setSelectedAlert(selectedAlert === i ? null : i)}
+                  style={{ background: '#FFFFFF', border: '1px solid ' + (selectedAlert === i ? '#111827' : '#E5E7EB'), borderRadius: 10, padding: '12px 14px', cursor: 'pointer', transition: 'border-color 0.15s' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                    <span style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4, textTransform: 'uppercase' }}>
+                      {alert.angle || 'Trend'}
+                    </span>
+                    {!alert.seen && <span style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444', fontSize: 9, fontWeight: 800, padding: '2px 5px', borderRadius: 4 }}>NEW</span>}
+                  </div>
+                  <div style={{ color: '#111827', fontSize: 13, fontWeight: 600, lineHeight: 1.5, marginBottom: 4 }}>
+                    {alert.account || alert.title || 'Trend signal'}
+                  </div>
+                  <div style={{ color: '#6B7280', fontSize: 11, lineHeight: 1.5, marginBottom: selectedAlert === i ? 10 : 0 }}>
+                    {(alert.text || alert.hook || '').slice(0, 100)}{(alert.text || '').length > 100 ? '...' : ''}
+                  </div>
+                  {selectedAlert === i && (
+                    <div style={{ borderTop: '1px solid #F3F4F6', paddingTop: 10 }}>
+                      {alert.steal && (
+                        <div style={{ color: '#374151', fontSize: 12, lineHeight: 1.6, marginBottom: 8, fontStyle: 'italic' }}>
+                          "{alert.steal}"
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button onClick={e => { e.stopPropagation(); useTopic(alert.steal || alert.account || '', 'Reel Script'); }}
+                          style={{ flex: 1, background: usedTopic === (alert.steal || alert.account) ? '#10B981' : '#111827', color: '#FFF', border: 'none', borderRadius: 6, padding: '7px 10px', fontWeight: 700, cursor: 'pointer', fontSize: 11 }}>
+                          {usedTopic === (alert.steal || alert.account) ? 'Loaded ✓' : 'Use in Smart Brief'}
+                        </button>
+                        {alert.profileUrl && (
+                          <a href={alert.profileUrl} target="_blank" rel="noopener noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            style={{ background: '#F9FAFB', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 6, padding: '7px 10px', fontWeight: 600, cursor: 'pointer', fontSize: 11, textDecoration: 'none' }}>
+                            View →
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── CONTENT GAPS ── */}
+        <div style={{ gridColumn: 'span 2' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 15 }}>Content Gaps</div>
+            <button onClick={generateGaps} disabled={gapLoading}
+              style={{ background: '#111827', color: '#FFF', border: 'none', borderRadius: 8, padding: '7px 14px', fontWeight: 700, cursor: gapLoading ? 'not-allowed' : 'pointer', fontSize: 12, opacity: gapLoading ? 0.7 : 1 }}>
+              {gapLoading ? 'Analyzing...' : gaps.length > 0 ? 'Refresh' : 'Find Gaps'}
+            </button>
+          </div>
+
+          {gapLoading && (
+            <div style={{ textAlign: 'center', padding: '24px 0' }}>
+              <div style={{ width: 28, height: 28, border: '2px solid #E5E7EB', borderTopColor: '#00C2FF', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 10px' }}/>
+              <p style={{ color: '#6B7280', fontSize: 13 }}>Finding what your niche is missing...</p>
+            </div>
+          )}
+
+          {gaps.length === 0 && !gapLoading && (
+            <div style={{ background: '#F9FAFB', borderRadius: 12, padding: '16px 20px', textAlign: 'center' }}>
+              <div style={{ color: '#9CA3AF', fontSize: 13 }}>
+                Hit Find Gaps to surface what your niche is underserving — opportunities you can own.
+              </div>
+            </div>
+          )}
+
+          {gaps.length > 0 && !gapLoading && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 10 }}>
+              {gaps.map((gap, i) => (
+                <div key={i} style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 10, padding: '14px 16px' }}>
+                  <span style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4, textTransform: 'uppercase', display: 'inline-block', marginBottom: 8 }}>
+                    {gap.format}
+                  </span>
+                  <div style={{ color: '#111827', fontWeight: 700, fontSize: 13, lineHeight: 1.5, marginBottom: 4 }}>
+                    {gap.opportunity}
+                  </div>
+                  <div style={{ color: '#6B7280', fontSize: 12, lineHeight: 1.5, marginBottom: 8 }}>
+                    {gap.why_it_works}
+                  </div>
+                  {gap.hook && (
+                    <div style={{ background: '#F9FAFB', borderRadius: 6, padding: '8px 10px', marginBottom: 10, color: '#374151', fontSize: 12, fontStyle: 'italic', lineHeight: 1.5 }}>
+                      "{gap.hook}"
+                    </div>
+                  )}
+                  <button onClick={() => useTopic(gap.hook || gap.opportunity, gap.format)}
+                    style={{ width: '100%', background: usedTopic === (gap.hook || gap.opportunity) ? '#10B981' : '#111827', color: '#FFF', border: 'none', borderRadius: 6, padding: '8px 12px', fontWeight: 700, cursor: 'pointer', fontSize: 12 }}>
+                    {usedTopic === (gap.hook || gap.opportunity) ? 'Loaded ✓' : 'Use in Smart Brief'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── WINNER PATTERNS SUMMARY ── */}
+        {winnerPatterns && (
+          <div style={{ gridColumn: 'span 2', background: 'rgba(0,194,255,0.04)', border: '1px solid rgba(0,194,255,0.15)', borderRadius: 12, padding: '14px 18px' }}>
+            <div style={{ color: '#00C2FF', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
+              From your winner patterns
+            </div>
+            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+              {winnerPatterns.what_to_make_more_of && (
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <div style={{ color: '#10B981', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>Make more of</div>
+                  <div style={{ color: '#374151', fontSize: 13 }}>{winnerPatterns.what_to_make_more_of}</div>
+                </div>
+              )}
+              {winnerPatterns.topic_angles_to_explore?.length > 0 && (
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <div style={{ color: '#F59E0B', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>Angles to explore</div>
+                  <div style={{ color: '#374151', fontSize: 13 }}>{winnerPatterns.topic_angles_to_explore[0]}</div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+      </div>
+
+      {usedTopic && (
+        <div style={{ marginTop: 16, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 10, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ color: '#10B981', fontWeight: 700, fontSize: 13 }}>Loaded into Smart Brief</div>
+            <div style={{ color: '#6B7280', fontSize: 12, marginTop: 2 }}>Go to Create → Smart Brief ✦ to generate</div>
+          </div>
+          <button onClick={() => setUsedTopic(null)}
+            style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: 18 }}>×</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const COMPONENT_MAP = {
   home: Home,
   onboard: Onboarding,
@@ -18239,6 +18505,7 @@ const COMPONENT_MAP = {
   stratreview: AIStrategyReview,
   library: ContentLibrary,
   libraryview: ContentLibrary,
+  discover: DiscoverHub,
   smartbrief: SmartBrief,
   brain: BrainBuilder,
   learning: LearningLoop,
