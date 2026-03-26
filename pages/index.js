@@ -19462,7 +19462,7 @@ const COMPONENT_MAP = {
   trendmonitor: TrendMonitorAgent,
   approvalqueue: ApprovalQueueAgent,
   perfagent: ContentPerformanceAgent,
-  abhook: ABHookTester,
+  abhook: HookTester,
   repurpose: RepurposeAgent,
   captionbatch: CaptionBatchAgent,
   clientreport: ClientReportingAgent,
