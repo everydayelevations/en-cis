@@ -4711,6 +4711,7 @@ const SUB_NAV = {
   ],
   // ── SECONDARY ────────────────────────────────────────────
   brain: [
+    { id:'dualonboard',   label:'New Client Setup ✦' },
     { id:'onboard',      label:'Strategy Builder' },
     { id:'clients',      label:'Client Profiles' },
     { id:'voice',        label:'Voice Fingerprint' },
@@ -18446,6 +18447,721 @@ Return ONLY this JSON:
   );
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DUAL ONBOARDING SYSTEM
+// Two entry paths → same Brain output.
+// Path A: Guided Setup (5 min walkthrough, min 5 fields)
+// Path B: Upload Intake (PDF/DOCX/paste → Claude extracts → Brain builds)
+// Both produce identical strategy_profile stored in BRAIN_KEY.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const ONBOARD_PROFILES_KEY = 'encis_onboard_profiles';
+
+// ── PHASE 1: EXTRACTION PROMPT ───────────────────────────────────────────
+// Takes raw intake document text → returns structured JSON
+const INTAKE_EXTRACT_PROMPT = (rawText) => `You are an expert brand strategist extracting structured data from a client onboarding document.
+
+RAW DOCUMENT:
+---
+${rawText.slice(0, 6000)}
+---
+
+Extract all available brand data. Return ONLY valid JSON — no explanation, no markdown fences:
+{
+  "what_they_do": "",
+  "audience": "",
+  "problem": "",
+  "desired_result": "",
+  "beliefs": [],
+  "contrarian_views": [],
+  "tone": [],
+  "emotional_goal": "",
+  "differentiators": [],
+  "offers": [],
+  "stories": [
+    { "summary": "", "lesson": "", "use_case": "" }
+  ],
+  "constraints": [],
+  "content_preferences": [],
+  "niche": "",
+  "location": "",
+  "name": "",
+  "handle": ""
+}
+
+Rules:
+- Never invent information not present in the document
+- If a field is unclear, leave it as empty string or empty array
+- Extract exact language when possible — preserve their words
+- Identify implied beliefs even if not directly stated
+- Pull personal experiences and convert to structured stories
+- Constraints = things they will NOT talk about or do`;
+
+// ── PHASE 2: BRAIN CONSTRUCTION PROMPT ──────────────────────────────────
+// Takes extracted JSON → builds full operational Brain
+const BRAIN_BUILD_PROMPT = (extracted, clientName) => `You are building a personalized content Brain for a creator.
+
+EXTRACTED DATA:
+${JSON.stringify(extracted, null, 2)}
+
+Build their complete content Brain. Return ONLY valid JSON — no explanation, no markdown:
+{
+  "brand_voice_profile": {
+    "description": "[3-sentence voice description — specific to this person]",
+    "strong_examples": ["[example of on-brand language]", "[another]", "[another]"],
+    "weak_examples": ["[example of off-brand language to avoid]", "[another]"],
+    "sentence_style": "[punchy | story-led | educational | conversational]",
+    "words_to_use": ["[word/phrase]"],
+    "words_to_avoid": ["[word/phrase]"]
+  },
+  "content_pillars": [
+    {
+      "name": "[specific pillar name — NOT generic like Mindset or Wellness]",
+      "description": "[1-line description specific to this creator]",
+      "includes": "[what belongs here]",
+      "excludes": "[what does NOT belong]",
+      "recurring_angles": ["[angle 1]", "[angle 2]", "[angle 3]"],
+      "story_prompts": ["[prompt 1]", "[prompt 2]"],
+      "cta_type": "[primary CTA type for this pillar]",
+      "proof_type": "[what evidence lands best here]"
+    }
+  ],
+  "audience_profile": {
+    "who_they_are": "[specific description]",
+    "pain_points": ["[pain 1]", "[pain 2]", "[pain 3]"],
+    "desires": ["[desire 1]", "[desire 2]"],
+    "emotional_drivers": ["[driver 1]", "[driver 2]"],
+    "language_patterns": ["[phrase they use]", "[another]"]
+  },
+  "anti_generic_rules": [
+    "[rule specific to this creator — e.g. Never give advice without connecting to a real client story]",
+    "[another rule]",
+    "[another rule]"
+  ],
+  "transformation_promise": "[what content does for the audience — one sentence]",
+  "positioning": "[what makes this creator different from everyone else in their niche]",
+  "story_angles": [
+    { "theme": "[theme]", "angle": "[specific story angle]", "hook": "[first line]" }
+  ],
+  "completion_score": "[strong | medium | weak]",
+  "missing_fields": ["[field name if important data was missing]"]
+}
+
+PILLAR REJECTION RULE: Reject any pillar that could apply to 50+ other practitioners in this niche, has a generic name like Mindset/Wellness/Growth, or contains no client-specific reference. Each pillar must be ownable by THIS creator specifically.`;
+
+// ── COMPLETION SCORING ───────────────────────────────────────────────────
+function scoreExtraction(extracted) {
+  const required = ['what_they_do', 'audience', 'problem', 'tone'];
+  const recommended = ['desired_result', 'beliefs', 'differentiators', 'offers'];
+  const bonus = ['stories', 'contrarian_views', 'constraints'];
+
+  const hasRequired = required.filter(k => {
+    const v = extracted[k];
+    return v && (Array.isArray(v) ? v.length > 0 : v.trim().length > 0);
+  });
+  const hasRecommended = recommended.filter(k => {
+    const v = extracted[k];
+    return v && (Array.isArray(v) ? v.length > 0 : v.trim().length > 0);
+  });
+  const hasBonus = bonus.filter(k => {
+    const v = extracted[k];
+    return v && (Array.isArray(v) ? v.length > 0 : v.trim().length > 0);
+  });
+
+  const score = (hasRequired.length / required.length) * 60
+              + (hasRecommended.length / recommended.length) * 30
+              + (hasBonus.length / bonus.length) * 10;
+
+  const missing = required.filter(k => !extracted[k] || (Array.isArray(extracted[k]) ? extracted[k].length === 0 : !extracted[k].trim()));
+
+  return {
+    score: Math.round(score),
+    level: score >= 80 ? 'strong' : score >= 50 ? 'medium' : 'weak',
+    missing,
+    hasRequired: hasRequired.length,
+    totalRequired: required.length,
+  };
+}
+
+// ── DUAL ONBOARDING COMPONENT ────────────────────────────────────────────
+
+function DualOnboarding() {
+  const [, saveClients] = useClients();
+  const [activeClient, setActiveClientState] = useActiveClient();
+
+  // Entry path selection
+  const [path, setPath] = React.useState(null); // null | 'guided' | 'upload'
+  const [step, setStep] = React.useState(0);
+
+  // Upload path state
+  const [rawText, setRawText] = React.useState('');
+  const [fileName, setFileName] = React.useState('');
+  const [uploading, setUploading] = React.useState(false);
+  const [extracted, setExtracted] = React.useState(null);
+  const [extracting, setExtracting] = React.useState(false);
+  const [extractScore, setExtractScore] = React.useState(null);
+  const [editedExtract, setEditedExtract] = React.useState({});
+
+  // Brain build state
+  const [brain, setBrain] = React.useState(null);
+  const [building, setBuilding] = React.useState(false);
+  const [buildProgress, setBuildProgress] = React.useState(0);
+  const [clientName, setClientName] = React.useState('');
+  const [clientHandle, setClientHandle] = React.useState('');
+  const [saved, setSaved] = React.useState(false);
+
+  // Guided path state
+  const [guided, setGuided] = React.useState({
+    name: '', handle: '', what_they_do: '', audience: '',
+    problem: '', tone: '', differentiators: '', offers: '', beliefs: '',
+  });
+
+  const fileRef = React.useRef(null);
+
+  // ── UPLOAD FLOW ──
+
+  const handleFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    setFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setRawText(ev.target.result || '');
+      setUploading(false);
+    };
+    reader.onerror = () => setUploading(false);
+    // Read as text for .txt/.md, fallback for others
+    if (file.type === 'application/pdf') {
+      // PDF: read as text (basic extraction)
+      reader.readAsText(file);
+    } else {
+      reader.readAsText(file);
+    }
+  };
+
+  const extractFromText = async () => {
+    if (!rawText.trim()) return;
+    setExtracting(true);
+    setExtracted(null);
+    try {
+      const raw = await ai(INTAKE_EXTRACT_PROMPT(rawText));
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const result = JSON.parse(clean);
+      setExtracted(result);
+      setEditedExtract(result);
+      const score = scoreExtraction(result);
+      setExtractScore(score);
+      // Pre-fill name/handle if found
+      if (result.name) setClientName(result.name);
+      if (result.handle) setClientHandle(result.handle);
+      setStep(2); // Move to confirmation screen
+    } catch(e) {
+      console.error('extract error:', e);
+      // Fallback: show raw text for manual entry
+      setExtracted({ what_they_do: '', audience: '', problem: '', tone: [] });
+      setExtractScore({ score: 0, level: 'weak', missing: ['what_they_do', 'audience', 'problem', 'tone'] });
+      setStep(2);
+    }
+    setExtracting(false);
+  };
+
+  const buildBrain = async (data) => {
+    setBuilding(true);
+    setBuildProgress(10);
+    try {
+      const name = clientName || data?.name || 'Client';
+      setBuildProgress(30);
+      const raw = await ai(BRAIN_BUILD_PROMPT(data || editedExtract, name));
+      setBuildProgress(70);
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const result = JSON.parse(clean);
+      setBrain(result);
+      setBuildProgress(100);
+      setStep(3); // Preview
+    } catch(e) {
+      console.error('brain build error:', e);
+      setBuildProgress(0);
+    }
+    setBuilding(false);
+  };
+
+  const saveProfile = () => {
+    if (!brain) return;
+    const name = clientName || editedExtract?.name || guided.name || 'New Client';
+    const handle = clientHandle || editedExtract?.handle || guided.handle || '';
+
+    // Build client object
+    const newClient = {
+      id: Date.now().toString(),
+      name,
+      handle,
+      platforms: editedExtract?.content_preferences?.join(', ') || guided.platforms || 'Instagram',
+      voice: brain.brand_voice_profile?.description || '',
+      role: editedExtract?.what_they_do || guided.what_they_do || '',
+      notes: editedExtract?.offers?.join(', ') || guided.offers || '',
+      angles: brain.content_pillars?.map(p => p.name).join(', ') || '',
+      niche: editedExtract?.niche || guided.niche || '',
+      location: editedExtract?.location || '',
+      isDefault: false,
+      onboardedAt: new Date().toISOString(),
+    };
+
+    // Save client profile
+    try {
+      const stored = JSON.parse(localStorage.getItem('encis_clients') || '[]');
+      const updated = [newClient, ...stored.filter(c => c.id !== newClient.id)];
+      localStorage.setItem('encis_clients', JSON.stringify(updated));
+    } catch {}
+
+    // Save full brain to BRAIN_KEY
+    try {
+      const brains = JSON.parse(localStorage.getItem(BRAIN_KEY) || '{}');
+      brains[newClient.id] = {
+        ...brain,
+        clientId: newClient.id,
+        clientName: name,
+        builtAt: new Date().toISOString(),
+        source: path,
+      };
+      localStorage.setItem(BRAIN_KEY, JSON.stringify(brains));
+    } catch {}
+
+    // Save stories to story bank if any
+    if (extracted?.stories?.length > 0) {
+      try {
+        const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
+        allStories[newClient.id] = extracted.stories.map((s, i) => ({
+          id: Date.now() + i,
+          title: s.summary?.slice(0, 40) || 'Story ' + (i + 1),
+          story_type: 'personal',
+          summary: s.summary || '',
+          key_lesson: s.lesson || '',
+          emotional_theme: 'personal',
+          audience_relevance: s.use_case || '',
+          reusable_hooks: [],
+          best_formats: ['Reel Script'],
+          proof_type: 'personal experience',
+          clientId: newClient.id,
+          savedAt: new Date().toISOString(),
+        }));
+        localStorage.setItem(STORY_BANK_KEY, JSON.stringify(allStories));
+      } catch {}
+    }
+
+    setSaved(true);
+    setStep(4); // Done
+  };
+
+  // ── GUIDED FLOW ──
+
+  const buildFromGuided = async () => {
+    const data = {
+      what_they_do: guided.what_they_do,
+      audience: guided.audience,
+      problem: guided.problem,
+      tone: guided.tone.split(',').map(t => t.trim()).filter(Boolean),
+      differentiators: [guided.differentiators],
+      offers: [guided.offers],
+      beliefs: [guided.beliefs],
+      contrarian_views: [],
+      stories: [],
+      constraints: [],
+      content_preferences: [],
+      name: guided.name,
+      handle: guided.handle,
+    };
+    setClientName(guided.name);
+    setClientHandle(guided.handle);
+    setEditedExtract(data);
+    setExtracted(data);
+    await buildBrain(data);
+  };
+
+  const guidedComplete = guided.name && guided.what_they_do && guided.audience && guided.problem && guided.tone;
+
+  // ── RENDER ──
+
+  const inputStyle = {
+    width: '100%', background: '#FFFFFF', border: '1px solid #E5E7EB',
+    borderRadius: 8, padding: '10px 14px', color: '#111827', fontSize: 14,
+    boxSizing: 'border-box', fontFamily: 'inherit', outline: 'none',
+  };
+  const taStyle = { ...inputStyle, resize: 'vertical', lineHeight: 1.6 };
+  const labelStyle = {
+    display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em',
+    textTransform: 'uppercase', color: '#6B7280', marginBottom: 6,
+  };
+
+  return (
+    <div style={{ maxWidth: 680, margin: '0 auto' }}>
+
+      {/* Header */}
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <div style={{ width: 3, height: 28, background: '#00C2FF', borderRadius: 2 }}/>
+          <h2 style={{ color: '#111827', margin: 0, fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>
+            New Client Setup
+          </h2>
+        </div>
+        <p style={{ color: '#6B7280', margin: 0, fontSize: 14, paddingLeft: 13 }}>
+          Two ways in. Same Brain out. Every tool immediately adapts to this client.
+        </p>
+      </div>
+
+      {/* ── STEP 0: PATH SELECTION ── */}
+      {step === 0 && !path && (
+        <div>
+          <div style={{ color: '#374151', fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
+            How do you want to set up this client?
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <button onClick={() => { setPath('upload'); setStep(1); }}
+              style={{ background: '#FFFFFF', border: '2px solid #E5E7EB', borderRadius: 14, padding: '24px 20px', cursor: 'pointer', textAlign: 'left', transition: 'border-color 0.15s' }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = '#111827'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = '#E5E7EB'}>
+              <div style={{ fontSize: 28, marginBottom: 10 }}>📄</div>
+              <div style={{ color: '#111827', fontWeight: 800, fontSize: 15, marginBottom: 6 }}>Upload Intake</div>
+              <div style={{ color: '#6B7280', fontSize: 13, lineHeight: 1.6 }}>
+                Upload their completed intake form, PDF, or paste any document. Claude extracts everything automatically.
+              </div>
+              <div style={{ marginTop: 12, color: '#00C2FF', fontSize: 12, fontWeight: 700 }}>Best for existing clients →</div>
+            </button>
+            <button onClick={() => { setPath('guided'); setStep(1); }}
+              style={{ background: '#FFFFFF', border: '2px solid #E5E7EB', borderRadius: 14, padding: '24px 20px', cursor: 'pointer', textAlign: 'left', transition: 'border-color 0.15s' }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = '#111827'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = '#E5E7EB'}>
+              <div style={{ fontSize: 28, marginBottom: 10 }}>✍️</div>
+              <div style={{ color: '#111827', fontWeight: 800, fontSize: 15, marginBottom: 6 }}>Guided Setup</div>
+              <div style={{ color: '#6B7280', fontSize: 13, lineHeight: 1.6 }}>
+                Answer 5 questions about the client. Takes about 3-5 minutes. Good for new clients.
+              </div>
+              <div style={{ marginTop: 12, color: '#00C2FF', fontSize: 12, fontWeight: 700 }}>Best for new clients →</div>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── UPLOAD: STEP 1 — UPLOAD/PASTE ── */}
+      {path === 'upload' && step === 1 && (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+            <button onClick={() => { setPath(null); setStep(0); }} style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: 13 }}>← Back</button>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 15 }}>Upload Intake Document</div>
+          </div>
+
+          {/* File upload zone */}
+          <label style={{ display: 'block', cursor: 'pointer', marginBottom: 16 }}>
+            <div style={{ border: '2px dashed ' + (rawText ? '#10B981' : '#E5E7EB'), background: rawText ? 'rgba(16,185,129,0.04)' : '#F9FAFB', borderRadius: 12, padding: '28px 20px', textAlign: 'center', transition: 'border-color 0.2s' }}>
+              {uploading ? (
+                <div style={{ color: '#6B7280', fontSize: 14 }}>Reading file...</div>
+              ) : fileName ? (
+                <div>
+                  <div style={{ fontSize: 24, marginBottom: 8 }}>✅</div>
+                  <div style={{ color: '#10B981', fontWeight: 700, fontSize: 14 }}>{fileName}</div>
+                  <div style={{ color: '#6B7280', fontSize: 12, marginTop: 4 }}>File loaded — {rawText.length.toLocaleString()} characters</div>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>📂</div>
+                  <div style={{ color: '#374151', fontWeight: 600, fontSize: 14 }}>Click to upload intake document</div>
+                  <div style={{ color: '#9CA3AF', fontSize: 12, marginTop: 4 }}>.txt, .md, .pdf, .docx accepted</div>
+                </div>
+              )}
+            </div>
+            <input ref={fileRef} type="file" accept=".txt,.md,.pdf,.docx,text/plain" onChange={handleFile} style={{ display: 'none' }}/>
+          </label>
+
+          {/* OR paste */}
+          <div style={{ textAlign: 'center', color: '#9CA3AF', fontSize: 12, marginBottom: 12 }}>— or paste directly —</div>
+          <textarea
+            value={rawText}
+            onChange={e => setRawText(e.target.value)}
+            placeholder="Paste intake form responses, website copy, bio, social posts, or any client document here..."
+            rows={8}
+            style={{ ...taStyle, marginBottom: 16 }}
+            onFocus={e => e.target.style.borderColor = '#00C2FF'}
+            onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+          />
+
+          <button onClick={extractFromText} disabled={!rawText.trim() || extracting}
+            style={{ width: '100%', background: rawText.trim() ? '#111827' : '#F3F4F6', color: rawText.trim() ? '#FFF' : '#9CA3AF', border: 'none', borderRadius: 10, padding: '14px 24px', fontWeight: 800, cursor: rawText.trim() ? 'pointer' : 'not-allowed', fontSize: 15 }}>
+            {extracting ? 'Extracting brand data...' : 'Extract & Build Brain →'}
+          </button>
+
+          {extracting && (
+            <div style={{ textAlign: 'center', marginTop: 20 }}>
+              <div style={{ width: 32, height: 32, border: '2px solid #E5E7EB', borderTopColor: '#00C2FF', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 10px' }}/>
+              <p style={{ color: '#6B7280', fontSize: 13 }}>Claude is parsing the document and extracting brand intelligence...</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── UPLOAD: STEP 2 — CONFIRMATION SCREEN ── */}
+      {path === 'upload' && step === 2 && extracted && (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+            <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: 13 }}>← Back</button>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 15 }}>Review Extracted Data</div>
+          </div>
+
+          {/* Completion score */}
+          {extractScore && (
+            <div style={{ background: extractScore.level === 'strong' ? 'rgba(16,185,129,0.08)' : extractScore.level === 'medium' ? 'rgba(245,158,11,0.08)' : 'rgba(239,68,68,0.08)', border: '1px solid ' + (extractScore.level === 'strong' ? 'rgba(16,185,129,0.25)' : extractScore.level === 'medium' ? 'rgba(245,158,11,0.25)' : 'rgba(239,68,68,0.25)'), borderRadius: 10, padding: '12px 16px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={{ color: extractScore.level === 'strong' ? '#10B981' : extractScore.level === 'medium' ? '#F59E0B' : '#EF4444', fontWeight: 700, fontSize: 14 }}>
+                  {extractScore.level === 'strong' ? '✅ Strong intake' : extractScore.level === 'medium' ? '⚠️ Decent intake — a few gaps' : '❌ Weak intake — missing key fields'}
+                </div>
+                {extractScore.missing.length > 0 && (
+                  <div style={{ color: '#6B7280', fontSize: 12, marginTop: 3 }}>
+                    Missing: {extractScore.missing.join(', ')}
+                  </div>
+                )}
+              </div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: extractScore.level === 'strong' ? '#10B981' : extractScore.level === 'medium' ? '#F59E0B' : '#EF4444' }}>
+                {extractScore.score}%
+              </div>
+            </div>
+          )}
+
+          {/* Client name + handle */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+            <div>
+              <label style={labelStyle}>Client Name *</label>
+              <input value={clientName} onChange={e => setClientName(e.target.value)} placeholder="e.g. Samantha Rhodes" style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+            </div>
+            <div>
+              <label style={labelStyle}>Handle</label>
+              <input value={clientHandle} onChange={e => setClientHandle(e.target.value)} placeholder="@handle" style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+            </div>
+          </div>
+
+          {/* Tier 1 — Required fields (always shown) */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Required fields</div>
+            {[
+              { key: 'what_they_do', label: 'What They Do', placeholder: 'e.g. Functional medicine practitioner specializing in hormones...' },
+              { key: 'audience', label: 'Audience', placeholder: 'e.g. Women 35-55 with unresolved hormone and gut issues...' },
+              { key: 'problem', label: 'Core Problem They Solve', placeholder: 'e.g. Clients who have tried everything and still feel off...' },
+            ].map(f => (
+              <div key={f.key} style={{ marginBottom: 12 }}>
+                <label style={labelStyle}>{f.label}</label>
+                <textarea value={editedExtract[f.key] || ''} onChange={e => setEditedExtract(p => ({ ...p, [f.key]: e.target.value }))}
+                  placeholder={f.placeholder} rows={2} style={taStyle}
+                  onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+              </div>
+            ))}
+            <div>
+              <label style={labelStyle}>Tone (comma-separated)</label>
+              <input value={Array.isArray(editedExtract.tone) ? editedExtract.tone.join(', ') : editedExtract.tone || ''}
+                onChange={e => setEditedExtract(p => ({ ...p, tone: e.target.value.split(',').map(t => t.trim()) }))}
+                placeholder="e.g. authentic, sarcastic, witty, educated" style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+            </div>
+          </div>
+
+          {/* Tier 2 — Recommended (collapsible) */}
+          <details style={{ marginBottom: 16 }}>
+            <summary style={{ color: '#6B7280', fontSize: 13, fontWeight: 600, cursor: 'pointer', marginBottom: 10, userSelect: 'none' }}>
+              Review recommended fields (differentiators, offers, beliefs)
+            </summary>
+            <div style={{ paddingTop: 10 }}>
+              {[
+                { key: 'differentiators', label: 'Differentiators', isArray: true, placeholder: 'What makes them unique...' },
+                { key: 'offers', label: 'Offers / Services', isArray: true, placeholder: 'What they sell or offer...' },
+                { key: 'beliefs', label: 'Core Beliefs', isArray: true, placeholder: 'What they deeply believe about their work...' },
+                { key: 'desired_result', label: 'Desired Result for Audience', isArray: false, placeholder: 'The transformation they create...' },
+              ].map(f => (
+                <div key={f.key} style={{ marginBottom: 12 }}>
+                  <label style={labelStyle}>{f.label}</label>
+                  <textarea
+                    value={f.isArray ? (Array.isArray(editedExtract[f.key]) ? editedExtract[f.key].join('\n') : '') : (editedExtract[f.key] || '')}
+                    onChange={e => setEditedExtract(p => ({ ...p, [f.key]: f.isArray ? e.target.value.split('\n').filter(Boolean) : e.target.value }))}
+                    placeholder={f.placeholder} rows={2} style={taStyle}
+                    onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+                </div>
+              ))}
+            </div>
+          </details>
+
+          {/* Stories extracted */}
+          {extracted.stories && extracted.stories.length > 0 && (
+            <div style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}>
+              <div style={{ color: '#3B82F6', fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
+                {extracted.stories.length} stories extracted
+              </div>
+              <div style={{ color: '#6B7280', fontSize: 12 }}>These will be added to the story bank automatically on save.</div>
+            </div>
+          )}
+
+          <button onClick={() => buildBrain(editedExtract)}
+            disabled={!clientName.trim() || !editedExtract.what_they_do || !editedExtract.audience || !editedExtract.problem || building}
+            style={{ width: '100%', background: '#111827', color: '#FFF', border: 'none', borderRadius: 10, padding: '14px 24px', fontWeight: 800, cursor: 'pointer', fontSize: 15, opacity: building ? 0.7 : 1 }}>
+            {building ? 'Building Brain...' : 'Confirm & Build Brain →'}
+          </button>
+
+          {building && (
+            <div style={{ marginTop: 16 }}>
+              <div style={{ background: '#F9FAFB', borderRadius: 8, height: 6 }}>
+                <div style={{ background: '#00C2FF', height: '100%', borderRadius: 8, width: buildProgress + '%', transition: 'width 0.5s' }}/>
+              </div>
+              <div style={{ color: '#9CA3AF', fontSize: 12, textAlign: 'center', marginTop: 8 }}>
+                {buildProgress < 30 ? 'Starting...' : buildProgress < 70 ? 'Generating pillars, voice profile, and audience map...' : 'Finalizing...'}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── GUIDED: STEP 1 — 5 FIELDS ── */}
+      {path === 'guided' && step === 1 && (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+            <button onClick={() => { setPath(null); setStep(0); }} style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: 13 }}>← Back</button>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 15 }}>Guided Setup — 5 fields</div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+            <div>
+              <label style={labelStyle}>Client Name *</label>
+              <input value={guided.name} onChange={e => setGuided(p => ({ ...p, name: e.target.value }))} placeholder="Full name" style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+            </div>
+            <div>
+              <label style={labelStyle}>Handle</label>
+              <input value={guided.handle} onChange={e => setGuided(p => ({ ...p, handle: e.target.value }))} placeholder="@handle" style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+            </div>
+          </div>
+
+          {[
+            { key: 'what_they_do', label: 'What do they do?', placeholder: 'Describe their work specifically — niche, method, approach...', rows: 3 },
+            { key: 'audience', label: 'Who is their audience?', placeholder: 'Who they serve — age, situation, struggle, identity...', rows: 3 },
+            { key: 'problem', label: 'What core problem do they solve?', placeholder: 'The real problem their clients face before finding them...', rows: 3 },
+            { key: 'tone', label: 'What is their tone? (comma-separated)', placeholder: 'e.g. direct, warm, no-nonsense, educational, sarcastic...', rows: 1 },
+            { key: 'differentiators', label: 'What makes them different?', placeholder: 'What they do that nobody else does, or how they do it differently...', rows: 2 },
+          ].map(f => (
+            <div key={f.key} style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>{f.label} {['what_they_do','audience','problem','tone'].includes(f.key) && '*'}</label>
+              <textarea value={guided[f.key]} onChange={e => setGuided(p => ({ ...p, [f.key]: e.target.value }))}
+                placeholder={f.placeholder} rows={f.rows} style={taStyle}
+                onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+            </div>
+          ))}
+
+          <button onClick={buildFromGuided} disabled={!guidedComplete || building}
+            style={{ width: '100%', background: guidedComplete ? '#111827' : '#F3F4F6', color: guidedComplete ? '#FFF' : '#9CA3AF', border: 'none', borderRadius: 10, padding: '14px 24px', fontWeight: 800, cursor: guidedComplete ? 'pointer' : 'not-allowed', fontSize: 15, opacity: building ? 0.7 : 1 }}>
+            {building ? 'Building Brain...' : 'Build Brain →'}
+          </button>
+
+          {building && (
+            <div style={{ marginTop: 16 }}>
+              <div style={{ background: '#F9FAFB', borderRadius: 8, height: 6 }}>
+                <div style={{ background: '#00C2FF', height: '100%', borderRadius: 8, width: buildProgress + '%', transition: 'width 0.5s' }}/>
+              </div>
+              <p style={{ color: '#9CA3AF', fontSize: 12, textAlign: 'center', marginTop: 8 }}>Generating pillars, voice profile, and audience map...</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── STEP 3: BRAIN PREVIEW ── */}
+      {step === 3 && brain && (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+            <div style={{ fontSize: 20 }}>🧠</div>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 15 }}>Brain Built — Review Before Saving</div>
+          </div>
+
+          {/* Completion indicator */}
+          <div style={{ background: brain.completion_score === 'strong' ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)', border: '1px solid ' + (brain.completion_score === 'strong' ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.25)'), borderRadius: 10, padding: '10px 16px', marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ color: brain.completion_score === 'strong' ? '#10B981' : '#F59E0B', fontWeight: 700, fontSize: 13 }}>
+              {brain.completion_score === 'strong' ? '✅ Strong Brain' : '⚠️ Decent Brain'} — {clientName}
+            </span>
+            {brain.missing_fields?.length > 0 && (
+              <span style={{ color: '#9CA3AF', fontSize: 12 }}>Could add: {brain.missing_fields.join(', ')}</span>
+            )}
+          </div>
+
+          {/* Voice profile */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '16px 20px', marginBottom: 12 }}>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Brand Voice</div>
+            <div style={{ color: '#374151', fontSize: 13, lineHeight: 1.7, marginBottom: 10 }}>{brain.brand_voice_profile?.description}</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+              {brain.brand_voice_profile?.words_to_use?.slice(0, 5).map((w, i) => (
+                <span key={i} style={{ background: 'rgba(16,185,129,0.1)', color: '#10B981', fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4 }}>{w}</span>
+              ))}
+              {brain.brand_voice_profile?.words_to_avoid?.slice(0, 3).map((w, i) => (
+                <span key={i} style={{ background: 'rgba(239,68,68,0.08)', color: '#EF4444', fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4 }}>✗ {w}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Content pillars */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '16px 20px', marginBottom: 12 }}>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Content Pillars ({brain.content_pillars?.length || 0})</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {brain.content_pillars?.map((p, i) => (
+                <div key={i} style={{ background: '#F9FAFB', borderRadius: 8, padding: '10px 14px' }}>
+                  <div style={{ color: '#111827', fontWeight: 600, fontSize: 13 }}>{p.name}</div>
+                  <div style={{ color: '#6B7280', fontSize: 12, marginTop: 2 }}>{p.description}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Transformation + positioning */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '16px 20px', marginBottom: 20 }}>
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ color: '#9CA3AF', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>Transformation Promise</div>
+              <div style={{ color: '#374151', fontSize: 13, lineHeight: 1.6 }}>{brain.transformation_promise}</div>
+            </div>
+            <div>
+              <div style={{ color: '#9CA3AF', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>Positioning</div>
+              <div style={{ color: '#374151', fontSize: 13, lineHeight: 1.6 }}>{brain.positioning}</div>
+            </div>
+          </div>
+
+          <button onClick={saveProfile}
+            style={{ width: '100%', background: '#10B981', color: '#FFF', border: 'none', borderRadius: 10, padding: '14px 24px', fontWeight: 800, cursor: 'pointer', fontSize: 15, boxShadow: '0 4px 16px rgba(16,185,129,0.3)', marginBottom: 10 }}>
+            Save Client & Activate Brain →
+          </button>
+          <button onClick={() => setStep(path === 'upload' ? 2 : 1)}
+            style={{ width: '100%', background: 'none', border: '1px solid #E5E7EB', borderRadius: 10, padding: '10px', color: '#6B7280', cursor: 'pointer', fontSize: 13 }}>
+            ← Go back and adjust inputs
+          </button>
+        </div>
+      )}
+
+      {/* ── STEP 4: DONE ── */}
+      {step === 4 && saved && (
+        <div style={{ textAlign: 'center', padding: '40px 24px', background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 14 }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
+          <div style={{ color: '#111827', fontWeight: 800, fontSize: 22, marginBottom: 8 }}>{clientName} is ready</div>
+          <div style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.7, marginBottom: 8 }}>
+            Brain built. {brain?.content_pillars?.length || 0} content pillars. Voice profile active.
+          </div>
+          {extracted?.stories?.length > 0 && (
+            <div style={{ color: '#3B82F6', fontSize: 13, marginBottom: 20 }}>
+              {extracted.stories.length} stories added to story bank automatically.
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button onClick={() => { setPath(null); setStep(0); setSaved(false); setBrain(null); setExtracted(null); setRawText(''); setClientName(''); setClientHandle(''); setGuided({ name:'',handle:'',what_they_do:'',audience:'',problem:'',tone:'',differentiators:'',offers:'',beliefs:'' }); }}
+              style={{ background: '#111827', color: '#FFF', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
+              Add Another Client
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const COMPONENT_MAP = {
   home: Home,
   onboard: Onboarding,
@@ -18506,6 +19222,7 @@ const COMPONENT_MAP = {
   library: ContentLibrary,
   libraryview: ContentLibrary,
   discover: DiscoverHub,
+  dualonboard: DualOnboarding,
   smartbrief: SmartBrief,
   brain: BrainBuilder,
   learning: LearningLoop,
