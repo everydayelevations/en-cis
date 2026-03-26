@@ -17574,6 +17574,16 @@ Include: Hook, Body (3 punchy points), CTA, Caption, 10 Hashtags.`;
                       <pre style={{color:'#374151',fontSize:12,whiteSpace:'pre-wrap',lineHeight:1.7,fontFamily:'inherit',margin:0}}>{item.content}</pre>
                     </div>
                   )}
+                  {item.status === 'approved' && (
+                    <div style={{padding:'0 16px 14px'}}>
+                      <StoryExtractorCard
+                        content={item.content}
+                        topic={item.topic}
+                        platform={item.platform}
+                        clientId={activeClient?.id || 'jason'}
+                      />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -19371,18 +19381,26 @@ Anti-generic rules: Never sound like generic advice. Always speak from lived exp
 
           {/* Approved state */}
           {approved && (
-            <div style={{background:'rgba(16,185,129,0.08)',border:'1px solid rgba(16,185,129,0.25)',borderRadius:12,padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10}}>
-              <div style={{display:'flex',alignItems:'center',gap:10}}>
-                <span style={{fontSize:18}}>✅</span>
-                <div>
-                  <div style={{color:'#10B981',fontWeight:700,fontSize:13}}>Saved to Library</div>
-                  <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>48hr reality check scheduled</div>
+            <div>
+              <div style={{background:'rgba(16,185,129,0.08)',border:'1px solid rgba(16,185,129,0.25)',borderRadius:12,padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10}}>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <span style={{fontSize:18}}>✅</span>
+                  <div>
+                    <div style={{color:'#10B981',fontWeight:700,fontSize:13}}>Saved to Library</div>
+                    <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>48hr reality check scheduled</div>
+                  </div>
                 </div>
+                <button onClick={reset}
+                  style={{background:'#111827',color:'#FFFFFF',border:'none',borderRadius:8,padding:'8px 18px',fontWeight:700,cursor:'pointer',fontSize:13}}>
+                  New Brief
+                </button>
               </div>
-              <button onClick={reset}
-                style={{background:'#111827',color:'#FFFFFF',border:'none',borderRadius:8,padding:'8px 18px',fontWeight:700,cursor:'pointer',fontSize:13}}>
-                New Brief
-              </button>
+              <StoryExtractorCard
+                content={generatedContent}
+                topic={topic}
+                platform={platform}
+                clientId={activeClient?.id || 'jason'}
+              />
             </div>
           )}
         </div>
@@ -19392,6 +19410,230 @@ Anti-generic rules: Never sound like generic advice. Always speak from lived exp
       <RealityCheckBanner />
     </div>
   );
+}
+
+// ── STORY EXTRACTOR AGENT ────────────────────────────────────────────────────
+// Fires automatically after every approval.
+// Scans content for narrative moments, extracts structured story, offers one-tap save.
+
+const STORY_EXTRACTOR_PROMPT = (content, topic, platform) => `
+You are a story analyst. Scan this piece of content and determine if it contains a real narrative moment — a specific situation, experience, or insight that could become a reusable story in a content bank.
+
+Topic: ${topic}
+Platform: ${platform}
+
+CONTENT:
+---
+${content.slice(0, 3000)}
+---
+
+If NO real story moment exists, return: {"has_story": false}
+
+If a story exists, return ONLY valid JSON, no fences:
+
+{
+  "has_story": true,
+  "confidence": "high | medium",
+  "title": "short story title — what this moment is about (under 8 words)",
+  "moment": "the specific situation or event — what actually happened",
+  "tension": "what was at stake, what was hard, what was uncertain",
+  "lesson": "the transferable insight — what someone else can take from this",
+  "emotional_tone": "one word: e.g. gritty | vulnerable | determined | honest | hard-won",
+  "use_cases": ["Reel Script", "Caption", "Carousel"],
+  "hook_suggestions": ["one possible hook line", "another hook angle"],
+  "audience_relevance": "why this story resonates with their specific audience"
+}
+
+Rules:
+- Only return has_story: true if there is a REAL moment with tension and a lesson
+- Generic advice paragraphs are NOT stories
+- A story requires: a specific situation + something at stake + a result or realization
+- Be strict. Half the content will not contain a real story.`;
+
+function StoryExtractorCard({ content, topic, platform, clientId, onSaved }) {
+  const [state, setState] = React.useState('idle'); // idle | scanning | found | none | saved
+  const [story, setStory] = React.useState(null);
+  const [editing, setEditing] = React.useState(false);
+  const [editedStory, setEditedStory] = React.useState({});
+
+  React.useEffect(() => {
+    if (content) runScan();
+  }, [content]);
+
+  const runScan = async () => {
+    setState('scanning');
+    try {
+      const raw = await ai(STORY_EXTRACTOR_PROMPT(content, topic || '', platform || ''));
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(clean);
+      if (parsed.has_story && parsed.confidence !== 'low') {
+        setStory(parsed);
+        setEditedStory(parsed);
+        setState('found');
+      } else {
+        setState('none');
+      }
+    } catch(e) {
+      console.error('Story extractor error:', e);
+      setState('none');
+    }
+  };
+
+  const saveStory = () => {
+    const s = editing ? editedStory : story;
+    const cId = clientId || 'jason';
+    const entry = {
+      id: Date.now(),
+      title: s.title || topic?.slice(0, 50) || 'Extracted Story',
+      story_type: 'extracted',
+      summary: s.moment || '',
+      tension: s.tension || '',
+      key_lesson: s.lesson || '',
+      emotional_theme: s.emotional_tone || 'personal',
+      audience_relevance: s.audience_relevance || '',
+      reusable_hooks: s.hook_suggestions || [],
+      best_formats: s.use_cases || ['Reel Script', 'Caption'],
+      proof_type: 'lived experience',
+      clientId: cId,
+      savedAt: new Date().toISOString(),
+      source: 'auto-extracted',
+    };
+
+    try {
+      const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
+      allStories[cId] = [entry, ...(allStories[cId] || [])].slice(0, 100);
+      localStorage.setItem(STORY_BANK_KEY, JSON.stringify(allStories));
+    } catch {}
+
+    try {
+      supabase.from('story_bank').insert({
+        client_id: cId,
+        title: entry.title,
+        story_type: 'extracted',
+        summary: entry.summary,
+        key_lesson: entry.key_lesson,
+        emotional_theme: entry.emotional_theme,
+        audience_relevance: entry.audience_relevance,
+        reusable_hooks: entry.reusable_hooks,
+        best_formats: entry.best_formats,
+        proof_type: entry.proof_type,
+        saved_at: entry.savedAt,
+      });
+    } catch {}
+
+    setState('saved');
+    if (onSaved) onSaved(entry);
+  };
+
+  if (state === 'idle' || state === 'none' || state === 'saved') {
+    if (state === 'saved') return (
+      <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.2)',borderRadius:10,padding:'12px 16px',display:'flex',alignItems:'center',gap:10,marginTop:12}}>
+        <span style={{fontSize:16}}>📖</span>
+        <div style={{fontSize:13,color:'#92400E',fontWeight:600}}>Story saved to your story bank</div>
+      </div>
+    );
+    return null;
+  }
+
+  if (state === 'scanning') return (
+    <div style={{background:'rgba(245,158,11,0.04)',border:'1px solid rgba(245,158,11,0.15)',borderRadius:10,padding:'12px 16px',display:'flex',alignItems:'center',gap:10,marginTop:12}}>
+      <span style={{fontSize:14,animation:'spin 1s linear infinite'}}>⟳</span>
+      <div style={{fontSize:12,color:'#92400E'}}>Scanning for story moments...</div>
+    </div>
+  );
+
+  if (state === 'found' && story) {
+    const s = editing ? editedStory : story;
+    const setE = (k, v) => setEditedStory(prev => ({...prev, [k]: v}));
+
+    return (
+      <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.25)',borderRadius:12,padding:'16px 20px',marginTop:12}}>
+        {/* Header */}
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <span style={{fontSize:16}}>📖</span>
+            <div>
+              <div style={{fontSize:13,fontWeight:800,color:'#92400E'}}>Story detected</div>
+              <div style={{fontSize:11,color:'#B45309'}}>
+                {story.confidence === 'high' ? 'Strong story moment found' : 'Possible story moment — review before saving'}
+              </div>
+            </div>
+          </div>
+          <button onClick={() => setState('none')}
+            style={{background:'none',border:'none',color:'#D1D5DB',fontSize:16,cursor:'pointer',padding:'2px 6px'}}>×</button>
+        </div>
+
+        {/* Story preview */}
+        {!editing ? (
+          <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:14}}>
+            <div style={{background:'rgba(255,255,255,0.7)',borderRadius:8,padding:'10px 14px'}}>
+              <div style={{fontSize:10,fontWeight:700,color:'#B45309',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:3}}>The Moment</div>
+              <div style={{fontSize:13,color:'#111827',lineHeight:1.6}}>{s.moment}</div>
+            </div>
+            {s.tension && (
+              <div style={{background:'rgba(255,255,255,0.7)',borderRadius:8,padding:'10px 14px'}}>
+                <div style={{fontSize:10,fontWeight:700,color:'#B45309',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:3}}>The Tension</div>
+                <div style={{fontSize:13,color:'#111827',lineHeight:1.6}}>{s.tension}</div>
+              </div>
+            )}
+            <div style={{background:'rgba(255,255,255,0.7)',borderRadius:8,padding:'10px 14px'}}>
+              <div style={{fontSize:10,fontWeight:700,color:'#B45309',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:3}}>The Lesson</div>
+              <div style={{fontSize:13,color:'#111827',lineHeight:1.6}}>{s.lesson}</div>
+            </div>
+            {s.hook_suggestions?.length > 0 && (
+              <div style={{background:'rgba(255,255,255,0.7)',borderRadius:8,padding:'10px 14px'}}>
+                <div style={{fontSize:10,fontWeight:700,color:'#B45309',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:5}}>Hook Ideas</div>
+                {s.hook_suggestions.map((h, i) => (
+                  <div key={i} style={{fontSize:12,color:'#374151',lineHeight:1.6,marginBottom:2}}>→ {h}</div>
+                ))}
+              </div>
+            )}
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {(s.use_cases || []).map(f => (
+                <span key={f} style={{background:'rgba(245,158,11,0.1)',color:'#92400E',borderRadius:5,padding:'2px 8px',fontSize:11,fontWeight:600}}>{f}</span>
+              ))}
+              {s.emotional_tone && (
+                <span style={{background:'rgba(107,114,128,0.08)',color:'#374151',borderRadius:5,padding:'2px 8px',fontSize:11}}>{s.emotional_tone}</span>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:14}}>
+            {[
+              {k:'title', label:'Title', rows:1},
+              {k:'moment', label:'The Moment', rows:2},
+              {k:'tension', label:'The Tension', rows:2},
+              {k:'lesson', label:'The Lesson', rows:2},
+            ].map(({k, label, rows}) => (
+              <div key={k}>
+                <div style={{fontSize:10,fontWeight:700,color:'#B45309',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:3}}>{label}</div>
+                <textarea value={editedStory[k] || ''} onChange={e => setE(k, e.target.value)} rows={rows}
+                  style={{width:'100%',background:'#FFFBEB',border:'1px solid rgba(245,158,11,0.3)',borderRadius:7,padding:'8px 10px',fontSize:13,color:'#111827',resize:'vertical',boxSizing:'border-box',fontFamily:'inherit',lineHeight:1.6}}/>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <button onClick={saveStory}
+            style={{background:'#F59E0B',color:'#fff',border:'none',borderRadius:8,padding:'8px 20px',fontWeight:800,cursor:'pointer',fontSize:13,boxShadow:'0 2px 8px rgba(245,158,11,0.3)'}}>
+            Save to Story Bank
+          </button>
+          <button onClick={() => { setEditing(!editing); if (editing) setEditedStory(story); }}
+            style={{background:'rgba(255,255,255,0.7)',color:'#92400E',border:'1px solid rgba(245,158,11,0.3)',borderRadius:8,padding:'8px 14px',fontWeight:600,cursor:'pointer',fontSize:12}}>
+            {editing ? 'Cancel Edit' : 'Edit First'}
+          </button>
+          <button onClick={() => setState('none')}
+            style={{background:'none',color:'#9CA3AF',border:'1px solid #E5E7EB',borderRadius:8,padding:'8px 14px',fontWeight:500,cursor:'pointer',fontSize:12}}>
+            Not a story
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 // ── 48HR REALITY CHECK BANNER ───────────────────────────────────────────────
