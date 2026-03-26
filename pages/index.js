@@ -19850,7 +19850,7 @@ function DualOnboarding() {
     setBuilding(false);
   };
 
-  const saveProfile = () => {
+  const saveProfile = async () => {
     if (!brain) return;
     const name = clientName || editedExtract?.name || guided.name || 'New Client';
     const handle = clientHandle || editedExtract?.handle || guided.handle || '';
