@@ -52,14 +52,14 @@ const CONTENT_SOP = `Content standards I've built my system on: No intros, no fl
 const VOICE = `Write in Jason Fricka's voice.
 
 WHO HE IS:
-Jason is an HR Manager at a cabinet manufacturing company in Colorado — this is his primary career and where he spends most of his working hours. He deals with real HR every day: benefits, compliance, employee issues, hiring, difficult conversations, management problems. He knows what it's like to be the person everyone comes to when something goes wrong at work.
+Jason is an HR Manager at a cabinet manufacturing company in Colorado - this is his primary career and where he spends most of his working hours. He deals with real HR every day: benefits, compliance, employee issues, hiring, difficult conversations, management problems. He knows what it's like to be the person everyone comes to when something goes wrong at work.
 
 He's also a licensed real estate agent serving veterans and families in the South Denver Metro area. He's a dad, a veteran, an endurance athlete training toward bigger challenges, and he hosts a podcast called Everyday Elevations. He manages multiple responsibilities simultaneously and knows what that pressure actually feels like.
 
 HOW HE TALKS:
 Direct. No fluff. Short sentences. Real stories. He sits across the table from you and tells you what he actually thinks. He doesn't hype things up. He doesn't use words like "transform" or "journey" or "find your potential." He says what he means. He talks about hard days, early mornings, the work nobody sees, and why showing up matters even when it doesn't feel like it.
 
-His community is everyday people who carry a lot — jobs, families, financial pressure, physical goals — and refuse to stay where they are. He roots for them out loud.
+His community is everyday people who carry a lot - jobs, families, financial pressure, physical goals - and refuse to stay where they are. He roots for them out loud.
 
 Today is \${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}.
 
@@ -225,7 +225,7 @@ const SecLabel = ({children, style={}}) => (
 const SOPBadge = () => (
   <span style={{background:'rgba(0,194,255,0.08)',color:'#00C2FF',fontSize:9,
     fontWeight:700,padding:'2px 8px',borderRadius:20,letterSpacing:1.5,border:'1px solid rgba(0,194,255,0.2)'}}>
-    SIGNAL
+    8th Ascent
   </span>
 );
 
@@ -558,7 +558,7 @@ function DocOutput({text, title='Document', showDownload=true}) {
         </div>
       )}
       <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:14,padding:'28px 32px',boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
-        {text.split('\n').map((line, idx) => renderLine(line, idx))}
+        {text.split('\n').map((line, i) => { try { return renderLine(line, i); } catch(e) { return <p key={i} style={{color:'#374151',fontSize:13,lineHeight:1.7,margin:'4px 0'}}>{line}</p>; } })}
       </div>
     </div>
   );
@@ -592,15 +592,15 @@ STORY + NARRATIVE REQUIREMENTS (every script must have all four):
 - Clear character setup: Who is the protagonist, what's their situation
 - Relatable traits: Elements a large audience recognizes from their own life
 - Conflict or tension: What's at stake, what's the problem
-- Resolution or insight: The payoff — what the viewer gets for watching
+- Resolution or insight: The payoff - what the viewer gets for watching
 
-HOOK RULES (Greenspan standard — non-negotiable):
+HOOK RULES (Greenspan standard - non-negotiable):
 First 3 seconds must hit hard. No intros. No "hey guys." No "in this video."
 Value or conflict from frame 1. Use one of these hook types:
 - PATTERN INTERRUPT: Challenges an assumption the audience holds right now
 - CURIOSITY QUESTION: Creates a gap they must fill by watching
-- BOLD STATEMENT: Counterintuitive or surprising claim — make them stop
-- STORY MOMENT: Specific scene — "The day I..." or "I was sitting in my truck when..."
+- BOLD STATEMENT: Counterintuitive or surprising claim - make them stop
+- STORY MOMENT: Specific scene - "The day I..." or "I was sitting in my truck when..."
 - DATA POINT: A number or outcome that stops them cold
 
 TECHNICAL REQUIREMENTS (Greenspan checklist):
@@ -608,10 +608,10 @@ TECHNICAL REQUIREMENTS (Greenspan checklist):
 - Additional transitions in first 15 seconds
 - Visual hook: A strong opening image or action the editor can use
 - Contrarian perspective: A POV that stands out from what everyone else is saying
-- Authentic voice: Not corporate, not over-produced — real and direct
+- Authentic voice: Not corporate, not over-produced - real and direct
 
 VIRAL STRUCTURE:
-1. Hook (pattern interrupt — first 2-3 words carry everything)
+1. Hook (pattern interrupt - first 2-3 words carry everything)
 2. Tension or problem (why this matters right now)
 3. Story or breakdown (the real thing that happened, not theory)
 4. Insight (the thing they didn't see coming)
@@ -627,28 +627,28 @@ Write 3 complete camera-ready ${platform} script variations. Each must differ in
 
 ---
 **VARIATION 1: Educational (optimizes for saves)**
-Hook Type: [pick one of the 5 — write the actual hook]
-Hook: [word-for-word — first 2-3 words must land hard]
+Hook Type: [pick one of the 5 - write the actual hook]
+Hook: [word-for-word - first 2-3 words must land hard]
 
 Body:
 Point 1: [specific insight, no filler]
 Point 2: [builds on point 1]
-Point 3: [the payoff — something they didn't expect]
+Point 3: [the payoff - something they didn't expect]
 
 On-Screen Text: [keywords to overlay at each beat]
 Visual Direction: [what the editor does in the first 5 seconds + transitions]
-CTA: [exact words — 60% comment / 20% DM / 20% link]
+CTA: [exact words - 60% comment / 20% DM / 20% link]
 Caption: [3-4 sentences, saves-first, includes the hook]
 Hashtags: [5 niche / 5 mid / 5 broad]
 
 ---
 **VARIATION 2: Personal Story (optimizes for follows)**
 Hook Type: [Story or Pattern Interrupt]
-Hook: [specific scene, not generic — a real moment from Jason's life]
+Hook: [specific scene, not generic - a real moment from Jason's life]
 
-Setup: [the before — where you were, what you were doing]
-Conflict: [the turn — what happened or what you realized]
-Resolution: [the result — specific, not vague]
+Setup: [the before - where you were, what you were doing]
+Conflict: [the turn - what happened or what you realized]
+Resolution: [the result - specific, not vague]
 
 On-Screen Text:
 Visual Direction: [opening frame + key transition moments]
@@ -661,11 +661,11 @@ Hashtags:
 Hook Type: [Bold Statement or Data Point]
 Hook: [the take that makes people stop and argue or agree hard]
 
-Body: [3 punchy lines that back up the claim — no hedging, no qualifying]
+Body: [3 punchy lines that back up the claim - no hedging, no qualifying]
 
 On-Screen Text:
 Visual Direction:
-CTA: [drives comments — end with a question that splits the room]
+CTA: [drives comments - end with a question that splits the room]
 Caption:
 Hashtags:
 
@@ -674,7 +674,7 @@ Runtime: ${scriptMode==='short'?'20-45 seconds spoken':scriptMode==='medium'?'60
 ${platform === 'TikTok' ? `
 TIKTOK-SPECIFIC RULES:
 - First 2 words carry everything. Scroll decision is made before the third word.
-- "POV:", "The thing about", "Nobody talks about", "Day X of" — these formats work.
+- "POV:", "The thing about", "Nobody talks about", "Day X of" - these formats work.
 - Shorter almost always wins. 15-30 seconds outperforms 60+ unless the hook is elite.
 - Note whether this works better with trending audio or talking head.` : ''}
 
@@ -1386,7 +1386,7 @@ Write specific, measurable targets for each active platform:
 **Theme:** Write the one idea that every piece of content in this phase ladders up to.
 
 **Week 1 Day by Day:**
-Day 1 (write the day): [Specific task] — [time required] — [platform] — [expected output or result]
+Day 1 (write the day): [Specific task] - [time required] - [platform] - [expected output or result]
 Day 2: [Same structure]
 Day 3: [Same structure]
 Day 4: [Same structure]
@@ -2238,7 +2238,7 @@ function ContentMemory() {
                     <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
                       <span style={{background:typeColors[entry.type]||typeColors.default,color:'#fff',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:1}}>{entry.type}</span>
                       <span style={{color:'#6B7280',fontSize:11}}>{entry.date}</span>
-                      {entry.client && <span style={{background:'#F9FAFB',color:'#6B7280',borderRadius:4,padding:'2px 7px',fontSize:10}}>👤 {entry.client}</span>}
+                      {entry.client && <span style={{background:'#F9FAFB',color:'#6B7280',borderRadius:4,padding:'2px 7px',fontSize:10}}> {entry.client}</span>}
                       {entry.platform && <span style={{background:'#FFFFFF',color:'#6B7280',borderRadius:4,padding:'2px 7px',fontSize:10}}>{entry.platform}</span>}
                       {entry.permalink && <a href={entry.permalink} target="_blank" rel="noopener noreferrer" style={{color:'#2563EB',fontSize:10,textDecoration:'none'}}>View</a>}
                     </div>
@@ -2404,7 +2404,7 @@ function BulkBatch() {
         {loading ? 'Generating full batch...' : 'Generate Full Content Batch'}
       </RedBtn>
       {loading && <Spin/>}
-      <DocOutput text={out} title={`${topic || angle || "Content"} : SIGNAL`}/>
+      <DocOutput text={out} title={`${topic || angle || "Content"} : 8th Ascent`}/>
     </div>
   );
 }
@@ -2424,14 +2424,14 @@ const DEFAULT_CLIENT = {
   location: 'Colorado',
   role: 'HR Manager, real estate agent, veteran, endurance athlete, mindset coach, dad',
   trendNiches: [
-    { id: 'niche_1', label: 'HR Creator', query: 'viral HR manager content this week — workplace stories, hiring and firing realities, employee relations, what managers wish people knew' },
-    { id: 'niche_2', label: 'Real Estate Colorado', query: 'viral Colorado real estate agent content this week — market updates, VA loans, buyer and seller tips, building wealth on a W-2' },
-    { id: 'niche_3', label: 'Veteran Creator', query: 'viral veteran creator content this week — post-service identity, military to civilian transition, discipline applied to civilian life' },
-    { id: 'niche_4', label: 'Endurance Athlete', query: 'viral trail running ultramarathon Colorado content this week — training over 35, race prep, discipline as a life philosophy' },
-    { id: 'niche_5', label: 'Fatherhood', query: 'viral fatherhood content this week — working dad, present parenting, raising kids with discipline and values' },
-    { id: 'niche_6', label: 'Mindset & Discipline', query: 'viral discipline mindset content this week — accountability for working adults, doing hard things, showing up when no one is watching' },
-    { id: 'niche_7', label: 'Everyday Wins', query: 'viral everyday person transformation content this week — regular people winning, not celebrities or influencers, underdogs and grinders' },
-    { id: 'niche_8', label: 'Health & Wellness', query: 'viral health wellness content for working professionals in their 30s and 40s this week — longevity, recovery, performance for busy people' },
+    { id: 'niche_1', label: 'HR Creator', query: 'viral HR manager content this week - workplace stories, hiring and firing realities, employee relations, what managers wish people knew' },
+    { id: 'niche_2', label: 'Real Estate Colorado', query: 'viral Colorado real estate agent content this week - market updates, VA loans, buyer and seller tips, building wealth on a W-2' },
+    { id: 'niche_3', label: 'Veteran Creator', query: 'viral veteran creator content this week - post-service identity, military to civilian transition, discipline applied to civilian life' },
+    { id: 'niche_4', label: 'Endurance Athlete', query: 'viral trail running ultramarathon Colorado content this week - training over 35, race prep, discipline as a life philosophy' },
+    { id: 'niche_5', label: 'Fatherhood', query: 'viral fatherhood content this week - working dad, present parenting, raising kids with discipline and values' },
+    { id: 'niche_6', label: 'Mindset & Discipline', query: 'viral discipline mindset content this week - accountability for working adults, doing hard things, showing up when no one is watching' },
+    { id: 'niche_7', label: 'Everyday Wins', query: 'viral everyday person transformation content this week - regular people winning, not celebrities or influencers, underdogs and grinders' },
+    { id: 'niche_8', label: 'Health & Wellness', query: 'viral health wellness content for working professionals in their 30s and 40s this week - longevity, recovery, performance for busy people' },
   ],
   isDefault: true,
 };
@@ -2493,155 +2493,801 @@ function ClientBanner({ client }) {
   return (
     <div style={{background:'rgba(201,168,76,0.08)',border:'1px solid rgba(201,168,76,0.2)',borderRadius:8,padding:'8px 14px',marginBottom:16,display:'flex',alignItems:'center',gap:10}}>
       
-      <span style={{color:'#C9A84C',fontSize:12,fontWeight:700}}>CLIENT MODE — {client.name}</span>
+      <span style={{color:'#C9A84C',fontSize:12,fontWeight:700}}>CLIENT MODE - {client.name}</span>
       <span style={{color:'#6B7280',fontSize:12}}>{client.handle} · {client.platforms}</span>
     </div>
   );
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AGENCY MODE
+// Full client management system for agencies running 8th Ascent for clients.
+// AgencyHub → ClientProfilesManager + VoiceFingerprintBuilder +
+//             BrainVerificationFlow + WhiteLabelSwitcher
+// Trust levels: verified | draft | incomplete
+// ═══════════════════════════════════════════════════════════════════════════
+
+const AGENCY_SETTINGS_KEY = 'encis_agency_settings';
+const WHITELABEL_KEY      = 'encis_whitelabel';
+
+// Trust level config
+const TRUST_CONFIG = {
+  verified:   { label: 'Verified',   color: '#10B981', bg: 'rgba(16,185,129,0.1)',  border: 'rgba(16,185,129,0.25)', icon: '✓' },
+  draft:      { label: 'Draft',      color: '#F59E0B', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)',  icon: '◐' },
+  incomplete: { label: 'Incomplete', color: '#EF4444', bg: 'rgba(239,68,68,0.06)',  border: 'rgba(239,68,68,0.15)', icon: '○' },
+};
+
+function getTrustLevel(client) {
+  if (client.trust) return client.trust;
+  // Auto-derive from Brain completeness
+  const hasVoice = client.voice && client.voice.length > 20;
+  const hasAngles = client.angles && client.angles.length > 0;
+  const hasBrain = (() => {
+    try {
+      const brains = JSON.parse(localStorage.getItem(BRAIN_KEY) || '{}');
+      return !!brains[client.id];
+    } catch { return false; }
+  })();
+  if (hasVoice && hasAngles && hasBrain) return 'verified';
+  if (hasVoice || hasBrain) return 'draft';
+  return 'incomplete';
+}
+
+// ── VOICE FINGERPRINT BUILDER ───────────────────────────────────────────────
+const VOICE_ANALYZE_PROMPT = (samples, clientName) => `You are a brand voice analyst. Study these content samples from ${clientName || 'this creator'} and extract their precise voice fingerprint.
+
+CONTENT SAMPLES:
+${samples}
+
+Analyze deeply. Return ONLY this JSON - no explanation, no markdown:
+{
+  "voice_description": "[3 sentences capturing the exact voice - specific, not generic]",
+  "sentence_style": "[punchy | story-led | educational | conversational | authoritative]",
+  "avg_sentence_length": "[short | medium | long]",
+  "signature_phrases": ["[phrase they use often]", "[another]", "[another]"],
+  "vocabulary_level": "[everyday | professional | technical | mixed]",
+  "emotional_register": "[warm | direct | challenging | inspiring | real | raw]",
+  "structural_patterns": ["[e.g. opens with question]", "[e.g. ends with reframe]"],
+  "words_they_use": ["[word/phrase]", "[another]", "[another]", "[another]", "[another]"],
+  "words_they_avoid": ["[word/phrase that would sound off-brand]", "[another]"],
+  "dos": ["[specific writing rule for this voice]", "[another]", "[another]"],
+  "donts": ["[what breaks this voice]", "[another]", "[another]"],
+  "one_line_summary": "[one memorable sentence that captures this voice perfectly]"
+}`;
+
+function VoiceFingerprintBuilder() {
+  const [activeClient] = useActiveClient();
+  const [clients, saveClients] = useClients();
+  const [selectedClientId, setSelectedClientId] = React.useState(activeClient?.id || 'jason');
+  const [samples, setSamples] = React.useState('');
+  const [analyzing, setAnalyzing] = React.useState(false);
+  const [fingerprint, setFingerprint] = React.useState(null);
+  const [locked, setLocked] = React.useState(false);
+  const [saved, setSaved] = React.useState(false);
+
+  const selectedClient = clients.find(c => c.id === selectedClientId) || clients[0];
+
+  React.useEffect(() => {
+    // Load existing fingerprint for this client
+    try {
+      const fps = JSON.parse(localStorage.getItem('encis_voice_fps') || '{}');
+      if (fps[selectedClientId]) {
+        setFingerprint(fps[selectedClientId]);
+        setLocked(fps[selectedClientId].locked || false);
+      } else {
+        setFingerprint(null);
+        setLocked(false);
+      }
+    } catch {}
+    setSamples('');
+    setSaved(false);
+  }, [selectedClientId]);
+
+  const analyze = async () => {
+    if (!samples.trim() || samples.length < 100) return;
+    setAnalyzing(true);
+    setFingerprint(null);
+    try {
+      const raw = await ai(VOICE_ANALYZE_PROMPT(samples, selectedClient?.name));
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const result = JSON.parse(clean);
+      setFingerprint(result);
+    } catch(e) { console.error('Voice analyze:', e); }
+    setAnalyzing(false);
+  };
+
+  const saveFingerprint = () => {
+    if (!fingerprint) return;
+    try {
+      // Save fingerprint
+      const fps = JSON.parse(localStorage.getItem('encis_voice_fps') || '{}');
+      fps[selectedClientId] = { ...fingerprint, locked, savedAt: new Date().toISOString() };
+      localStorage.setItem('encis_voice_fps', JSON.stringify(fps));
+
+      // Update client voice field
+      const updatedClients = clients.map(c =>
+        c.id === selectedClientId
+          ? { ...c, voice: fingerprint.voice_description, trust: locked ? 'verified' : 'draft' }
+          : c
+      );
+      saveClients(updatedClients);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch(e) { console.error('saveFingerprint:', e); }
+  };
+
+  const inputStyle = { width: '100%', background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 8, padding: '10px 14px', color: '#111827', fontSize: 14, boxSizing: 'border-box', fontFamily: 'inherit', outline: 'none' };
+
+  return (
+    <div style={{ maxWidth: 720, margin: '0 auto' }}>
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <div style={{ width: 3, height: 28, background: '#00C2FF', borderRadius: 2 }}/>
+          <h2 style={{ color: '#111827', margin: 0, fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>Voice Fingerprint</h2>
+        </div>
+        <p style={{ color: '#6B7280', margin: 0, fontSize: 14, paddingLeft: 13 }}>
+          Analyze content samples → extract precise voice rules → lock for consistent generation.
+        </p>
+      </div>
+
+      {/* Client selector */}
+      <div style={{ marginBottom: 20 }}>
+        <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6B7280', marginBottom: 6 }}>Client</label>
+        <select value={selectedClientId} onChange={e => setSelectedClientId(e.target.value)}
+          style={{ ...inputStyle, width: 'auto', minWidth: 200 }}>
+          {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+      </div>
+
+      {/* Sample input */}
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6B7280', marginBottom: 6 }}>
+          Paste content samples
+          <span style={{ color: '#9CA3AF', fontWeight: 400, textTransform: 'none', letterSpacing: 0, marginLeft: 6 }}>
+            (captions, scripts, emails - the more the better, min 3-5 pieces)
+          </span>
+        </label>
+        <textarea value={samples} onChange={e => setSamples(e.target.value)}
+          placeholder="Paste 3-5 pieces of their best content here. Mix of formats works best - a caption, a script hook, an email...&#10;&#10;The more specific and varied the samples, the more accurate the fingerprint."
+          rows={8}
+          style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.7 }}
+          onFocus={e => e.target.style.borderColor = '#00C2FF'}
+          onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+        <div style={{ color: '#9CA3AF', fontSize: 11, marginTop: 5, textAlign: 'right' }}>
+          {samples.length} chars {samples.length < 100 && samples.length > 0 ? '- need more' : samples.length >= 100 ? '✓ enough to analyze' : ''}
+        </div>
+      </div>
+
+      <button onClick={analyze} disabled={samples.length < 100 || analyzing}
+        style={{ width: '100%', background: samples.length >= 100 ? '#111827' : '#F3F4F6', color: samples.length >= 100 ? '#FFF' : '#9CA3AF', border: 'none', borderRadius: 10, padding: '13px', fontWeight: 800, cursor: samples.length >= 100 ? 'pointer' : 'not-allowed', fontSize: 14, marginBottom: 20 }}>
+        {analyzing ? 'Analyzing voice...' : 'Extract Voice Fingerprint →'}
+      </button>
+
+      {analyzing && (
+        <div style={{ textAlign: 'center', padding: '24px 0' }}>
+          <div style={{ width: 32, height: 32, border: '2px solid #E5E7EB', borderTopColor: '#00C2FF', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }}/>
+          <p style={{ color: '#6B7280', fontSize: 13 }}>Extracting voice patterns...</p>
+        </div>
+      )}
+
+      {fingerprint && !analyzing && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+          {/* One-line summary */}
+          <div style={{ background: 'rgba(0,194,255,0.06)', border: '1px solid rgba(0,194,255,0.2)', borderRadius: 12, padding: '16px 20px' }}>
+            <div style={{ color: '#00C2FF', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>Voice in one sentence</div>
+            <div style={{ color: '#111827', fontSize: 15, fontWeight: 700, lineHeight: 1.5 }}>{fingerprint.one_line_summary}</div>
+          </div>
+
+          {/* Voice description */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '16px 20px' }}>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Voice Description</div>
+            <div style={{ color: '#374151', fontSize: 13, lineHeight: 1.7 }}>{fingerprint.voice_description}</div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+              {[fingerprint.sentence_style, fingerprint.avg_sentence_length + ' sentences', fingerprint.emotional_register, fingerprint.vocabulary_level + ' vocab'].map((tag, i) => tag && (
+                <span key={i} style={{ background: '#F3F4F6', color: '#374151', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 5 }}>{tag}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Dos and Don'ts */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 10, padding: '14px 16px' }}>
+              <div style={{ color: '#10B981', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>Always do</div>
+              {fingerprint.dos?.map((d, i) => (
+                <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 5 }}>
+                  <span style={{ color: '#10B981', fontWeight: 700, flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#374151', fontSize: 12 }}>{d}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: 10, padding: '14px 16px' }}>
+              <div style={{ color: '#EF4444', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>Never do</div>
+              {fingerprint.donts?.map((d, i) => (
+                <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 5 }}>
+                  <span style={{ color: '#EF4444', fontWeight: 700, flexShrink: 0 }}>✗</span>
+                  <span style={{ color: '#374151', fontSize: 12 }}>{d}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Signature phrases + words */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '16px 20px' }}>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Signature Language</div>
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ color: '#9CA3AF', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 5 }}>Phrases they use</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                {fingerprint.signature_phrases?.map((p, i) => (
+                  <span key={i} style={{ background: 'rgba(0,194,255,0.08)', color: '#0891B2', fontSize: 12, padding: '3px 9px', borderRadius: 5 }}>"{p}"</span>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div>
+                <div style={{ color: '#9CA3AF', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 5 }}>Words they use</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {fingerprint.words_they_use?.map((w, i) => (
+                    <span key={i} style={{ background: 'rgba(16,185,129,0.1)', color: '#10B981', fontSize: 11, fontWeight: 600, padding: '2px 7px', borderRadius: 4 }}>{w}</span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div style={{ color: '#9CA3AF', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 5 }}>Words to avoid</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {fingerprint.words_they_avoid?.map((w, i) => (
+                    <span key={i} style={{ background: 'rgba(239,68,68,0.08)', color: '#EF4444', fontSize: 11, fontWeight: 600, padding: '2px 7px', borderRadius: 4 }}>✗ {w}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Lock + Save */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '16px 20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+              <div>
+                <div style={{ color: '#111827', fontWeight: 700, fontSize: 14, marginBottom: 4 }}>Lock this fingerprint</div>
+                <div style={{ color: '#6B7280', fontSize: 12 }}>
+                  Locked fingerprints mark the client as Verified and prevent accidental overwrites.
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <button onClick={() => setLocked(!locked)}
+                  style={{ background: locked ? '#111827' : '#F3F4F6', color: locked ? '#FFF' : '#6B7280', border: 'none', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontSize: 13, fontWeight: 700 }}>
+                  {locked ? 'Locked Locked' : 'Unlocked Unlocked'}
+                </button>
+                <button onClick={saveFingerprint}
+                  style={{ background: saved ? '#10B981' : '#111827', color: '#FFF', border: 'none', borderRadius: 8, padding: '8px 20px', cursor: 'pointer', fontSize: 13, fontWeight: 800 }}>
+                  {saved ? 'Saved ✓' : 'Save Fingerprint'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── BRAIN VERIFICATION FLOW ─────────────────────────────────────────────────
+
+function BrainVerification() {
+  const [activeClient] = useActiveClient();
+  const [clients, saveClients] = useClients();
+  const [selectedClientId, setSelectedClientId] = React.useState(activeClient?.id || 'jason');
+  const [brain, setBrain] = React.useState(null);
+  const [fingerprint, setFingerprint] = React.useState(null);
+  const [verifyNotes, setVerifyNotes] = React.useState('');
+  const [verified, setVerified] = React.useState(false);
+
+  const selectedClient = clients.find(c => c.id === selectedClientId) || clients[0];
+  const currentTrust = getTrustLevel(selectedClient || {});
+
+  React.useEffect(() => {
+    loadClientBrain(selectedClientId);
+  }, [selectedClientId]);
+
+  const loadClientBrain = (clientId) => {
+    try {
+      const brains = JSON.parse(localStorage.getItem(BRAIN_KEY) || '{}');
+      setBrain(brains[clientId] || null);
+      const fps = JSON.parse(localStorage.getItem('encis_voice_fps') || '{}');
+      setFingerprint(fps[clientId] || null);
+    } catch {}
+    setVerified(false);
+    setVerifyNotes('');
+  };
+
+  const approveBrain = () => {
+    const updatedClients = clients.map(c =>
+      c.id === selectedClientId
+        ? { ...c, trust: 'verified', verifiedAt: new Date().toISOString(), verifyNotes }
+        : c
+    );
+    saveClients(updatedClients);
+
+    // Update brain with verification
+    try {
+      const brains = JSON.parse(localStorage.getItem(BRAIN_KEY) || '{}');
+      if (brains[selectedClientId]) {
+        brains[selectedClientId].verified = true;
+        brains[selectedClientId].verifiedAt = new Date().toISOString();
+        localStorage.setItem(BRAIN_KEY, JSON.stringify(brains));
+      }
+    } catch {}
+
+    // Sync to Supabase
+    supabase.from('strategy_profiles').update({
+      completion: 'verified',
+      updated_at: new Date().toISOString(),
+    }).eq('client_id', selectedClientId).then(() => {});
+
+    setVerified(true);
+  };
+
+  const rejectBrain = (reason) => {
+    const updatedClients = clients.map(c =>
+      c.id === selectedClientId
+        ? { ...c, trust: 'draft', rejectionReason: reason }
+        : c
+    );
+    saveClients(updatedClients);
+  };
+
+  const trustColor = TRUST_CONFIG[currentTrust]?.color || '#9CA3AF';
+
+  return (
+    <div style={{ maxWidth: 720, margin: '0 auto' }}>
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <div style={{ width: 3, height: 28, background: '#00C2FF', borderRadius: 2 }}/>
+          <h2 style={{ color: '#111827', margin: 0, fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>Brain Verification</h2>
+        </div>
+        <p style={{ color: '#6B7280', margin: 0, fontSize: 14, paddingLeft: 13 }}>
+          Review a client Brain before activating it for live content generation.
+        </p>
+      </div>
+
+      {/* Client selector */}
+      <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <select value={selectedClientId} onChange={e => { setSelectedClientId(e.target.value); }}
+          style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 8, padding: '10px 14px', color: '#111827', fontSize: 14, cursor: 'pointer', flex: 1, outline: 'none' }}>
+          {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+        <div style={{ background: TRUST_CONFIG[currentTrust]?.bg || '#F9FAFB', border: '1px solid ' + (TRUST_CONFIG[currentTrust]?.border || '#E5E7EB'), borderRadius: 8, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          <span style={{ color: trustColor, fontWeight: 700, fontSize: 13 }}>
+            {TRUST_CONFIG[currentTrust]?.icon} {TRUST_CONFIG[currentTrust]?.label || 'Unknown'}
+          </span>
+        </div>
+      </div>
+
+      {!brain ? (
+        <div style={{ background: '#F9FAFB', borderRadius: 12, padding: '32px 24px', textAlign: 'center' }}>
+          <div style={{ fontSize: 36, marginBottom: 12 }}>🧠</div>
+          <div style={{ color: '#111827', fontWeight: 700, fontSize: 16, marginBottom: 8 }}>No Brain built yet</div>
+          <div style={{ color: '#6B7280', fontSize: 13 }}>Run Dual Onboarding for this client first.</div>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+          {/* Verification checklist */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '18px 20px' }}>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 14, marginBottom: 12 }}>Verification Checklist</div>
+            {[
+              { label: 'Voice description is specific (not generic)', check: brain.brand_voice_profile?.description?.length > 50 },
+              { label: 'Content pillars are ownable (not just Mindset/Wellness)', check: brain.content_pillars?.length >= 3 },
+              { label: 'Audience profile includes pain points', check: brain.audience_profile?.pain_points?.length > 0 },
+              { label: 'Anti-generic rules present', check: brain.anti_generic_rules?.length > 0 },
+              { label: 'Transformation promise defined', check: !!brain.transformation_promise },
+              { label: 'Voice fingerprint locked', check: fingerprint?.locked === true },
+            ].map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: i < 5 ? '1px solid #F3F4F6' : 'none' }}>
+                <div style={{ width: 20, height: 20, borderRadius: '50%', background: item.check ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.08)', border: '1px solid ' + (item.check ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.2)'), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 11, color: item.check ? '#10B981' : '#EF4444', fontWeight: 700 }}>
+                  {item.check ? '✓' : '✗'}
+                </div>
+                <span style={{ color: item.check ? '#374151' : '#9CA3AF', fontSize: 13 }}>{item.label}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Brain preview */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '18px 20px' }}>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 14, marginBottom: 10 }}>Brain Preview</div>
+            <div style={{ color: '#374151', fontSize: 13, lineHeight: 1.7, marginBottom: 10 }}>
+              {brain.brand_voice_profile?.description || 'No voice description'}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {brain.content_pillars?.map((p, i) => (
+                <span key={i} style={{ background: '#F3F4F6', color: '#374151', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 5 }}>{p.name}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Verification notes */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '18px 20px' }}>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6B7280', marginBottom: 8 }}>
+              Verification notes (optional)
+            </label>
+            <textarea value={verifyNotes} onChange={e => setVerifyNotes(e.target.value)}
+              placeholder="Any notes about this Brain approval - what was reviewed, what was adjusted..."
+              rows={2}
+              style={{ width: '100%', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: '10px 12px', color: '#111827', fontSize: 13, resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit', outline: 'none' }}
+              onFocus={e => e.target.style.borderColor = '#00C2FF'}
+              onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+          </div>
+
+          {/* Actions */}
+          {verified ? (
+            <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 12, padding: '16px 20px', textAlign: 'center' }}>
+              <div style={{ color: '#10B981', fontWeight: 800, fontSize: 16 }}>✅ Brain Verified</div>
+              <div style={{ color: '#6B7280', fontSize: 12, marginTop: 4 }}>{selectedClient?.name} is now verified and ready for live content generation.</div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={approveBrain}
+                style={{ flex: 1, background: '#10B981', color: '#FFF', border: 'none', borderRadius: 10, padding: '13px', fontWeight: 800, cursor: 'pointer', fontSize: 14, boxShadow: '0 4px 16px rgba(16,185,129,0.25)' }}>
+                ✓ Approve & Verify Brain
+              </button>
+              <button onClick={() => rejectBrain('Needs revision')}
+                style={{ background: '#FFFFFF', color: '#EF4444', border: '1px solid #FCA5A5', borderRadius: 10, padding: '13px 20px', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
+                Send Back
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── WHITE LABEL SWITCHER ────────────────────────────────────────────────────
+
+function WhiteLabelSwitcher() {
+  const [settings, setSettings] = React.useState({
+    enabled: false,
+    agencyName: '',
+    tagline: '',
+    primaryColor: '#111827',
+    accentColor: '#00C2FF',
+    logoText: '',
+    hideCredit: false,
+  });
+  const [saved, setSaved] = React.useState(false);
+
+  React.useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(WHITELABEL_KEY) || '{}');
+      if (stored.agencyName) setSettings(stored);
+    } catch {}
+  }, []);
+
+  const save = () => {
+    try {
+      localStorage.setItem(WHITELABEL_KEY, JSON.stringify(settings));
+      // Apply immediately if enabled
+      if (settings.enabled) {
+        document.documentElement.style.setProperty('--accent-color', settings.accentColor);
+      }
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch {}
+  };
+
+  const inputStyle = { width: '100%', background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 8, padding: '10px 14px', color: '#111827', fontSize: 14, boxSizing: 'border-box', fontFamily: 'inherit', outline: 'none' };
+  const labelStyle = { display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6B7280', marginBottom: 6 };
+
+  return (
+    <div style={{ maxWidth: 680, margin: '0 auto' }}>
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <div style={{ width: 3, height: 28, background: '#00C2FF', borderRadius: 2 }}/>
+          <h2 style={{ color: '#111827', margin: 0, fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>White Label</h2>
+        </div>
+        <p style={{ color: '#6B7280', margin: 0, fontSize: 14, paddingLeft: 13 }}>
+          Present 8th Ascent as your own agency tool. Your name, your colors, your brand.
+        </p>
+      </div>
+
+      {/* Enable toggle */}
+      <div style={{ background: settings.enabled ? 'rgba(0,194,255,0.06)' : '#FFFFFF', border: '1px solid ' + (settings.enabled ? 'rgba(0,194,255,0.2)' : '#E5E7EB'), borderRadius: 12, padding: '16px 20px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <div style={{ color: '#111827', fontWeight: 700, fontSize: 14 }}>Enable White Label Mode</div>
+          <div style={{ color: '#6B7280', fontSize: 12, marginTop: 2 }}>Replaces app branding with your agency identity</div>
+        </div>
+        <button onClick={() => setSettings(p => ({ ...p, enabled: !p.enabled }))}
+          style={{ background: settings.enabled ? '#111827' : '#F3F4F6', color: settings.enabled ? '#FFF' : '#6B7280', border: 'none', borderRadius: 8, padding: '8px 20px', cursor: 'pointer', fontSize: 13, fontWeight: 700 }}>
+          {settings.enabled ? 'On' : 'Off'}
+        </button>
+      </div>
+
+      {settings.enabled && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div>
+              <label style={labelStyle}>Agency Name</label>
+              <input value={settings.agencyName} onChange={e => setSettings(p => ({ ...p, agencyName: e.target.value }))}
+                placeholder="Your Agency" style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+            </div>
+            <div>
+              <label style={labelStyle}>Logo Text / Initials</label>
+              <input value={settings.logoText} onChange={e => setSettings(p => ({ ...p, logoText: e.target.value }))}
+                placeholder="e.g. CA or ContentAgency" style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+            </div>
+          </div>
+
+          <div>
+            <label style={labelStyle}>Tagline</label>
+            <input value={settings.tagline} onChange={e => setSettings(p => ({ ...p, tagline: e.target.value }))}
+              placeholder="e.g. Content intelligence for modern brands" style={inputStyle}
+              onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div>
+              <label style={labelStyle}>Accent Color</label>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input type="color" value={settings.accentColor} onChange={e => setSettings(p => ({ ...p, accentColor: e.target.value }))}
+                  style={{ width: 40, height: 40, border: '1px solid #E5E7EB', borderRadius: 6, cursor: 'pointer', padding: 2 }}/>
+                <input value={settings.accentColor} onChange={e => setSettings(p => ({ ...p, accentColor: e.target.value }))}
+                  style={{ ...inputStyle, flex: 1 }}
+                  onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+              </div>
+            </div>
+            <div>
+              <label style={labelStyle}>Primary Color</label>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input type="color" value={settings.primaryColor} onChange={e => setSettings(p => ({ ...p, primaryColor: e.target.value }))}
+                  style={{ width: 40, height: 40, border: '1px solid #E5E7EB', borderRadius: 6, cursor: 'pointer', padding: 2 }}/>
+                <input value={settings.primaryColor} onChange={e => setSettings(p => ({ ...p, primaryColor: e.target.value }))}
+                  style={{ ...inputStyle, flex: 1 }}
+                  onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button onClick={() => setSettings(p => ({ ...p, hideCredit: !p.hideCredit }))}
+              style={{ width: 20, height: 20, borderRadius: 4, background: settings.hideCredit ? '#111827' : '#F3F4F6', border: '1px solid ' + (settings.hideCredit ? '#111827' : '#E5E7EB'), cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', fontSize: 12 }}>
+              {settings.hideCredit ? '✓' : ''}
+            </button>
+            <span style={{ color: '#374151', fontSize: 13 }}>Hide "Powered by 8th Ascent" credit</span>
+          </div>
+
+          {/* Preview */}
+          <div style={{ background: settings.primaryColor || '#111827', borderRadius: 10, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
+            {settings.logoText && (
+              <div style={{ width: 32, height: 32, borderRadius: 6, background: settings.accentColor, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', fontWeight: 900, fontSize: 12, flexShrink: 0 }}>
+                {settings.logoText.slice(0, 2).toUpperCase()}
+              </div>
+            )}
+            <div>
+              <div style={{ color: '#FFFFFF', fontWeight: 800, fontSize: 15 }}>{settings.agencyName || 'Your Agency'}</div>
+              {settings.tagline && <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, marginTop: 1 }}>{settings.tagline}</div>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <button onClick={save}
+        style={{ width: '100%', marginTop: 20, background: saved ? '#10B981' : '#111827', color: '#FFF', border: 'none', borderRadius: 10, padding: '13px', fontWeight: 800, cursor: 'pointer', fontSize: 14 }}>
+        {saved ? 'Settings Saved ✓' : 'Save Settings'}
+      </button>
+    </div>
+  );
+}
+
+// ── CLIENT PROFILES MANAGER ─────────────────────────────────────────────────
+
 function ClientMode({ setActiveClientExternal }) {
   const [clients, saveClients] = useClients();
   const [activeClient, setActiveClient] = useActiveClient();
-  const [editing, setEditing] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [managingAngles, setManagingAngles] = useState(null);
-  const blank = { id:'', name:'', handle:'', platforms:'Instagram, YouTube', voice:'', angles:'', colors:'', notes:'' };
-  const [form, setForm] = useState(blank);
+  const [view, setView] = React.useState('list'); // list | edit | add
+  const [editTarget, setEditTarget] = React.useState(null);
+  const [search, setSearch] = React.useState('');
+
+  const blank = { id: '', name: '', handle: '', platforms: 'Instagram', voice: '', angles: '', colors: '', notes: '', trust: 'incomplete' };
+  const [form, setForm] = React.useState(blank);
 
   const activate = (client) => {
     setActiveClient(client);
     if (setActiveClientExternal) setActiveClientExternal(client);
   };
 
-  const saveClient = () => {
-    if (!form.name) return;
+  const startEdit = (client) => {
+    setForm({ ...blank, ...client });
+    setEditTarget(client.id);
+    setView('edit');
+  };
+
+  const startAdd = () => {
+    setForm({ ...blank, id: Date.now().toString() });
+    setEditTarget(null);
+    setView('add');
+  };
+
+  const saveForm = () => {
+    if (!form.name.trim()) return;
     const client = { ...form, id: form.id || Date.now().toString() };
-    if (editing) {
-      saveClients(clients.map(c => c.id === editing ? client : c));
+    if (editTarget) {
+      saveClients(clients.map(c => c.id === editTarget ? client : c));
     } else {
       saveClients([...clients, client]);
     }
-    setForm(blank); setShowForm(false); setEditing(null);
+    setView('list');
   };
 
   const deleteClient = (id) => {
-    if (id === 'jason') return;
+    if (id === 'jason') return; // Never delete default
     saveClients(clients.filter(c => c.id !== id));
-    if (activeClient?.id === id) activate(DEFAULT_CLIENT);
+    if (activeClient?.id === id) activate(clients.find(c => c.id === 'jason') || clients[0]);
   };
 
-  const fields = [
-    {k:'name',l:'Client / Brand Name',ph:'e.g. Jane Smith Fitness'},
-    {k:'handle',l:'Primary Handle',ph:'e.g. @janesmith'},
-    {k:'platforms',l:'Platforms',ph:'e.g. Instagram, LinkedIn'},
-    {k:'location',l:'Location',ph:'e.g. Austin TX, Denver CO, NYC'},
-    {k:'role',l:'Role / Profession',ph:'e.g. Life coach, real estate agent, fitness trainer, HR manager'},
-    {k:'voice',l:'Voice & Tone',ph:'e.g. Warm, motivational, no jargon. Speaks to busy moms...'},
-    {k:'angles',l:'Content Angles',ph:'e.g. Weight loss, Meal prep, Mindset for moms...'},
-    {k:'colors',l:'Brand Colors',ph:'e.g. #FF6B6B, #4ECDC4, #FFFFFF'},
-    {k:'notes',l:'Additional Context',ph:'e.g. Life coach, 2 kids, based in Austin, sells a $997 program...'},
-  ];
+  const filtered = clients.filter(c =>
+    !search || c.name.toLowerCase().includes(search.toLowerCase()) || (c.handle || '').toLowerCase().includes(search.toLowerCase())
+  );
+
+  const inputStyle = { width: '100%', background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 8, padding: '10px 14px', color: '#111827', fontSize: 14, boxSizing: 'border-box', fontFamily: 'inherit', outline: 'none' };
+  const labelStyle = { display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6B7280', marginBottom: 6 };
 
   return (
-    <div>
-      {managingAngles && <CustomAnglesManager client={managingAngles} onClose={() => setManagingAngles(null)}/>}
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:24,flexWrap:'wrap'}}>
-        <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
-          <div><h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Client Mode</h2>
-            <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Switch clients and every tool rewires to their voice, angles, and brand.</p></div>
+    <div style={{ maxWidth: 760, margin: '0 auto' }}>
+
+      {/* Header */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <div style={{ width: 3, height: 28, background: '#00C2FF', borderRadius: 2 }}/>
+          <h2 style={{ color: '#111827', margin: 0, fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>Client Profiles</h2>
         </div>
-        <button onClick={() => { setForm(blank); setEditing(null); setShowForm(true); }}
-          style={{background:'#2563EB',color:'#fff',border:'none',borderRadius:8,padding:'8px 16px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
-          + Add Client
-        </button>
+        <p style={{ color: '#6B7280', margin: 0, fontSize: 14, paddingLeft: 13 }}>
+          {clients.length} client{clients.length !== 1 ? 's' : ''} · switch active client to change the Brain powering all tools
+        </p>
       </div>
 
-      {/* Active client indicator */}
-      <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:12,padding:'16px',marginBottom:20}}>
-        <div style={{fontSize:11,fontWeight:700,letterSpacing:2,color:'#2563EB',textTransform:'uppercase',marginBottom:8}}>Currently Active</div>
-        <div style={{color:'#111827',fontWeight:700,fontSize:16}}>{activeClient?.name || 'Jason Fricka'}</div>
-        <div style={{color:'#6B7280',fontSize:13,marginTop:2}}>{activeClient?.handle} · {activeClient?.platforms}</div>
-      </div>
-
-      {/* Client grid */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:12,marginBottom:24}}>
-        {clients.map(client => (
-          <div key={client.id}
-            style={{background:activeClient?.id===client.id?'rgba(233,69,96,0.1)':'rgba(255,255,255,0.03)',
-              border:`1px solid ${activeClient?.id===client.id?'rgba(233,69,96,0.4)':'rgba(255,255,255,0.07)'}`,
-              borderRadius:12,padding:'16px',transition:'all 0.15s'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}>
-              <div>
-                <div style={{color:'#111827',fontWeight:700,fontSize:14}}>{client.name}</div>
-                <div style={{color:'#6B7280',fontSize:12,marginTop:2}}>{client.handle}</div>
-              </div>
-              {client.isDefault && <span style={{background:'rgba(233,69,96,0.15)',color:'#2563EB',borderRadius:4,padding:'2px 7px',fontSize:10,fontWeight:700}}>YOU</span>}
-            </div>
-            <div style={{color:'#6B7280',fontSize:11,lineHeight:1.6,marginBottom:12,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>
-              {client.voice || client.notes || 'No description'}
-            </div>
-            <div style={{display:'flex',gap:8}}>
-              <button onClick={() => activate(client)}
-                style={{flex:1,background:activeClient?.id===client.id?'#2563EB':'rgba(255,255,255,0.08)',color:'#fff',border:'none',
-                  borderRadius:7,padding:'7px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
-                {activeClient?.id===client.id ? 'Active' : 'Activate'}
-              </button>
-              <button onClick={() => setManagingAngles(client)}
-                style={{background:'rgba(0,212,255,0.08)',color:'#00C2FF',border:'1px solid rgba(0,212,255,0.2)',borderRadius:7,padding:'7px 10px',fontSize:11,cursor:'pointer',fontWeight:700}}>
-                {(() => { try { const s = JSON.parse(localStorage.getItem(CUSTOM_ANGLES_KEY)|| '{}'); return s[client.id]?.mode && s[client.id].mode !== 'swarbrick' ? 'Angles*' : 'Angles'; } catch { return 'Angles'; } })()}
-              </button>
-              {!client.isDefault && (
-                <>
-                  <button onClick={() => { setForm({...client}); setEditing(client.id); setShowForm(true); }}
-                    style={{background:'#FFFFFF',color:'#6B7280',border:'none',borderRadius:7,padding:'7px 10px',fontSize:12,cursor:'pointer'}}>Edit</button>
-                  <button onClick={() => deleteClient(client.id)}
-                    style={{background:'rgba(233,69,96,0.08)',color:'#2563EB',border:'none',borderRadius:7,padding:'7px 10px',fontSize:12,cursor:'pointer'}}>×</button>
-                </>
-              )}
-            </div>
+      {/* List view */}
+      {view === 'list' && (
+        <div>
+          <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+            <input value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Search clients..."
+              style={{ ...inputStyle, flex: 1 }}
+              onFocus={e => e.target.style.borderColor = '#00C2FF'}
+              onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+            <button onClick={startAdd}
+              style={{ background: '#111827', color: '#FFF', border: 'none', borderRadius: 8, padding: '10px 18px', fontWeight: 700, cursor: 'pointer', fontSize: 13, flexShrink: 0 }}>
+              + Add Client
+            </button>
           </div>
-        ))}
-      </div>
 
-      {/* Add/Edit form */}
-      {showForm && (
-        <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:14,padding:'24px',marginBottom:20}}>
-          <div style={{color:'#111827',fontWeight:700,fontSize:16,marginBottom:20}}>{editing ? 'Edit Client' : 'New Client'}</div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
-            {fields.map(f => (
-              <div key={f.k} style={{gridColumn:['voice','angles','notes'].includes(f.k)?'1/-1':'auto'}}>
-                <div style={{fontSize:11,fontWeight:700,letterSpacing:1.5,color:'#2563EB',textTransform:'uppercase',marginBottom:6}}>{f.l}</div>
-                {['voice','angles','notes'].includes(f.k) ? (
-                  <textarea value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} rows={2} placeholder={f.ph}
-                    style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box'}}/>
-                ) : (
-                  <input value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} placeholder={f.ph}
-                    style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
-                )}
-              </div>
-            ))}
-          </div>
-          <div style={{display:'flex',gap:10,marginTop:18}}>
-            <RedBtn onClick={saveClient} disabled={!form.name}>{editing ? 'Save Changes' : 'Add Client'}</RedBtn>
-            <button onClick={() => { setShowForm(false); setEditing(null); setForm(blank); }}
-              style={{background:'#FFFFFF',color:'#6B7280',border:'none',borderRadius:8,padding:'10px 20px',fontSize:13,cursor:'pointer'}}>Cancel</button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {filtered.map(client => {
+              const trust = getTrustLevel(client);
+              const tc = TRUST_CONFIG[trust];
+              const isActive = activeClient?.id === client.id;
+
+              return (
+                <div key={client.id} style={{ background: '#FFFFFF', border: '1px solid ' + (isActive ? '#111827' : '#E5E7EB'), borderRadius: 12, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 14 }}>
+
+                  {/* Avatar */}
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: isActive ? '#111827' : '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isActive ? '#FFF' : '#6B7280', fontWeight: 800, fontSize: 16, flexShrink: 0 }}>
+                    {client.name.charAt(0).toUpperCase()}
+                  </div>
+
+                  {/* Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                      <div style={{ color: '#111827', fontWeight: 700, fontSize: 14 }}>{client.name}</div>
+                      {isActive && <span style={{ background: '#111827', color: '#FFF', fontSize: 9, fontWeight: 800, padding: '1px 6px', borderRadius: 4, letterSpacing: 0.5 }}>ACTIVE</span>}
+                      <span style={{ background: tc.bg, border: '1px solid ' + tc.border, color: tc.color, fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 4 }}>
+                        {tc.icon} {tc.label}
+                      </span>
+                    </div>
+                    <div style={{ color: '#9CA3AF', fontSize: 12 }}>
+                      {client.handle || ''}{client.handle && client.platforms ? ' · ' : ''}{client.platforms || ''}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                    {!isActive && (
+                      <button onClick={() => activate(client)}
+                        style={{ background: '#F3F4F6', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                        Switch
+                      </button>
+                    )}
+                    <button onClick={() => startEdit(client)}
+                      style={{ background: '#F3F4F6', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                      Edit
+                    </button>
+                    {client.id !== 'jason' && (
+                      <button onClick={() => deleteClient(client.id)}
+                        style={{ background: 'none', color: '#EF4444', border: '1px solid #FCA5A5', borderRadius: 6, padding: '6px 10px', cursor: 'pointer', fontSize: 12 }}>
+                        ×
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
 
-      <div style={{background:'#FFFFFF',borderRadius:10,padding:'16px',border:'1px solid rgba(255,255,255,0.05)'}}>
-        <div style={{color:'#6B7280',fontSize:12,lineHeight:1.8}}>
-          <strong style={{color:'#111827'}}>How Client Mode works:</strong> When a client is active, every tool scripts, calendars, profiles, lead magnets automatically uses their voice, angles, and brand context. Switch back to Jason anytime. Client data stays on your device.
+      {/* Edit / Add view */}
+      {(view === 'edit' || view === 'add') && (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+            <button onClick={() => setView('list')} style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: 13 }}>← Back</button>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 15 }}>{view === 'add' ? 'Add New Client' : 'Edit ' + (editTarget ? (clients.find(c => c.id === editTarget)?.name || 'Client') : 'Client')}</div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div>
+                <label style={labelStyle}>Name *</label>
+                <input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Full name" style={inputStyle}
+                  onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+              </div>
+              <div>
+                <label style={labelStyle}>Handle</label>
+                <input value={form.handle} onChange={e => setForm(p => ({ ...p, handle: e.target.value }))} placeholder="@handle" style={inputStyle}
+                  onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+              </div>
+            </div>
+
+            <div>
+              <label style={labelStyle}>Platforms</label>
+              <input value={form.platforms} onChange={e => setForm(p => ({ ...p, platforms: e.target.value }))} placeholder="Instagram, LinkedIn, TikTok..." style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+            </div>
+
+            <div>
+              <label style={labelStyle}>Voice</label>
+              <textarea value={form.voice} onChange={e => setForm(p => ({ ...p, voice: e.target.value }))} placeholder="Describe their voice and communication style..." rows={3}
+                style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 }}
+                onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+            </div>
+
+            <div>
+              <label style={labelStyle}>Content Pillars / Angles (comma-separated)</label>
+              <input value={form.angles} onChange={e => setForm(p => ({ ...p, angles: e.target.value }))} placeholder="Resilience, Mindset, Finance..." style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+            </div>
+
+            <div>
+              <label style={labelStyle}>Notes</label>
+              <textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} placeholder="Industry, offer, anything else relevant..." rows={2}
+                style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 }}
+                onFocus={e => e.target.style.borderColor = '#00C2FF'} onBlur={e => e.target.style.borderColor = '#E5E7EB'}/>
+            </div>
+
+            <div>
+              <label style={labelStyle}>Trust Level</label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {Object.entries(TRUST_CONFIG).map(([level, cfg]) => (
+                  <button key={level} onClick={() => setForm(p => ({ ...p, trust: level }))}
+                    style={{ flex: 1, background: form.trust === level ? cfg.bg : '#F9FAFB', border: '1px solid ' + (form.trust === level ? cfg.border : '#E5E7EB'), borderRadius: 8, padding: '8px 4px', cursor: 'pointer', textAlign: 'center' }}>
+                    <div style={{ color: form.trust === level ? cfg.color : '#9CA3AF', fontSize: 13, fontWeight: form.trust === level ? 700 : 500 }}>{cfg.icon} {cfg.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button onClick={saveForm} disabled={!form.name.trim()}
+              style={{ background: form.name.trim() ? '#111827' : '#F3F4F6', color: form.name.trim() ? '#FFF' : '#9CA3AF', border: 'none', borderRadius: 10, padding: '13px', fontWeight: 800, cursor: form.name.trim() ? 'pointer' : 'not-allowed', fontSize: 14 }}>
+              {view === 'add' ? 'Add Client' : 'Save Changes'}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// COMPONENTS
-// ═════════════════════════════════════════════════════════════════════════════
+
 function Home({setNav,setSub}) {
   // Check if onboarding done
   const [onboardingDone] = useState(() => {
@@ -2692,13 +3338,13 @@ function _OldHome({setNav,setSub}) {
     {nav:'agency',sub:'portal', label:'AGENCY',   title:'Client Portal',               desc:'Full dashboard per client. Deliverable pipeline with status tracking, timestamped notes, voice fingerprint status, and performance at a glance. Manage 10 clients from one screen.'},
     {nav:'agency',sub:'deliverable', label:'AGENCY',   title:'Deliverable Builder',         desc:'Choose a client and deliverable type. Generates polished, client-ready output using their voice fingerprint automatically. Downloads as a formatted PDF.'},
     {nav:'optimize',sub:'stratreview', label:'OPTIMIZE', title:'AI Strategy Review',          desc:'Monthly strategic review generated automatically from ROI data, content ratings, and calendar execution. Replaces the monthly strategy call. Stored per client.'},
-    {nav:'agency',sub:'analytics', label:'AGENCY',   title:'Analytics Import Hub',        desc:'Export CSV from Instagram, YouTube, Facebook, or LinkedIn for free. Import here. SIGNAL parses the data and generates platform-specific insights. No API subscription needed.'},
+    {nav:'agency',sub:'analytics', label:'AGENCY',   title:'Analytics Import Hub',        desc:'Export CSV from Instagram, YouTube, Facebook, or LinkedIn for free. Import here. 8th Ascent parses the data and generates platform-specific insights. No API subscription needed.'},
     {nav:'agency',sub:'onboardauto', label:'AGENCY',   title:'Onboarding Automation',       desc:'Add a new client and run this. Generates a full onboarding package before the first call: platform assessment, content angles, 30-day plan, first 10 posts, and key discovery questions.'},
     {nav:'strategy',sub:'visualcal', label:'STRATEGY', title:'Visual Content Calendar',      desc:'Click-to-assign content calendar. Plan posts by date, platform, and format. Track approval status. Export as CSV for Meta Business Suite or any free scheduler.'},
     {nav:'agency',sub:'report', label:'AGENCY',   title:'Monthly Reporting Suite',     desc:'One-click monthly client reports. Pulls ROI data and top content automatically. Add wins and challenges. Outputs a professional PDF report ready to send.'},
     {nav:'agency',sub:'voice', label:'AGENCY',   title:'Voice Fingerprinting',        desc:'Paste 2 to 5 real content samples. Extracts tone, vocabulary, sentence patterns, writing rules, and themes. Stored per client and injected into every deliverable automatically.'},
     {nav:'agency',sub:'clients', label:'AGENCY',   title:'Client Profiles',             desc:'Create and manage client accounts. Each client has their own voice, angles, platforms, and brand colors. Activating a client rewires every tool to their context.'},
-    {nav:'agency',sub:'whitelabel', label:'AGENCY',   title:'White Label Mode',           desc:'Rebrand the app with your agency name, logo, and colors. Every document, report, and header shows your brand. Clients see your agency, not SIGNAL.'},
+    {nav:'agency',sub:'whitelabel', label:'AGENCY',   title:'White Label Mode',           desc:'Rebrand the app with your agency name, logo, and colors. Every document, report, and header shows your brand. Clients see your agency, not 8th Ascent.'},
     {nav:'agency',sub:'transcript', label:'AGENCY',   title:'Call Transcript Intel',      desc:'Upload or paste any call transcript. Extracts 10 content ideas, key quotes, action items, client language patterns, and voice intel. No Fireflies or Otter subscription needed.'},
     {nav:'agency',sub:'persona', label:'AGENCY',   title:'Custom AI Persona',          desc:'Builds a trained AI persona per client from voice fingerprint, content history, and performance ratings. Gets smarter as you rate more content. Injected into all tools.'},
     {nav:'strategy',sub:'biolink', label:'STRATEGY', title:'Bio Link Page Builder',    desc:'Generates a complete link-in-bio landing page with profile section, platform buttons, email capture, and lead magnet CTA. Download HTML and host free on GitHub Pages, Netlify, or Carrd.'},
@@ -2710,7 +3356,7 @@ function _OldHome({setNav,setSub}) {
     {nav:'create',sub:'contentbrief', label:'CREATE',   title:'Content Brief Generator',   desc:'Pre-filming brief for the client. What to wear, where to film, talking points, stories to tell, hooks to open with, and a post-session checklist. Read the night before and execute.'},
     {nav:'create',sub:'guestprep', label:'CREATE',   title:'Guest Prep Kit',             desc:'Complete host and guest prep. 10 ordered interview questions, guest intel, topics to avoid, welcome email, tech requirements, and a 3-part post-episode follow-up sequence.'},
     {nav:'create',sub:'objections', label:'CREATE',   title:'Objection Handler',          desc:'Scripts for every objection in real estate, coaching, podcast pitching, brand deals, and agency sales. DM, email, and in-person versions for each. Includes what not to say.'},
-    {nav:'optimize',sub:'abtests', label:'OPTIMIZE', title:'A/B Test Tracker',           desc:'Log content variations, mark winners, and let SIGNAL find the patterns. After 3+ tests it analyzes what is consistently winning across platforms and formats.'},
+    {nav:'optimize',sub:'abtests', label:'OPTIMIZE', title:'A/B Test Tracker',           desc:'Log content variations, mark winners, and let 8th Ascent find the patterns. After 3+ tests it analyzes what is consistently winning across platforms and formats.'},
     {nav:'optimize',sub:'revenue', label:'OPTIMIZE', title:'Revenue Attribution',        desc:'Tag content to real outcomes: inquiries, booked calls, closed deals, email signups. Tracks attributed revenue by platform and format. Proves content ROI with real numbers.'},
     {nav:'optimize',sub:'pricing', label:'OPTIMIZE', title:'Pricing Calculator',         desc:'Real 2026 market rates for brand deals, UGC, coaching, consulting, and agency retainers. Based on your follower count, engagement rate, and niche. Includes negotiation guide.'},
     {nav:'agency',sub:'clientcomms', label:'AGENCY',   title:'Client Communication Templates', desc:'12 agency email templates: onboarding welcome, weekly check-in, report delivery, scope expansion, missed deadline, rate increase, renewal, and offboarding. Written in your voice.'},
@@ -2726,7 +3372,7 @@ function _OldHome({setNav,setSub}) {
           <EighthAscentLogo size={72} style={{position:'relative'}} />
         </div>
         <h1 style={{color:'#111827',fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:900,margin:'0 0 6px',letterSpacing:'-0.03em'}}>
-          {(() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null'); return wl?.agencyName ? <span style={{color:wl.primaryColor||'#2563EB'}}>{wl.agencyName}</span> : <><span>SIGNAL</span> <span style={{color:'#2563EB'}}>by Everyday Elevations</span></>; } catch { return <><span>EN-CIS</span> <span style={{color:'#2563EB'}}>Command Center</span></>; } })()}
+          {(() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null'); return wl?.agencyName ? <span style={{color:wl.primaryColor||'#2563EB'}}>{wl.agencyName}</span> : <><span>8th Ascent</span> <span style={{color:'#2563EB'}}>by Everyday Elevations</span></>; } catch { return <><span>EN-CIS</span> <span style={{color:'#2563EB'}}>Command Center</span></>; } })()}
         </h1>
         <p style={{color:'#6B7280',fontSize:14,margin:0}}>Social Media OS</p>
       </div>
@@ -3117,7 +3763,7 @@ function ContentCalendar() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="ContentCalendar SIGNAL"/>
+      <DocOutput text={out} title="ContentCalendar - 8th Ascent"/>
     </div>
   );
 }
@@ -3206,7 +3852,7 @@ function ProfileAudit() {
         </div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="ProfileAudit SIGNAL"/>
+      <DocOutput text={out} title="ProfileAudit 8th Ascent"/>
     </div>
   );
 }
@@ -3269,7 +3915,7 @@ function LeadMagnet() {
         </div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="LeadMagnet SIGNAL"/>
+      <DocOutput text={out} title="LeadMagnet 8th Ascent"/>
     </div>
   );
 }
@@ -3327,7 +3973,7 @@ function CommunityBuilder() {
         </div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="CommunityBuilder SIGNAL"/>
+      <DocOutput text={out} title="CommunityBuilder 8th Ascent"/>
     </div>
   );
 }
@@ -3587,7 +4233,7 @@ function CollabFinder() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="CollabFinder SIGNAL"/>
+      <DocOutput text={out} title="CollabFinder - 8th Ascent"/>
     </div>
   );
 }
@@ -3626,7 +4272,7 @@ function Extract() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="Extract SIGNAL"/>
+      <DocOutput text={out} title="Extract - 8th Ascent"/>
     </div>
   );
 }
@@ -3727,7 +4373,7 @@ function ScriptEngine() {
               </button>
             </div>
           </div>
-          <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+          <DocOutput text={out} title={`${topic || angle || "Content"}: 8th Ascent`}/>
         </div>
       )}
 
@@ -3773,7 +4419,7 @@ function EpisodeClips() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="EpisodeClips SIGNAL"/>
+      <DocOutput text={out} title="EpisodeClips - 8th Ascent"/>
     </div>
   );
 }
@@ -3817,7 +4463,7 @@ function RepurposeEngine() {
         </RedBtn></div>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title="RepurposeEngine SIGNAL"/>
+      <DocOutput text={out} title="Repurpose"/>
     </div>
   );
 }
@@ -3861,55 +4507,292 @@ function HookLibrary() {
         </RedBtn>
       </Card>
       {loading && <Spin/>}
-      <DocOutput text={out} title={`${topic || "Hooks"}: SIGNAL`}/>
+      <DocOutput text={out} title={`${topic || "Hooks"}: 8th Ascent`}/>
     </div>
   );
 }
 
 function DesignStudio() {
-  const [topic,setTopic] = useState('');
-  const [format,setFormat] = useState('Carousel');
-  const [angle,setAngle] = useState('emotional');
-  const [out,setOut] = useState('');
-  const [loading,setLoading] = useState(false);
+  const [activeClient] = useActiveClient();
+
+  // Inputs
+  const [topic, setTopic] = useState('');
+  const [format, setFormat] = useState('Carousel');
+  const [slideCount, setSlideCount] = useState(7);
+  const [platform, setPlatform] = useState('Instagram');
+  const [angle, setAngle] = useState('emotional');
+  const [vibe, setVibe] = useState('Bold & Minimal');
+
+  // Output
+  const [out, setOut] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const CAROUSEL_PROMPT = (topic, slideCount, platform, vibe, clientVoice) => `You are a social media content designer creating a complete carousel brief.
+
+${clientVoice ? 'CREATOR VOICE: ' + clientVoice : ''}
+TOPIC: ${topic}
+PLATFORM: ${platform}
+SLIDES: ${slideCount} slides total
+VISUAL VIBE: ${vibe}
+
+Create a complete, production-ready carousel brief. Every slide needs enough detail to hand to a designer or use in Canva directly.
+
+Format exactly like this:
+
+# ${topic}
+
+## SLIDE 1: COVER/HOOK
+**Headline:** [8 words max — stops the scroll]
+**Subhead:** [optional 1 line]
+**Visual:** [specific visual direction — color, photo type, graphic style]
+**Typography:** [font weight, size hierarchy note]
+
+## SLIDE 2: [SLIDE PURPOSE]
+**Headline:** [punchy, specific]
+**Body:** [1-2 lines max]
+**Visual:** [specific]
+
+[Continue for all ${slideCount} slides]
+
+## FINAL SLIDE: CTA
+**Headline:** [direct ask]
+**Body:** [what they get / why act now]
+**Visual:** [specific]
+**CTA Button Text:** [if applicable]
+
+---
+
+## CAPTION (ready to post)
+[Full Instagram/LinkedIn caption — hook, body, CTA. No em-dashes. Direct voice.]
+
+## HASHTAG STRATEGY
+**Niche (6):** #...
+**Mid (6):** #...
+**Broad (3):** #...
+
+---
+
+RULES:
+- Every headline must be specific, not generic
+- Visuals must be specific enough to brief a designer (not just "dark background")
+- Caption must match the creator voice above
+- No filler slides — every slide earns its place`;
+
+  const STATIC_PROMPT = (topic, platform, vibe, clientVoice) => `You are a social media content designer creating a single static post brief.
+
+${clientVoice ? 'CREATOR VOICE: ' + clientVoice : ''}
+TOPIC: ${topic}
+PLATFORM: ${platform}
+VISUAL VIBE: ${vibe}
+
+Create a complete static post brief. Format exactly like this:
+
+# ${topic}
+
+## VISUAL DESIGN
+**Headline Text:** [the words on the image — 8 words max]
+**Subhead:** [optional — 1 line]
+**Background:** [specific — photo type, color, texture, gradient]
+**Typography:** [weight, size, color, placement]
+**Accent Elements:** [icons, lines, shapes if any]
+**Overall Feel:** [3 words]
+
+## CAPTION
+[Full caption — hook, body, CTA. No em-dashes. Matches creator voice.]
+
+## HASHTAGS
+**Niche (6):** #...
+**Mid (6):** #...
+**Broad (3):** #...
+
+## STORY VERSION
+[How to adapt this to a Story format — what changes]`;
+
+  const STORY_PROMPT = (topic, slideCount, platform, vibe, clientVoice) => `You are a social media content designer creating a Story sequence brief.
+
+${clientVoice ? 'CREATOR VOICE: ' + clientVoice : ''}
+TOPIC: ${topic}
+PLATFORM: ${platform}
+FRAMES: ${slideCount} frames
+VISUAL VIBE: ${vibe}
+
+Story sequences are fast and visual. Each frame is 5-8 seconds of reading time max.
+
+Format exactly like this:
+
+# ${topic} — Story Sequence
+
+## FRAME 1: HOOK
+**Text on screen:** [max 6 words]
+**Visual:** [specific]
+**Timing note:** [e.g. "text appears after 0.5s"]
+
+[Continue for all ${slideCount} frames]
+
+## FINAL FRAME: CTA
+**Text:** [swipe up / link in bio / DM me]
+**Visual:** [specific]
+
+---
+
+## CAPTION (for the first Story frame or feed post linking to it)
+[Short caption if sharing to feed — 2-3 sentences + CTA]`;
+
   const run = async () => {
-    if(!topic) return;
-    setLoading(true); setOut('');
-    const angleLabel = ANGLES.find(a=>a.id===angle)?.label;
-    const res = await ai(DESIGN_PROMPT(topic, format, angleLabel));
-    setOut(res); setLoading(false);
+    if (!topic.trim()) return;
+    setLoading(true);
+    setOut('');
+    setError('');
+    try {
+      const clientVoice = activeClient?.voice || '';
+      let prompt;
+      if (format === 'Carousel') {
+        prompt = CAROUSEL_PROMPT(topic, slideCount, platform, vibe, clientVoice);
+      } else if (format === 'Static Post') {
+        prompt = STATIC_PROMPT(topic, platform, vibe, clientVoice);
+      } else {
+        prompt = STORY_PROMPT(topic, slideCount, platform, vibe, clientVoice);
+      }
+      const res = await ai(prompt);
+      setOut(res);
+    } catch(e) {
+      setError('Something went wrong. Try again.');
+      console.error('DesignStudio:', e);
+    }
+    setLoading(false);
   };
+
+  const formats = ['Carousel', 'Static Post', 'Story Sequence'];
+  const platforms = ['Instagram', 'LinkedIn', 'TikTok', 'Pinterest', 'X'];
+  const vibes = ['Bold & Minimal', 'Warm & Editorial', 'Dark & Premium', 'Clean & Corporate', 'Gritty & Real', 'Bright & Energetic'];
+  const slideCounts = format === 'Static Post' ? null : [5, 7, 10, 12];
+
+  const inputStyle = {
+    width: '100%', background: '#F9FAFB', border: '1px solid #E5E7EB',
+    borderRadius: 8, padding: '10px 14px', color: '#111827', fontSize: 14,
+    boxSizing: 'border-box', fontFamily: 'inherit', outline: 'none',
+  };
+
   return (
-    <div>
-      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20,flexWrap:'wrap'}}>
-        <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
-        <div><h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Design Studio</h2>
-          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Carousel + static post concepts with visual direction + captions</p></div>
-      </div>
-      <Card>
-        <SecLabel>Topic</SecLabel>
-        <input value={topic} onChange={e=>setTopic(e.target.value)}
-          placeholder="e.g. 5 signs you're ready for a mindset shift..."
-          style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',
-            borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'}}/>
-        <SecLabel>Format</SecLabel>
-        <div style={{display:'flex',gap:8,marginBottom:12}}>
-          {['Carousel','Static Post','Story Sequence'].map(f => (
-            <button key={f} onClick={()=>setFormat(f)}
-              style={{background:format===f?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',
-                borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:13,fontWeight:format===f?700:400}}>
-              {f}
-            </button>
-          ))}
+    <div style={{ maxWidth: 720, margin: '0 auto' }}>
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+        <div style={{ width: 3, height: 28, background: '#00C2FF', borderRadius: 2 }}/>
+        <div>
+          <h2 style={{ color: '#111827', margin: 0, fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>
+            Carousel Studio
+          </h2>
+          <p style={{ color: '#6B7280', margin: '3px 0 0', fontSize: 13 }}>
+            Slide briefs, captions, and hashtags — production-ready for Canva or a designer.
+          </p>
         </div>
-        <SecLabel>Content Angle</SecLabel>
-        <AngleGrid selected={angle} onSelect={setAngle}/>
-        <RedBtn onClick={run} disabled={loading||!topic}>
-          {loading?'Designing...':'Generate Design Concepts'}
-        </RedBtn>
-      </Card>
-      {loading && <Spin/>}
-      <DocOutput text={out} title={`${topic || angle || "Content"}: SIGNAL`}/>
+      </div>
+
+      <div style={{ marginTop: 20 }}>
+        <Card>
+          {/* Topic */}
+          <div style={{ marginBottom: 16 }}>
+            <SecLabel>What is this about?</SecLabel>
+            <textarea
+              value={topic}
+              onChange={e => setTopic(e.target.value)}
+              placeholder="e.g. 5 signs your discipline is actually fear in disguise..."
+              rows={2}
+              style={{ ...inputStyle, resize: 'none', lineHeight: 1.6 }}
+              onFocus={e => e.target.style.borderColor = '#00C2FF'}
+              onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+            />
+          </div>
+
+          {/* Format */}
+          <div style={{ marginBottom: 16 }}>
+            <SecLabel>Format</SecLabel>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {formats.map(f => (
+                <button key={f} onClick={() => setFormat(f)}
+                  style={{ background: format === f ? '#111827' : '#F9FAFB', color: format === f ? '#FFF' : '#374151', border: '1px solid ' + (format === f ? '#111827' : '#E5E7EB'), borderRadius: 7, padding: '7px 16px', cursor: 'pointer', fontSize: 13, fontWeight: format === f ? 700 : 400, transition: 'all 0.15s' }}>
+                  {f}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Slide count + Platform row */}
+          <div style={{ display: 'grid', gridTemplateColumns: slideCounts ? '1fr 1fr' : '1fr', gap: 12, marginBottom: 16 }}>
+            {slideCounts && (
+              <div>
+                <SecLabel>Slides</SecLabel>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {slideCounts.map(n => (
+                    <button key={n} onClick={() => setSlideCount(n)}
+                      style={{ flex: 1, background: slideCount === n ? '#111827' : '#F9FAFB', color: slideCount === n ? '#FFF' : '#374151', border: '1px solid ' + (slideCount === n ? '#111827' : '#E5E7EB'), borderRadius: 6, padding: '7px 4px', cursor: 'pointer', fontSize: 13, fontWeight: slideCount === n ? 700 : 400 }}>
+                      {n}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div>
+              <SecLabel>Platform</SecLabel>
+              <select value={platform} onChange={e => setPlatform(e.target.value)}
+                style={{ ...inputStyle, cursor: 'pointer' }}>
+                {platforms.map(p => <option key={p}>{p}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Visual vibe */}
+          <div style={{ marginBottom: 20 }}>
+            <SecLabel>Visual vibe</SecLabel>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {vibes.map(v => (
+                <button key={v} onClick={() => setVibe(v)}
+                  style={{ background: vibe === v ? '#111827' : '#F9FAFB', color: vibe === v ? '#FFF' : '#374151', border: '1px solid ' + (vibe === v ? '#111827' : '#E5E7EB'), borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontSize: 12, fontWeight: vibe === v ? 700 : 400, transition: 'all 0.15s' }}>
+                  {v}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Content angle */}
+          <div style={{ marginBottom: 20 }}>
+            <SecLabel>Content angle</SecLabel>
+            <AngleGrid selected={angle} onSelect={setAngle} />
+          </div>
+
+          <button onClick={run} disabled={loading || !topic.trim()}
+            style={{ width: '100%', background: topic.trim() ? '#111827' : '#F3F4F6', color: topic.trim() ? '#FFF' : '#9CA3AF', border: 'none', borderRadius: 10, padding: '13px', fontWeight: 800, cursor: topic.trim() ? 'pointer' : 'not-allowed', fontSize: 15, transition: 'all 0.2s' }}>
+            {loading
+              ? 'Generating...'
+              : format === 'Carousel'
+                ? `Generate ${slideCount}-Slide Carousel Brief`
+                : format === 'Static Post'
+                  ? 'Generate Static Post Brief'
+                  : `Generate ${slideCount}-Frame Story Brief`}
+          </button>
+        </Card>
+
+        {loading && (
+          <div style={{ textAlign: 'center', padding: '32px 0' }}>
+            <div style={{ width: 32, height: 32, border: '2px solid #E5E7EB', borderTopColor: '#00C2FF', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }}/>
+            <p style={{ color: '#6B7280', fontSize: 13 }}>Building your {format.toLowerCase()} brief...</p>
+          </div>
+        )}
+
+        {error && (
+          <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, padding: '12px 16px', marginTop: 16, color: '#EF4444', fontSize: 13 }}>
+            {error}
+          </div>
+        )}
+
+        {out && !loading && (
+          <div style={{ marginTop: 20 }}>
+            <DocOutput text={out} title={`${format} - ${topic.slice(0, 50)}`} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -3940,7 +4823,7 @@ function WeeklyReview() {
       const topPosts = log.filter(e => e.perf).slice(0, 5);
       if (topPosts.length) setTopContent(topPosts.map(e => `[${e.perf}] ${e.title||e.topic||'Untitled'} (${e.platform||''})`).join('\n'));
       const tests = JSON.parse(localStorage.getItem('encis_ab_tests') || '[]');
-      if (tests.length) setTestsRan(tests.slice(0,3).map(t => `${t.hypothesis}: Winner ${t.winner||'TBD'} — ${t.insight||''}`).join('\n'));
+      if (tests.length) setTestsRan(tests.slice(0,3).map(t => `${t.hypothesis}: Winner ${t.winner||'TBD'} - ${t.insight||''}`).join('\n'));
       const rev = JSON.parse(localStorage.getItem('encis_revenue') || '[]');
       if (rev.length) setRevenueData(rev.slice(0,3).map(r => `${r.source}: ${r.leads||'0'} leads, $${r.revenue||'0'}`).join('\n'));
       const spy = JSON.parse(localStorage.getItem('encis_spy_history') || '[]');
@@ -4222,7 +5105,7 @@ function useTrendAlerts() {
     try {
       const todayStr = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
 
-      // Use only 3 queries (not 8) to avoid rate limits — pick highest-value angles
+      // Use only 3 queries (not 8) to avoid rate limits - pick highest-value angles
       const angleQueries = [
         { angle: 'Occupational', q: `What career, business, real estate, or professional growth content went viral on Instagram, YouTube, or TikTok this week? Name a specific creator and post. Today is ${todayStr}.` },
         { angle: 'Physical',     q: `What fitness, health, or wellness content went viral on social media this week? Name a specific creator and post with why it performed well. Today is ${todayStr}.` },
@@ -4231,7 +5114,7 @@ function useTrendAlerts() {
 
       const newAlerts = [];
 
-      // Run SEQUENTIALLY to avoid rate limits — not Promise.all
+      // Run SEQUENTIALLY to avoid rate limits - not Promise.all
       for (let i = 0; i < angleQueries.length; i++) {
         const { angle, q } = angleQueries[i];
         try {
@@ -4242,7 +5125,7 @@ function useTrendAlerts() {
           });
 
           if (!res.ok) {
-            setApiError(`API error ${res.status} — check that PERPLEXITY_API_KEY is set in Vercel`);
+            setApiError(`API error ${res.status} - check that PERPLEXITY_API_KEY is set in Vercel`);
             break; // stop if API is broken
           }
 
@@ -4251,7 +5134,7 @@ function useTrendAlerts() {
 
           // Check for API key error in the response body
           if (raw.toLowerCase().includes('api key') || raw.toLowerCase().includes('unauthorized') || raw.toLowerCase().includes('invalid key')) {
-            setApiError('Perplexity API key missing or invalid — add PERPLEXITY_API_KEY to Vercel environment variables');
+            setApiError('Perplexity API key missing or invalid - add PERPLEXITY_API_KEY to Vercel environment variables');
             break;
           }
 
@@ -4304,7 +5187,7 @@ function useTrendAlerts() {
 
     } catch(e) {
       console.error('Trend check error:', e);
-      setApiError('Network error — ' + e.message);
+      setApiError('Network error - ' + e.message);
     }
     setLoading(false);
   };
@@ -4363,7 +5246,7 @@ function TrendAlertBanner() {
             {loading ? 'Scanning trends...' :
              apiError ? apiError :
              hasAlerts ? (preview || `${alerts.length} trend${alerts.length!==1?'s':''} found`) :
-             'No trends yet — click Refresh'}
+             'No trends yet - click Refresh'}
           </span>
           </span>
           {/* Actions */}
@@ -4573,7 +5456,7 @@ function ROIDashboard() {
               return (
                 <div key={f.k} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:12,padding:'14px 16px'}}>
                   <div style={{fontSize:11,color:'#6B7280',fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:6}}>{f.label}</div>
-                  <div style={{fontSize:26,fontWeight:800,color:'#111827',marginBottom:4}}>{latest?.[f.k] || '—'}</div>
+                  <div style={{fontSize:26,fontWeight:800,color:'#111827',marginBottom:4}}>{latest?.[f.k] || '-'}</div>
                   {g !== null && (
                     <div style={{fontSize:12,fontWeight:700,color:Number(g)>=0?'#27ae60':'#e74c3c',marginBottom:8}}>
                       {Number(g)>=0?'▲':'▼'} {Math.abs(Number(g))}% vs last week
@@ -4616,9 +5499,9 @@ function ROIDashboard() {
                     <tr key={w.id} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
                       <td style={{padding:'10px 12px',color:'#111827',fontWeight:600,whiteSpace:'nowrap'}}>{w.week}</td>
                       {['followers','reach','saves','shares','leads'].map(f => (
-                        <td key={f} style={{padding:'10px 12px',color:'rgba(255,255,255,0.75)'}}>{w[f]|| '—'}</td>
+                        <td key={f} style={{padding:'10px 12px',color:'rgba(255,255,255,0.75)'}}>{w[f]|| '-'}</td>
                       ))}
-                      <td style={{padding:'10px 12px',color:'#6B7280',maxWidth:200,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{w.notes|| '—'}</td>
+                      <td style={{padding:'10px 12px',color:'#6B7280',maxWidth:200,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{w.notes|| '-'}</td>
                       <td style={{padding:'10px 12px'}}>
                         <div style={{display:'flex',gap:6}}>
                           <button onClick={()=>{ setForm({...w}); setEditIdx(weeks.length-1-i); setShowForm(true); }}
@@ -4668,11 +5551,11 @@ function ROIDashboard() {
 // MAIN APP
 // ═════════════════════════════════════════════════════════════════════════════
 const TOP_NAV = [
-  // PRIMARY — daily use (prominent)
+  // PRIMARY - daily use (prominent)
   { id:'create',   label:'Create',   primary: true },
   { id:'discover', label:'Discover', primary: true },
   { id:'library',  label:'Library',  primary: true },
-  // SECONDARY — infrastructure (smaller)
+  // SECONDARY - infrastructure (smaller)
   { id:'brain',    label:'Brain',    primary: false },
   { id:'agents',   label:'Agents',   primary: false },
   { id:'insights', label:'Insights', primary: false },
@@ -4681,9 +5564,9 @@ const TOP_NAV = [
 const SUB_NAV = {
   // ── PRIMARY ──────────────────────────────────────────────
   create: [
-    { id:'smartbrief',   label:'Smart Brief ✦' },
-    { id:'brain',        label:'Brain Builder 🧠' },
-    { id:'learning',     label:'Learning Loop 🔁' },
+    { id:'smartbrief',   label:'Smart Brief' },
+    { id:'brain',        label:'Brain Builder' },
+    { id:'learning',     label:'Learning Loop' },
     { id:'create',       label:'Create Hub' },
     { id:'hooks',        label:'Hook Workshop' },
     { id:'captionbatch', label:'Caption Batch' },
@@ -4711,10 +5594,12 @@ const SUB_NAV = {
   ],
   // ── SECONDARY ────────────────────────────────────────────
   brain: [
-    { id:'dualonboard',   label:'New Client Setup ✦' },
+    { id:'dualonboard',   label:'New Client Setup' },
     { id:'onboard',      label:'Strategy Builder' },
     { id:'clients',      label:'Client Profiles' },
     { id:'voice',        label:'Voice Fingerprint' },
+    { id:'brainverify',   label:'Brain Verification' },
+    { id:'whitelabel',    label:'White Label' },
     { id:'persona',      label:'AI Persona' },
     { id:'calendar',     label:'Content Calendar' },
     { id:'visualcal',    label:'Visual Calendar' },
@@ -4879,7 +5764,7 @@ function CaptionWriter() {
               </button>
             </div>
           </div>
-          <DocOutput text={out} title={`${topic || angle || "Content"} : SIGNAL`}/>
+          <DocOutput text={out} title={`${topic || angle || "Content"} : 8th Ascent`}/>
         </div>
       )}
       {teleprompter && <Teleprompter text={out} onClose={() => setTeleprompter(false)}/>}
@@ -4996,7 +5881,7 @@ For each day: Platform, Content Type, Best Time to Post, Why (based on data)
         </RedBtn>
       </Card>
       {loading && <Spin/>}
-      {out && <DocOutput text={out} title="SIGNAL Strategy Document"/>}
+      {out && <DocOutput text={out} title="8th Ascent Strategy Document"/>}
     </div>
   );
 }
@@ -5134,7 +6019,7 @@ ${summary}
         </RedBtn>
       </Card>
       {loading && <Spin/>}
-      {out && <DocOutput text={out} title="SIGNAL Strategy Document"/>}
+      {out && <DocOutput text={out} title="8th Ascent Strategy Document"/>}
     </div>
   );
 }
@@ -6033,7 +6918,7 @@ function PodcastPreProd() {
         </div>
       </Card>
       {loading && <Spin/>}
-      {out && <DocOutput text={out} title="SIGNAL Strategy Document"/>}
+      {out && <DocOutput text={out} title="8th Ascent Strategy Document"/>}
     </div>
   );
 }
@@ -6065,7 +6950,7 @@ CONTENT STRATEGY FROM OUTLIER DATA:
 - Low outliers do NOT delete : compare to high outliers and identify the specific difference
 - More variety early = more data = faster discovery of channel superpowers
 
-PERFORMANCE SIGNALS THAT MATTER MOST (in order):
+PERFORMANCE METRICS THAT MATTER MOST (in order):
 1. Click-through rate (CTR) : title + thumbnail combo
 2. Average view duration : hook and content quality
 3. Subscriber conversion rate : are viewers becoming fans
@@ -7148,7 +8033,7 @@ function CompetitorSpy() {
       </Card>
 
       {loading && <Spin/>}
-      {out && <DocOutput text={out} title="SIGNAL Strategy Document"/>}
+      {out && <DocOutput text={out} title="8th Ascent Strategy Document"/>}
 
       {/* Recent spy history */}
       {history.length > 0 && (
@@ -7610,7 +8495,7 @@ Write a complete, professional monthly report. This goes directly to the client.
 
 # ${client.name}: Monthly Performance Report
 ## ${month}
-Prepared by SIGNAL Social Media OS
+Prepared by 8th Ascent
 
 ---
 
@@ -7835,7 +8720,7 @@ function DeliverableBuilder() {
             return (
               <button key={c.id} onClick={()=>setSelectedClient(c)}
                 style={{background:selectedClient?.id===c.id?'#2563EB':'rgba(255,255,255,0.07)',color:'#111827',border:`1px solid ${selectedClient?.id===c.id?'#2563EB':'rgba(255,255,255,0.1)'}`,borderRadius:8,padding:'7px 14px',cursor:'pointer',fontSize:12,fontWeight:selectedClient?.id===c.id?700:400,display:'flex',alignItems:'center',gap:5}}>
-                {c.name} {hasFp && <span style={{fontSize:10,color:selectedClient?.id===c.id?'rgba(255,255,255,0.8)':'rgba(0,212,255,0.7)'}}>🧬</span>}
+                {c.name} {hasFp && <span style={{fontSize:10,color:selectedClient?.id===c.id?'rgba(255,255,255,0.8)':'rgba(0,212,255,0.7)'}}></span>}
               </button>
             );
           })}
@@ -7870,7 +8755,7 @@ function DeliverableBuilder() {
           <DocOutput text={out} title={`${selectedClient?.name} - ${delivTypes.find(d=>d.id===delivType)?.label}`}/>
           <ApprovalLinkGenerator
             content={out}
-            title={`${delivTypes.find(d=>d.id===delivType)?.label || delivType} — ${selectedClient?.name}`}
+            title={`${delivTypes.find(d=>d.id===delivType)?.label || delivType} - ${selectedClient?.name}`}
             clientName={selectedClient?.name}
           />
         </div>
@@ -8627,7 +9512,7 @@ function WhiteLabelMode() {
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>White Label Mode</h2>
-          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Rebrand the app with your agency name, colors, and logo. Your clients see your brand, not SIGNAL.</p>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Rebrand the app with your agency name, colors, and logo. Your clients see your brand, not 8th Ascent.</p>
         </div>
       </div>
 
@@ -8677,8 +9562,8 @@ function WhiteLabelMode() {
             {form.hidePoweredBy && <span style={{color:'#fff',fontSize:12}}>✓</span>}
           </div>
           <div>
-            <div style={{color:'#111827',fontSize:13,fontWeight:600}}>Hide "Powered by SIGNAL"</div>
-            <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>Remove all SIGNAL references. Show only your agency branding.</div>
+            <div style={{color:'#111827',fontSize:13,fontWeight:600}}>Hide "Powered by 8th Ascent"</div>
+            <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>Remove all 8th Ascent references. Show only your agency branding.</div>
           </div>
         </div>
 
@@ -9000,7 +9885,7 @@ function CustomPersona() {
 // ═════════════════════════════════════════════════════════════════════════════
 function CustomAnglesManager({ client, onClose }) {
   const [data, setData] = useState({ mode: 'swarbrick', angles: [] });
-  const [newAngle, setNewAngle] = useState({ label: '', emoji: '📌', desc: '' });
+  const [newAngle, setNewAngle] = useState({ label: '', emoji: '', desc: '' });
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -9023,9 +9908,9 @@ function CustomAnglesManager({ client, onClose }) {
 
   const addAngle = () => {
     if (!newAngle.label.trim()) return;
-    const angle = { id: 'custom_' + Date.now(), label: newAngle.label.trim(), emoji: newAngle.emoji || '📌', desc: newAngle.desc.trim(), custom: true };
+    const angle = { id: 'custom_' + Date.now(), label: newAngle.label.trim(), emoji: newAngle.emoji || '', desc: newAngle.desc.trim(), custom: true };
     save({ ...data, angles: [...data.angles, angle] });
-    setNewAngle({ label: '', emoji: '📌', desc: '' });
+    setNewAngle({ label: '', emoji: '', desc: '' });
   };
 
   const removeAngle = (id) => save({ ...data, angles: data.angles.filter(a => a.id !== id) });
@@ -9036,7 +9921,7 @@ function CustomAnglesManager({ client, onClose }) {
     { id: 'both', label: 'Both', desc: 'Show Swarbrick dimensions plus custom angles. More options in every tool.' },
   ];
 
-  const emojis = ['📌','🎯','💡','','⚡','🌟','💰','🏆','🎬','📱','🤝','🧩','🌿','🏠','🎤','📚','💪','🧠','❤️','🌐'];
+  const emojis = ['','🎯','','','','','💰','🏆','🎬','','🤝','🧩','','🏠','🎤','📚','💪','🧠','❤️',''];
 
   return (
     <div style={{background:'rgba(0,0,0,0.6)',position:'fixed',inset:0,zIndex:999,display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
@@ -9471,7 +10356,7 @@ function AnalyticsHub() {
         <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Analytics Import Hub</h2>
-          <p style={{color:'#374151',margin:'4px 0 0',fontSize:13}}>Export from any platform for free. Import here. SIGNAL turns raw CSV data into actionable intelligence.</p>
+          <p style={{color:'#374151',margin:'4px 0 0',fontSize:13}}>Export from any platform for free. Import here. 8th Ascent turns raw CSV data into actionable intelligence.</p>
         </div>
       </div>
 
@@ -9546,7 +10431,7 @@ function AnalyticsHub() {
               style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px',cursor:'pointer'}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                 <div>
-                  <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{imp.platform} — {imp.clientName}</div>
+                  <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{imp.platform} - {imp.clientName}</div>
                   <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>{imp.period} · {new Date(imp.importedAt).toLocaleDateString()}</div>
                 </div>
                 <span style={{color:'rgba(0,194,255,0.6)',fontSize:11}}>View →</span>
@@ -9714,7 +10599,7 @@ function VisualCalendar() {
       {showForm && selectedDate && (
         <Card>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-            <div style={{color:'#111827',fontWeight:700,fontSize:14}}>Add Post — {new Date(selectedDate+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</div>
+            <div style={{color:'#111827',fontWeight:700,fontSize:14}}>Add Post - {new Date(selectedDate+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</div>
             <button onClick={()=>setShowForm(false)} style={{background:'#FFFFFF',border:'none',color:'#6B7280',borderRadius:6,padding:'4px 10px',cursor:'pointer',fontSize:12}}>Close</button>
           </div>
 
@@ -9754,7 +10639,7 @@ function VisualCalendar() {
       )}
 
       <div style={{marginTop:16,background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px 16px',fontSize:12,color:'#6B7280',lineHeight:1.8}}>
-        <strong style={{color:'#374151'}}>Free scheduling workflow:</strong> Plan here Export CSV Upload to Meta Business Suite (free, schedules Instagram + Facebook) or copy content to YouTube Studio, LinkedIn, or any scheduler. SIGNAL handles the strategy and planning layer.
+        <strong style={{color:'#374151'}}>Free scheduling workflow:</strong> Plan here Export CSV Upload to Meta Business Suite (free, schedules Instagram + Facebook) or copy content to YouTube Studio, LinkedIn, or any scheduler. 8th Ascent handles the strategy and planning layer.
       </div>
     </div>
   );
@@ -9910,7 +10795,7 @@ function AIStrategyReview() {
           {reviews.length===0&&<div style={{textAlign:'center',padding:'3rem',color:'#6B7280'}}>No reviews yet.</div>}
           {reviews.map(r=>(
             <div key={r.id} onClick={()=>{setOut(r.analysis);setTab('view');}} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px',cursor:'pointer'}}>
-              <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{r.clientName} — {r.period}</div>
+              <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{r.clientName} - {r.period}</div>
               <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>Generated {new Date(r.generatedAt).toLocaleDateString()}</div>
             </div>
           ))}
@@ -10050,7 +10935,7 @@ STYLE: ${style}
 Generate a complete, self-contained HTML bio link page. This is the page behind their link-in-bio.
 Requirements:
 - Mobile-first, looks premium on phone
-- Dark background matching SIGNAL aesthetic (#080D14 base)
+- Dark background matching 8th Ascent aesthetic (#080D14 base)
 - Profile section with name, handle, and one-line description
 - Clean link buttons with icons for each platform/CTA
 - Email capture section with lead magnet hook
@@ -10066,10 +10951,10 @@ function BioLinkBuilder() {
   const [subtext, setSubtext] = useState('');
   const [links, setLinks] = useState([
     { id:1, label:'Follow on Instagram', url:'https://instagram.com/everydayelevations', icon:'📸' },
-    { id:2, label:'Listen to the Podcast', url:'https://everydayelevations.com/podcast', icon:'🎙️' },
+    { id:2, label:'Listen to the Podcast', url:'https://everydayelevations.com/podcast', icon:'️' },
     { id:3, label:'Colorado Real Estate', url:'https://frickasellscolorado.com', icon:'🏠' },
   ]);
-  const [newLink, setNewLink] = useState({ label:'', url:'', icon:'🔗' });
+  const [newLink, setNewLink] = useState({ label:'', url:'', icon:'' });
   const [style, setStyle] = useState('Midnight Premium');
   const [out, setOut] = useState('');
   const [loading, setLoading] = useState(false);
@@ -10080,7 +10965,7 @@ function BioLinkBuilder() {
   const addLink = () => {
     if (!newLink.label || !newLink.url) return;
     setLinks(prev => [...prev, { ...newLink, id: Date.now() }]);
-    setNewLink({ label:'', url:'', icon:'🔗' });
+    setNewLink({ label:'', url:'', icon:'' });
   };
 
   const removeLink = (id) => setLinks(prev => prev.filter(l => l.id !== id));
@@ -10089,7 +10974,7 @@ function BioLinkBuilder() {
     if (!selectedClient) return;
     setLoading(true); setOut('');
     const linkList = links.map(l => `${l.icon} ${l.label}: ${l.url}`).join('\n');
-    const res = await ai(BIOLINK_PROMPT(selectedClient, linkList, headline || `${selectedClient.name} — ${selectedClient.handle}`, subtext, style), 'You build bio link pages. Return only raw HTML starting with <!DOCTYPE html>.');
+    const res = await ai(BIOLINK_PROMPT(selectedClient, linkList, headline || `${selectedClient.name} - ${selectedClient.handle}`, subtext, style), 'You build bio link pages. Return only raw HTML starting with <!DOCTYPE html>.');
     const html = res.replace(/```html|```/g, '').trim();
     setOut(html);
     setLoading(false);
@@ -10105,7 +10990,7 @@ function BioLinkBuilder() {
   };
 
   const styles = ['Midnight Premium', 'Clean Minimal', 'Bold Dark', 'Warm Creator'];
-  const iconOptions = ['🔗','📸','▶️','💼','🏠','🎙️','📧','🤝','🏆','📱','🌐','💰','','📚','🎯'];
+  const iconOptions = ['','📸','▶️','','🏠','️','📧','🤝','🏆','','','💰','','📚','🎯'];
 
   return (
     <div>
@@ -10125,7 +11010,7 @@ function BioLinkBuilder() {
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
           <div>
             <SecLabel>Page Headline</SecLabel>
-            <input value={headline} onChange={e=>setHeadline(e.target.value)} placeholder={`${selectedClient?.name || 'Name'} — ${selectedClient?.handle || '@handle'}`}
+            <input value={headline} onChange={e=>setHeadline(e.target.value)} placeholder={`${selectedClient?.name || 'Name'} - ${selectedClient?.handle || '@handle'}`}
               style={{width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
           </div>
           <div>
@@ -10195,7 +11080,7 @@ function BioLinkBuilder() {
 const COMM_TEMPLATES_PROMPT = (client, templateType, context, agencyName) => `
 ${VOICE}
 
-AGENCY: ${agencyName || 'Everyday Elevations / SIGNAL'}
+AGENCY: ${agencyName || 'Everyday Elevations / 8th Ascent'}
 CLIENT: ${client.name} (${client.handle})
 TEMPLATE TYPE: ${templateType}
 ADDITIONAL CONTEXT: ${context || 'None'}
@@ -10283,7 +11168,7 @@ function ClientCommsTemplates() {
         <RedBtn onClick={run} disabled={loading||!selectedClient||!templateType}>{loading?'Writing...':'Write Communication'}</RedBtn>
       </Card>
       {loading&&<Spin/>}
-      {out && <DocOutput text={out} title={`${templates.find(t=>t.id===templateType)?.label} — ${selectedClient?.name}`}/>}
+      {out && <DocOutput text={out} title={`${templates.find(t=>t.id===templateType)?.label} - ${selectedClient?.name}`}/>}
     </div>
   );
 }
@@ -10463,7 +11348,7 @@ function HashtagResearch() {
         <span style={{fontSize:32}}>##</span>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Hashtag Research</h2>
-          <p style={{color:'#374151',margin:'4px 0 0',fontSize:13}}>Perplexity pulls live hashtag data. SIGNAL builds a tiered strategy with a copy-paste ready stack and rotation plan.</p>
+          <p style={{color:'#374151',margin:'4px 0 0',fontSize:13}}>Perplexity pulls live hashtag data. 8th Ascent builds a tiered strategy with a copy-paste ready stack and rotation plan.</p>
         </div>
       </div>
       <Card>
@@ -10727,7 +11612,7 @@ function BioOptimizer() {
         </RedBtn>
       </Card>
       {loading&&<Spin/>}
-      {out&&<DocOutput text={out} title={`Bio Optimization: ${selectedClient?.name} — ${platform}`}/>}
+      {out&&<DocOutput text={out} title={`Bio Optimization: ${selectedClient?.name} - ${platform}`}/>}
     </div>
   );
 }
@@ -11274,7 +12159,7 @@ function ABTestTracker() {
           <div style={{width:3,height:28,background:"#00C2FF",borderRadius:2,flexShrink:0}}/>
           <div>
             <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>A/B Test Tracker</h2>
-            <p style={{color:'#374151',margin:'4px 0 0',fontSize:13}}>Log content variations, track winners, and let SIGNAL find the patterns in what works.</p>
+            <p style={{color:'#374151',margin:'4px 0 0',fontSize:13}}>Log content variations, track winners, and let 8th Ascent find the patterns in what works.</p>
           </div>
         </div>
         <div style={{display:'flex',gap:8}}>
@@ -11401,7 +12286,7 @@ Platform: ${platform}
 
 Execute this viral format completely. Write the full script, caption, and hook. Make it feel native to the format and the platform.
 
-# ${format.name} — ${platform}
+# ${format.name} - ${platform}
 
 ## Why This Format Works
 The psychological mechanism behind why this format performs. What makes people watch, save, or share.
@@ -11772,7 +12657,7 @@ function AutoVoiceUpdateBanner({ activeClient }) {
           Voice fingerprint can be updated
         </div>
         <div style={{ color: '#6B7280', fontSize: 11, marginTop: 2 }}>
-          {pendingUpdate.length} viral pieces rated since last update for {activeClient.name}. SIGNAL can extract the patterns that made them work.
+          {pendingUpdate.length} viral pieces rated since last update for {activeClient.name}. 8th Ascent can extract the patterns that made them work.
         </div>
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
@@ -11854,8 +12739,8 @@ function OnboardingFlow({ onComplete }) {
 
   const steps = [
     {
-      title: "Welcome to SIGNAL",
-      sub: "The last social media tool you'll need. Let's get you set up in 2 minutes.",
+      title: "Welcome to 8th Ascent",
+      sub: "The content intelligence platform thatl you'll need. Let's get you set up in 2 minutes.",
       content: (
         <div style={{ textAlign: 'center', padding: '20px 0' }}>
           <div style={{
@@ -11863,9 +12748,9 @@ function OnboardingFlow({ onComplete }) {
             background: 'linear-gradient(135deg, #00C2FF, #0096CC)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 20px', fontSize: 36, boxShadow: '0 0 40px rgba(0,194,255,0.3)'
-          }}>⚡</div>
+          }}></div>
           <p style={{ color: '#374151', fontSize: 14, lineHeight: 1.8, maxWidth: 380, margin: '0 auto' }}>
-            SIGNAL is pre-loaded with your brand identity, voice, and goals. Every tool knows who you are before you start.
+            8th Ascent is pre-loaded with your brand identity, voice, and goals. Every tool knows who you are before you start.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, marginTop: 28 }}>
             {[['60', 'Tools'], ['0', 'Subscriptions\nNeeded'], ['AI', 'Powered']].map(([n, l]) => (
@@ -11880,7 +12765,7 @@ function OnboardingFlow({ onComplete }) {
     },
     {
       title: "Your Brand",
-      sub: "Tell SIGNAL who you are. This gets injected into every tool automatically.",
+      sub: "Tell 8th Ascent who you are. This gets injected into every tool automatically.",
       content: (
         <div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
@@ -11917,7 +12802,7 @@ function OnboardingFlow({ onComplete }) {
     },
     {
       title: "Your Voice",
-      sub: "How do you actually talk? Three sentences is enough. This is what separates SIGNAL from every other AI tool.",
+      sub: "How do you actually talk? Three sentences is enough. This is what separates 8th Ascent from every other AI tool.",
       content: (
         <div>
           <div style={{ background: 'rgba(0,194,255,0.06)', border: '1px solid #D1D5DB', borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 12, color: 'rgba(0,194,255,0.8)', lineHeight: 1.7 }}>
@@ -11940,7 +12825,7 @@ function OnboardingFlow({ onComplete }) {
     },
     {
       title: "You're ready.",
-      sub: "SIGNAL knows who you are. Every tool is pre-loaded with your context.",
+      sub: "8th Ascent knows who you are. Every tool is pre-loaded with your context.",
       content: (
         <div style={{ textAlign: 'center', padding: '10px 0' }}>
           
@@ -12021,7 +12906,7 @@ function OnboardingFlow({ onComplete }) {
               )}
               <button onClick={step === steps.length - 1 ? finish : next}
                 style={{ background: 'linear-gradient(135deg, #00C2FF, #0096CC)', color: '#000D1A', border: 'none', borderRadius: 10, padding: '10px 24px', fontWeight: 800, cursor: 'pointer', fontSize: 14, boxShadow: '0 0 20px rgba(0,194,255,0.3)' }}>
-                {step === steps.length - 1 ? 'Start Using SIGNAL →' : 'Continue →'}
+                {step === steps.length - 1 ? 'Start Using 8th Ascent →' : 'Continue →'}
               </button>
             </div>
           </div>
@@ -12054,7 +12939,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
   const [realityCheckDue, setRealityCheckDue] = React.useState(null);
   const [greeting, setGreeting] = React.useState('Good morning');
 
-  // Story prompts — rotates daily
+  // Story prompts - rotates daily
   const STORY_PROMPTS = [
     "What happened at work this week that most people would not have the stomach for?",
     "What did you get wrong recently that you now see clearly?",
@@ -12072,7 +12957,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
     const h = new Date().getHours();
     setGreeting(h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening');
 
-    // Pick story prompt — rotates by day of year
+    // Pick story prompt - rotates by day of year
     const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
     setStoryPrompt(STORY_PROMPTS[dayOfYear % STORY_PROMPTS.length]);
 
@@ -12107,7 +12992,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
       const winner = recent.find(c => c.notes && (c.notes.includes('winner') || c.notes.includes('outperformed')));
       setTopWinner(winner || null);
 
-      // Brain health — stale pillars
+      // Brain health - stale pillars
       const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
       setBrainSeeded((allStories[clientId] || []).length >= 3);
 
@@ -12223,7 +13108,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
             <div>
               <div style={{ color: C.accent, fontWeight: 700, fontSize: 13 }}>48hr check-in</div>
               <div style={{ color: C.muted, fontSize: 12, marginTop: 2 }}>
-                "{(realityCheckDue.topic || '').slice(0, 55)}{(realityCheckDue.topic || '').length > 55 ? '...' : ''}" — did this outperform?
+                "{(realityCheckDue.topic || '').slice(0, 55)}{(realityCheckDue.topic || '').length > 55 ? '...' : ''}" - did this outperform?
               </div>
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
@@ -12263,7 +13148,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
                 <div style={{ color: C.muted, fontSize: 12 }}>3 fields. Quality-checked. Ready to post.</div>
               </div>
             )}
-            <div style={{ marginTop: 12, color: C.accent, fontSize: 12, fontWeight: 700 }}>Create → Smart Brief ✦ →</div>
+            <div style={{ marginTop: 12, color: C.accent, fontSize: 12, fontWeight: 700 }}>Create → Smart Brief →</div>
           </Card>
 
           {/* Q2: What needs review? */}
@@ -12342,7 +13227,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
         {/* ── STORY PROMPT OF THE DAY ── */}
         <Card style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-            <div style={{ fontSize: 22, flexShrink: 0, marginTop: 2 }}>✍️</div>
+            <div style={{ fontSize: 22, flexShrink: 0, marginTop: 2 }}></div>
             <div style={{ flex: 1 }}>
               <SectionLabel>Story prompt of the day</SectionLabel>
               <div style={{ color: C.text, fontSize: 14, fontWeight: 600, lineHeight: 1.6, marginBottom: 12 }}>
@@ -12406,10 +13291,10 @@ function IntelligenceDashboard({ setNav, setSub }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               {[
                 { label: 'Smart Brief', sub: 'Create your next piece', nav: 'create', subnav: 'smartbrief', icon: '✦' },
-                { label: 'Trend Monitor', sub: 'See what is viral now', nav: 'agents', subnav: 'trendmonitor', icon: '📡' },
+                { label: 'Trend Monitor', sub: 'See what is viral now', nav: 'agents', subnav: 'trendmonitor', icon: '' },
                 { label: 'Brain Builder', sub: 'Add a story or check health', nav: 'create', subnav: 'brain', icon: '🧠' },
                 { label: 'Learning Loop', sub: 'Extract winner patterns', nav: 'create', subnav: 'learning', icon: '🔁' },
-                { label: 'New Client Setup', sub: 'Upload intake or guided', nav: 'brain', subnav: 'dualonboard', icon: '📄' },
+                { label: 'New Client Setup', sub: 'Upload intake or guided', nav: 'brain', subnav: 'dualonboard', icon: '' },
               ].map((a, i) => (
                 <button key={i} onClick={() => go(a.nav, a.subnav)}
                   style={{ background: '#F9FAFB', border: '1px solid ' + C.border, borderRadius: 8, padding: '9px 12px', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 10, transition: 'border-color 0.15s' }}
@@ -12485,7 +13370,7 @@ function useTrendNotifications() {
 
   const notifyTrendAlerts = (alertCount, topAngle) => {
     sendNotification(
-      ` ${alertCount} new trend alert${alertCount !== 1 ? 's' : ''} SIGNAL`,
+      ` ${alertCount} new trend alert${alertCount !== 1 ? 's' : ''} - 8th Ascent`,
       `${topAngle || 'Multiple angles'} trending right now. Check before it peaks.`
     );
   };
@@ -12539,8 +13424,8 @@ function useMonthlyReportEmail() {
       .replace(/\n{3,}/g, '\n\n')
       .trim();
 
-    const subject = encodeURIComponent(`${agencyName || 'SIGNAL'} Monthly Report for ${clientName} — ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`);
-    const body = encodeURIComponent(`Hi ${clientName},\n\nYour monthly performance report is below.\n\n---\n\n${plain.slice(0, 2000)}\n\n[Full report attached as PDF]\n\n---\n\nBest,\n${agencyName || 'SIGNAL'}`);
+    const subject = encodeURIComponent(`${agencyName || '8th Ascent'} Monthly Report for ${clientName} - ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`);
+    const body = encodeURIComponent(`Hi ${clientName},\n\nYour monthly performance report is below.\n\n---\n\n${plain.slice(0, 2000)}\n\n[Full report attached as PDF]\n\n---\n\nBest,\n${agencyName || '8th Ascent'}`);
 
     // Copy full report to clipboard
     try { navigator.clipboard.writeText(reportMarkdown); } catch {}
@@ -12602,7 +13487,7 @@ function ApprovalLinkGenerator({ content: delivContent, title, clientName }) {
         client: clientName || "Client",
         content: delivContent,
         created: new Date().toISOString(),
-        agency: (() => { try { const wl = JSON.parse(localStorage.getItem("encis_whitelabel")||"null"); return (wl && wl.agencyName) ? wl.agencyName : "SIGNAL"; } catch { return "SIGNAL"; } })(),
+        agency: (() => { try { const wl = JSON.parse(localStorage.getItem("encis_whitelabel")||"null"); return (wl && wl.agencyName) ? wl.agencyName : "8th Ascent"; } catch { return "8th Ascent"; } })(),
       });
       const encoded = btoa(unescape(encodeURIComponent(payload)));
       return window.location.origin + window.location.pathname + "#approval=" + encoded;
@@ -12685,7 +13570,7 @@ function ApprovalPage({ encodedPayload, onBack }) {
   if (!payload) return (
     <div style={{ minHeight: "100vh", background: "#080D14", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div style={{ color: '#111827', textAlign: "center" }}>
-        <div style={{ fontSize: 32, marginBottom: 12 }}>⚠️</div>
+        <div style={{ fontSize: 32, marginBottom: 12 }}>!</div>
         <div style={{ fontSize: 16, fontWeight: 700 }}>Invalid approval link</div>
         <div style={{ color: '#6B7280', fontSize: 13, marginTop: 8 }}>This link may have expired or been corrupted.</div>
       </div>
@@ -12898,7 +13783,7 @@ function ContentBriefGenerator() {
         </button>
       </Card>
       {loading && <Spin/>}
-      {out && <DocOutput text={out} title={"Filming Brief: " + (selectedClient?.name || 'Session') + " — " + (sessionDate || 'Upcoming')}/>}
+      {out && <DocOutput text={out} title={"Filming Brief: " + (selectedClient?.name || 'Session') + " - " + (sessionDate || 'Upcoming')}/>}
     </div>
   );
 }
@@ -12971,21 +13856,21 @@ function ContentCreationHub() {
 CREATOR PROFILE:
 ${client?.voice || ''}
 Platform: ${platform} | Format: ${topicLength} | Dimension: ${topicAngle}
-${topicSeed ? 'Seed topic: "' + topicSeed + '"' : 'No seed — mix freely across all areas of Jason\'s life.'}
+${topicSeed ? 'Seed topic: "' + topicSeed + '"' : 'No seed - mix freely across all areas of Jason\'s life.'}
 
-JASON'S LIFE TERRITORIES — pull ideas from ALL of these and mix them:
+JASON'S LIFE TERRITORIES - pull ideas from ALL of these and mix them:
 
-HR & WORKPLACE (primary career — use heavily):
-HR Manager at a cabinet manufacturing company in Colorado. Daily: benefits, ADA compliance, terminations, hiring, policy enforcement, workers comp, manager training, difficult employee conversations. He's the person everyone goes to when work goes wrong. He sees human behavior under real pressure — people afraid of losing their jobs, managers who get it wrong, the gap between policy and human reality. Rich, underserved content territory.
+HR & WORKPLACE (primary career - use heavily):
+HR Manager at a cabinet manufacturing company in Colorado. Daily: benefits, ADA compliance, terminations, hiring, policy enforcement, workers comp, manager training, difficult employee conversations. He's the person everyone goes to when work goes wrong. He sees human behavior under real pressure - people afraid of losing their jobs, managers who get it wrong, the gap between policy and human reality. Rich, underserved content territory.
 
 REAL ESTATE:
 Licensed agent, South Denver/Parker. Veterans, families, first-time buyers, VA loans. The real cost of homeownership vs expectations. One RE idea max per run unless seed topic says otherwise.
 
 AI IMPLEMENTATION:
-Actively building AI tools across his HR role, real estate business, and content creation. The unglamorous reality of learning AI as a non-developer — what works, what doesn't, what AI cannot replace in human judgment and relationships.
+Actively building AI tools across his HR role, real estate business, and content creation. The unglamorous reality of learning AI as a non-developer - what works, what doesn't, what AI cannot replace in human judgment and relationships.
 
 ENDURANCE & PHYSICAL DISCIPLINE:
-Training toward RAGBRAI, 10Ks, bigger endurance goals. Not gym motivation — the raw reality of staying physically disciplined when exhausted from full-time career, side business, and fatherhood.
+Training toward RAGBRAI, 10Ks, bigger endurance goals. Not gym motivation - the raw reality of staying physically disciplined when exhausted from full-time career, side business, and fatherhood.
 
 FATHERHOOD & FAMILY:
 Dad to Jordan, partner to Lisa. Carrying responsibility for a family while building toward your own goals. The tension between being the person others depend on and still growing yourself.
@@ -12994,14 +13879,14 @@ VETERAN IDENTITY:
 What military service built that still runs in the background. The civilian transition, identity shift, what veterans carry that most people don't see.
 
 PODCAST & PERSONAL GROWTH (Everyday Elevations):
-Practical growth — not aspirational. Small daily choices that compound. The gap between what self-help promises and what actually moves the needle in a real, complicated life.
+Practical growth - not aspirational. Small daily choices that compound. The gap between what self-help promises and what actually moves the needle in a real, complicated life.
 
 DIMENSION FOCUS: ${topicAngle}
-${topicAngle==='Emotional'?'Stress, self-talk, identity, managing pressure across HR/real estate/family simultaneously, what Jason feels vs projects':topicAngle==='Physical'?'Training at 5am with a full life, recovery, the relationship between physical discipline and mental state, what consistency actually costs':topicAngle==='Social'?'Being a dad, a partner, an HR manager who sees people at their most raw — how you show up for others when you have little left':topicAngle==='Intellectual'?'AI tools being built right now, what HR teaches about human nature, problem-solving under pressure, what experience reveals that no course teaches':topicAngle==='Occupational'?'The daily HR reality, building a real estate side business, implementing AI at work, what multiple demanding roles cost day-to-day':topicAngle==='Financial'?'Real estate as a long-game vehicle, what HR salary negotiations reveal, building across multiple income streams, real math not hype':topicAngle==='Environmental'?'Colorado life, training outdoors, the environment you create at home and work and how it shapes who you become':topicAngle==='Spiritual'?'Purpose and values — the deeper reason behind the discipline, what Jason is building, for whom, why it demands this level of consistency':'The deeper reason behind the discipline — what he is actually building, for whom, why it requires this level of consistency'}
+${topicAngle==='Emotional'?'Stress, self-talk, identity, managing pressure across HR/real estate/family simultaneously, what Jason feels vs projects':topicAngle==='Physical'?'Training at 5am with a full life, recovery, the relationship between physical discipline and mental state, what consistency actually costs':topicAngle==='Social'?'Being a dad, a partner, an HR manager who sees people at their most raw - how you show up for others when you have little left':topicAngle==='Intellectual'?'AI tools being built right now, what HR teaches about human nature, problem-solving under pressure, what experience reveals that no course teaches':topicAngle==='Occupational'?'The daily HR reality, building a real estate side business, implementing AI at work, what multiple demanding roles cost day-to-day':topicAngle==='Financial'?'Real estate as a long-game vehicle, what HR salary negotiations reveal, building across multiple income streams, real math not hype':topicAngle==='Environmental'?'Colorado life, training outdoors, the environment you create at home and work and how it shapes who you become':topicAngle==='Spiritual'?'Purpose and values - the deeper reason behind the discipline, what Jason is building, for whom, why it demands this level of consistency':'The deeper reason behind the discipline - what he is actually building, for whom, why it requires this level of consistency'}
 
 IDEA REQUIREMENTS:
 Grounded in specific real moments, not concepts or general wisdom.
-  Good: "I had to terminate someone last week who cried in my office — and I still think it was right"
+  Good: "I had to terminate someone last week who cried in my office - and I still think it was right"
   Bad: "Why HR managers are underrated"
 Relatable over provocative. Goal: viewer says "I've felt that" or "I didn't know that."
 Integrated when powerful: HR + fatherhood, AI + real estate, endurance + work ethic, veteran + discipline.
@@ -13009,7 +13894,7 @@ Varied formats: story/confession, lesson/breakdown, hard truth, day-in-my-life, 
 No generic wellness content. No manufactured drama. No "secrets they don't want you to know."
 
 OUTPUT: Numbered list 1-5 only. One per line.
-Format: [First words spoken on camera — the hook] — [What the video covers and why it resonates]
+Format: [First words spoken on camera - the hook] - [What the video covers and why it resonates]
 Vary territories across the 5 ideas. No more than one real estate idea. Ground every idea in lived reality.`;
 
     const res = await ai(prompt);
@@ -13021,7 +13906,7 @@ Vary territories across the 5 ideas. No more than one real estate idea. Ground e
     setTopicLoading(false);
   };
 
-  // When user picks an idea — auto-populate topic and switch to Script
+  // When user picks an idea - auto-populate topic and switch to Script
   const selectIdea = (idea) => {
     setSelectedIdea(idea);
     setTopic(idea);
@@ -13049,7 +13934,7 @@ Vary territories across the 5 ideas. No more than one real estate idea. Ground e
   };
 
   const MODES = [
-    { id:'topics',    label:'Topic Generator', desc:'Start here — get ideas', isStart: true },
+    { id:'topics',    label:'Topic Generator', desc:'Start here - get ideas', isStart: true },
     { id:'script',    label:'Script',           desc:'Camera-ready scripts' },
     { id:'caption',   label:'Caption',          desc:'Platform captions' },
     { id:'batch',     label:'Batch',            desc:'Multiple posts at once' },
@@ -13067,7 +13952,7 @@ Vary territories across the 5 ideas. No more than one real estate idea. Ground e
         <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Content Creation Hub</h2>
-          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Generate ideas, then create — scripts, captions, batches, and more.</p>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Generate ideas, then create - scripts, captions, batches, and more.</p>
         </div>
       </div>
 
@@ -13394,7 +14279,7 @@ Vary territories across the 5 ideas. No more than one real estate idea. Ground e
       )}
 
       {loading && <Spin/>}
-      {out && <DocOutput text={out} title={MODES.find(m2=>m2.id===mode)?.label + ' — SIGNAL'}/>}
+      {out && <DocOutput text={out} title={MODES.find(m2=>m2.id===mode)?.label + ' - 8th Ascent'}/>}
     </div>
   );
 }
@@ -13553,7 +14438,7 @@ function ResearchHub() {
     setStep('researching'); setResearch(''); setIntel(''); setScript('');
     const t = TIER_PROMPTS[tier];
     const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-    const res = await perp(`Today is ${today}. ${t.desc}: ${query} — focus on ${ANGLES.find(a=>a.id===angle)?.label||angle} angle. Include credible sources with URLs and publication dates.`);
+    const res = await perp(`Today is ${today}. ${t.desc}: ${query} - focus on ${ANGLES.find(a=>a.id===angle)?.label||angle} angle. Include credible sources with URLs and publication dates.`);
     setResearch(res); setStep('idle');
   };
   const runExtractIntel = async () => {
@@ -13705,7 +14590,7 @@ function ResearchHub() {
               <pre style={{color:'#111827',fontSize:12,whiteSpace:'pre-wrap',margin:0,lineHeight:1.6,maxHeight:280,overflowY:'auto'}}>{intel}</pre>
             </Card>
           )}
-          {script && <DocOutput text={script} title="Research Pipeline Script — SIGNAL"/>}
+          {script && <DocOutput text={script} title="Research Pipeline Script  - 8th Ascent"/>}
           {(step==='researching'||step==='extracting'||step==='scripting') && <Spin/>}
         </div>
       )}
@@ -13786,7 +14671,7 @@ function ResearchHub() {
             {loading?'Building...':'Apply Format'}
           </button>
           {loading&&<Spin/>}
-          {out&&<DocOutput text={out} title={`${selectedFormat} — SIGNAL`}/>}
+          {out&&<DocOutput text={out} title={`${selectedFormat} - 8th Ascent`}/>}
         </Card>
       )}
 
@@ -13795,7 +14680,7 @@ function ResearchHub() {
         <Card>
           <SecLabel>Content to Analyze</SecLabel>
           <textarea value={extractContent} onChange={e=>setExtractContent(e.target.value)} rows={5}
-            placeholder="Paste any content — article, transcript, podcast notes, competitor post..." style={taStyle}/>
+            placeholder="Paste any content - article, transcript, podcast notes, competitor post..." style={taStyle}/>
           <SecLabel>What to Extract (optional)</SecLabel>
           <input value={extractQ} onChange={e=>setExtractQ(e.target.value)}
             placeholder="e.g. hooks, key insights, content angles, monetization ideas..." style={inStyle}/>
@@ -13804,7 +14689,7 @@ function ResearchHub() {
             {loading?'Extracting...':'Extract Intelligence'}
           </button>
           {loading&&<Spin/>}
-          {out&&<DocOutput text={out} title="Insight Extraction — SIGNAL"/>}
+          {out&&<DocOutput text={out} title="Insight Extraction  - 8th Ascent"/>}
         </Card>
       )}
     </div>
@@ -13887,7 +14772,7 @@ function HookWorkshop() {
         )}
       </Card>
       {loading&&<Spin/>}
-      {out&&<DocOutput text={out} title="Hook Workshop — SIGNAL"/>}
+      {out&&<DocOutput text={out} title="Hook Workshop  - 8th Ascent"/>}
     </div>
   );
 }
@@ -13974,7 +14859,7 @@ For each gap:
         <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
         <div style={{flex:1}}>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.03em'}}>Growth Dashboard</h2>
-          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>ROI tracking, A/B tests, revenue attribution, and content gap analysis — one command center.</p>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>ROI tracking, A/B tests, revenue attribution, and content gap analysis - one command center.</p>
         </div>
         {(() => { try { const r = JSON.parse(localStorage.getItem('encis_last_review')||'null'); return r ? (
           <div style={{fontSize:10,color:'rgba(0,194,255,0.6)',textAlign:'right'}}>
@@ -14121,7 +15006,7 @@ For each gap:
         <div>
           <Card>
             <p style={{color:'#6B7280',fontSize:13,lineHeight:1.7,marginBottom:16}}>
-              SIGNAL analyzes your logged metrics and content history to find the 5 highest-impact angles you are under-using. The more data you have logged in ROI Dashboard and Content Memory, the more specific the analysis.
+              8th Ascent analyzes your logged metrics and content history to find the 5 highest-impact angles you are under-using. The more data you have logged in ROI Dashboard and Content Memory, the more specific the analysis.
             </p>
             <button onClick={runGapAnalysis} disabled={gapLoading}
               style={{background:gapLoading?'rgba(255,255,255,0.04)':'#00C2FF',color:gapLoading?'#6B7280':'#000D1A',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:gapLoading?'not-allowed':'pointer',fontSize:13}}>
@@ -14129,7 +15014,7 @@ For each gap:
             </button>
           </Card>
           {gapLoading&&<Spin/>}
-          {gapOut&&<DocOutput text={gapOut} title="Content Gap Analysis — SIGNAL"/>}
+          {gapOut&&<DocOutput text={gapOut} title="Content Gap Analysis  - 8th Ascent"/>}
         </div>
       )}
     </div>
@@ -14239,7 +15124,7 @@ function BioSuite() {
         )}
       </Card>
       {loading&&<Spin/>}
-      {out&&<DocOutput text={out} title="Bio Suite — SIGNAL"/>}
+      {out&&<DocOutput text={out} title="Bio Suite  - 8th Ascent"/>}
     </div>
   );
 }
@@ -14476,9 +15361,9 @@ function ContentLibrary() {
       {/* Empty state */}
       {!loading && items.length === 0 && (
         <div style={{ textAlign: 'center', padding: '56px 24px', background: '#F9FAFB', borderRadius: 12 }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>📭</div>
+          <div style={{ fontSize: 40, marginBottom: 12 }}></div>
           <div style={{ color: '#111827', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Nothing saved yet</div>
-          <div style={{ color: '#6B7280', fontSize: 14 }}>Generate content in Smart Brief or Create Hub — it saves here automatically.</div>
+          <div style={{ color: '#6B7280', fontSize: 14 }}>Generate content in Smart Brief or Create Hub - it saves here automatically.</div>
         </div>
       )}
 
@@ -14502,7 +15387,7 @@ function ContentLibrary() {
               <div key={item.id}
                 style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderLeft: '3px solid ' + typeColor, borderRadius: 10, overflow: 'hidden', transition: 'border-color 0.15s' }}>
 
-                {/* Item header — always visible */}
+                {/* Item header - always visible */}
                 <div style={{ padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: 12 }}
                   onClick={() => setExpandedId(isExpanded ? null : item.id)}>
 
@@ -14637,7 +15522,7 @@ One paragraph. What the week is about and what success looks like by Sunday.
 
 ## Content Plan (5 posts)
 For each post:
-**Post [N] — [Day] [Platform]**
+**Post [N] - [Day] [Platform]**
 Format: [Reel/Carousel/Story/Post]
 Hook: [exact first words]
 Topic: [specific filmable topic]
@@ -14683,9 +15568,9 @@ Written out and ready. First 2-3 words carry everything.
         </div>
       </div>
       <div style={{background:isMonday?'rgba(39,174,96,0.08)':'rgba(0,194,255,0.06)',border:`1px solid ${isMonday?'rgba(39,174,96,0.2)':'rgba(0,194,255,0.15)'}`,borderRadius:10,padding:'10px 16px',marginBottom:20,display:'flex',alignItems:'center',gap:10}}>
-        <div style={{fontSize:18}}>{isMonday?'🟢':'📅'}</div>
+        <div style={{fontSize:18}}>{isMonday?'🟢':''}</div>
         <div>
-          <div style={{color:isMonday?'#27ae60':'#00C2FF',fontWeight:700,fontSize:13}}>{isMonday?'It\'s Monday — run your brief now.':`Next Monday: ${daysUntilMonday} day${daysUntilMonday!==1?'s':''} away`}</div>
+          <div style={{color:isMonday?'#27ae60':'#00C2FF',fontWeight:700,fontSize:13}}>{isMonday?'It\'s Monday - run your brief now.':`Next Monday: ${daysUntilMonday} day${daysUntilMonday!==1?'s':''} away`}</div>
           <div style={{color:'#6B7280',fontSize:11,marginTop:1}}>{briefs.length > 0 ? `Last brief: ${briefs[0].date}` : 'No briefs run yet'}</div>
         </div>
       </div>
@@ -14718,7 +15603,7 @@ Written out and ready. First 2-3 words carry everything.
             <span style={{fontSize:18}}>✅</span>
             <div style={{color:'#27ae60',fontWeight:700,fontSize:13}}>Brief generated and saved to history</div>
           </div>
-          <DocOutput text={out} title={`Weekly Brief — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric'})}`}/>
+          <DocOutput text={out} title={`Weekly Brief - ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric'})}`}/>
         </div>
       )}
       {step === 'history' && (
@@ -14726,7 +15611,7 @@ Written out and ready. First 2-3 words carry everything.
           {selectedBrief ? (
             <div>
               <button onClick={()=>setSelectedBrief(null)} style={{background:'#F9FAFB',color:'#6B7280',border:'none',borderRadius:6,padding:'6px 14px',fontSize:12,cursor:'pointer',marginBottom:16}}>← Back</button>
-              <DocOutput text={selectedBrief.content} title={`Weekly Brief — ${selectedBrief.week}`}/>
+              <DocOutput text={selectedBrief.content} title={`Weekly Brief - ${selectedBrief.week}`}/>
             </div>
           ) : (
             <div style={{display:'flex',flexDirection:'column',gap:8}}>
@@ -14756,13 +15641,13 @@ Search for the single most viral piece of content posted THIS WEEK by HR manager
 
 Look specifically for content about: workplace stories, employee relations, hiring and firing realities, managing difficult people, HR policy gone wrong or right, what no one tells you about being in HR, the real cost of leadership, toxic workplace culture, or what managers wish employees knew.
 
-Target creators: HR professionals who post raw, real content — not corporate training accounts. Think creators with 10K-500K followers sharing real stories from inside companies.
+Target creators: HR professionals who post raw, real content - not corporate training accounts. Think creators with 10K-500K followers sharing real stories from inside companies.
 
-Return ONLY this exact format — nothing else:
+Return ONLY this exact format - nothing else:
 ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
-WHY: [one sentence — the psychological reason it performed]
+WHY: [one sentence - the psychological reason it performed]
 STEAL: [one specific content idea Jason Fricka, HR Manager in Colorado, should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
@@ -14772,13 +15657,13 @@ Search for the single most viral piece of content posted THIS WEEK by real estat
 
 Look specifically for content about: Colorado housing market updates, VA loans and veteran homebuying, first-time buyer mistakes, what agents won't tell you, the real math of renting vs buying, interest rate reality checks, how to buy in a competitive market, or wealth building through real estate on a regular income.
 
-Target creators: real estate agents who educate, not just sell. Authentic market commentary. State-specific content performs well — Colorado, Denver, or Front Range content especially relevant.
+Target creators: real estate agents who educate, not just sell. Authentic market commentary. State-specific content performs well - Colorado, Denver, or Front Range content especially relevant.
 
-Return ONLY this exact format — nothing else:
+Return ONLY this exact format - nothing else:
 ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
-WHY: [one sentence — the psychological reason it performed]
+WHY: [one sentence - the psychological reason it performed]
 STEAL: [one specific content idea Jason Fricka, licensed Colorado real estate agent serving veterans and families, should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
@@ -14788,13 +15673,13 @@ Search for the single most viral piece of content posted THIS WEEK by veteran cr
 
 Look specifically for content about: life after the military, rebuilding identity post-service, what the military taught you that civilians don't understand, veteran mental health without being heavy, discipline and standards from service applied to civilian life, or veteran community and brotherhood.
 
-Target creators: veterans who are now athletes, entrepreneurs, coaches, or creators — not military gear or recruitment content. Real post-service identity content.
+Target creators: veterans who are now athletes, entrepreneurs, coaches, or creators - not military gear or recruitment content. Real post-service identity content.
 
-Return ONLY this exact format — nothing else:
+Return ONLY this exact format - nothing else:
 ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
-WHY: [one sentence — the psychological reason it performed]
+WHY: [one sentence - the psychological reason it performed]
 STEAL: [one specific content idea Jason Fricka, Army veteran and mindset coach in Colorado, should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
@@ -14804,13 +15689,13 @@ Search for the single most viral piece of content posted THIS WEEK by endurance 
 
 Look specifically for content about: trail running or ultramarathon training, training over 35 or 40, running and cycling in Colorado or mountain terrain, the mental side of endurance training, race day preparation, training while working a full-time job, or using athletic discipline as a life philosophy.
 
-Target creators: real athletes who train hard and document it honestly — not fitness influencers selling aesthetics. People who run ultras, do triathlons, or train in the mountains.
+Target creators: real athletes who train hard and document it honestly - not fitness influencers selling aesthetics. People who run ultras, do triathlons, or train in the mountains.
 
-Return ONLY this exact format — nothing else:
+Return ONLY this exact format - nothing else:
 ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
-WHY: [one sentence — the psychological reason it performed]
+WHY: [one sentence - the psychological reason it performed]
 STEAL: [one specific content idea Jason Fricka, endurance athlete training in Colorado, should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
@@ -14820,13 +15705,13 @@ Search for the single most viral piece of content posted THIS WEEK by dad creato
 
 Look specifically for content about: being a present dad while building a career, what fathers actually teach their kids, parenting with discipline and love, the hard moments of fatherhood no one posts, raising kids who are tough and kind, or the weight of being the provider and the protector simultaneously.
 
-Target creators: real dads posting authentic content — not parenting advice accounts or mommy blog adjacent. Men who are honest about the pressure and privilege of fatherhood.
+Target creators: real dads posting authentic content - not parenting advice accounts or mommy blog adjacent. Men who are honest about the pressure and privilege of fatherhood.
 
-Return ONLY this exact format — nothing else:
+Return ONLY this exact format - nothing else:
 ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
-WHY: [one sentence — the psychological reason it performed]
+WHY: [one sentence - the psychological reason it performed]
 STEAL: [one specific content idea Jason Fricka, Colorado dad and veteran, should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
@@ -14836,50 +15721,50 @@ Search for the single most viral piece of content posted THIS WEEK by mindset, d
 
 Look specifically for content about: doing the hard thing when you don't feel like it, the gap between wanting to change and actually changing, discipline as identity not motivation, morning routine and daily standards, accountability culture, what separates people who grow from people who stay stuck, or the unglamorous reality of consistent effort.
 
-Target creators: coaches and creators who speak to working adults — not 22-year-old hustle culture bros. Voices that resonate with parents, professionals, and veterans who are building something real while life is already full.
+Target creators: coaches and creators who speak to working adults - not 22-year-old hustle culture bros. Voices that resonate with parents, professionals, and veterans who are building something real while life is already full.
 
-Return ONLY this exact format — nothing else:
+Return ONLY this exact format - nothing else:
 ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
-WHY: [one sentence — the psychological reason it performed]
+WHY: [one sentence - the psychological reason it performed]
 STEAL: [one specific content idea Jason Fricka, mindset coach and Elevation Nation community builder, should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
   Everyday_Wins: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
 
-Search for the single most viral piece of content posted THIS WEEK that celebrates ordinary people doing extraordinary things — not celebrities, not influencers, not people with massive platforms already.
+Search for the single most viral piece of content posted THIS WEEK that celebrates ordinary people doing extraordinary things - not celebrities, not influencers, not people with massive platforms already.
 
 Look specifically for content about: the regular person who showed up when no one was watching, small wins that compound into big results, the working parent who trains at 5am, the person who built something real without going viral, underdog stories, or content that makes regular people feel seen and represented.
 
-Target creators: micro to mid-size creators (under 100K) whose content is blowing up precisely because it feels real and unpolished. Content that resonates with the Elevation Nation audience — everyday people who refuse to stay where they are.
+Target creators: micro to mid-size creators (under 100K) whose content is blowing up precisely because it feels real and unpolished. Content that resonates with the Elevation Nation audience - everyday people who refuse to stay where they are.
 
-Return ONLY this exact format — nothing else:
+Return ONLY this exact format - nothing else:
 ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
-WHY: [one sentence — the psychological reason it performed]
-STEAL: [one specific content idea for the Elevation Nation community — everyday people who refuse to stay where they are — that Jason should post this week]
+WHY: [one sentence - the psychological reason it performed]
+STEAL: [one specific content idea for the Elevation Nation community - everyday people who refuse to stay where they are - that Jason should post this week]
 VIEWS: [approximate views/engagement or "trending"]`,
 
   Health_Wellness_Pro: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
 
 Search for the single most viral piece of content posted THIS WEEK by health, wellness, or longevity creators targeting working professionals in their 30s and 40s on Instagram, TikTok, or YouTube.
 
-Look specifically for content about: training and recovery for busy professionals, sleep optimization for high performers, nutrition for people who actually have jobs and families, mental health for men who don't talk about mental health, burnout prevention, or the long game of physical health — not 6-pack aesthetics but functional longevity.
+Look specifically for content about: training and recovery for busy professionals, sleep optimization for high performers, nutrition for people who actually have jobs and families, mental health for men who don't talk about mental health, burnout prevention, or the long game of physical health - not 6-pack aesthetics but functional longevity.
 
-Target creators: doctors, coaches, and athletes who speak to professionals and parents — not fitness influencers targeting college students. Real health content for people with real lives and real responsibilities.
+Target creators: doctors, coaches, and athletes who speak to professionals and parents - not fitness influencers targeting college students. Real health content for people with real lives and real responsibilities.
 
-Return ONLY this exact format — nothing else:
+Return ONLY this exact format - nothing else:
 ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
-WHY: [one sentence — the psychological reason it performed]
+WHY: [one sentence - the psychological reason it performed]
 STEAL: [one specific content idea Jason Fricka, endurance athlete and HR manager in Colorado, should post this week about health and wellness for working professionals]
 VIEWS: [approximate views/engagement or "trending"]`,
 };
 
-// TREND_NICHES is now dynamic — pulled from active client profile
+// TREND_NICHES is now dynamic - pulled from active client profile
 // Falls back to Jason's default niches if client has none set
 const getClientTrendNiches = (client) => {
   if (client?.trendNiches && client.trendNiches.length > 0) return client.trendNiches;
@@ -14900,11 +15785,11 @@ const TREND_MONITOR_PROMPT = (niche, client) => {
 Search for the single most viral piece of content posted THIS WEEK matching this query:
 ${niche.query}
 
-Return ONLY this exact format — nothing else:
+Return ONLY this exact format - nothing else:
 ACCOUNT: [creator handle or name]
 PLATFORM: [Instagram/TikTok/YouTube/X/LinkedIn]
 HOOK: [exact opening line or title that made it perform]
-WHY: [one sentence — the psychological reason it performed]
+WHY: [one sentence - the psychological reason it performed]
 STEAL: [one specific, actionable content idea ${name}, ${role} ${locationStr}, should post this week based on this trend]
 VIEWS: [approximate views/engagement count or "trending"]`;
   }
@@ -14951,7 +15836,7 @@ function TrendNicheEditor({ client }) {
     <div style={{marginBottom:16}}>
       <button onClick={()=>setOpen(!open)}
         style={{background:'#F9FAFB',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer',width:'100%',textAlign:'left',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-        <span>🎯 Trend Niches — {niches.length} active for {client?.name || 'this client'}</span>
+        <span>🎯 Trend Niches - {niches.length} active for {client?.name || 'this client'}</span>
         <span style={{fontSize:10}}>{open ? '▲ Close' : '▼ Customize'}</span>
       </button>
 
@@ -14982,7 +15867,7 @@ function TrendNicheEditor({ client }) {
               <div style={{fontSize:11,color:'#6B7280',fontWeight:700,marginBottom:6,textTransform:'uppercase',letterSpacing:1}}>Add New Niche</div>
               <input value={newLabel} onChange={e=>setNewLabel(e.target.value)} placeholder="Niche label (e.g. Fitness Coach)"
                 style={{width:'100%',background:'#fff',border:'1px solid #D1D5DB',borderRadius:6,padding:'7px 10px',color:'#111827',fontSize:12,marginBottom:6,boxSizing:'border-box'}}/>
-              <textarea value={newQuery} onChange={e=>setNewQuery(e.target.value)} rows={2} placeholder="Search query (e.g. viral fitness coach content this week — HIIT, weight loss, gym motivation for busy moms)"
+              <textarea value={newQuery} onChange={e=>setNewQuery(e.target.value)} rows={2} placeholder="Search query (e.g. viral fitness coach content this week - HIIT, weight loss, gym motivation for busy moms)"
                 style={{width:'100%',background:'#fff',border:'1px solid #D1D5DB',borderRadius:6,padding:'7px 10px',color:'#374151',fontSize:11,resize:'vertical',boxSizing:'border-box',fontFamily:'inherit',lineHeight:1.5,marginBottom:6}}/>
               <button onClick={addNiche} disabled={!newLabel.trim()||!newQuery.trim()}
                 style={{background:!newLabel.trim()||!newQuery.trim()?'#F3F4F6':'#2563EB',color:!newLabel.trim()||!newQuery.trim()?'#9CA3AF':'#fff',border:'none',borderRadius:6,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:!newLabel.trim()||!newQuery.trim()?'not-allowed':'pointer'}}>
@@ -15036,7 +15921,7 @@ function TrendMonitorAgent() {
       if (!data || data.length === 0) return;
       const cronTime = new Date(data[0].created_at).getTime();
       if (cronTime > lastTs) {
-        // Cron ran more recently — load its results
+        // Cron ran more recently - load its results
         const cronAlerts = JSON.parse(data[0].output_text || '[]');
         if (cronAlerts.length > 0) {
           setAlerts(cronAlerts);
@@ -15120,7 +16005,7 @@ function TrendMonitorAgent() {
         </div>
       </div>
       <div style={{background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px 16px',marginBottom:12,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:8}}>
-        <div style={{fontSize:12,color:'#6B7280'}}>{lastRun ? `Last scan: ${lastRun}` : 'Never scanned — hit Scan Now to start'}</div>
+        <div style={{fontSize:12,color:'#6B7280'}}>{lastRun ? `Last scan: ${lastRun}` : 'Never scanned - hit Scan Now to start'}</div>
         <div style={{fontSize:11,color:'#6B7280'}}>Auto-scan runs every 20 hours when enabled</div>
       </div>
 
@@ -15147,7 +16032,7 @@ function TrendMonitorAgent() {
       )}
       {!loading && alerts.length === 0 && (
         <div style={{textAlign:'center',padding:'4rem 2rem',background:'#FFFFFF',borderRadius:16,border:'1px solid #E5E7EB'}}>
-          <div style={{fontSize:40,marginBottom:12}}>📡</div>
+          <div style={{fontSize:40,marginBottom:12}}></div>
           <div style={{color:'#111827',fontWeight:700,fontSize:18,marginBottom:8}}>No scans yet</div>
           <div style={{color:'#6B7280',fontSize:14,marginBottom:20}}>Hit Scan Now to check all 8 content angles for viral trends.</div>
           <button onClick={runScan} style={{background:'#2563EB',color:'#fff',border:'none',borderRadius:8,padding:'10px 24px',fontSize:13,fontWeight:700,cursor:'pointer'}}>Run First Scan</button>
@@ -15395,7 +16280,7 @@ function ContentPerformanceAgent() {
 
     const prompt = `You are a content performance analyst. Analyze this creator's content data and give direct, actionable intelligence.
 
-Creator: ${activeClient?.name || 'Jason Fricka'} (@everydayelevations) — HR Manager, Colorado real estate agent, endurance athlete, veteran, mindset coach, dad.
+Creator: ${activeClient?.name || 'Jason Fricka'} (@everydayelevations) - HR Manager, Colorado real estate agent, endurance athlete, veteran, mindset coach, dad.
 
 CONTENT DATA:
 VIRAL (${viral.length} pieces):
@@ -15413,7 +16298,7 @@ Analyze this data and produce:
 **Week of ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}**
 
 ## What Is Working (make more of this)
-3-4 specific patterns from the viral and solid content. Not vague — name the exact format, angle, or topic pattern.
+3-4 specific patterns from the viral and solid content. Not vague - name the exact format, angle, or topic pattern.
 
 ## What Is Not Working (stop doing this)
 2-3 specific patterns from the flopped content. Be direct.
@@ -15425,7 +16310,7 @@ One paragraph. Based on all the data, what is this creator's unique zone where t
 5 specific pieces to create based on what the data says works. Include type, platform, and suggested hook.
 
 ## Pattern Alert
-Any surprising pattern in the data — something that's working you might not have expected, or something that's flopping that seems counterintuitive.`;
+Any surprising pattern in the data - something that's working you might not have expected, or something that's flopping that seems counterintuitive.`;
 
     const res = await ai(prompt);
     setAnalysis(res);
@@ -15473,9 +16358,9 @@ Any surprising pattern in the data — something that's working you might not ha
 
       {!fetching && items.length === 0 && (
         <div style={{textAlign:'center',padding:'3rem',background:'#FFFFFF',borderRadius:16,border:'1px solid #E5E7EB'}}>
-          <div style={{fontSize:32,marginBottom:8}}>📭</div>
+          <div style={{fontSize:32,marginBottom:8}}></div>
           <div style={{color:'#111827',fontWeight:700,marginBottom:4}}>No saved content yet</div>
-          <div style={{color:'#6B7280',fontSize:13}}>Generate content in any tool — it auto-saves and appears here for rating.</div>
+          <div style={{color:'#6B7280',fontSize:13}}>Generate content in any tool - it auto-saves and appears here for rating.</div>
         </div>
       )}
 
@@ -15547,8 +16432,8 @@ ${input}
 Repurpose into each of these formats:
 
 ${platforms.includes('Instagram') ? `## INSTAGRAM REEL SCRIPT
-[Hook — first 3 seconds, spoken on camera]
-[3 punchy body points — one sentence each]
+[Hook - first 3 seconds, spoken on camera]
+[3 punchy body points - one sentence each]
 [CTA]
 
 ## INSTAGRAM CAPTION
@@ -15556,13 +16441,13 @@ ${platforms.includes('Instagram') ? `## INSTAGRAM REEL SCRIPT
 [10 hashtags]
 ` : ''}
 ${platforms.includes('LinkedIn') ? `## LINKEDIN POST
-[Professional but human — 150-250 words]
+[Professional but human - 150-250 words]
 [3-5 line breaks for readability]
 [CTA that fits LinkedIn culture]
 ` : ''}
 ${platforms.includes('YouTube') ? `## YOUTUBE SHORT SCRIPT
-[Hook — 1 sentence]
-[Core content — 45-60 seconds when spoken]
+[Hook - 1 sentence]
+[Core content - 45-60 seconds when spoken]
 [End screen CTA]
 
 ## YOUTUBE VIDEO TITLE
@@ -15578,11 +16463,11 @@ Tweet 5 (CTA):
 ${platforms.includes('Email') ? `## EMAIL NEWSLETTER TEASER
 Subject line:
 Preview text:
-Body (150 words max — drive to the content):
+Body (150 words max - drive to the content):
 ` : ''}
 ${platforms.includes('TikTok') ? `## TIKTOK SCRIPT
-[Hook — spoken in first 2 seconds]
-[Fast-paced body — 30-45 second total]
+[Hook - spoken in first 2 seconds]
+[Fast-paced body - 30-45 second total]
 [CTA]
 ` : ''}
 
@@ -15593,7 +16478,7 @@ After all formats, add:
 [One universal hook rewritten to work anywhere]
 
 ## SCHEDULING RECOMMENDATION
-[Which platform to post first, second, third and why — based on content type]`;
+[Which platform to post first, second, third and why - based on content type]`;
 
     const res = await ai(prompt);
     setOut(res);
@@ -15692,7 +16577,7 @@ For EACH topic write:
 ---
 ## CAPTION ${`0`.padStart(0)}[N]: [topic]
 
-**HOOK** (first line — stops the scroll):
+**HOOK** (first line - stops the scroll):
 [exact opening line]
 
 **BODY**:
@@ -15721,7 +16606,7 @@ Recommend which to post first through fifth and why based on momentum and variet
     const updated = [entry, ...history].slice(0, 10);
     setHistory(updated);
     try { localStorage.setItem('encis_caption_batch', JSON.stringify(updated)); } catch {}
-    await saveToSupabase({ type: 'caption-batch', title: `${filledTopics.length} captions — ${filledTopics[0].slice(0,40)}`, preview: res.slice(0,500), full: res, platform, angle: angleLabel });
+    await saveToSupabase({ type: 'caption-batch', title: `${filledTopics.length} captions - ${filledTopics[0].slice(0,40)}`, preview: res.slice(0,500), full: res, platform, angle: angleLabel });
     setLoading(false);
   };
 
@@ -15731,7 +16616,7 @@ Recommend which to post first through fifth and why based on momentum and variet
         <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
         <div>
           <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800}}>Caption Batch Agent</h2>
-          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Drop in up to 5 topics. Get 5 complete captions — hook, body, CTA, hashtags — all at once. One session, full week done.</p>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Drop in up to 5 topics. Get 5 complete captions - hook, body, CTA, hashtags - all at once. One session, full week done.</p>
         </div>
       </div>
 
@@ -15751,7 +16636,7 @@ Recommend which to post first through fifth and why based on momentum and variet
 
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'16px 0 8px'}}>
           <SecLabel style={{margin:0}}>Topics ({filledTopics.length} entered)</SecLabel>
-          <span style={{fontSize:11,color:'#6B7280'}}>Fill as many as you want — up to 5</span>
+          <span style={{fontSize:11,color:'#6B7280'}}>Fill as many as you want - up to 5</span>
         </div>
 
         <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:16}}>
@@ -15772,7 +16657,7 @@ Recommend which to post first through fifth and why based on momentum and variet
       </Card>
 
       {loading && <Spin/>}
-      {out && <DocOutput text={out} title={`Caption Batch — ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})}`}/>}
+      {out && <DocOutput text={out} title={`Caption Batch - ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})}`}/>}
 
       {history.length > 0 && (
         <div style={{marginTop:24}}>
@@ -15781,7 +16666,7 @@ Recommend which to post first through fifth and why based on momentum and variet
             {history.map(h => (
               <div key={h.id} onClick={()=>setOut(h.result)}
                 style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px 16px',cursor:'pointer'}}>
-                <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{h.topics.length} captions — {h.platform}</div>
+                <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{h.topics.length} captions - {h.platform}</div>
                 <div style={{color:'#6B7280',fontSize:11,marginTop:2}}>{h.topics.slice(0,3).join(' · ')}{h.topics.length>3?' · ...':''}</div>
                 <div style={{color:'#9CA3AF',fontSize:10,marginTop:2}}>{h.date}</div>
               </div>
@@ -15852,7 +16737,7 @@ Content data ${periodLabel}:
 - Awaiting performance data: ${unrated.length}
 - Platforms: ${[...new Set(items.map(i=>i.platform).filter(Boolean))].join(', ') || 'Various'}
 
-Write a professional but human client report. Sound like an expert consultant who genuinely cares about results — not a corporate bot.
+Write a professional but human client report. Sound like an expert consultant who genuinely cares about results - not a corporate bot.
 
 # Content Performance Report
 **${selectedClient.name} | ${periodLabel === 'this week' ? 'Weekly' : 'Monthly'} Report**
@@ -15893,7 +16778,7 @@ One clear priority for the coming week. One sentence.
       const existing = JSON.parse(localStorage.getItem(queueKey) || '[]');
       const entry = {
         id: Date.now(),
-        topic: `${period === 'week' ? 'Weekly' : 'Monthly'} Report — ${selectedClient.name}`,
+        topic: `${period === 'week' ? 'Weekly' : 'Monthly'} Report - ${selectedClient.name}`,
         type: 'Report',
         platform: 'Email',
         angle: 'Occupational',
@@ -15961,7 +16846,7 @@ One clear priority for the coming week. One sentence.
 
       {report && (
         <div>
-          <DocOutput text={report} title={`${period==='week'?'Weekly':'Monthly'} Report — ${selectedClient?.name}`}/>
+          <DocOutput text={report} title={`${period==='week'?'Weekly':'Monthly'} Report - ${selectedClient?.name}`}/>
           <div style={{marginTop:12}}>
             <button onClick={addToQueue} disabled={queued}
               style={{background:queued?'rgba(39,174,96,0.1)':'#2563EB',color:queued?'#27ae60':'#fff',border:queued?'1px solid rgba(39,174,96,0.3)':'none',borderRadius:8,padding:'10px 24px',fontWeight:800,cursor:queued?'default':'pointer',fontSize:13,width:'100%'}}>
@@ -16014,7 +16899,7 @@ Name: ${form.name}
 Handle: ${form.handle}
 Location: ${form.location}
 Platforms: ${form.platforms}
-Role / Business: ${form.role} — ${form.businessType}
+Role / Business: ${form.role} - ${form.businessType}
 Offer: ${form.offer}
 Audience: ${form.audience}
 Audience pain point: ${form.audiencePain}
@@ -16027,11 +16912,11 @@ Primary CTA: ${form.cta}
 Content types they want: ${form.contentTypes}
 Niche topics to monitor: ${form.nicheTopics}
 
-Generate their complete onboarding package. Return as JSON only — no markdown, no explanation, just valid JSON:
+Generate their complete onboarding package. Return as JSON only - no markdown, no explanation, just valid JSON:
 
 {
-  "voice": "2-3 sentence voice guide that captures exactly how this person sounds — tone, energy, what makes them distinct",
-  "notes": "Key context about this client in 2 sentences — role, audience, offer, what makes them different",
+  "voice": "2-3 sentence voice guide that captures exactly how this person sounds - tone, energy, what makes them distinct",
+  "notes": "Key context about this client in 2 sentences - role, audience, offer, what makes them different",
   "angles": "6-8 content angles specific to this client separated by commas",
   "trendNiches": [
     { "id": "niche_1", "label": "Niche Name", "query": "specific perplexity search query to find viral content in this niche this week" },
@@ -16041,7 +16926,7 @@ Generate their complete onboarding package. Return as JSON only — no markdown,
     { "id": "niche_5", "label": "Niche Name", "query": "specific perplexity search query" },
     { "id": "niche_6", "label": "Niche Name", "query": "specific perplexity search query" }
   ],
-  "firstWeekBrief": "A 3-4 sentence content brief for their first week — what to post, what angle to lead with, what to establish first"
+  "firstWeekBrief": "A 3-4 sentence content brief for their first week - what to post, what angle to lead with, what to establish first"
 }`;
 
     const res = await ai(prompt);
@@ -16108,7 +16993,7 @@ Generate their complete onboarding package. Return as JSON only — no markdown,
       { k:'contentTypes', l:'What types of content do they want?', ph:'e.g. Reels, carousels, long captions, YouTube shorts, LinkedIn posts' },
     ],
     niches: [
-      { k:'nicheTopics', l:'What topics and communities should we monitor for trends?', ph:'e.g. Fitness for moms, postpartum health, work-life balance, mindset for women, nutrition myths — be as specific as possible', ta:true },
+      { k:'nicheTopics', l:'What topics and communities should we monitor for trends?', ph:'e.g. Fitness for moms, postpartum health, work-life balance, mindset for women, nutrition myths - be as specific as possible', ta:true },
     ],
   };
 
@@ -16299,7 +17184,7 @@ function CompetitorIntelAgent() {
 
     const prompt = `You are a content strategist doing competitive gap analysis.
 
-Creator being analyzed: ${clientName} — ${clientRole}
+Creator being analyzed: ${clientName} - ${clientRole}
 Their content angles: ${clientAngles}
 
 Competitor content this week:
@@ -16323,13 +17208,13 @@ Produce a sharp gap analysis:
 3-4 specific content angles or topics that NONE of your competitors are covering well. These are your opportunities.
 
 ## Your Differentiation Edge
-What ${clientName} can say or do that none of these competitors can — based on their unique combination of experience, background, and audience.
+What ${clientName} can say or do that none of these competitors can - based on their unique combination of experience, background, and audience.
 
 ## This Week's Counter-Moves
 3 specific pieces of content to post this week that directly capitalize on competitor gaps. Include the hook for each.
 
 ## Hooks to Steal and Improve
-2-3 hooks from competitors that are working — with improved versions tailored for ${clientName}.`;
+2-3 hooks from competitors that are working - with improved versions tailored for ${clientName}.`;
 
     const res = await ai(prompt);
     setGaps(res);
@@ -16437,7 +17322,7 @@ What ${clientName} can say or do that none of these competitors can — based on
 
       {/* Status bar */}
       <div style={{background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px 16px',marginBottom:20,display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
-        <div style={{fontSize:12,color:'#6B7280'}}>{lastRun ? `Last scan: ${lastRun}` : 'No scans yet — add handles and hit Scan'}</div>
+        <div style={{fontSize:12,color:'#6B7280'}}>{lastRun ? `Last scan: ${lastRun}` : 'No scans yet - add handles and hit Scan'}</div>
         <div style={{fontSize:11,color:'#6B7280'}}>Auto-scan runs every 48 hours when enabled</div>
       </div>
 
@@ -16455,7 +17340,7 @@ What ${clientName} can say or do that none of these competitors can — based on
           ))}
         </div>
         <p style={{color:'#6B7280',fontSize:11,margin:'0 0 12px',lineHeight:1.6}}>
-          Add handles of creators in your space — people posting about similar topics to you. The agent will analyze what they're doing and find the gaps they're leaving open.
+          Add handles of creators in your space - people posting about similar topics to you. The agent will analyze what they're doing and find the gaps they're leaving open.
         </p>
         <button onClick={runScan} disabled={loading||filledHandles.length===0}
           style={{background:loading||filledHandles.length===0?'#F3F4F6':'linear-gradient(135deg,#00C2FF,#0096CC)',color:loading||filledHandles.length===0?'#9CA3AF':'#000D1A',border:'none',borderRadius:8,padding:'11px 24px',fontWeight:800,cursor:loading||filledHandles.length===0?'not-allowed':'pointer',fontSize:14,width:'100%'}}>
@@ -16524,13 +17409,13 @@ const BRIEF_HISTORY_KEY = 'encis_brief_history';
 const BRIEF_CHIP_MEMORY_KEY = 'encis_chip_memory';
 const QUALITY_ANCHOR_KEY = 'encis_quality_anchors';
 
-// Rotating depth prompts — chosen based on what has been missing from recent content
+// Rotating depth prompts - chosen based on what has been missing from recent content
 const DEPTH_PROMPTS = {
   no_story:    "What actually happened? Start with a real moment.",
   no_example:  "What\'s a specific number, name, or situation you can use?",
   no_tension:  "What\'s something most people wouldn\'t say out loud about this?",
   same_pillar: "What\'s a completely different angle you haven\'t tried?",
-  too_generic: "What\'s YOUR take — not the standard take?",
+  too_generic: "What\'s YOUR take - not the standard take?",
   default:     "What do you want to say and why does it matter right now?",
 };
 
@@ -16558,7 +17443,7 @@ const ADD_PROMPTS = [
   "Add a contrarian angle most people won\'t say (optional)",
 ];
 
-// Generic Risk Gate — 3 checks, one fix, green/yellow/red
+// Generic Risk Gate - 3 checks, one fix, green/yellow/red
 const GENERIC_RISK_PROMPT = (content, platform, clientVoice) => `You are a content quality analyst. Your job is to detect generic, interchangeable content that lacks specificity, originality, and real perspective.
 
 CONTENT TO ANALYZE:
@@ -16572,15 +17457,15 @@ ${content}
 
 Run exactly 3 checks:
 
-CHECK 1 — SPECIFICITY TEST
+CHECK 1 - SPECIFICITY TEST
 Does this content contain at least one of: real moment, specific number, named experience, or identifiable tension?
 Score 1-10 (1=highly specific, 10=completely generic)
 
-CHECK 2 — GENERIC HOOK TEST  
+CHECK 2 - GENERIC HOOK TEST  
 Could this exact hook be used by 1,000 other creators in any niche without changing a word?
 Score 1-10 (1=completely unique, 10=could be anyone)
 
-CHECK 3 — INTERCHANGEABILITY TEST
+CHECK 3 - INTERCHANGEABILITY TEST
 If you removed the author\'s name, would this content sound like it came from a specific person or a content template?
 Score 1-10 (1=clearly one person, 10=could be a template)
 
@@ -16588,18 +17473,18 @@ CALCULATE: Overall Generic Risk = average of 3 scores (rounded to nearest whole 
 
 IDENTIFY: The single highest-impact fix needed (only one, never a list):
 - If specificity fails first: "Add a number, name, or moment to your hook"
-- If hook fails first: "Your hook works for anyone — make it work only for you"
+- If hook fails first: "Your hook works for anyone - make it work only for you"
 - If interchangeability fails first: "Add one thing that happened to you specifically"
 - If all pass but CTA is weak: "Replace the CTA with your specific ask"
 
-Return ONLY this JSON — no explanation, no markdown:
+Return ONLY this JSON - no explanation, no markdown:
 {
   "specificity_score": [1-10],
   "hook_score": [1-10],
   "interchangeability_score": [1-10],
   "overall_risk": [1-10],
   "risk_level": "green" or "yellow" or "red",
-  "single_fix": "[one sentence — the single most important fix, or null if green]",
+  "single_fix": "[one sentence - the single most important fix, or null if green]",
   "fix_type": "hook" or "specificity" or "story" or "cta" or null,
   "passes": true or false
 }
@@ -16611,7 +17496,7 @@ SCORING RULES:
 
 const SMART_BRIEF_GENERATE_PROMPT = (brief, clientBrain, recentWinners) => `${clientBrain || ''}
 
-You are generating content for a specific creator. Use their Brief below. Follow their voice exactly. Apply the anti-generic standard — if the output could be posted by 1,000 other creators, rewrite it until it couldn\'t.
+You are generating content for a specific creator. Use their Brief below. Follow their voice exactly. Apply the anti-generic standard - if the output could be posted by 1,000 other creators, rewrite it until it couldn\'t.
 
 CONTENT BRIEF:
 Topic: ${brief.topic}
@@ -16619,15 +17504,15 @@ Format: ${brief.format}
 Platform: ${brief.platform || 'Instagram'}
 Pillar: ${brief.pillar || 'Occupational'}
 Angle: ${brief.angle || ''}
-One thing to add: ${brief.oneThingToAdd || 'nothing specific — draw from their story bank'}
+One thing to add: ${brief.oneThingToAdd || 'nothing specific - draw from their story bank'}
 
 ${recentWinners && recentWinners.length > 0 ? `WINNING PATTERNS FROM THIS CREATOR\'S PAST CONTENT:
 ${recentWinners.slice(0,3).map(w => `- ${w.title}: ${w.notes || ''}`).join('\n')}
-Draw from these patterns — not to copy, but to understand what lands for this audience.` : ''}
+Draw from these patterns - not to copy, but to understand what lands for this audience.` : ''}
 
 ANTI-GENERIC RULES:
 1. Must contain at least one: real moment, specific number, named experience, or identifiable tension
-2. Hook must be ownable by THIS creator — not interchangeable with anyone else
+2. Hook must be ownable by THIS creator - not interchangeable with anyone else
 3. If it sounds like advice → convert to story or lived insight
 4. If the hook could apply to anyone → make it specific before proceeding
 5. Every piece must feel like it came from a real moment, not a concept
@@ -16777,7 +17662,7 @@ Anti-generic rules: Never sound like generic advice. Always speak from lived exp
       const result = JSON.parse(clean);
       setGateResult(result);
     } catch(e) {
-      // Gate failed to parse — default to green so we don't block
+      // Gate failed to parse - default to green so we don't block
       setGateResult({ overall_risk: 3, risk_level: 'green', passes: true, single_fix: null });
     }
     setGateLoading(false);
@@ -16832,7 +17717,7 @@ Anti-generic rules: Never sound like generic advice. Always speak from lived exp
     const newCount = overrideCount + 1;
     setOverrideCount(newCount);
     if (newCount >= 3) {
-      // Flag the pattern — don\'t block, just note
+      // Flag the pattern - don\'t block, just note
       try {
         const flags = JSON.parse(localStorage.getItem('encis_override_flags') || '[]');
         flags.push({ date: new Date().toISOString(), topic, risk: gateResult?.overall_risk });
@@ -16958,7 +17843,7 @@ Anti-generic rules: Never sound like generic advice. Always speak from lived exp
             />
           </div>
 
-          {/* Smart Chips — collapsed by default */}
+          {/* Smart Chips - collapsed by default */}
           <div style={{marginBottom:24}}>
             <button onClick={() => setShowChips(!showChips)}
               style={{background:'none',border:'none',color:'#6B7280',cursor:'pointer',fontSize:12,fontWeight:600,padding:0,display:'flex',alignItems:'center',gap:6}}>
@@ -17153,7 +18038,7 @@ function RealityCheckBanner() {
       const updated = checks.map(c => c.id === pending.id ? {...c, answered: true, response} : c);
       localStorage.setItem('encis_reality_checks', JSON.stringify(updated));
       
-      // If outperformed — flag as winner in saved_content
+      // If outperformed - flag as winner in saved_content
       if (response === 'yes') {
         supabase.from('saved_content')
           .update({ notes: 'brief|winner|outperformed' })
@@ -17171,7 +18056,7 @@ function RealityCheckBanner() {
       <div>
         <div style={{color:'#00C2FF',fontWeight:700,fontSize:13}}>48hr check-in</div>
         <div style={{color:'#374151',fontSize:12,marginTop:2}}>
-          "{pending.topic.slice(0, 50)}{pending.topic.length>50?'...':''}" — did this outperform?
+          "{pending.topic.slice(0, 50)}{pending.topic.length>50?'...':''}" - did this outperform?
         </div>
       </div>
       <div style={{display:'flex',gap:8}}>
@@ -17208,7 +18093,7 @@ const SEEDING_QUESTIONS = [
   { id: 5, q: "What was the moment you realized HR was not what you thought it was going to be?" },
   { id: 6, q: "What does showing up at 5am to train actually feel like when you genuinely do not want to be there?" },
   { id: 7, q: "What is a real estate conversation that changed how you see buyers, sellers, or the whole process?" },
-  { id: 8, q: "What is something you built or figured out that took way longer than it should have — and what made it hard?" },
+  { id: 8, q: "What is something you built or figured out that took way longer than it should have - and what made it hard?" },
   { id: 9, q: "What do people misunderstand about discipline that genuinely bothers you?" },
   { id: 10, q: "What are you still working on right now that you are not fully comfortable admitting publicly?" },
 ];
@@ -17220,15 +18105,15 @@ CREATOR: ${clientName || 'Jason Fricka'}
 QUESTION: ${question}
 ANSWER: ${answer}
 
-Extract a complete story bank entry. Return ONLY this JSON — no explanation, no markdown fences:
+Extract a complete story bank entry. Return ONLY this JSON - no explanation, no markdown fences:
 {
-  "title": "[short memorable title for this story — 5 words max]",
+  "title": "[short memorable title for this story - 5 words max]",
   "story_type": "[personal | lesson | tension | belief | transformation | confession]",
   "summary": "[2-3 sentence summary of the actual story or moment]",
-  "key_lesson": "[the single most useful insight — one sentence]",
+  "key_lesson": "[the single most useful insight - one sentence]",
   "emotional_theme": "[the core emotion: accountability | vulnerability | resilience | honesty | frustration | pride | doubt | clarity]",
-  "audience_relevance": "[why this resonates with the audience — one sentence]",
-  "reusable_hooks": ["[hook 1 — first line of content using this story]", "[hook 2]", "[hook 3]"],
+  "audience_relevance": "[why this resonates with the audience - one sentence]",
+  "reusable_hooks": ["[hook 1 - first line of content using this story]", "[hook 2]", "[hook 3]"],
   "best_formats": ["[Reel Script | Caption | Carousel | Email | LinkedIn Post]"],
   "proof_type": "[personal experience | lesson learned | hard truth | behind the scenes | confession]"
 }`;
@@ -17240,20 +18125,20 @@ CREATOR: ${clientName || 'Jason Fricka'}
 RAW NOTES: ${raw}
 
 Extract whatever story or insight is present. If it is incomplete, work with what is there.
-Return ONLY this JSON — no explanation, no markdown:
+Return ONLY this JSON - no explanation, no markdown:
 {
-  "title": "[short memorable title — 5 words max]",
+  "title": "[short memorable title - 5 words max]",
   "story_type": "[personal | lesson | tension | belief | transformation | confession]",
-  "summary": "[what happened or what the insight is — 2-3 sentences]",
-  "key_lesson": "[the core takeaway — one sentence]",
+  "summary": "[what happened or what the insight is - 2-3 sentences]",
+  "key_lesson": "[the core takeaway - one sentence]",
   "emotional_theme": "[accountability | vulnerability | resilience | honesty | frustration | pride | doubt | clarity]",
-  "audience_relevance": "[why this matters to the audience — one sentence]",
+  "audience_relevance": "[why this matters to the audience - one sentence]",
   "reusable_hooks": ["[hook 1]", "[hook 2]"],
   "best_formats": ["[best format to use this]"],
   "proof_type": "[personal experience | lesson learned | hard truth | behind the scenes | confession]"
 }`;
 
-// Brain health check — returns pillar staleness and anchor stats
+// Brain health check - returns pillar staleness and anchor stats
 function getBrainHealth(stories, recentContent, qualityAnchors) {
   const now = Date.now();
   const fourteenDays = 14 * 24 * 60 * 60 * 1000;
@@ -17326,9 +18211,25 @@ function BrainBuilder() {
     try {
       const clientId = activeClient?.id || 'jason';
 
-      // Load brain
+      // Load brain - try localStorage first, then Supabase fallback
       const brains = JSON.parse(localStorage.getItem(BRAIN_KEY) || '{}');
-      setBrain(brains[clientId] || null);
+      let brainData = brains[clientId] || null;
+
+      if (!brainData) {
+        // Fallback: fetch from Supabase
+        const { data: sbBrain } = await supabase
+          .from('strategy_profiles')
+          .select('brain_json, built_at')
+          .eq('client_id', clientId)
+          .single();
+        if (sbBrain?.brain_json) {
+          brainData = sbBrain.brain_json;
+          // Cache locally
+          brains[clientId] = brainData;
+          localStorage.setItem(BRAIN_KEY, JSON.stringify(brains));
+        }
+      }
+      setBrain(brainData);
 
       // Load stories
       const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
@@ -17352,7 +18253,7 @@ function BrainBuilder() {
     } catch(e) { console.error('BrainBuilder load:', e); }
   };
 
-  const saveStory = (newStory) => {
+  const saveStory = async (newStory) => {
     try {
       const clientId = activeClient?.id || 'jason';
       const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
@@ -17368,6 +18269,26 @@ function BrainBuilder() {
       allStories[clientId] = [story, ...clientStories];
       localStorage.setItem(STORY_BANK_KEY, JSON.stringify(allStories));
       setStories(allStories[clientId]);
+
+      // Sync to Supabase
+      try {
+        await supabase.from('story_bank').insert({
+          client_id: clientId,
+          title: story.title || '',
+          story_type: story.story_type || 'personal',
+          summary: story.summary || '',
+          key_lesson: story.key_lesson || '',
+          emotional_theme: story.emotional_theme || '',
+          audience_relevance: story.audience_relevance || '',
+          reusable_hooks: story.reusable_hooks || [],
+          best_formats: story.best_formats || [],
+          proof_type: story.proof_type || '',
+          source_question: story.sourceQuestion || '',
+          raw_answer: story.rawAnswer || '',
+          saved_at: new Date().toISOString(),
+        });
+      } catch(e) { console.error('Story Supabase sync:', e); }
+
       return story;
     } catch(e) { console.error('saveStory:', e); return null; }
   };
@@ -17521,7 +18442,7 @@ function BrainBuilder() {
       {/* Health alert */}
       {health?.needsAnchorAlert && (
         <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 10, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 16 }}>⚠️</span>
+          <span style={{ fontSize: 16 }}>!</span>
           <div>
             <div style={{ color: '#F59E0B', fontWeight: 700, fontSize: 13 }}>Brain not updating</div>
             <div style={{ color: '#6B7280', fontSize: 12, marginTop: 2 }}>No quality anchors saved in 14 days. Your last 5 approvals may not meet the threshold.</div>
@@ -17545,7 +18466,7 @@ function BrainBuilder() {
         <div>
           {stories.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '48px 24px', background: '#F9FAFB', borderRadius: 12 }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>📖</div>
+              <div style={{ fontSize: 40, marginBottom: 12 }}></div>
               <div style={{ color: '#111827', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Story Bank is empty</div>
               <p style={{ color: '#6B7280', fontSize: 14, marginBottom: 24, lineHeight: 1.7 }}>
                 Your Brain needs stories to produce specific content. Run the Seeding Sprint to add 10 stories in 20 minutes.
@@ -17623,13 +18544,13 @@ function BrainBuilder() {
           {/* Intro */}
           {seedingStep === 0 && (
             <div style={{ background: '#F9FAFB', borderRadius: 12, padding: '32px 28px', textAlign: 'center' }}>
-              <div style={{ fontSize: 40, marginBottom: 16 }}>⚡</div>
+              <div style={{ fontSize: 40, marginBottom: 16 }}></div>
               <h3 style={{ color: '#111827', fontWeight: 800, fontSize: 20, marginBottom: 8 }}>Story Seeding Sprint</h3>
               <p style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.8, marginBottom: 8 }}>
                 10 questions. 2-3 sentences each. About 20 minutes.
               </p>
               <p style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.8, marginBottom: 24 }}>
-                Claude turns your answers into 10 structured story bank entries. No overthinking — raw is better than polished.
+                Claude turns your answers into 10 structured story bank entries. No overthinking - raw is better than polished.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 28, textAlign: 'left' }}>
                 {['Your answers become specific hooks the system can reference', 'Every content generation draws from these stories automatically', 'Can be re-run quarterly as your experiences grow'].map((item, i) => (
@@ -17895,7 +18816,7 @@ function BrainBuilder() {
 // PHASE 3: LEARNING LOOP
 // Winner pattern extraction from approved + reality-checked content.
 // Topic Generator weighted by past winners.
-// Insights dashboard — what the Brain has learned.
+// Insights dashboard - what the Brain has learned.
 // ═══════════════════════════════════════════════════════════════════════════
 
 const WINNER_PATTERNS_KEY = 'encis_winner_patterns';
@@ -17915,9 +18836,9 @@ PREVIEW: ${(w.preview || w.full_content || '').slice(0, 200)}
 RISK SCORE: ${w.risk || 'N/A'}
 `).join('\n')}
 
-Analyze what these winning pieces have in common. Find the real patterns — not surface-level observations.
+Analyze what these winning pieces have in common. Find the real patterns - not surface-level observations.
 
-Return ONLY this JSON — no explanation, no markdown:
+Return ONLY this JSON - no explanation, no markdown:
 {
   "top_hook_patterns": [
     { "pattern": "[description of hook pattern]", "example": "[example from the content]", "why_it_works": "[one sentence]" }
@@ -17939,7 +18860,7 @@ ${winnerPatterns ? `WINNER PATTERNS (what has worked):
 - Top hook patterns: ${winnerPatterns.top_hook_patterns?.map(p => p.pattern).join(', ')}
 - Top pillars: ${winnerPatterns.top_pillars?.join(', ')}
 - What to make more of: ${winnerPatterns.what_to_make_more_of}
-- Topic angles to explore: ${winnerPatterns.topic_angles_to_explore?.join(', ')}` : 'No winner patterns yet — generating from strategy brain.'}
+- Topic angles to explore: ${winnerPatterns.topic_angles_to_explore?.join(', ')}` : 'No winner patterns yet - generating from strategy brain.'}
 
 ${storyBank && storyBank.length > 0 ? `STORY BANK (real moments to draw from):
 ${storyBank.slice(0, 5).map(s => `- ${s.title}: ${s.summary?.slice(0, 100)}`).join('\n')}` : ''}
@@ -17953,16 +18874,16 @@ Generate 5 specific, original content ideas. Each must:
 - NOT repeat recent content angles
 - Pass the anti-generic test: could NOT be posted by 1,000 other creators
 
-Return ONLY this JSON — no explanation, no markdown:
+Return ONLY this JSON - no explanation, no markdown:
 {
   "ideas": [
     {
-      "title": "[the hook — first words spoken or written]",
+      "title": "[the hook - first words spoken or written]",
       "why_it_will_work": "[one sentence connecting to winner patterns]",
       "format": "[Reel Script | Caption | Carousel | Email]",
       "pillar": "[content pillar]",
       "story_to_use": "[story bank title to reference, or null]",
-      "angle": "[specific angle — not just topic category]"
+      "angle": "[specific angle - not just topic category]"
     }
   ]
 }`;
@@ -18056,6 +18977,16 @@ function LearningLoop() {
       allPatterns[clientId] = { ...result, extractedAt: new Date().toISOString(), winnerCount: winners.length };
       localStorage.setItem(WINNER_PATTERNS_KEY, JSON.stringify(allPatterns));
       setPatterns(allPatterns[clientId]);
+
+      // Sync to Supabase
+      try {
+        await supabase.from('winner_patterns').upsert({
+          client_id: clientId,
+          patterns_json: allPatterns[clientId],
+          winner_count: winners.length,
+          extracted_at: new Date().toISOString(),
+        }, { onConflict: 'client_id' });
+      } catch(e) { console.error('Patterns Supabase sync:', e); }
     } catch(e) { console.error('extractPatterns:', e); }
     setPatternLoading(false);
   };
@@ -18137,7 +19068,7 @@ function LearningLoop() {
         <div>
           {winners.length < 3 ? (
             <div style={{ background: '#F9FAFB', borderRadius: 12, padding: '32px 24px', textAlign: 'center' }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
+              <div style={{ fontSize: 40, marginBottom: 12 }}></div>
               <div style={{ color: '#111827', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Not enough data yet</div>
               <p style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.7, marginBottom: 4 }}>
                 You need at least 3 winning content pieces to extract patterns.
@@ -18292,7 +19223,7 @@ function LearningLoop() {
                       <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
                         <span style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, textTransform: 'uppercase' }}>{topic.format}</span>
                         <span style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 10, padding: '2px 7px', borderRadius: 4 }}>{topic.pillar}</span>
-                        {topic.story_to_use && <span style={{ background: 'rgba(59,130,246,0.1)', color: '#3B82F6', fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4 }}>📖 {topic.story_to_use}</span>}
+                        {topic.story_to_use && <span style={{ background: 'rgba(59,130,246,0.1)', color: '#3B82F6', fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4 }}> {topic.story_to_use}</span>}
                       </div>
                       <div style={{ color: '#111827', fontWeight: 700, fontSize: 14, lineHeight: 1.5, marginBottom: 6 }}>{topic.title}</div>
                       {topic.why_it_will_work && (
@@ -18309,7 +19240,7 @@ function LearningLoop() {
               {selectedTopic && (
                 <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 10, padding: '12px 16px', marginTop: 4 }}>
                   <div style={{ color: '#10B981', fontWeight: 700, fontSize: 13 }}>Topic loaded into Smart Brief</div>
-                  <div style={{ color: '#6B7280', fontSize: 12, marginTop: 2 }}>Go to Create → Smart Brief ✦ to generate this content</div>
+                  <div style={{ color: '#6B7280', fontSize: 12, marginTop: 2 }}>Go to Create → Smart Brief to generate this content</div>
                 </div>
               )}
             </div>
@@ -18317,7 +19248,7 @@ function LearningLoop() {
 
           {generatedTopics.length === 0 && !topicLoading && (
             <div style={{ textAlign: 'center', padding: '32px 24px', background: '#F9FAFB', borderRadius: 12 }}>
-              <div style={{ fontSize: 36, marginBottom: 12 }}>💡</div>
+              <div style={{ fontSize: 36, marginBottom: 12 }}></div>
               <div style={{ color: '#6B7280', fontSize: 14 }}>Hit Generate Topics to get ideas weighted by what has worked for you.</div>
             </div>
           )}
@@ -18329,7 +19260,7 @@ function LearningLoop() {
         <div>
           {rcTotal === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 24px', background: '#F9FAFB', borderRadius: 12 }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>⏱</div>
+              <div style={{ fontSize: 40, marginBottom: 12 }}></div>
               <div style={{ color: '#111827', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>No reality checks yet</div>
               <p style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.7 }}>
                 48 hours after you approve content in Smart Brief, a check-in appears on your Dashboard asking if it outperformed. Responses show here.
@@ -18467,14 +19398,14 @@ ${stories.length > 0 ? 'STORY BANK THEMES: ' + stories.slice(0, 5).map(s => s.em
 CURRENT TRENDS (from recent scans):
 ${trendAlerts.slice(0, 5).map(a => '- ' + (a.title || a.account || '') + ' (' + (a.angle || '') + ')').join('\n')}
 
-Identify 4 specific content gap opportunities — things the market is underserving that this creator could own.
+Identify 4 specific content gap opportunities - things the market is underserving that this creator could own.
 
 Return ONLY this JSON:
 {
   "gaps": [
     {
       "opportunity": "[specific content angle nobody is doing well]",
-      "why_it_works": "[one sentence — why this creator specifically can own it]",
+      "why_it_works": "[one sentence - why this creator specifically can own it]",
       "hook": "[first line of a piece using this angle]",
       "format": "[Reel Script | Caption | Carousel]"
     }
@@ -18514,7 +19445,7 @@ Return ONLY this JSON:
           </h2>
         </div>
         <p style={{ color: '#6B7280', margin: 0, fontSize: 14, paddingLeft: 13 }}>
-          Trends, gaps, and opportunities — surface what to create before you sit down to create it.
+          Trends, gaps, and opportunities - surface what to create before you sit down to create it.
         </p>
       </div>
 
@@ -18607,7 +19538,7 @@ Return ONLY this JSON:
           {gaps.length === 0 && !gapLoading && (
             <div style={{ background: '#F9FAFB', borderRadius: 12, padding: '16px 20px', textAlign: 'center' }}>
               <div style={{ color: '#9CA3AF', fontSize: 13 }}>
-                Hit Find Gaps to surface what your niche is underserving — opportunities you can own.
+                Hit Find Gaps to surface what your niche is underserving - opportunities you can own.
               </div>
             </div>
           )}
@@ -18669,7 +19600,7 @@ Return ONLY this JSON:
         <div style={{ marginTop: 16, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 10, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ color: '#10B981', fontWeight: 700, fontSize: 13 }}>Loaded into Smart Brief</div>
-            <div style={{ color: '#6B7280', fontSize: 12, marginTop: 2 }}>Go to Create → Smart Brief ✦ to generate</div>
+            <div style={{ color: '#6B7280', fontSize: 12, marginTop: 2 }}>Go to Create → Smart Brief to generate</div>
           </div>
           <button onClick={() => setUsedTopic(null)}
             style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: 18 }}>×</button>
@@ -18699,7 +19630,7 @@ RAW DOCUMENT:
 ${rawText.slice(0, 6000)}
 ---
 
-Extract all available brand data. Return ONLY valid JSON — no explanation, no markdown fences:
+Extract all available brand data. Return ONLY valid JSON - no explanation, no markdown fences:
 {
   "what_they_do": "",
   "audience": "",
@@ -18725,7 +19656,7 @@ Extract all available brand data. Return ONLY valid JSON — no explanation, no 
 Rules:
 - Never invent information not present in the document
 - If a field is unclear, leave it as empty string or empty array
-- Extract exact language when possible — preserve their words
+- Extract exact language when possible - preserve their words
 - Identify implied beliefs even if not directly stated
 - Pull personal experiences and convert to structured stories
 - Constraints = things they will NOT talk about or do`;
@@ -18737,10 +19668,10 @@ const BRAIN_BUILD_PROMPT = (extracted, clientName) => `You are building a person
 EXTRACTED DATA:
 ${JSON.stringify(extracted, null, 2)}
 
-Build their complete content Brain. Return ONLY valid JSON — no explanation, no markdown:
+Build their complete content Brain. Return ONLY valid JSON - no explanation, no markdown:
 {
   "brand_voice_profile": {
-    "description": "[3-sentence voice description — specific to this person]",
+    "description": "[3-sentence voice description - specific to this person]",
     "strong_examples": ["[example of on-brand language]", "[another]", "[another]"],
     "weak_examples": ["[example of off-brand language to avoid]", "[another]"],
     "sentence_style": "[punchy | story-led | educational | conversational]",
@@ -18749,7 +19680,7 @@ Build their complete content Brain. Return ONLY valid JSON — no explanation, n
   },
   "content_pillars": [
     {
-      "name": "[specific pillar name — NOT generic like Mindset or Wellness]",
+      "name": "[specific pillar name - NOT generic like Mindset or Wellness]",
       "description": "[1-line description specific to this creator]",
       "includes": "[what belongs here]",
       "excludes": "[what does NOT belong]",
@@ -18767,11 +19698,11 @@ Build their complete content Brain. Return ONLY valid JSON — no explanation, n
     "language_patterns": ["[phrase they use]", "[another]"]
   },
   "anti_generic_rules": [
-    "[rule specific to this creator — e.g. Never give advice without connecting to a real client story]",
+    "[rule specific to this creator - e.g. Never give advice without connecting to a real client story]",
     "[another rule]",
     "[another rule]"
   ],
-  "transformation_promise": "[what content does for the audience — one sentence]",
+  "transformation_promise": "[what content does for the audience - one sentence]",
   "positioning": "[what makes this creator different from everyone else in their niche]",
   "story_angles": [
     { "theme": "[theme]", "angle": "[specific story angle]", "hook": "[first line]" }
@@ -18947,7 +19878,7 @@ function DualOnboarding() {
       localStorage.setItem('encis_clients', JSON.stringify(updated));
     } catch {}
 
-    // Save full brain to BRAIN_KEY
+    // Save full brain to BRAIN_KEY (localStorage)
     try {
       const brains = JSON.parse(localStorage.getItem(BRAIN_KEY) || '{}');
       brains[newClient.id] = {
@@ -18959,6 +19890,21 @@ function DualOnboarding() {
       };
       localStorage.setItem(BRAIN_KEY, JSON.stringify(brains));
     } catch {}
+
+    // Sync Brain to Supabase strategy_profiles
+    try {
+      await supabase.from('strategy_profiles').upsert({
+        client_id: newClient.id,
+        client_name: name,
+        source: path,
+        brain_json: brain,
+        pillars: brain.content_pillars || [],
+        voice_profile: brain.brand_voice_profile || {},
+        audience: brain.audience_profile || {},
+        completion: brain.completion_score || 'weak',
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'client_id' });
+    } catch(e) { console.error('Brain Supabase sync:', e); }
 
     // Save stories to story bank if any
     if (extracted?.stories?.length > 0) {
@@ -18979,6 +19925,24 @@ function DualOnboarding() {
           savedAt: new Date().toISOString(),
         }));
         localStorage.setItem(STORY_BANK_KEY, JSON.stringify(allStories));
+
+        // Sync stories to Supabase
+        try {
+          const storyRows = extracted.stories.map(s => ({
+            client_id: newClient.id,
+            title: s.summary?.slice(0, 40) || 'Story',
+            story_type: 'personal',
+            summary: s.summary || '',
+            key_lesson: s.lesson || '',
+            emotional_theme: 'personal',
+            audience_relevance: s.use_case || '',
+            reusable_hooks: [],
+            best_formats: ['Reel Script'],
+            proof_type: 'personal experience',
+            saved_at: new Date().toISOString(),
+          }));
+          await supabase.from('story_bank').insert(storyRows);
+        } catch(e) { console.error('Story bank Supabase sync:', e); }
       } catch {}
     }
 
@@ -19053,7 +20017,7 @@ function DualOnboarding() {
               style={{ background: '#FFFFFF', border: '2px solid #E5E7EB', borderRadius: 14, padding: '24px 20px', cursor: 'pointer', textAlign: 'left', transition: 'border-color 0.15s' }}
               onMouseEnter={e => e.currentTarget.style.borderColor = '#111827'}
               onMouseLeave={e => e.currentTarget.style.borderColor = '#E5E7EB'}>
-              <div style={{ fontSize: 28, marginBottom: 10 }}>📄</div>
+              <div style={{ fontSize: 28, marginBottom: 10 }}></div>
               <div style={{ color: '#111827', fontWeight: 800, fontSize: 15, marginBottom: 6 }}>Upload Intake</div>
               <div style={{ color: '#6B7280', fontSize: 13, lineHeight: 1.6 }}>
                 Upload their completed intake form, PDF, or paste any document. Claude extracts everything automatically.
@@ -19064,7 +20028,7 @@ function DualOnboarding() {
               style={{ background: '#FFFFFF', border: '2px solid #E5E7EB', borderRadius: 14, padding: '24px 20px', cursor: 'pointer', textAlign: 'left', transition: 'border-color 0.15s' }}
               onMouseEnter={e => e.currentTarget.style.borderColor = '#111827'}
               onMouseLeave={e => e.currentTarget.style.borderColor = '#E5E7EB'}>
-              <div style={{ fontSize: 28, marginBottom: 10 }}>✍️</div>
+              <div style={{ fontSize: 28, marginBottom: 10 }}></div>
               <div style={{ color: '#111827', fontWeight: 800, fontSize: 15, marginBottom: 6 }}>Guided Setup</div>
               <div style={{ color: '#6B7280', fontSize: 13, lineHeight: 1.6 }}>
                 Answer 5 questions about the client. Takes about 3-5 minutes. Good for new clients.
@@ -19075,7 +20039,7 @@ function DualOnboarding() {
         </div>
       )}
 
-      {/* ── UPLOAD: STEP 1 — UPLOAD/PASTE ── */}
+      {/* ── UPLOAD: STEP 1 - UPLOAD/PASTE ── */}
       {path === 'upload' && step === 1 && (
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
@@ -19092,11 +20056,11 @@ function DualOnboarding() {
                 <div>
                   <div style={{ fontSize: 24, marginBottom: 8 }}>✅</div>
                   <div style={{ color: '#10B981', fontWeight: 700, fontSize: 14 }}>{fileName}</div>
-                  <div style={{ color: '#6B7280', fontSize: 12, marginTop: 4 }}>File loaded — {rawText.length.toLocaleString()} characters</div>
+                  <div style={{ color: '#6B7280', fontSize: 12, marginTop: 4 }}>File loaded - {rawText.length.toLocaleString()} characters</div>
                 </div>
               ) : (
                 <div>
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>📂</div>
+                  <div style={{ fontSize: 32, marginBottom: 8 }}></div>
                   <div style={{ color: '#374151', fontWeight: 600, fontSize: 14 }}>Click to upload intake document</div>
                   <div style={{ color: '#9CA3AF', fontSize: 12, marginTop: 4 }}>.txt, .md, .pdf, .docx accepted</div>
                 </div>
@@ -19106,7 +20070,7 @@ function DualOnboarding() {
           </label>
 
           {/* OR paste */}
-          <div style={{ textAlign: 'center', color: '#9CA3AF', fontSize: 12, marginBottom: 12 }}>— or paste directly —</div>
+          <div style={{ textAlign: 'center', color: '#9CA3AF', fontSize: 12, marginBottom: 12 }}>- or paste directly -</div>
           <textarea
             value={rawText}
             onChange={e => setRawText(e.target.value)}
@@ -19131,7 +20095,7 @@ function DualOnboarding() {
         </div>
       )}
 
-      {/* ── UPLOAD: STEP 2 — CONFIRMATION SCREEN ── */}
+      {/* ── UPLOAD: STEP 2 - CONFIRMATION SCREEN ── */}
       {path === 'upload' && step === 2 && extracted && (
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
@@ -19144,7 +20108,7 @@ function DualOnboarding() {
             <div style={{ background: extractScore.level === 'strong' ? 'rgba(16,185,129,0.08)' : extractScore.level === 'medium' ? 'rgba(245,158,11,0.08)' : 'rgba(239,68,68,0.08)', border: '1px solid ' + (extractScore.level === 'strong' ? 'rgba(16,185,129,0.25)' : extractScore.level === 'medium' ? 'rgba(245,158,11,0.25)' : 'rgba(239,68,68,0.25)'), borderRadius: 10, padding: '12px 16px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <div style={{ color: extractScore.level === 'strong' ? '#10B981' : extractScore.level === 'medium' ? '#F59E0B' : '#EF4444', fontWeight: 700, fontSize: 14 }}>
-                  {extractScore.level === 'strong' ? '✅ Strong intake' : extractScore.level === 'medium' ? '⚠️ Decent intake — a few gaps' : '❌ Weak intake — missing key fields'}
+                  {extractScore.level === 'strong' ? '✅ Strong intake' : extractScore.level === 'medium' ? '! Decent intake - a few gaps' : '❌ Weak intake - missing key fields'}
                 </div>
                 {extractScore.missing.length > 0 && (
                   <div style={{ color: '#6B7280', fontSize: 12, marginTop: 3 }}>
@@ -19172,7 +20136,7 @@ function DualOnboarding() {
             </div>
           </div>
 
-          {/* Tier 1 — Required fields (always shown) */}
+          {/* Tier 1 - Required fields (always shown) */}
           <div style={{ marginBottom: 16 }}>
             <div style={{ color: '#111827', fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Required fields</div>
             {[
@@ -19196,7 +20160,7 @@ function DualOnboarding() {
             </div>
           </div>
 
-          {/* Tier 2 — Recommended (collapsible) */}
+          {/* Tier 2 - Recommended (collapsible) */}
           <details style={{ marginBottom: 16 }}>
             <summary style={{ color: '#6B7280', fontSize: 13, fontWeight: 600, cursor: 'pointer', marginBottom: 10, userSelect: 'none' }}>
               Review recommended fields (differentiators, offers, beliefs)
@@ -19249,12 +20213,12 @@ function DualOnboarding() {
         </div>
       )}
 
-      {/* ── GUIDED: STEP 1 — 5 FIELDS ── */}
+      {/* ── GUIDED: STEP 1 - 5 FIELDS ── */}
       {path === 'guided' && step === 1 && (
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
             <button onClick={() => { setPath(null); setStep(0); }} style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: 13 }}>← Back</button>
-            <div style={{ color: '#111827', fontWeight: 700, fontSize: 15 }}>Guided Setup — 5 fields</div>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 15 }}>Guided Setup - 5 fields</div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
@@ -19271,8 +20235,8 @@ function DualOnboarding() {
           </div>
 
           {[
-            { key: 'what_they_do', label: 'What do they do?', placeholder: 'Describe their work specifically — niche, method, approach...', rows: 3 },
-            { key: 'audience', label: 'Who is their audience?', placeholder: 'Who they serve — age, situation, struggle, identity...', rows: 3 },
+            { key: 'what_they_do', label: 'What do they do?', placeholder: 'Describe their work specifically - niche, method, approach...', rows: 3 },
+            { key: 'audience', label: 'Who is their audience?', placeholder: 'Who they serve - age, situation, struggle, identity...', rows: 3 },
             { key: 'problem', label: 'What core problem do they solve?', placeholder: 'The real problem their clients face before finding them...', rows: 3 },
             { key: 'tone', label: 'What is their tone? (comma-separated)', placeholder: 'e.g. direct, warm, no-nonsense, educational, sarcastic...', rows: 1 },
             { key: 'differentiators', label: 'What makes them different?', placeholder: 'What they do that nobody else does, or how they do it differently...', rows: 2 },
@@ -19306,13 +20270,13 @@ function DualOnboarding() {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
             <div style={{ fontSize: 20 }}>🧠</div>
-            <div style={{ color: '#111827', fontWeight: 700, fontSize: 15 }}>Brain Built — Review Before Saving</div>
+            <div style={{ color: '#111827', fontWeight: 700, fontSize: 15 }}>Brain Built - Review Before Saving</div>
           </div>
 
           {/* Completion indicator */}
           <div style={{ background: brain.completion_score === 'strong' ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)', border: '1px solid ' + (brain.completion_score === 'strong' ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.25)'), borderRadius: 10, padding: '10px 16px', marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: brain.completion_score === 'strong' ? '#10B981' : '#F59E0B', fontWeight: 700, fontSize: 13 }}>
-              {brain.completion_score === 'strong' ? '✅ Strong Brain' : '⚠️ Decent Brain'} — {clientName}
+              {brain.completion_score === 'strong' ? '✅ Strong Brain' : '! Decent Brain'} - {clientName}
             </span>
             {brain.missing_fields?.length > 0 && (
               <span style={{ color: '#9CA3AF', fontSize: 12 }}>Could add: {brain.missing_fields.join(', ')}</span>
@@ -19432,6 +20396,9 @@ const COMPONENT_MAP = {
   schedule: ScheduleOptimizer,
   tracker: CollabTracker,
   clients: ClientMode,
+  voice: VoiceFingerprintBuilder,
+  brainverify: BrainVerification,
+  whitelabel: WhiteLabelSwitcher,
   comment: CommentResponder,
   email: EmailSequenceBuilder,
   podcast: PodcastPreProd,
@@ -19478,26 +20445,26 @@ const COMPONENT_MAP = {
   compintel: CompetitorIntel,
 };
 
-// ── Global Error Boundary — prevents white screen crashes ───────────────────
+// ── Global Error Boundary - prevents white screen crashes ───────────────────
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null };
   }
   static getDerivedStateFromError(error) { return { hasError: true, error }; }
-  componentDidCatch(error, info) { console.error('SIGNAL Error:', error, info); }
+  componentDidCatch(error, info) { console.error('8th Ascent Error:', error, info); }
   render() {
     if (this.state.hasError) return (
       <div style={{minHeight:'100vh',background:'#FFFFFF',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'DM Sans,sans-serif'}}>
         <div style={{background:'#FFFFFF',border:'1px solid #D1D5DB',borderRadius:16,padding:40,maxWidth:480,textAlign:'center'}}>
           <h2 style={{color:'#F1F5F9',fontWeight:900,fontSize:22,letterSpacing:'-0.03em',marginBottom:8}}>Something went wrong</h2>
-          <p style={{color:'#5A6A82',fontSize:14,marginBottom:20}}>SIGNAL hit an unexpected error. Your data is safe in localStorage.</p>
+          <p style={{color:'#5A6A82',fontSize:14,marginBottom:20}}>8th Ascent hit an unexpected error. Your data is safe in localStorage.</p>
           <div style={{background:'#F9FAFB',borderRadius:8,padding:'10px 14px',marginBottom:20,fontFamily:'monospace',fontSize:12,color:'#8B9AB4',textAlign:'left'}}>
             {this.state.error?.message || 'Unknown error'}
           </div>
           <button onClick={()=>window.location.reload()}
             style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:8,padding:'12px 28px',fontWeight:800,cursor:'pointer',fontSize:14}}>
-            Reload SIGNAL
+            Reload 8th Ascent
           </button>
         </div>
       </div>
@@ -19560,7 +20527,7 @@ export default function App() {
       {!onboardingDone && <OnboardingFlow onComplete={() => setOnboardingDone(true)}/>}
       <Head>
         <title>8th Ascent</title>
-        <meta name="description" content="SIGNAL Social Media OS by Everyday Elevations"/>
+        <meta name="description" content="8th Ascent by Everyday Elevations"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
@@ -19588,7 +20555,7 @@ export default function App() {
 
           /* ── MOBILE RESPONSIVE ── */
           @media (max-width: 640px) {
-            /* Nav scrolls horizontally — never wraps */
+            /* Nav scrolls horizontally - never wraps */
             .signal-nav-inner { gap: 0 !important; }
             .signal-nav-btn { padding: 14px 10px !important; font-size: 11px !important; }
             .signal-subnav { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -19608,7 +20575,7 @@ export default function App() {
             /* Buttons full width on mobile */
             .signal-action-row { flex-direction: column !important; }
             .signal-action-row button { width: 100% !important; }
-            /* KPI row — 2 across */
+            /* KPI row - 2 across */
             .signal-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
             /* Trend banner text truncates properly */
             .signal-trend-preview { max-width: 120px !important; }
