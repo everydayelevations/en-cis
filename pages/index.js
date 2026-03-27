@@ -88,7 +88,7 @@ Today is ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',yea
   }
 
   // Default client voice (solo mode)
-  return `Write in ${activeClient?.name || 'the creator'}'s voice.
+  return `Write in Jason's voice.
 
 WHO HE IS:
 Jason is an HR Manager at a cabinet manufacturing company in Colorado - this is his primary career and where he spends most of his working hours. He deals with real HR every day: benefits, compliance, employee issues, hiring, difficult conversations, management problems. He knows what it's like to be the person everyone comes to when something goes wrong at work.
@@ -744,7 +744,7 @@ Structure:
 Rules: Respectful but confident. Add genuine value. End with a question that drives comments.`;
 
 const TREND_PROMPT = (niche, client) => `
-You are a viral content strategist for ${client ? client.name + (client.handle ? ' (' + client.handle + ')' : '') : activeClient?.handle || '@yourcreator'}.
+You are a viral content strategist for ${client ? client.name + (client.handle ? ' (' + client.handle + ')' : '') : 'the creator'}.
 Find 6-8 trending topics right now in: ${niche}
 
 Return as JSON array:
@@ -1183,11 +1183,11 @@ Run this full review. Input data. Read the output. Execute the plan.
 `
 
 const PROFILE_PROMPT = (platform, liveData, extraContext, client) => {
-  const creatorName = client && !client.isDefault ? client.name : activeClient?.name || 'the creator';
-  const handle = client && !client.isDefault ? (client.handle || '') : activeClient?.handle || '@yourcreator';
+  const creatorName = client && !client.isDefault ? client.name : 'the creator';
+  const handle = client && !client.isDefault ? (client.handle || '') : 'the creator';
   const linkedInNote = client && !client.isDefault
     ? (client.role ? '7. **Dual-Lane Strategy** (' + client.role + ')\n8. **Featured Section** (what to pin, in order)\n9. **Rewritten About Section** (full copy, ready to paste)' : '')
-    : '7. **Dual-Lane Strategy** (' + (activeClient?.role || 'your primary role') + ' + content brand)\n8. **Featured Section** (what to pin, in order)\n9. **Rewritten About Section** (full copy, ready to paste)';
+    : '7. **Dual-Lane Strategy** (your role + content brand)\n8. **Featured Section** (what to pin, in order)\n9. **Rewritten About Section** (full copy, ready to paste)';
   return `
 ${getVoice(client)}
 ${CONTENT_SOP}
@@ -1973,7 +1973,7 @@ function useWorkflowStatus(itemId) {
 const DESIGN_PACK_PROMPT = (item, content, client) => `
 You are a creative director and content strategist building a visual-ready Design Pack for a social media content piece.
 
-Creator: ${client && !client.isDefault ? client.name + (client.handle ? ' | ' + client.handle : '') + (client.location ? ' | ' + client.location : '') + ' | Voice: ' + (client.voice || 'Direct, real.') : (activeClient?.name || 'the creator') + (activeClient?.handle ? ' | ' + activeClient.handle : '') + (activeClient?.location ? ' | ' + activeClient.location : '') + ' | Voice: ' + (activeClient?.voice?.slice(0,60) || 'Direct, real.')}
+Creator: ${client && !client.isDefault ? client.name + (client.handle ? ' | ' + client.handle : '') + (client.location ? ' | ' + client.location : '') + ' | Voice: ' + (client.voice || 'Direct, real.') : client?.name || 'the creator'}
 Platform: ${item.platform || 'Instagram'}
 Content Type: ${item.type || 'Content'}
 Topic/Title: ${item.title || 'Untitled'}
@@ -4006,7 +4006,7 @@ function ProfileAudit() {
   const [fetching, setFetching] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handle = activeClient?.handle || activeClient?.handle || '@yourcreator';
+  const handle = activeClient?.handle || 'the creator';
   const handleClean = handle.replace('@', '');
   const handles = {
     Instagram: `${handle} on Instagram: instagram.com/${handleClean}`,
@@ -6045,7 +6045,7 @@ Available hours per week: ${hours}
 
 Based on this actual data, build a specific weekly posting schedule. Do not give generic advice : base every recommendation on what the data shows.
 
-# Optimal Posting Schedule for ${activeClient?.handle || activeClient?.name || activeClient?.handle || '@yourcreator'}
+# Optimal Posting Schedule for ${activeClient?.handle || activeClient?.name || 'the creator'}
 
 ## What the Data Shows
 [Specific patterns from the ROI and content memory data above : what's working, what's not, best performing content types]
@@ -6166,7 +6166,7 @@ You are analyzing ${activeClient?.name || 'this creator'}'s content library to f
 CONTENT AUDIT DATA:
 ${summary}
 
-# Content Gap Analysis : ${activeClient?.handle || activeClient?.name || activeClient?.handle || '@yourcreator'}
+# Content Gap Analysis : ${activeClient?.handle || activeClient?.name || 'the creator'}
 
 ## What You're Over-Posting
 [Angles and formats appearing too frequently : risk of audience fatigue]
@@ -7191,7 +7191,7 @@ function EmailSequenceBuilder() {
 const PODCAST_PREPROD_PROMPT = (guestName, guestBio, episode_angle, showContext, client) => `
 ${getVoice(client)}
 
-Show: ${client && !client.isDefault ? (client.name + ' Podcast') : (activeClient?.name ? activeClient.name + ' Podcast' : '8th Ascent Podcast')} (Host: ${client ? client.name : activeClient?.name || 'the creator'}${client && !client.isDefault ? '' : ': US Air Force veteran, HR manager, mindset coach, Colorado'})
+Show: ${client && !client.isDefault ? (client.name + ' Podcast') : '8th Ascent Podcast'} (Host: ${client ? client.name : 'the creator'}${client && !client.isDefault ? '' : ': US Air Force veteran, HR manager, mindset coach, Colorado'})
 Guest: ${guestName}
 Guest Background: ${guestBio}
 Episode Angle / Theme: ${episode_angle}
@@ -7640,9 +7640,9 @@ ${channelData}
 ${auditExtra ? `Additional Context from ${client ? client.name : 'Jason'} (treat this as ground truth : they know their channel better than any search):
 ${auditExtra}` : ''}
 
-You are auditing ${client ? client.name + (client.handle ? ' (' + client.handle + ')' : '') : activeClient?.name || 'the creator'}'s YouTube channel using the VIDIQ outlier framework. Be direct. No softening. Use the additional context above to make every recommendation specific.
+You are auditing ${client ? client.name + (client.handle ? ' (' + client.handle + ')' : '') : 'the creator'}'s YouTube channel using the VIDIQ outlier framework. Be direct. No softening. Use the additional context above to make every recommendation specific.
 
-# YouTube Channel Audit : ${client ? (client.handle || client.name) : activeClient?.handle || '@yourcreator'}
+# YouTube Channel Audit : ${client ? (client.handle || client.name) : 'the creator'}
 
 ## Channel Health Score: [X/10]
 
@@ -7721,7 +7721,7 @@ function YouTubeToolkit() {
 
   const fetchChannel = async () => {
     setFetching(true); setChannelData('');
-    const ytHandle = activeClient?.handle || activeClient?.handle || '@yourcreator';
+    const ytHandle = activeClient?.handle || 'the creator';
     const res = await perp(`Audit the YouTube channel ${ytHandle}. Report: subscriber count, total views, number of videos, recent upload frequency, most viewed videos (titles + approximate views), channel description, content topics covered, what's working and what isn't based on the data visible.`);
     setChannelData(res);
     setFetching(false);
@@ -7851,7 +7851,7 @@ function YouTubeToolkit() {
               style={{background:'#F9FAFB',color:'#111827',border:'1px solid rgba(255,255,255,0.2)',
                 borderRadius:8,padding:'10px 20px',fontWeight:700,cursor:fetching?'not-allowed':'pointer',
                 fontSize:13,marginBottom:16}}>
-              {fetching ? 'Pulling channel data...' : `Pull ${activeClient?.handle || activeClient?.handle || '@yourcreator'} Data`}
+              {fetching ? 'Pulling channel data...' : `Pull ${activeClient?.handle || 'the creator'} Data`}
             </button>
             {channelData && (
               <div style={{background:'#F9FAFB',borderRadius:8,padding:'12px',marginBottom:16,
@@ -7904,7 +7904,7 @@ function YouTubeToolkit() {
             <span style={{color:'#111827',fontWeight:700,fontSize:14}}>{tools.find(t=>t.id===tool)?.label} Results</span>
             <CopyBtn text={out}/>
           </div>
-          <DocOutput text={out} title={tool === 'script' ? `YouTube Script : ${topic}` : tool === 'audit' ? `Channel Audit : ${activeClient?.handle || activeClient?.handle || '@yourcreator'}` : `YouTube ${tool} : ${topic || 'Content'}`}/>
+          <DocOutput text={out} title={tool === 'script' ? `YouTube Script : ${topic}` : tool === 'audit' ? `Channel Audit : ${activeClient?.handle || 'the creator'}` : `YouTube ${tool} : ${topic || 'Content'}`}/>
         </div>
       )}
     </div>
@@ -8386,7 +8386,7 @@ function ChallengeBuilder() {
 const SPY_PROMPT = (handle, platform, rawData, angle, client) => `
 ${getVoice(client)}
 
-You are analyzing a competitor's content strategy to find gaps ${client ? client.name : activeClient?.name || 'the creator'} can own.
+You are analyzing a competitor's content strategy to find gaps ${client ? client.name : 'the creator'} can own.
 
 Creator: ${handle}
 Platform: ${platform}
@@ -12370,7 +12370,7 @@ function StoryArcPlanner() {
 const GUEST_PREP_PROMPT = (client, guestName, guestBio, guestHandle, episodeTopic, recordDate) => `
 ${client ? `HOST: ${client.name} (${client.handle})` : VOICE}
 
-PODCAST: ${client?.name ? client.name + ' Podcast' : activeClient?.name ? activeClient.name + ' Podcast' : '8th Ascent Podcast'}
+PODCAST: ${client?.name ? client.name + ' Podcast' : '8th Ascent Podcast'}
 GUEST: ${guestName}
 GUEST BIO: ${guestBio}
 GUEST HANDLE: ${guestHandle || 'Not provided'}
