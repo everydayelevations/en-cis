@@ -5784,6 +5784,8 @@ function ROIDashboard() {
 // MAIN APP
 // ═════════════════════════════════════════════════════════════════════════════
 const TOP_NAV = [
+  // STUDIO - front door (default home)
+  { id:'home',     label:'Studio',   primary: true },
   // PRIMARY - daily use (prominent)
   { id:'create',   label:'Create',   primary: true },
   { id:'discover', label:'Discover', primary: true },
@@ -13968,11 +13970,489 @@ const DashSectionLabel = ({ children }) => (
   </div>
 );
 
+// ── PLAN WEEK WIZARD ─────────────────────────────────────────────────────────
+// Full-screen overlay. Step 1: inputs. Step 2: structured 5-post plan.
+// Reuses WeeklyBrief prompt + saveBrief logic. Wires into Content Engine.
+
+const PLAN_WEEK_PROMPT = (identity, focus, avoid, platform, clientName) => {
+  const today = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  const clientLabel = clientName || 'Jason Fricka';
+  return `You are the Weekly Brief Agent for ${clientLabel}. Today is ${today}.
+Identity this week: ${identity}
+Content focus: ${focus}
+Avoid: ${avoid || 'Nothing specific'}
+Primary platform: ${platform}
+
+Generate a complete Monday morning content brief. Be specific. Every piece should be filmable this week.
+
+Return your response in this EXACT format — do not deviate:
+
+FOCUS_PARAGRAPH:
+[One paragraph. What the week is about, what success looks like by Sunday, and the emotional through-line.]
+
+POST_1:
+Day: Monday
+Format: [Reel/Carousel/Caption/Story]
+Hook: [exact first words — under 10 words]
+Topic: [specific filmable topic]
+Angle: [which content pillar this serves]
+Film time: [e.g. 15 min]
+
+POST_2:
+Day: Tuesday
+Format: [Reel/Carousel/Caption/Story]
+Hook: [exact first words]
+Topic: [specific filmable topic]
+Angle: [which content pillar]
+Film time: [e.g. 10 min]
+
+POST_3:
+Day: Wednesday
+Format: [Reel/Carousel/Caption/Story]
+Hook: [exact first words]
+Topic: [specific filmable topic]
+Angle: [which content pillar]
+Film time: [e.g. 20 min]
+
+POST_4:
+Day: Thursday
+Format: [Reel/Carousel/Caption/Story]
+Hook: [exact first words]
+Topic: [specific filmable topic]
+Angle: [which content pillar]
+Film time: [e.g. 15 min]
+
+POST_5:
+Day: Friday
+Format: [Reel/Carousel/Caption/Story]
+Hook: [exact first words]
+Topic: [specific filmable topic]
+Angle: [which content pillar]
+Film time: [e.g. 10 min]
+
+PRIORITY_POST:
+[Which post number has the highest potential and exactly why in one sentence.]
+
+MONDAY_ACTIONS:
+1. [specific setup action]
+2. [specific setup action]
+3. [specific setup action]`;
+};
+
+function parsePlanWeekOutput(raw) {
+  try {
+    const focusMatch = raw.match(/FOCUS_PARAGRAPH:\s*([\s\S]*?)(?=POST_1:)/);
+    const focusParagraph = focusMatch ? focusMatch[1].trim() : '';
+
+    const posts = [];
+    for (let i = 1; i <= 5; i++) {
+      const block = raw.match(new RegExp(`POST_${i}:([\\s\\S]*?)(?=POST_${i+1}:|PRIORITY_POST:|MONDAY_ACTIONS:|$)`));
+      if (!block) continue;
+      const b = block[1];
+      const get = (field) => {
+        const m = b.match(new RegExp(field + ':\\s*(.+)'));
+        return m ? m[1].trim() : '';
+      };
+      posts.push({
+        n: i,
+        day: get('Day'),
+        format: get('Format'),
+        hook: get('Hook'),
+        topic: get('Topic'),
+        angle: get('Angle'),
+        filmTime: get('Film time'),
+      });
+    }
+
+    const priorityMatch = raw.match(/PRIORITY_POST:\s*([\s\S]*?)(?=MONDAY_ACTIONS:|$)/);
+    const priority = priorityMatch ? priorityMatch[1].trim() : '';
+
+    const actionsMatch = raw.match(/MONDAY_ACTIONS:\s*([\s\S]*?)$/);
+    const actionsRaw = actionsMatch ? actionsMatch[1].trim() : '';
+    const actions = actionsRaw.split('\n').filter(l => l.trim()).map(l => l.replace(/^\d+\.\s*/, '').trim()).filter(Boolean);
+
+    return { focusParagraph, posts, priority, actions, raw };
+  } catch {
+    return { focusParagraph: '', posts: [], priority: '', actions: [], raw };
+  }
+}
+
+const FORMAT_COLORS = {
+  Reel: '#7C3AED', Carousel: '#0891B2', Caption: '#2563EB',
+  Story: '#D97706', Post: '#374151', Email: '#DC2626',
+};
+const DAY_BG = {
+  Monday: '#EFF6FF', Tuesday: '#F0FDF4', Wednesday: '#FFFBEB',
+  Thursday: '#FFF1F2', Friday: '#F5F3FF',
+};
+
+function PlanWeekWizard({ onClose, setNav, setSub, activeClient }) {
+  const [step, setStep] = React.useState('form'); // form | generating | result
+  const [identity, setIdentity] = React.useState('');
+  const [focus, setFocus] = React.useState('');
+  const [avoid, setAvoid] = React.useState('');
+  const [platform, setPlatform] = React.useState('Instagram');
+  const [plan, setPlan] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
+  const [savedDrafts, setSavedDrafts] = React.useState({});
+  const [lastPlanLoaded, setLastPlanLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    // Pre-fill identity from Brain if available
+    if (activeClient?.voice) setIdentity(activeClient.voice.slice(0, 140));
+  }, [activeClient]);
+
+  const loadLastWeek = () => {
+    try {
+      const key = typeof WEEKLY_BRIEF_KEY !== 'undefined' ? WEEKLY_BRIEF_KEY : 'encis_weekly_briefs';
+      const briefs = JSON.parse(localStorage.getItem(key) || '[]');
+      if (briefs.length === 0) return;
+      const last = briefs[0];
+      if (last.focus) setFocus(last.focus);
+      if (last.platform) setPlatform(last.platform);
+      setLastPlanLoaded(true);
+    } catch {}
+  };
+
+  const generate = async () => {
+    if (!focus.trim()) return;
+    setLoading(true);
+    setStep('generating');
+    try {
+      const prompt = PLAN_WEEK_PROMPT(identity, focus, avoid, platform, activeClient?.name);
+      const raw = await ai(prompt);
+      const parsed = parsePlanWeekOutput(raw);
+      setPlan(parsed);
+
+      // Save to WEEKLY_BRIEF_KEY + weekly_plans (same as WeeklyBriefAgent)
+      const entry = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+        week: new Date().toLocaleDateString('en-US',{month:'long',day:'numeric'}),
+        focus, platform,
+        client: activeClient?.name || 'Jason',
+        content: raw,
+      };
+      try {
+        const key = typeof WEEKLY_BRIEF_KEY !== 'undefined' ? WEEKLY_BRIEF_KEY : 'encis_weekly_briefs';
+        const briefs = JSON.parse(localStorage.getItem(key) || '[]');
+        localStorage.setItem(key, JSON.stringify([entry, ...briefs].slice(0, 12)));
+      } catch {}
+      try {
+        supabase.from('weekly_plans').insert([{
+          week_label: entry.week,
+          plan_data: { focus, identity, avoid, platform, posts: parsed.posts },
+          client_name: entry.client,
+          client_id: activeClient?.id || 'jason',
+          notes: raw.slice(0, 500),
+        }]);
+      } catch {}
+
+      setStep('result');
+    } catch(e) {
+      console.error('PlanWeek error:', e);
+      setStep('form');
+    }
+    setLoading(false);
+  };
+
+  const openInContentEngine = (post) => {
+    try {
+      localStorage.setItem('encis_selected_topic', JSON.stringify({
+        topic: post.topic,
+        format: post.format + ' Script',
+        pillar: post.angle,
+        platform,
+        story: post.hook,
+        selectedAt: Date.now(),
+      }));
+    } catch {}
+    setNav('agents');
+    setSub('contentengine');
+    onClose();
+  };
+
+  const saveAsDraft = async (post) => {
+    try {
+      await saveToSupabase({
+        type: post.format?.toLowerCase() || 'content',
+        title: post.hook?.slice(0, 80) || post.topic,
+        platform,
+        angle: post.angle,
+        preview: `[Plan Week Draft] ${post.day}: ${post.topic}`,
+        full: `Day: ${post.day}\nFormat: ${post.format}\nHook: ${post.hook}\nTopic: ${post.topic}\nAngle: ${post.angle}\nEst. film time: ${post.filmTime}`,
+        notes: 'plan-week|draft',
+      });
+      setSavedDrafts(prev => ({ ...prev, [post.n]: true }));
+    } catch(e) { console.error(e); }
+  };
+
+  const inStyle = {
+    width: '100%', background: '#FAFAF8', border: '1px solid #E8E6E1',
+    borderRadius: 8, padding: '10px 14px', color: '#1A1A1A',
+    fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(15,20,28,0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflowY: 'auto', padding: '40px 16px 60px' }}>
+      <div style={{ background: '#fff', borderRadius: 20, width: '100%', maxWidth: 700, boxShadow: '0 24px 80px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
+
+        {/* Header */}
+        <div style={{ padding: '24px 28px 20px', borderBottom: '1px solid #F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#2563EB', marginBottom: 4 }}>
+              8th Ascent Studio
+            </div>
+            <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900, letterSpacing: '-0.03em', color: '#1A1A1A' }}>
+              Plan your week
+            </h2>
+            <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6B7280' }}>
+              {step === 'form' ? 'Tell 8th Ascent who you\'re showing up as. Get a full week plan in 60 seconds.' : step === 'generating' ? 'Building your brief from your Brain...' : '5 ready-to-film posts. Tap to create.'}
+            </p>
+          </div>
+          <button onClick={onClose} style={{ background: '#F3F2EF', border: 'none', borderRadius: 8, width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, color: '#6B7280', flexShrink: 0 }}>×</button>
+        </div>
+
+        {/* Step 1: Form */}
+        {step === 'form' && (
+          <div style={{ padding: '24px 28px' }}>
+            {lastPlanLoaded && (
+              <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '10px 14px', marginBottom: 20, fontSize: 12, color: '#1D4ED8', fontWeight: 600 }}>
+                ↩ Loaded last week's plan. Tweak anything, then generate.
+              </div>
+            )}
+
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: 8 }}>
+                Who are you showing up as this week?
+              </label>
+              <textarea value={identity} onChange={e => setIdentity(e.target.value)} rows={2}
+                placeholder="e.g. The HR manager who sees what leadership costs real people. The dad showing his kid what discipline looks like."
+                style={{ ...inStyle, resize: 'vertical', lineHeight: 1.6 }}
+                onFocus={e => e.target.style.borderColor = '#2563EB'}
+                onBlur={e => e.target.style.borderColor = '#E8E6E1'}
+              />
+            </div>
+
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: 8 }}>
+                One focus for this week <span style={{ color: '#DC2626' }}>*</span>
+              </label>
+              <textarea value={focus} onChange={e => setFocus(e.target.value)} rows={2}
+                placeholder="e.g. The gap between wanting to change and actually doing the work."
+                style={{ ...inStyle, resize: 'vertical', lineHeight: 1.6 }}
+                onFocus={e => e.target.style.borderColor = '#2563EB'}
+                onBlur={e => e.target.style.borderColor = '#E8E6E1'}
+              />
+            </div>
+
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: 8 }}>
+                What to avoid this week? <span style={{ color: '#C5C3BE', fontWeight: 400, fontSize: 10 }}>optional</span>
+              </label>
+              <input value={avoid} onChange={e => setAvoid(e.target.value)}
+                placeholder="e.g. No generic mindset posts. Keep it specific and story-driven."
+                style={inStyle}
+              />
+            </div>
+
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: 8 }}>
+                Primary platform
+              </label>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {['Instagram','TikTok','YouTube','LinkedIn','X','Facebook'].map(p => (
+                  <button key={p} onClick={() => setPlatform(p)}
+                    style={{ border: '1px solid ' + (platform === p ? '#2563EB' : '#E8E6E1'), borderRadius: 100, padding: '7px 16px', fontSize: 13, fontWeight: platform === p ? 700 : 500, cursor: 'pointer', background: platform === p ? '#2563EB' : '#FAFAF8', color: platform === p ? '#fff' : '#6B7280', fontFamily: 'inherit', transition: 'all 0.12s' }}>
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={generate} disabled={!focus.trim()}
+                style={{ flex: 1, background: focus.trim() ? '#1A1A1A' : '#F3F2EF', color: focus.trim() ? '#fff' : '#C5C3BE', border: 'none', borderRadius: 10, padding: '14px 0', fontSize: 15, fontWeight: 800, cursor: focus.trim() ? 'pointer' : 'not-allowed', fontFamily: 'inherit', transition: 'all 0.15s', letterSpacing: '-0.01em' }}>
+                Generate Weekly Brief →
+              </button>
+              <button onClick={loadLastWeek}
+                style={{ background: '#FAFAF8', color: '#6B7280', border: '1px solid #E8E6E1', borderRadius: 10, padding: '14px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                ↩ Last week
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Generating */}
+        {step === 'generating' && (
+          <div style={{ padding: '60px 28px', textAlign: 'center' }}>
+            <div style={{ width: 44, height: 44, border: '3px solid #E8E6E1', borderTopColor: '#2563EB', borderRadius: '50%', animation: 'spin 0.7s linear infinite', margin: '0 auto 20px' }} />
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', marginBottom: 6 }}>Building from your Brain...</div>
+            <div style={{ fontSize: 13, color: '#9CA3AF' }}>Generating 5 specific, filmable posts for {platform}</div>
+          </div>
+        )}
+
+        {/* Step 2: Results */}
+        {step === 'result' && plan && (
+          <div style={{ padding: '24px 28px' }}>
+
+            {/* Focus paragraph */}
+            {plan.focusParagraph && (
+              <div style={{ background: '#F8F9FF', border: '1px solid #DBEAFE', borderRadius: 12, padding: '16px 20px', marginBottom: 24 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#2563EB', marginBottom: 8 }}>This Week's Strategic Focus</div>
+                <p style={{ margin: 0, fontSize: 14, color: '#1A1A1A', lineHeight: 1.7 }}>{plan.focusParagraph}</p>
+              </div>
+            )}
+
+            {/* 5 post cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+              {plan.posts.map(post => (
+                <div key={post.n} style={{ background: DAY_BG[post.day] || '#FAFAF8', border: '1px solid #E8E6E1', borderRadius: 12, padding: '16px 20px', display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                  {/* Day + format */}
+                  <div style={{ flexShrink: 0, textAlign: 'center', minWidth: 64 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{post.day?.slice(0, 3)}</div>
+                    <div style={{ background: FORMAT_COLORS[post.format] || '#374151', color: '#fff', fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 5, textTransform: 'uppercase', letterSpacing: '0.04em', display: 'inline-block' }}>
+                      {post.format}
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', lineHeight: 1.4, marginBottom: 4 }}>"{post.hook}"</div>
+                    <div style={{ fontSize: 12, color: '#374151', marginBottom: 3 }}>{post.topic}</div>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      {post.angle && <span style={{ fontSize: 11, color: '#6B7280', background: 'rgba(107,114,128,0.08)', borderRadius: 4, padding: '2px 7px' }}>{post.angle}</span>}
+                      {post.filmTime && <span style={{ fontSize: 11, color: '#6B7280' }}>⏱ {post.filmTime}</span>}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <button onClick={() => openInContentEngine(post)}
+                      style={{ background: '#2563EB', color: '#fff', border: 'none', borderRadius: 7, padding: '7px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                      Create →
+                    </button>
+                    <button onClick={() => saveAsDraft(post)} disabled={!!savedDrafts[post.n]}
+                      style={{ background: savedDrafts[post.n] ? '#F0FDF4' : '#FAFAF8', color: savedDrafts[post.n] ? '#10B981' : '#6B7280', border: '1px solid ' + (savedDrafts[post.n] ? '#BBF7D0' : '#E8E6E1'), borderRadius: 7, padding: '7px 12px', fontSize: 11, fontWeight: 600, cursor: savedDrafts[post.n] ? 'default' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                      {savedDrafts[post.n] ? '✓ Saved' : 'Save draft'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Priority + actions */}
+            {(plan.priority || plan.actions?.length > 0) && (
+              <div style={{ display: 'grid', gridTemplateColumns: plan.priority && plan.actions?.length ? '1fr 1fr' : '1fr', gap: 12, marginBottom: 20 }}>
+                {plan.priority && (
+                  <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '14px 16px' }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: '#92400E', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Priority post</div>
+                    <div style={{ fontSize: 13, color: '#1A1A1A', lineHeight: 1.6 }}>{plan.priority}</div>
+                  </div>
+                )}
+                {plan.actions?.length > 0 && (
+                  <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '14px 16px' }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: '#166534', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Monday morning actions</div>
+                    {plan.actions.map((a, i) => (
+                      <div key={i} style={{ fontSize: 12, color: '#1A1A1A', marginBottom: 4, display: 'flex', gap: 6 }}>
+                        <span style={{ color: '#10B981', fontWeight: 700, flexShrink: 0 }}>{i+1}.</span>{a}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Footer */}
+            <div style={{ display: 'flex', gap: 10, paddingTop: 16, borderTop: '1px solid #F3F2EF' }}>
+              <button onClick={() => { setStep('form'); setPlan(null); setSavedDrafts({}); }}
+                style={{ background: '#FAFAF8', color: '#6B7280', border: '1px solid #E8E6E1', borderRadius: 9, padding: '10px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                ← Edit Inputs
+              </button>
+              <button onClick={onClose}
+                style={{ flex: 1, background: '#1A1A1A', color: '#fff', border: 'none', borderRadius: 9, padding: '10px 0', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                Done — close
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── STUDIO HOME ───────────────────────────────────────────────────────────────
+// The new front door. 6 entry cards + live data widgets + story prompt.
+// Replaces IntelligenceDashboard as the home screen.
+
+const STUDIO_CARDS = [
+  {
+    id: 'plan',
+    icon: '📅',
+    title: 'Plan Week',
+    desc: 'Generate a focused weekly brief and 5 ready-to-film posts.',
+    action: 'plan_week',
+    accent: '#2563EB',
+    bg: '#EFF6FF',
+    border: '#BFDBFE',
+  },
+  {
+    id: 'create',
+    icon: '✦',
+    title: 'Create Content',
+    desc: 'Scripts, captions, carousels, emails — from your Brain.',
+    nav: 'create', sub: 'smartbrief',
+    accent: '#7C3AED',
+    bg: '#F5F3FF',
+    border: '#DDD6FE',
+  },
+  {
+    id: 'repurpose',
+    icon: '↻',
+    title: 'Repurpose & Design',
+    desc: 'Turn winners into new formats and design-ready packs.',
+    nav: 'library', sub: 'libraryview',
+    accent: '#0891B2',
+    bg: '#F0F9FF',
+    border: '#BAE6FD',
+  },
+  {
+    id: 'trends',
+    icon: '',
+    title: 'Trends & Ideas',
+    desc: 'Live trends, content gaps, and what to make next.',
+    nav: 'discover', sub: 'discover',
+    accent: '#DC2626',
+    bg: '#FFF1F2',
+    border: '#FECDD3',
+  },
+  {
+    id: 'brain',
+    icon: '🧠',
+    title: 'Client Brains',
+    desc: 'Onboard clients, manage Brains, and switch context.',
+    nav: 'brain', sub: 'dualonboard',
+    accent: '#D97706',
+    bg: '#FFFBEB',
+    border: '#FDE68A',
+  },
+  {
+    id: 'reports',
+    icon: '📊',
+    title: 'Reports',
+    desc: 'What worked, what didn\'t, and what to do next.',
+    nav: 'insights', sub: 'growth',
+    accent: '#10B981',
+    bg: '#F0FDF4',
+    border: '#BBF7D0',
+  },
+];
+
 function IntelligenceDashboard({ setNav, setSub }) {
   const [activeClient] = useActiveClient();
   const [clients] = useClients();
 
-  // Data
+  // Live data (same as before)
   const [trendAlerts, setTrendAlerts] = React.useState([]);
   const [pendingQueue, setPendingQueue] = React.useState(0);
   const [recentContent, setRecentContent] = React.useState([]);
@@ -13985,7 +14465,9 @@ function IntelligenceDashboard({ setNav, setSub }) {
   const [realityCheckDue, setRealityCheckDue] = React.useState(null);
   const [greeting, setGreeting] = React.useState('Good morning');
 
-  // Story prompts - rotates daily
+  // Plan Week overlay
+  const [showPlanWeek, setShowPlanWeek] = React.useState(false);
+
   const STORY_PROMPTS = [
     "What happened at work this week that most people would not have the stomach for?",
     "What did you get wrong recently that you now see clearly?",
@@ -14002,55 +14484,35 @@ function IntelligenceDashboard({ setNav, setSub }) {
   React.useEffect(() => {
     const h = new Date().getHours();
     setGreeting(h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening');
-
-    // Pick story prompt - rotates by day of year
     const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
     setStoryPrompt(STORY_PROMPTS[dayOfYear % STORY_PROMPTS.length]);
-
     loadDashData();
   }, [activeClient]);
 
   const loadDashData = async () => {
     try {
       const clientId = activeClient?.id || 'jason';
-
-      // Trend alerts
       const stored = localStorage.getItem('encis_trend_alerts');
       if (stored) {
         const alerts = JSON.parse(stored);
         setTrendAlerts(Array.isArray(alerts) ? alerts.filter(a => !a.seen).slice(0, 3) : []);
       }
-
-      // Approval queue
       const queue = JSON.parse(localStorage.getItem('encis_approval_queue') || '[]');
       setPendingQueue(queue.filter(q => q.status === 'pending').length);
-
-      // Recent content + top winner
       const { data } = await supabase
-        .from('saved_content')
-        .select('*')
-        .eq('client_id', clientId)
-        .order('created_at', { ascending: false })
-        .limit(20);
+        .from('saved_content').select('*').eq('client_id', clientId)
+        .order('created_at', { ascending: false }).limit(20);
       const recent = data || [];
       setRecentContent(recent.slice(0, 5));
       const winner = recent.find(c => c.notes && (c.notes.includes('winner') || c.notes.includes('outperformed')));
       setTopWinner(winner || null);
-
-      // Brain health - stale pillars
-      const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
+      const allStories = JSON.parse(localStorage.getItem(typeof STORY_BANK_KEY !== 'undefined' ? STORY_BANK_KEY : 'encis_story_bank') || '{}');
       setBrainSeeded((allStories[clientId] || []).length >= 3);
-
-      // Reality check due
       const checks = JSON.parse(localStorage.getItem('encis_reality_checks') || '[]');
       const due = checks.find(c => !c.answered && c.dueAt <= Date.now());
       setRealityCheckDue(due || null);
-
-      // Pillar staleness from recent content
       const pillarUsage = {};
-      recent.slice(0, 15).forEach(c => {
-        if (c.angle) pillarUsage[c.angle] = (pillarUsage[c.angle] || 0) + 1;
-      });
+      recent.slice(0, 15).forEach(c => { if (c.angle) pillarUsage[c.angle] = (pillarUsage[c.angle] || 0) + 1; });
       const stale = Object.entries(pillarUsage).filter(([_, v]) => v < 2).map(([k]) => k);
       setStalePillars(stale.slice(0, 2));
     } catch(e) { console.error('Dashboard load:', e); }
@@ -14060,11 +14522,12 @@ function IntelligenceDashboard({ setNav, setSub }) {
     if (!storyAnswer.trim()) return;
     try {
       const clientId = activeClient?.id || 'jason';
-      const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
+      const key = typeof STORY_BANK_KEY !== 'undefined' ? STORY_BANK_KEY : 'encis_story_bank';
+      const allStories = JSON.parse(localStorage.getItem(key) || '{}');
       const newStory = {
         id: Date.now(),
         title: storyAnswer.slice(0, 40),
-        story_type: 'personal',
+        story_type: 'scratch',
         summary: storyAnswer,
         key_lesson: '',
         emotional_theme: 'personal',
@@ -14080,7 +14543,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
         rawAnswer: storyAnswer,
       };
       allStories[clientId] = [newStory, ...(allStories[clientId] || [])];
-      localStorage.setItem(STORY_BANK_KEY, JSON.stringify(allStories));
+      localStorage.setItem(key, JSON.stringify(allStories));
       setStorySaved(true);
       setTimeout(() => { setStoryAnswer(''); setStorySaved(false); }, 2000);
     } catch {}
@@ -14106,7 +14569,6 @@ function IntelligenceDashboard({ setNav, setSub }) {
   const firstName = activeClient?.name?.split(' ')[0] || 'Jason';
   const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
-  // Colors
   const C = {
     bg: '#F8FAFC', card: '#FFFFFF', border: '#E5E7EB',
     text: '#111827', muted: '#6B7280', subtle: '#9CA3AF',
@@ -14116,29 +14578,45 @@ function IntelligenceDashboard({ setNav, setSub }) {
 
   return (
     <div style={{ background: C.bg, minHeight: '100vh' }}>
-      <div style={{ maxWidth: 820, margin: '0 auto', padding: '28px 20px 60px' }}>
+      {showPlanWeek && (
+        <PlanWeekWizard
+          onClose={() => setShowPlanWeek(false)}
+          setNav={setNav}
+          setSub={setSub}
+          activeClient={activeClient}
+        />
+      )}
 
-        {/* ── HEADER ── */}
-        <div style={{ marginBottom: 28 }}>
+      <div style={{ maxWidth: 860, margin: '0 auto', padding: '28px 20px 80px' }}>
+
+        {/* Header */}
+        <div style={{ marginBottom: 8 }}>
           <div style={{ color: C.muted, fontSize: 13, marginBottom: 4 }}>{dateStr}</div>
-          <h1 style={{ color: C.text, fontSize: 26, fontWeight: 900, letterSpacing: '-0.04em', margin: 0, lineHeight: 1.2 }}>
-            {greeting}, {firstName}.
-          </h1>
-          {activeClient && !activeClient.isDefault && (
-            <div style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(0,194,255,0.08)', border: '1px solid rgba(0,194,255,0.2)', borderRadius: 20, padding: '4px 12px' }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: C.accent }}/>
-              <span style={{ color: C.accent, fontSize: 12, fontWeight: 700 }}>{activeClient.name}</span>
-            </div>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <h1 style={{ color: C.text, fontSize: 26, fontWeight: 900, letterSpacing: '-0.04em', margin: 0, lineHeight: 1.2 }}>
+              {greeting}, {firstName}.
+            </h1>
+            {activeClient && !activeClient.isDefault && (
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(0,194,255,0.08)', border: '1px solid rgba(0,194,255,0.2)', borderRadius: 20, padding: '5px 14px' }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: C.accent }}/>
+                <span style={{ color: C.accent, fontSize: 12, fontWeight: 700 }}>{activeClient.name}</span>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* ── REALITY CHECK BANNER ── */}
+        {/* Studio label */}
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: 20 }}>
+          8th Ascent Studio — Content Operating System
+        </div>
+
+        {/* Reality check banner */}
         {realityCheckDue && (
-          <div style={{ background: 'rgba(0,194,255,0.06)', border: '1px solid rgba(0,194,255,0.2)', borderRadius: 12, padding: '14px 18px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+          <div style={{ background: 'rgba(0,194,255,0.06)', border: '1px solid rgba(0,194,255,0.2)', borderRadius: 12, padding: '14px 18px', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
             <div>
               <div style={{ color: C.accent, fontWeight: 700, fontSize: 13 }}>48hr check-in</div>
               <div style={{ color: C.muted, fontSize: 12, marginTop: 2 }}>
-                "{(realityCheckDue.topic || '').slice(0, 55)}{(realityCheckDue.topic || '').length > 55 ? '...' : ''}" - did this outperform?
+                "{(realityCheckDue.topic || '').slice(0, 55)}{(realityCheckDue.topic || '').length > 55 ? '...' : ''}" — did this outperform?
               </div>
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
@@ -14152,117 +14630,85 @@ function IntelligenceDashboard({ setNav, setSub }) {
           </div>
         )}
 
-        {/* ── 4 QUESTIONS GRID ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
-
-          {/* Q1: What should I make next? */}
-          <DashCard onClick={() => go('create', 'smartbrief')}>
-            <DashSectionLabel>What should I make next?</DashSectionLabel>
-            {trendAlerts.length > 0 ? (
+        {/* ── STUDIO CARDS ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
+          {STUDIO_CARDS.map(card => (
+            <button
+              key={card.id}
+              onClick={() => {
+                if (card.action === 'plan_week') { setShowPlanWeek(true); return; }
+                go(card.nav, card.sub);
+              }}
+              style={{ background: card.bg, border: '1px solid ' + card.border, borderRadius: 14, padding: '20px', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', flexDirection: 'column', gap: 8, position: 'relative', overflow: 'hidden' }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+            >
+              <div style={{ fontSize: 24, lineHeight: 1 }}>{card.icon}</div>
               <div>
-                <div style={{ color: C.text, fontSize: 13, fontWeight: 600, lineHeight: 1.5, marginBottom: 8 }}>
-                  {trendAlerts[0].account || trendAlerts[0].angle || 'Trend signal'}
-                </div>
-                <div style={{ color: C.muted, fontSize: 12, lineHeight: 1.5, marginBottom: 10 }}>
-                  {(trendAlerts[0].steal || trendAlerts[0].text || '').slice(0, 80)}...
-                </div>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <span style={{ background: 'rgba(239,68,68,0.1)', color: C.red, fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4 }}>
-                    {trendAlerts.length} trend{trendAlerts.length !== 1 ? 's' : ''} waiting
-                  </span>
-                </div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#1A1A1A', marginBottom: 4, letterSpacing: '-0.01em' }}>{card.title}</div>
+                <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.5 }}>{card.desc}</div>
               </div>
-            ) : (
-              <div>
-                <div style={{ color: C.text, fontSize: 13, fontWeight: 600, marginBottom: 6 }}>Open Smart Brief</div>
-                <div style={{ color: C.muted, fontSize: 12 }}>3 fields. Quality-checked. Ready to post.</div>
+              <div style={{ marginTop: 'auto', fontSize: 12, fontWeight: 700, color: card.accent }}>
+                Open →
               </div>
-            )}
-            <div style={{ marginTop: 12, color: C.accent, fontSize: 12, fontWeight: 700 }}>Create → Smart Brief →</div>
-          </DashCard>
+            </button>
+          ))}
+        </div>
 
-          {/* Q2: What needs review? */}
-          <DashCard onClick={() => go('library', 'approvalqueue')}>
-            <DashSectionLabel>What needs review?</DashSectionLabel>
+        {/* ── LIVE DATA ROW ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 20 }}>
+
+          {/* Pending queue */}
+          <DashCard onClick={() => go('library', 'approvalqueue')} style={{ padding: '16px 18px' }}>
+            <DashSectionLabel>Needs review</DashSectionLabel>
             {pendingQueue > 0 ? (
               <div>
-                <div style={{ fontSize: 32, fontWeight: 900, color: C.text, lineHeight: 1, marginBottom: 6 }}>{pendingQueue}</div>
-                <div style={{ color: C.muted, fontSize: 13 }}>piece{pendingQueue !== 1 ? 's' : ''} waiting in Approval Queue</div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: C.text, lineHeight: 1, marginBottom: 4 }}>{pendingQueue}</div>
+                <div style={{ color: C.muted, fontSize: 12 }}>in Approval Queue</div>
               </div>
             ) : (
-              <div>
-                <div style={{ color: C.green, fontWeight: 700, fontSize: 14, marginBottom: 4 }}>Queue is clear ✓</div>
-                <div style={{ color: C.muted, fontSize: 12 }}>Nothing waiting for approval right now.</div>
-              </div>
+              <div style={{ color: C.green, fontWeight: 700, fontSize: 13 }}>Queue clear ✓</div>
             )}
-            <div style={{ marginTop: 12, color: C.accent, fontSize: 12, fontWeight: 700 }}>Library → Approval Queue →</div>
           </DashCard>
 
-          {/* Q3: What is working? */}
-          <DashCard onClick={() => go('insights', 'growth')}>
-            <DashSectionLabel>What is working?</DashSectionLabel>
+          {/* Top winner */}
+          <DashCard onClick={() => go('insights', 'growth')} style={{ padding: '16px 18px' }}>
+            <DashSectionLabel>Top performer</DashSectionLabel>
             {topWinner ? (
               <div>
-                <div style={{ color: C.text, fontSize: 13, fontWeight: 600, lineHeight: 1.5, marginBottom: 4 }}>
-                  {topWinner.title?.slice(0, 60)}{(topWinner.title || '').length > 60 ? '...' : ''}
+                <div style={{ color: C.text, fontSize: 12, fontWeight: 600, lineHeight: 1.4 }}>
+                  {topWinner.title?.slice(0, 45)}{(topWinner.title || '').length > 45 ? '...' : ''}
                 </div>
-                <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
-                  {topWinner.platform && <span style={{ background: '#F3F4F6', color: C.muted, fontSize: 10, padding: '2px 6px', borderRadius: 4 }}>{topWinner.platform}</span>}
-                  <span style={{ background: 'rgba(16,185,129,0.1)', color: C.green, fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4 }}>Winner 🔥</span>
+                <div style={{ marginTop: 4 }}>
+                  <span style={{ background: 'rgba(16,185,129,0.1)', color: C.green, fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4 }}>🔥 Winner</span>
                 </div>
               </div>
             ) : (
-              <div>
-                <div style={{ color: C.muted, fontSize: 13, lineHeight: 1.6 }}>
-                  No winners flagged yet. Approve content and answer 48hr check-ins to build your pattern library.
-                </div>
-              </div>
+              <div style={{ color: C.subtle, fontSize: 12 }}>No winners yet. Approve content and run 48hr checks.</div>
             )}
-            <div style={{ marginTop: 12, color: C.accent, fontSize: 12, fontWeight: 700 }}>Insights → Growth Dashboard →</div>
           </DashCard>
 
-          {/* Q4: Where do I start right now? */}
-          <DashCard>
-            <DashSectionLabel>Where do I start right now?</DashSectionLabel>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {!brainSeeded && (
-                <button onClick={() => go('create', 'brain')}
-                  style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: C.red, fontSize: 12, fontWeight: 600 }}>Seed your story bank</span>
-                  <span style={{ color: C.red, fontSize: 11 }}>→</span>
-                </button>
-              )}
-              <button onClick={() => go('create', 'smartbrief')}
-                style={{ background: '#111827', border: 'none', borderRadius: 8, padding: '10px 12px', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#FFF', fontSize: 12, fontWeight: 700 }}>Generate content now</span>
-                <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>→</span>
-              </button>
-              <button onClick={() => go('discover', 'discover')}
-                style={{ background: '#F9FAFB', border: '1px solid ' + C.border, borderRadius: 8, padding: '8px 12px', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: C.text, fontSize: 12, fontWeight: 600 }}>Check what is trending</span>
-                <span style={{ color: C.muted, fontSize: 11 }}>→</span>
-              </button>
-              {stalePillars.length > 0 && (
-                <button onClick={() => go('create', 'smartbrief')}
-                  style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', textAlign: 'left' }}>
-                  <span style={{ color: '#92400E', fontSize: 12, fontWeight: 600 }}>
-                    Underused: {stalePillars.join(', ')}
-                  </span>
-                </button>
-              )}
-            </div>
+          {/* Trend alerts */}
+          <DashCard onClick={() => go('discover', 'discover')} style={{ padding: '16px 18px' }}>
+            <DashSectionLabel>Trend alerts</DashSectionLabel>
+            {trendAlerts.length > 0 ? (
+              <div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: C.red, lineHeight: 1, marginBottom: 4 }}>{trendAlerts.length}</div>
+                <div style={{ color: C.muted, fontSize: 12 }}>new signals waiting</div>
+              </div>
+            ) : (
+              <div style={{ color: C.subtle, fontSize: 12 }}>Run Trend Monitor to surface live signals.</div>
+            )}
           </DashCard>
         </div>
 
-        {/* ── STORY PROMPT OF THE DAY ── */}
-        <DashCard style={{ marginBottom: 20 }}>
+        {/* ── STORY PROMPT ── */}
+        <DashCard style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
             <div style={{ fontSize: 22, flexShrink: 0, marginTop: 2 }}></div>
             <div style={{ flex: 1 }}>
               <DashSectionLabel>Story prompt of the day</DashSectionLabel>
-              <div style={{ color: C.text, fontSize: 14, fontWeight: 600, lineHeight: 1.6, marginBottom: 12 }}>
-                {storyPrompt}
-              </div>
+              <div style={{ color: C.text, fontSize: 14, fontWeight: 600, lineHeight: 1.6, marginBottom: 12 }}>{storyPrompt}</div>
               {!storySaved ? (
                 <div style={{ display: 'flex', gap: 8 }}>
                   <textarea
@@ -14286,10 +14732,8 @@ function IntelligenceDashboard({ setNav, setSub }) {
           </div>
         </DashCard>
 
-        {/* ── RECENT CONTENT + QUICK ACTIONS ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-
-          {/* Recent content */}
+        {/* ── RECENT + QUICK ACTIONS ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <DashCard>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <DashSectionLabel>Recent content</DashSectionLabel>
@@ -14315,19 +14759,18 @@ function IntelligenceDashboard({ setNav, setSub }) {
             )}
           </DashCard>
 
-          {/* Quick actions */}
           <DashCard>
             <DashSectionLabel>Quick actions</DashSectionLabel>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               {[
-                { label: 'Smart Brief', sub: 'Create your next piece', nav: 'create', subnav: 'smartbrief', icon: '✦' },
+                { label: 'Smart Brief', sub: '3 fields. Brain-powered.', nav: 'create', subnav: 'smartbrief', icon: '✦' },
+                { label: 'Content Engine', sub: 'Format-first generation', nav: 'agents', subnav: 'contentengine', icon: '⚡' },
                 { label: 'Trend Monitor', sub: 'See what is viral now', nav: 'agents', subnav: 'trendmonitor', icon: '' },
-                { label: 'Brain Builder', sub: 'Add a story or check health', nav: 'create', subnav: 'brain', icon: '🧠' },
-                { label: 'Learning Loop', sub: 'Extract winner patterns', nav: 'create', subnav: 'learning', icon: '🔁' },
+                { label: 'Brain Builder', sub: 'Add stories, check health', nav: 'create', subnav: 'brain', icon: '🧠' },
                 { label: 'New Client Setup', sub: 'Upload intake or guided', nav: 'brain', subnav: 'dualonboard', icon: '' },
               ].map((a, i) => (
                 <button key={i} onClick={() => go(a.nav, a.subnav)}
-                  style={{ background: '#F9FAFB', border: '1px solid ' + C.border, borderRadius: 8, padding: '9px 12px', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 10, transition: 'border-color 0.15s' }}
+                  style={{ background: '#F9FAFB', border: '1px solid ' + C.border, borderRadius: 8, padding: '9px 12px', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 10, transition: 'border-color 0.15s', fontFamily: 'inherit' }}
                   onMouseEnter={e => e.currentTarget.style.borderColor = '#111827'}
                   onMouseLeave={e => e.currentTarget.style.borderColor = C.border}>
                   <span style={{ fontSize: 14, flexShrink: 0 }}>{a.icon}</span>
@@ -14341,22 +14784,18 @@ function IntelligenceDashboard({ setNav, setSub }) {
           </DashCard>
         </div>
 
-        {/* ── CLIENT SWITCHER ── */}
+        {/* Client switcher */}
         {clients.length > 1 && (
-          <div style={{ marginTop: 14 }}>
+          <div style={{ marginTop: 12 }}>
             <DashCard>
               <DashSectionLabel>Switch client</DashSectionLabel>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {clients.map(c => (
                   <button key={c.id} onClick={() => {
-                    try {
-                      localStorage.setItem('encis_active_client', c.id);
-                      window.location.reload();
-                    } catch {}
+                    try { localStorage.setItem('encis_active_client', c.id); window.location.reload(); } catch {}
                   }}
-                    style={{ background: activeClient?.id === c.id ? '#111827' : '#F9FAFB', color: activeClient?.id === c.id ? '#FFF' : C.text, border: '1px solid ' + (activeClient?.id === c.id ? '#111827' : C.border), borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontSize: 12, fontWeight: activeClient?.id === c.id ? 700 : 500 }}>
-                    {c.name}
-                    {activeClient?.id === c.id && <span style={{ marginLeft: 4, opacity: 0.6 }}>●</span>}
+                    style={{ background: activeClient?.id === c.id ? '#111827' : '#F9FAFB', color: activeClient?.id === c.id ? '#FFF' : C.text, border: '1px solid ' + (activeClient?.id === c.id ? '#111827' : C.border), borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontSize: 12, fontWeight: activeClient?.id === c.id ? 700 : 500, fontFamily: 'inherit' }}>
+                    {c.name}{activeClient?.id === c.id && <span style={{ marginLeft: 4, opacity: 0.6 }}>●</span>}
                   </button>
                 ))}
               </div>
@@ -17493,6 +17932,7 @@ function TrendMonitorAgent() {
 
 
 const APPROVAL_QUEUE_KEY = 'encis_approval_queue';
+const WEEKLY_BRIEF_KEY = 'encis_weekly_briefs';
 
 function ApprovalQueueAgent() {
   const [activeClient] = useActiveClient();
