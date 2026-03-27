@@ -87,13 +87,13 @@ Their content must sound like them — not like a marketer writing about them. N
 Today is ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}.`;
   }
 
-  // Default: Jason Fricka
-  return `Write in Jason Fricka's voice.
+  // Default client voice (solo mode)
+  return `Write in ${activeClient?.name || 'the creator'}'s voice.
 
 WHO HE IS:
 Jason is an HR Manager at a cabinet manufacturing company in Colorado - this is his primary career and where he spends most of his working hours. He deals with real HR every day: benefits, compliance, employee issues, hiring, difficult conversations, management problems. He knows what it's like to be the person everyone comes to when something goes wrong at work.
 
-He's also a licensed real estate agent serving veterans and families in the South Denver Metro area. He's a US Air Force veteran, a dad to a toddler son, an endurance athlete training toward bigger challenges, and he hosts a podcast called Everyday Elevations. He manages multiple responsibilities simultaneously and knows what that pressure actually feels like.
+He's also a licensed real estate agent serving veterans and families in the South Denver Metro area. He's a US Air Force veteran, a dad to a toddler son, an endurance athlete training toward bigger challenges, and he hosts the 8th Ascent podcast. He manages multiple responsibilities simultaneously and knows what that pressure actually feels like.
 
 HOW HE TALKS:
 Direct. No fluff. Short sentences. Real stories. He sits across the table from you and tells you what he actually thinks. He doesn't hype things up. He doesn't use words like "transform" or "journey" or "find your potential." He says what he means. He talks about hard days, early mornings, the work nobody sees, and why showing up matters even when it doesn't feel like it.
@@ -247,7 +247,7 @@ const RedBtn = ({onClick,disabled,children,style={}}) => (
   </button>
 );
 const Card = ({children,style={}}) => (
-  <div className="signal-card" style={{
+  <div className="ea-card" style={{
     background: '#FFFFFF',
     border: '1px solid #E5E7EB',
     borderRadius: 12,
@@ -276,7 +276,7 @@ const SOPBadge = () => (
 const AngleGrid = ({selected, onSelect, angles}) => {
   const displayAngles = angles || ANGLES;
   return (
-    <div className="signal-grid-auto" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:16}}>
+    <div className="ea-grid-auto" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:16}}>
       {displayAngles.map(a => (
         <button key={a.id} onClick={() => onSelect(a.id)}
           style={{background:selected===a.id?'#2563EB':'#F9FAFB',
@@ -744,7 +744,7 @@ Structure:
 Rules: Respectful but confident. Add genuine value. End with a question that drives comments.`;
 
 const TREND_PROMPT = (niche, client) => `
-You are a viral content strategist for ${client ? client.name + (client.handle ? ' (' + client.handle + ')' : '') : '@everydayelevations'}.
+You are a viral content strategist for ${client ? client.name + (client.handle ? ' (' + client.handle + ')' : '') : activeClient?.handle || '@yourcreator'}.
 Find 6-8 trending topics right now in: ${niche}
 
 Return as JSON array:
@@ -1183,11 +1183,11 @@ Run this full review. Input data. Read the output. Execute the plan.
 `
 
 const PROFILE_PROMPT = (platform, liveData, extraContext, client) => {
-  const creatorName = client && !client.isDefault ? client.name : 'Jason Fricka';
-  const handle = client && !client.isDefault ? (client.handle || '') : '@everydayelevations';
+  const creatorName = client && !client.isDefault ? client.name : activeClient?.name || 'the creator';
+  const handle = client && !client.isDefault ? (client.handle || '') : activeClient?.handle || '@yourcreator';
   const linkedInNote = client && !client.isDefault
     ? (client.role ? '7. **Dual-Lane Strategy** (' + client.role + ')\n8. **Featured Section** (what to pin, in order)\n9. **Rewritten About Section** (full copy, ready to paste)' : '')
-    : '7. **Dual-Lane Strategy** (HR Manager at Highland Cabinetry + Everyday Elevations podcast)\n8. **Featured Section** (what to pin, in order)\n9. **Rewritten About Section** (full copy, ready to paste)';
+    : '7. **Dual-Lane Strategy** (' + (activeClient?.role || 'your primary role') + ' + content brand)\n8. **Featured Section** (what to pin, in order)\n9. **Rewritten About Section** (full copy, ready to paste)';
   return `
 ${getVoice(client)}
 ${CONTENT_SOP}
@@ -1973,7 +1973,7 @@ function useWorkflowStatus(itemId) {
 const DESIGN_PACK_PROMPT = (item, content, client) => `
 You are a creative director and content strategist building a visual-ready Design Pack for a social media content piece.
 
-Creator: ${client && !client.isDefault ? client.name + (client.handle ? ' | ' + client.handle : '') + (client.location ? ' | ' + client.location : '') + ' | Voice: ' + (client.voice || 'Direct, real.') : 'Jason Fricka | @everydayelevations | Colorado | Voice: Direct, real, accountability energy. No hype.'}
+Creator: ${client && !client.isDefault ? client.name + (client.handle ? ' | ' + client.handle : '') + (client.location ? ' | ' + client.location : '') + ' | Voice: ' + (client.voice || 'Direct, real.') : (activeClient?.name || 'the creator') + (activeClient?.handle ? ' | ' + activeClient.handle : '') + (activeClient?.location ? ' | ' + activeClient.location : '') + ' | Voice: ' + (activeClient?.voice?.slice(0,60) || 'Direct, real.')}
 Platform: ${item.platform || 'Instagram'}
 Content Type: ${item.type || 'Content'}
 Topic/Title: ${item.title || 'Untitled'}
@@ -3602,7 +3602,7 @@ function _OldHome({setNav,setSub}) {
           <EighthAscentLogo size={72} style={{position:'relative'}} />
         </div>
         <h1 style={{color:'#111827',fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:900,margin:'0 0 6px',letterSpacing:'-0.03em'}}>
-          {(() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null'); return wl?.agencyName ? <span style={{color:wl.primaryColor||'#2563EB'}}>{wl.agencyName}</span> : <><span>8th Ascent</span> <span style={{color:'#2563EB'}}>by Everyday Elevations</span></>; } catch { return <><span>EN-CIS</span> <span style={{color:'#2563EB'}}>Command Center</span></>; } })()}
+          {(() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')|| 'null'); return wl?.agencyName ? <span style={{color:wl.primaryColor||'#2563EB'}}>{wl.agencyName}</span> : <span>8th Ascent</span>; } catch { return <span>8th Ascent</span>; } })()}
         </h1>
         <p style={{color:'#6B7280',fontSize:14,margin:0}}>Social Media OS</p>
       </div>
@@ -3658,14 +3658,14 @@ function _OldHome({setNav,setSub}) {
 function Onboarding() {
   const [mode,        setMode]       = useState('form');
   const [goals,       setGoals]      = useState(
-    `Grow @everydayelevations from ~2,400 Instagram followers to 10,000 by end of 2026. Post consistently 5x/week on Instagram. Launch the community as a recognizable community identity. Start building an email list from zero: target 500 subscribers in 90 days. Book 3 meaningful podcast guests. Generate at least 1 real estate lead per month through content. Keep it real: no fake hype, no gimmicks.`
+    `${activeClient?.name ? "Grow " + (activeClient.handle || activeClient.name) + " consistently." : ""}${activeClient?.platforms ? " Post across " + activeClient.platforms + "." : ""} Build an engaged audience and a clear content identity.`
   );
   const [current,     setCurrent]    = useState(
-    `Instagram: ~2,400 followers, posting 2-3x/week inconsistently, no clear content schedule. YouTube: @everydayelevations exists but underused. Facebook: facebook.com/jason.fricka active but no strategy. LinkedIn: linkedin.com/in/jason-fricka: HR Manager at Highland Cabinetry + podcast host, dual-lane not used. No email list. No lead magnet. Everyday Elevations podcast running. Colorado-based. Full-time HR job + real estate license + family.`
+    `${activeClient?.name ? activeClient.name + (activeClient.handle ? " | " + activeClient.handle : "") + (activeClient.location ? " | " + activeClient.location : "") + (activeClient.role ? ". Role: " + activeClient.role : "") + (activeClient.platforms ? ". Platforms: " + activeClient.platforms : "") + "." : "Tell me about your current situation — follower counts, platforms, what is and isn't working."}`
   );
   const [hours,            setHours]            = useState('10');
   const [brandPersonality, setBrandPersonality] = useState('Direct, Authentic, Gritty, Grounded, Motivating');
-  const [businessName,     setBusinessName]     = useState('Everyday Elevations / Fricka Sells Colorado');
+  const [businessName,     setBusinessName]     = useState(activeClient?.name || '');
   const [affiliateDeals,   setAffiliateDeals]   = useState('');
   const [filmingSchedule,  setFilmingSchedule]  = useState('Weekends + occasional weekday evenings. Can batch 2-3 hours on Saturdays.');
   const [inspirationAccounts, setInspirationAccounts] = useState('@hubermanlab, @jayshetty, @richroll, @mindpumpmedia');
@@ -3727,7 +3727,7 @@ function Onboarding() {
       });
       const d = await res.json();
       const html = d.text || d.result || '';
-      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Everyday Elevations 90-Day Strategy</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#111;line-height:1.7}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#0A1628;margin-top:32px}h3{color:#E94560}strong{color:#0A1628}li{margin-bottom:6px}@media print{body{margin:24px}}</style></head><body><h1>Everyday Elevations 90-Day Content Strategy</h1>${html}</body></html>`;
+      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>8th Ascent 90-Day Strategy</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#111;line-height:1.7}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#0A1628;margin-top:32px}h3{color:#E94560}strong{color:#0A1628}li{margin-bottom:6px}@media print{body{margin:24px}}</style></head><body><h1>8th Ascent 90-Day Content Strategy</h1>${html}</body></html>`;
       const blob = new Blob([fullHtml], {type:'text/html'});
       const url = URL.createObjectURL(blob);
       const printWin = window.open(url, '_blank');
@@ -4006,12 +4006,12 @@ function ProfileAudit() {
   const [fetching, setFetching] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handle = activeClient?.handle || '@everydayelevations';
+  const handle = activeClient?.handle || activeClient?.handle || '@yourcreator';
   const handleClean = handle.replace('@', '');
   const handles = {
     Instagram: `${handle} on Instagram: instagram.com/${handleClean}`,
     YouTube: `youtube.com/@${handleClean}`,
-    Facebook: activeClient?.isDefault ? 'facebook.com/jason.fricka' : `facebook.com/${handleClean}`,
+    Facebook: activeClient?.isDefault ? (activeClient?.handle ? 'facebook.com/' + activeClient.handle.replace('@','') : 'facebook.com') : `facebook.com/${handleClean}`,
     LinkedIn: activeClient?.isDefault ? 'linkedin.com/in/jason-fricka' : `linkedin.com/in/${handleClean}`,
     X: `${handle} on X (Twitter): x.com/${handleClean}`,
     TikTok: `${handle} on TikTok: tiktok.com/@${handleClean}`,
@@ -4092,7 +4092,7 @@ function ProfileAudit() {
 function LeadMagnet() {
   const [audience, setAudience] = useState('Everyday people who want to build discipline, feel stuck in their career or mindset, working parents grinding toward something better, professionals who want to level up');
   const [problem, setProblem] = useState("They know they need to change but don't know where to start. They feel like everyone else has it figured out. They're showing up but not seeing results.");
-  const [offer, setOffer] = useState('Mindset coaching, Everyday Elevations podcast, the community community, real estate (Fricka Sells Colorado)');
+  const [offer, setOffer] = useState('Mindset coaching, 8th Ascent podcast, the community community, real estate (Fricka Sells Colorado)');
   const [currentContent, setCurrentContent] = useState('Reels on mindset, everyday wins, discipline, Colorado lifestyle, family lessons, real estate tips. Voice is direct, real, no hype.');
   const [whatWorks, setWhatWorks] = useState('');
   const [out, setOut] = useState('');
@@ -4318,7 +4318,7 @@ function Pipeline() {
         <SecLabel>Content Angle</SecLabel>
         <AngleGrid selected={angle} onSelect={setAngle}/>
         <SecLabel>Research Depth</SecLabel>
-        <div className="signal-grid-auto" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:16}}>
+        <div className="ea-grid-auto" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:16}}>
           {TIER_PROMPTS.map((t,i) => (
             <button key={i} onClick={()=>setTier(i)}
               style={{background:tier===i?'#2563EB':'#F3F4F6',color:tier===i?'#FFFFFF':'#374151',border:'1px solid '+(tier===i?'transparent':'#E5E7EB'),
@@ -5472,7 +5472,7 @@ function TrendAlertBanner() {
             </span>
           )}
           {/* Preview text */}
-          <span className="signal-trend-preview" style={{color:'rgba(255,255,255,0.45)',fontSize:11,flex:1,overflow:'hidden',
+          <span className="ea-trend-preview" style={{color:'rgba(255,255,255,0.45)',fontSize:11,flex:1,overflow:'hidden',
             textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
             <span style={{color: apiError ? '#ef4444' : 'rgba(255,255,255,0.45)'}}>
             {loading ? 'Scanning trends...' :
@@ -6045,7 +6045,7 @@ Available hours per week: ${hours}
 
 Based on this actual data, build a specific weekly posting schedule. Do not give generic advice : base every recommendation on what the data shows.
 
-# Optimal Posting Schedule for ${activeClient?.handle || activeClient?.name || '@everydayelevations'}
+# Optimal Posting Schedule for ${activeClient?.handle || activeClient?.name || activeClient?.handle || '@yourcreator'}
 
 ## What the Data Shows
 [Specific patterns from the ROI and content memory data above : what's working, what's not, best performing content types]
@@ -6166,7 +6166,7 @@ You are analyzing ${activeClient?.name || 'this creator'}'s content library to f
 CONTENT AUDIT DATA:
 ${summary}
 
-# Content Gap Analysis : ${activeClient?.handle || activeClient?.name || '@everydayelevations'}
+# Content Gap Analysis : ${activeClient?.handle || activeClient?.name || activeClient?.handle || '@yourcreator'}
 
 ## What You're Over-Posting
 [Angles and formats appearing too frequently : risk of audience fatigue]
@@ -7072,7 +7072,7 @@ Rules: No corporate speak. No "I hope this email finds you well." No numbered li
 function EmailSequenceBuilder() {
   const [magnet, setMagnet] = useState('');
   const [audience, setAudience] = useState('People working on their emotional and physical health, professionals building better careers, parents trying to show up well, anyone who wants their daily choices to actually mean something');
-  const [offer, setOffer] = useState('Mindset coaching, Everyday Elevations podcast, the community community, real estate');
+  const [offer, setOffer] = useState('Mindset coaching, 8th Ascent podcast, the community community, real estate');
   const [length, setLength] = useState('5');
   const [out, setOut] = useState('');
   const [loading, setLoading] = useState(false);
@@ -7191,7 +7191,7 @@ function EmailSequenceBuilder() {
 const PODCAST_PREPROD_PROMPT = (guestName, guestBio, episode_angle, showContext, client) => `
 ${getVoice(client)}
 
-Show: ${client && !client.isDefault ? (client.name + ' Podcast') : 'Everyday Elevations Podcast'} (Host: ${client ? client.name : 'Jason Fricka'}${client && !client.isDefault ? '' : ': US Air Force veteran, HR manager, mindset coach, Colorado'})
+Show: ${client && !client.isDefault ? (client.name + ' Podcast') : (activeClient?.name ? activeClient.name + ' Podcast' : '8th Ascent Podcast')} (Host: ${client ? client.name : activeClient?.name || 'the creator'}${client && !client.isDefault ? '' : ': US Air Force veteran, HR manager, mindset coach, Colorado'})
 Guest: ${guestName}
 Guest Background: ${guestBio}
 Episode Angle / Theme: ${episode_angle}
@@ -7640,9 +7640,9 @@ ${channelData}
 ${auditExtra ? `Additional Context from ${client ? client.name : 'Jason'} (treat this as ground truth : they know their channel better than any search):
 ${auditExtra}` : ''}
 
-You are auditing ${client ? client.name + (client.handle ? ' (' + client.handle + ')' : '') : 'Jason Fricka (@everydayelevations)'}'s YouTube channel using the VIDIQ outlier framework. Be direct. No softening. Use the additional context above to make every recommendation specific.
+You are auditing ${client ? client.name + (client.handle ? ' (' + client.handle + ')' : '') : activeClient?.name || 'the creator'}'s YouTube channel using the VIDIQ outlier framework. Be direct. No softening. Use the additional context above to make every recommendation specific.
 
-# YouTube Channel Audit : ${client ? (client.handle || client.name) : '@everydayelevations'}
+# YouTube Channel Audit : ${client ? (client.handle || client.name) : activeClient?.handle || '@yourcreator'}
 
 ## Channel Health Score: [X/10]
 
@@ -7721,7 +7721,7 @@ function YouTubeToolkit() {
 
   const fetchChannel = async () => {
     setFetching(true); setChannelData('');
-    const ytHandle = activeClient?.handle || '@everydayelevations';
+    const ytHandle = activeClient?.handle || activeClient?.handle || '@yourcreator';
     const res = await perp(`Audit the YouTube channel ${ytHandle}. Report: subscriber count, total views, number of videos, recent upload frequency, most viewed videos (titles + approximate views), channel description, content topics covered, what's working and what isn't based on the data visible.`);
     setChannelData(res);
     setFetching(false);
@@ -7851,7 +7851,7 @@ function YouTubeToolkit() {
               style={{background:'#F9FAFB',color:'#111827',border:'1px solid rgba(255,255,255,0.2)',
                 borderRadius:8,padding:'10px 20px',fontWeight:700,cursor:fetching?'not-allowed':'pointer',
                 fontSize:13,marginBottom:16}}>
-              {fetching ? 'Pulling channel data...' : `Pull ${activeClient?.handle || '@everydayelevations'} Data`}
+              {fetching ? 'Pulling channel data...' : `Pull ${activeClient?.handle || activeClient?.handle || '@yourcreator'} Data`}
             </button>
             {channelData && (
               <div style={{background:'#F9FAFB',borderRadius:8,padding:'12px',marginBottom:16,
@@ -7904,7 +7904,7 @@ function YouTubeToolkit() {
             <span style={{color:'#111827',fontWeight:700,fontSize:14}}>{tools.find(t=>t.id===tool)?.label} Results</span>
             <CopyBtn text={out}/>
           </div>
-          <DocOutput text={out} title={tool === 'script' ? `YouTube Script : ${topic}` : tool === 'audit' ? `Channel Audit : ${activeClient?.handle || '@everydayelevations'}` : `YouTube ${tool} : ${topic || 'Content'}`}/>
+          <DocOutput text={out} title={tool === 'script' ? `YouTube Script : ${topic}` : tool === 'audit' ? `Channel Audit : ${activeClient?.handle || activeClient?.handle || '@yourcreator'}` : `YouTube ${tool} : ${topic || 'Content'}`}/>
         </div>
       )}
     </div>
@@ -8011,7 +8011,7 @@ function DMScriptLibrary() {
     { label: 'Commented keyword', trigger: 'They commented a keyword (PERFORMANCE, BRAIN, FREE, etc.) on a post to receive a lead magnet' },
     { label: 'Asked about coaching', trigger: 'They sent a DM asking about coaching or working together' },
     { label: 'Real estate inquiry', trigger: 'They saw a real estate post and asked about buying or selling in Colorado' },
-    { label: 'Podcast guest interest', trigger: 'They expressed interest in being on Everyday Elevations podcast or had me on theirs' },
+    { label: 'Podcast guest interest', trigger: 'They expressed interest in being on the podcast podcast or had me on theirs' },
     { label: 'Just followed', trigger: 'They just followed the account and sent a generic hello or no message' },
     { label: 'Shared my post', trigger: 'They shared one of my posts and I want to start a conversation' },
     { label: 'Cold outreach', trigger: 'I am reaching out cold to someone I want to collaborate with or connect with' },
@@ -8386,7 +8386,7 @@ function ChallengeBuilder() {
 const SPY_PROMPT = (handle, platform, rawData, angle, client) => `
 ${getVoice(client)}
 
-You are analyzing a competitor's content strategy to find gaps ${client ? client.name : 'Jason Fricka'} can own.
+You are analyzing a competitor's content strategy to find gaps ${client ? client.name : activeClient?.name || 'the creator'} can own.
 
 Creator: ${handle}
 Platform: ${platform}
@@ -11456,8 +11456,8 @@ function BioLinkBuilder() {
   const [headline, setHeadline] = useState('');
   const [subtext, setSubtext] = useState('');
   const [links, setLinks] = useState([
-    { id:1, label:'Follow on Instagram', url:'https://instagram.com/everydayelevations', icon:'📸' },
-    { id:2, label:'Listen to the Podcast', url:'https://everydayelevations.com/podcast', icon:'️' },
+    { id:1, label:'Follow on Instagram', url: activeClient?.handle ? 'https://instagram.com/' + activeClient.handle.replace('@','') : '#', icon:'📸' },
+    { id:2, label:'Listen to the Podcast', url: activeClient?.website || '#', icon:'️' },
     { id:3, label:'Colorado Real Estate', url:'https://frickasellscolorado.com', icon:'🏠' },
   ]);
   const [newLink, setNewLink] = useState({ label:'', url:'', icon:'' });
@@ -11586,7 +11586,7 @@ function BioLinkBuilder() {
 const COMM_TEMPLATES_PROMPT = (client, templateType, context, agencyName) => `
 ${VOICE}
 
-AGENCY: ${agencyName || 'Everyday Elevations / 8th Ascent'}
+AGENCY: ${agencyName || '8th Ascent'}
 CLIENT: ${client.name} (${client.handle})
 TEMPLATE TYPE: ${templateType}
 ADDITIONAL CONTEXT: ${context || 'None'}
@@ -12370,7 +12370,7 @@ function StoryArcPlanner() {
 const GUEST_PREP_PROMPT = (client, guestName, guestBio, guestHandle, episodeTopic, recordDate) => `
 ${client ? `HOST: ${client.name} (${client.handle})` : VOICE}
 
-PODCAST: ${client?.name || 'Everyday Elevations'} Podcast
+PODCAST: ${client?.name ? client.name + ' Podcast' : activeClient?.name ? activeClient.name + ' Podcast' : '8th Ascent Podcast'}
 GUEST: ${guestName}
 GUEST BIO: ${guestBio}
 GUEST HANDLE: ${guestHandle || 'Not provided'}
@@ -13976,7 +13976,7 @@ const DashSectionLabel = ({ children }) => (
 
 const PLAN_WEEK_PROMPT = (identity, focus, avoid, platform, clientName) => {
   const today = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-  const clientLabel = clientName || 'Jason Fricka';
+  const clientLabel = clientName || 'the creator';
   return `You are the Weekly Brief Agent for ${clientLabel}. Today is ${today}.
 Identity this week: ${identity}
 Content focus: ${focus}
@@ -15399,7 +15399,7 @@ Dad to a toddler son (age 2) — he can't have a real conversation yet, still le
 US AIR FORCE VETERAN IDENTITY:
 What Air Force service built that still runs in the background. The civilian transition, identity shift, what veterans carry that most people don't see. Service branch: US Air Force.
 
-PODCAST & PERSONAL GROWTH (Everyday Elevations):
+PODCAST & PERSONAL GROWTH:
 Practical growth - not aspirational. Small daily choices that compound. The gap between what self-help promises and what actually moves the needle in a real, complicated life.
 
 DIMENSION FOCUS: ${topicAngle}
@@ -15449,7 +15449,7 @@ Vary territories across the 5 ideas. No more than one real estate idea. Ground e
     else if (mode === 'batch') prompt = BULK_PROMPT(ANGLES.find(a=>a.id===angle)?.label||angle, platform, topic, batchCount, voiceContext);
     else if (mode === 'episode') prompt = EPISODE_PROMPT(episodeTitle||topic, episodeNotes||topic);
     else if (mode === 'repurpose') prompt = REPURPOSE_PROMPT(repurposeFrom||topic, repurposePlatform, platform);
-    else if (mode === 'brief') prompt = CONTENT_BRIEF_PROMPT(client||activeClient||{name:'Jason Fricka',handle:'@everydayelevations'}, topic, intensity, sessionDate, sessionLocation, sessionEquip, sessionDuration);
+    else if (mode === 'brief') prompt = CONTENT_BRIEF_PROMPT(client||activeClient||{name:activeClient?.name||'the creator',handle:activeClient?.handle||'',voice:activeClient?.voice||''}), topic, intensity, sessionDate, sessionLocation, sessionEquip, sessionDuration);
     const res = await ai(prompt);
     setOut(res); setLoading(false);
   };
@@ -17427,7 +17427,7 @@ function WeeklyBriefAgent() {
     if (!focus) return;
     setLoading(true); setOut('');
     const today = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-    const prompt = `You are the Weekly Brief Agent for ${activeClient?.name || 'Jason Fricka'} (@everydayelevations). Today is ${today}.
+    const prompt = `You are the Weekly Brief Agent for ${activeClient?.name || 'the creator'}. Today is ${today}.
 Identity this week: ${identity}
 Content focus: ${focus}
 Avoid: ${avoid || 'Nothing specific'}
@@ -17568,7 +17568,7 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea Jason Fricka, HR Manager in Colorado, should post this week based on this trend]
+STEAL: [one specific content idea ${activeClient?.name || 'the creator'} should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
   RealEstate_Colorado: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
@@ -17584,7 +17584,7 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea Jason Fricka, licensed Colorado real estate agent serving veterans and families, should post this week based on this trend]
+STEAL: [one specific content idea ${activeClient?.name || 'the creator'} should post this week based and families, should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
   Veteran_Creator: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
@@ -17600,7 +17600,7 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea Jason Fricka, US Air Force veteran and mindset coach in Colorado, should post this week based on this trend]
+STEAL: [one specific content idea ${activeClient?.name || 'the creator'} should post this week based should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
   Endurance_Athlete: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
@@ -17616,7 +17616,7 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea Jason Fricka, endurance athlete training in Colorado, should post this week based on this trend]
+STEAL: [one specific content idea ${activeClient?.name || 'the creator'} should post this week based this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
   Fatherhood_Family: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
@@ -17632,7 +17632,7 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea Jason Fricka, Colorado dad and veteran, should post this week based on this trend]
+STEAL: [one specific content idea ${activeClient?.name || 'the creator'} should post this week basedd on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
   Mindset_Discipline: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
@@ -17648,7 +17648,7 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea Jason Fricka, mindset coach and Elevation Nation community builder, should post this week based on this trend]
+STEAL: [one specific content idea ${activeClient?.name || 'the creator'}, should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
   Everyday_Wins: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
@@ -17664,7 +17664,7 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea for the Elevation Nation community - everyday people who refuse to stay where they are - that Jason should post this week]
+STEAL: [one specific content idea for ${activeClient?.name || 'the creator'}'s community — people who refuse to stay where they are - that Jason should post this week]
 VIEWS: [approximate views/engagement or "trending"]`,
 
   Health_Wellness_Pro: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
@@ -17680,7 +17680,7 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea Jason Fricka, endurance athlete and HR manager in Colorado, should post this week about health and wellness for working professionals]
+STEAL: [one specific content idea ${activeClient?.name || 'the creator'} should post this week based post this week about health and wellness for working professionals]
 VIEWS: [approximate views/engagement or "trending"]`,
 };
 
@@ -18211,7 +18211,7 @@ function ContentPerformanceAgent() {
 
     const prompt = `You are a content performance analyst. Analyze this creator's content data and give direct, actionable intelligence.
 
-Creator: ${activeClient?.name || 'Jason Fricka'} (@everydayelevations) - HR Manager, Colorado real estate agent, endurance athlete, US Air Force veteran, mindset coach, dad to a toddler son.
+Creator: ${activeClient?.name || 'the creator'}${activeClient?.handle ? ' (' + activeClient.handle + ')' : ''}${activeClient?.role ? ' — ' + activeClient.role : ''}
 
 CONTENT DATA:
 VIRAL (${viral.length} pieces):
@@ -18352,7 +18352,7 @@ function RepurposeAgent() {
 
     const prompt = `You are a content repurposing expert. Take the source content below and repurpose it into every requested platform format. Keep the core message. Adapt the format, length, and tone for each platform. Never sound like a copy-paste. Each piece should feel native to its platform.
 
-Creator: ${activeClient?.name || 'Jason Fricka'} | Voice: Direct, real, no corporate speak. Short sentences. High accountability energy.
+Creator: ${activeClient?.name || 'the creator'} | Voice: ${activeClient?.voice || 'Direct, real, no corporate speak.'} High accountability energy.
 
 Source content type: ${inputType}
 Source content:
@@ -18489,7 +18489,7 @@ function CaptionBatchAgent() {
     if (filledTopics.length === 0) return;
     setLoading(true); setOut('');
 
-    const clientName = activeClient?.name || 'Jason Fricka';
+    const clientName = activeClient?.name || 'the creator';
     const voice = activeClient?.voice || 'Direct, real, no corporate speak. Short sentences. High accountability energy.';
     const angleLabel = ANGLES.find(a => a.id === angle)?.label || angle;
 
@@ -19109,7 +19109,7 @@ function CompetitorIntelAgent() {
 
   const buildGapAnalysis = async (competitorResults) => {
     setBuildingGaps(true);
-    const clientName = activeClient?.name || 'Jason Fricka';
+    const clientName = activeClient?.name || 'the creator';
     const clientRole = activeClient?.role || 'content creator';
     const clientAngles = activeClient?.angles || '';
 
@@ -19265,7 +19265,7 @@ What ${clientName} can say or do that none of these competitors can - based on t
             <div key={i} style={{display:'flex',gap:8,alignItems:'center'}}>
               <span style={{color:'#6B7280',fontSize:13,minWidth:20,flexShrink:0}}>{i+1}.</span>
               <input value={h} onChange={e=>updateHandle(i,e.target.value)}
-                placeholder={i===0?'e.g. @everydayelevations or everydayelevations':i===1?'Another competitor handle...':'Another handle...'}
+                placeholder={i===0?'e.g. @competitorhandle':i===1?'Another competitor handle...':'Another handle...'}
                 style={{flex:1,background:'#F9FAFB',border:'1px solid '+(h.trim()?'#C7D2FE':'#D1D5DB'),borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
             </div>
           ))}
@@ -20957,7 +20957,7 @@ function SmartBrief() {
 
       {/* ── TOP BAR ── */}
       <header className="create-topbar">
-        <span className="create-topbar-brand">The Eight Ascent</span>
+        <span className="create-topbar-brand">8th Ascent</span>
 
         <div className="create-topbar-status">
           <span className="create-topbar-status-dot" />
@@ -21614,7 +21614,7 @@ const SEEDING_QUESTIONS = [
 // Prompt to extract structured story from raw answer
 const STORY_EXTRACT_PROMPT = (question, answer, clientName) => `You are extracting a structured story bank entry from a creator's personal answer.
 
-CREATOR: ${clientName || 'Jason Fricka'}
+CREATOR: ${clientName || 'the creator'}
 QUESTION: ${question}
 ANSWER: ${answer}
 
@@ -21634,7 +21634,7 @@ Extract a complete story bank entry. Return ONLY this JSON - no explanation, no 
 // Prompt to extract story from Scratch Pad raw text
 const SCRATCH_PAD_EXTRACT_PROMPT = (raw, clientName) => `You are extracting a story bank entry from raw notes a creator just typed.
 
-CREATOR: ${clientName || 'Jason Fricka'}
+CREATOR: ${clientName || 'the creator'}
 RAW NOTES: ${raw}
 
 Extract whatever story or insight is present. If it is incomplete, work with what is there.
@@ -22339,7 +22339,7 @@ const TOPIC_WEIGHTS_KEY   = 'encis_topic_weights';
 // Extract patterns from a set of winning content pieces
 const WINNER_PATTERN_PROMPT = (winners, clientName) => `You are a content pattern analyst.
 
-CREATOR: ${clientName || 'Jason Fricka'}
+CREATOR: ${clientName || 'the creator'}
 
 WINNING CONTENT (pieces that outperformed or scored as quality anchors):
 ${winners.map((w, i) => `${i + 1}. TITLE: ${w.title || w.topic || 'Untitled'}
@@ -24554,7 +24554,7 @@ export default function App() {
       {!onboardingDone && <OnboardingFlow onComplete={() => setOnboardingDone(true)}/>}
       <Head>
         <title>8th Ascent</title>
-        <meta name="description" content="8th Ascent by Everyday Elevations"/>
+        <meta name="description" content="8th Ascent — AI Content Operating System"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
@@ -24583,37 +24583,37 @@ export default function App() {
           /* ── MOBILE RESPONSIVE ── */
           @media (max-width: 640px) {
             /* Nav scrolls horizontally - never wraps */
-            .signal-nav-inner { gap: 0 !important; }
-            .signal-nav-btn { padding: 14px 10px !important; font-size: 11px !important; }
-            .signal-subnav { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-            .signal-subnav::-webkit-scrollbar { display: none; }
-            .signal-subnav-inner { gap: 0 !important; padding-bottom: 1px; }
-            .signal-subnav-btn { padding: 8px 12px !important; font-size: 10px !important; flex-shrink: 0; }
+            .ea-nav-inner { gap: 0 !important; }
+            .ea-nav-btn { padding: 14px 10px !important; font-size: 11px !important; }
+            .ea-subnav { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .ea-subnav::-webkit-scrollbar { display: none; }
+            .ea-subnav-inner { gap: 0 !important; padding-bottom: 1px; }
+            .ea-subnav-btn { padding: 8px 12px !important; font-size: 10px !important; flex-shrink: 0; }
             /* Main content full-width */
-            .signal-main { padding: 1rem 12px !important; background: #F8FAFC !important; }
+            .ea-main { padding: 1rem 12px !important; background: #F8FAFC !important; }
             /* Cards tighter on mobile */
-            .signal-card { padding: 1rem !important; }
+            .ea-card { padding: 1rem !important; }
             /* Grids collapse to single column */
-            .signal-grid-2 { grid-template-columns: 1fr !important; }
-            .signal-grid-3 { grid-template-columns: 1fr !important; }
-            .signal-grid-auto { grid-template-columns: 1fr 1fr !important; }
+            .ea-grid-2 { grid-template-columns: 1fr !important; }
+            .ea-grid-3 { grid-template-columns: 1fr !important; }
+            .ea-grid-auto { grid-template-columns: 1fr 1fr !important; }
             /* Header stacks vertically */
-            .signal-tool-header { flex-direction: column !important; gap: 8px !important; }
+            .ea-tool-header { flex-direction: column !important; gap: 8px !important; }
             /* Buttons full width on mobile */
-            .signal-action-row { flex-direction: column !important; }
-            .signal-action-row button { width: 100% !important; }
+            .ea-action-row { flex-direction: column !important; }
+            .ea-action-row button { width: 100% !important; }
             /* KPI row - 2 across */
-            .signal-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .ea-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
             /* Trend banner text truncates properly */
-            .signal-trend-preview { max-width: 120px !important; }
+            .ea-trend-preview { max-width: 120px !important; }
             /* Input font size 16px prevents iOS zoom */
             input, textarea, select { font-size: 16px !important; }
             /* Execution hub 2 col */
-            .signal-exec-grid { grid-template-columns: 1fr 1fr !important; }
+            .ea-exec-grid { grid-template-columns: 1fr 1fr !important; }
           }
           @media (max-width: 380px) {
-            .signal-nav-btn { padding: 12px 8px !important; font-size: 10px !important; }
-            .signal-kpi-grid { grid-template-columns: 1fr 1fr !important; }
+            .ea-nav-btn { padding: 12px 8px !important; font-size: 10px !important; }
+            .ea-kpi-grid { grid-template-columns: 1fr 1fr !important; }
           }
         `}</style>
       </Head>
@@ -24630,9 +24630,9 @@ export default function App() {
             backdropFilter: 'blur(20px)',
             boxShadow: '0 1px 0 rgba(0,194,255,0.06), 0 4px 24px rgba(0,0,0,0.5)',
           }}>
-          <div className="signal-nav-inner" style={{maxWidth:1100,margin:'0 auto',display:'flex',alignItems:'center',gap:4,overflowX:'auto',msOverflowStyle:'none',scrollbarWidth:'none'}}>
+          <div className="ea-nav-inner" style={{maxWidth:1100,margin:'0 auto',display:'flex',alignItems:'center',gap:4,overflowX:'auto',msOverflowStyle:'none',scrollbarWidth:'none'}}>
             <div style={{marginRight:12,padding:'12px 0'}}>
-              <img src="/E-E-Logo.jpg" alt="EN" style={{width:32,height:32,borderRadius:'50%'}}/>
+              <span style={{fontSize:13,fontWeight:900,letterSpacing:'-0.04em',color:'#FFFFFF',whiteSpace:'nowrap'}}>8th Ascent</span>
             </div>
             {TOP_NAV.map(n => (
               <button key={n.id} onClick={()=>handleNav(n.id)}
@@ -24674,7 +24674,7 @@ export default function App() {
 
         {/* SUB NAV */}
         {subItems && nav !== 'home' && (
-          <div className="signal-subnav" style={{
+          <div className="ea-subnav" style={{
               background: 'rgba(18,28,42,0.9)',
               borderBottom: '1px solid rgba(0,194,255,0.06)',
               padding: '0 16px',
@@ -24684,7 +24684,7 @@ export default function App() {
               msOverflowStyle: 'none',
               scrollbarWidth: 'none',
             }}>
-            <div className="signal-subnav-inner" style={{maxWidth:1100,margin:'0 auto',display:'flex',gap:0}}>
+            <div className="ea-subnav-inner" style={{maxWidth:1100,margin:'0 auto',display:'flex',gap:0}}>
               {subItems.map(s => (
                 <button key={s.id} onClick={()=>setSub(s.id)}
                   style={{
@@ -24714,7 +24714,7 @@ export default function App() {
         {/* MAIN CONTENT */}
         <NotificationBanner/>
         <AutoVoiceUpdateBanner activeClient={activeClient}/>
-        <main className="signal-main" style={{maxWidth:1100,margin:'0 auto',padding:'1.5rem 16px',animation:'slideUp 0.3s ease-out'}}>
+        <main className="ea-main" style={{maxWidth:1100,margin:'0 auto',padding:'1.5rem 16px',animation:'slideUp 0.3s ease-out'}}>
           {ActiveComponent
             ? <ActiveComponent setNav={handleNav} setSub={setSub} _sub={sub}/>
             : (
