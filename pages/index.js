@@ -3312,6 +3312,441 @@ function WhiteLabelSwitcher() {
 
 // ── CLIENT PROFILES MANAGER ─────────────────────────────────────────────────
 
+// ── HEYGEN CLIENT SECTION ─────────────────────────────────────────────────────
+// Embedded in ClientMode edit form. Each client stores their own HeyGen credentials.
+// Keys are masked in the UI and never sent to the browser raw beyond input fields.
+
+function HeyGenClientSection({ form, setForm, inputStyle, labelStyle }) {
+  const [verifying, setVerifying] = React.useState(false);
+  const [verifyResult, setVerifyResult] = React.useState(null);
+  const [showKey, setShowKey] = React.useState(false);
+
+  const verify = async () => {
+    if (!form.heygenApiKey?.trim()) return;
+    setVerifying(true);
+    setVerifyResult(null);
+    try {
+      const res = await fetch('/api/heygen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'verify',
+          clientApiKey: form.heygenApiKey,
+          avatarId: form.heygenAvatarId || undefined,
+        }),
+      });
+      const data = await res.json();
+      setVerifyResult(data);
+    } catch (e) {
+      setVerifyResult({ valid: false, error: 'Connection failed. Check your API key.' });
+    }
+    setVerifying(false);
+  };
+
+  const sectionStyle = {
+    background: '#F8F9FF',
+    border: '1px solid #DBEAFE',
+    borderRadius: 10,
+    padding: '16px 18px',
+    marginTop: 4,
+  };
+
+  return (
+    <div style={sectionStyle}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 800, color: '#1D4ED8', letterSpacing: '-0.01em' }}>
+            AI Twin Video — HeyGen Integration
+          </div>
+          <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>
+            Each client uses their own HeyGen account. Your credits are never charged.
+          </div>
+        </div>
+        {verifyResult?.valid && (
+          <span style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', color: '#16A34A', fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 5 }}>
+            Connected ✓
+          </span>
+        )}
+      </div>
+
+      {/* API Key */}
+      <div style={{ marginBottom: 12 }}>
+        <label style={{ ...labelStyle, color: '#4B5563' }}>HeyGen API Key</label>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <input
+              type={showKey ? 'text' : 'password'}
+              value={form.heygenApiKey || ''}
+              onChange={e => { setForm(p => ({ ...p, heygenApiKey: e.target.value })); setVerifyResult(null); }}
+              placeholder="Paste HeyGen API key..."
+              style={{ ...inputStyle, paddingRight: 60, fontFamily: showKey ? 'inherit' : 'monospace', letterSpacing: showKey ? 'normal' : '0.1em' }}
+            />
+            <button
+              onClick={() => setShowKey(s => !s)}
+              style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>
+              {showKey ? 'Hide' : 'Show'}
+            </button>
+          </div>
+          <button
+            onClick={verify}
+            disabled={!form.heygenApiKey?.trim() || verifying}
+            style={{ background: form.heygenApiKey?.trim() ? '#2563EB' : '#F3F4F6', color: form.heygenApiKey?.trim() ? '#fff' : '#9CA3AF', border: 'none', borderRadius: 8, padding: '0 16px', fontSize: 12, fontWeight: 700, cursor: form.heygenApiKey?.trim() ? 'pointer' : 'not-allowed', flexShrink: 0, fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+            {verifying ? 'Checking...' : 'Verify'}
+          </button>
+        </div>
+        {verifyResult && !verifyResult.valid && (
+          <div style={{ color: '#DC2626', fontSize: 11, marginTop: 5 }}>✗ {verifyResult.error}</div>
+        )}
+        {verifyResult?.valid && !form.heygenAvatarId && (
+          <div style={{ color: '#16A34A', fontSize: 11, marginTop: 5 }}>
+            ✓ Key valid · {verifyResult.avatarCount || 0} avatar(s) found
+            {verifyResult.avatarCount === 0 && ' — record a Video Avatar in HeyGen to use AI Twin Video'}
+          </div>
+        )}
+        {verifyResult?.valid && form.heygenAvatarId && (
+          <div style={{ color: '#16A34A', fontSize: 11, marginTop: 5 }}>
+            ✓ Connected · Avatar "{verifyResult.avatar?.avatar_name || form.heygenAvatarId}" ready
+          </div>
+        )}
+        <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 4 }}>
+          Get your API key at heygen.com → Settings → API. Stored locally — never shared.
+        </div>
+      </div>
+
+      {/* Avatar ID */}
+      <div style={{ marginBottom: 12 }}>
+        <label style={{ ...labelStyle, color: '#4B5563' }}>Video Avatar ID</label>
+        <input
+          value={form.heygenAvatarId || ''}
+          onChange={e => setForm(p => ({ ...p, heygenAvatarId: e.target.value }))}
+          placeholder="e.g. Daisy-inTshirt-20220104"
+          style={inputStyle}
+        />
+        <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 4 }}>
+          In HeyGen: Avatars → your custom avatar → copy the ID. Must be a Video Avatar (recorded footage), not a photo.
+        </div>
+      </div>
+
+      {/* Voice ID (optional) */}
+      <div>
+        <label style={{ ...labelStyle, color: '#4B5563' }}>
+          Voice ID <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: '#9CA3AF' }}>optional — uses avatar default if blank</span>
+        </label>
+        <input
+          value={form.heygenVoiceId || ''}
+          onChange={e => setForm(p => ({ ...p, heygenVoiceId: e.target.value }))}
+          placeholder="e.g. 2d5b0e6cf36f460aa7fc47e3eee4ba54"
+          style={inputStyle}
+        />
+        <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 4 }}>
+          In HeyGen: Voices → your cloned voice → copy the ID. Leave blank to use the voice cloned with your avatar.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── AI TWIN VIDEO TOOL ────────────────────────────────────────────────────────
+// Generates a video using the client's own HeyGen avatar.
+// Reads heygenApiKey + heygenAvatarId from the active client profile.
+// Script can be typed, pasted, or pulled from an approved content item.
+
+function AITwinVideo() {
+  const [activeClient] = useActiveClient();
+  const [script, setScript] = React.useState('');
+  const [aspectRatio, setAspectRatio] = React.useState('9:16');
+  const [videoId, setVideoId] = React.useState(null);
+  const [status, setStatus] = React.useState(null); // null | pending | processing | completed | failed
+  const [videoUrl, setVideoUrl] = React.useState(null);
+  const [thumbnailUrl, setThumbnailUrl] = React.useState(null);
+  const [error, setError] = React.useState(null);
+  const [submitting, setSubmitting] = React.useState(false);
+  const [pollCount, setPollCount] = React.useState(0);
+  const pollRef = React.useRef(null);
+
+  const clientKey = activeClient?.heygenApiKey;
+  const avatarId = activeClient?.heygenAvatarId;
+  const voiceId = activeClient?.heygenVoiceId || undefined;
+  const isConfigured = !!(clientKey && avatarId);
+
+  // Cleanup poll on unmount
+  React.useEffect(() => {
+    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+  }, []);
+
+  const startPolling = (vid) => {
+    setPollCount(0);
+    pollRef.current = setInterval(async () => {
+      setPollCount(c => c + 1);
+      try {
+        const res = await fetch('/api/heygen', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'status', clientApiKey: clientKey, videoId: vid }),
+        });
+        const data = await res.json();
+        setStatus(data.status);
+        if (data.status === 'completed') {
+          setVideoUrl(data.videoUrl);
+          setThumbnailUrl(data.thumbnailUrl);
+          clearInterval(pollRef.current);
+        } else if (data.status === 'failed') {
+          setError(data.error || 'Video generation failed in HeyGen.');
+          clearInterval(pollRef.current);
+        }
+      } catch {
+        // Keep polling on transient errors
+      }
+    }, 8000); // Poll every 8 seconds
+  };
+
+  const generate = async () => {
+    if (!script.trim() || !isConfigured) return;
+    setSubmitting(true);
+    setError(null);
+    setVideoId(null);
+    setVideoUrl(null);
+    setThumbnailUrl(null);
+    setStatus('pending');
+
+    try {
+      const res = await fetch('/api/heygen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'generate',
+          clientApiKey: clientKey,
+          avatarId,
+          voiceId,
+          script: script.trim(),
+          aspectRatio,
+          title: `8th Ascent — ${activeClient?.name || 'Video'} — ${new Date().toLocaleDateString()}`,
+        }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        setError(data.error);
+        setStatus(null);
+      } else {
+        setVideoId(data.videoId);
+        setStatus('pending');
+        startPolling(data.videoId);
+      }
+    } catch (e) {
+      setError('Request failed: ' + e.message);
+      setStatus(null);
+    }
+    setSubmitting(false);
+  };
+
+  const reset = () => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    setScript('');
+    setVideoId(null);
+    setStatus(null);
+    setVideoUrl(null);
+    setThumbnailUrl(null);
+    setError(null);
+    setPollCount(0);
+  };
+
+  const copyUrl = () => {
+    if (videoUrl) navigator.clipboard.writeText(videoUrl);
+  };
+
+  const statusConfig = {
+    pending:    { label: 'Queued — waiting to render',   color: '#F59E0B', bg: '#FFFBEB', border: '#FDE68A' },
+    processing: { label: 'Rendering your video...',       color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
+    completed:  { label: 'Video ready',                   color: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0' },
+    failed:     { label: 'Generation failed',             color: '#DC2626', bg: '#FFF1F2', border: '#FECDD3' },
+  };
+
+  const sc = status ? statusConfig[status] : null;
+
+  const inStyle = {
+    width: '100%', background: '#FAFAF8', border: '1px solid #E8E6E1',
+    borderRadius: 8, padding: '10px 14px', color: '#1A1A1A',
+    fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+  };
+
+  // ── NOT CONFIGURED ──────────────────────────────────────────────────────────
+  if (!isConfigured) {
+    return (
+      <div style={{ maxWidth: 600, margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+          <div style={{ width: 3, height: 28, background: '#2563EB', borderRadius: 2 }}/>
+          <div>
+            <h2 style={{ color: '#1A1A1A', margin: 0, fontSize: 18, fontWeight: 800 }}>AI Twin Video</h2>
+            <p style={{ color: '#6B7280', margin: '4px 0 0', fontSize: 13 }}>Generate video with your digital avatar — no camera needed.</p>
+          </div>
+        </div>
+
+        <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 12, padding: '20px 24px' }}>
+          <div style={{ fontWeight: 700, color: '#92400E', marginBottom: 8 }}>HeyGen not connected for {activeClient?.name || 'this client'}</div>
+          <p style={{ color: '#78350F', fontSize: 13, lineHeight: 1.7, margin: '0 0 16px' }}>
+            Each client needs their own HeyGen account and Video Avatar. This keeps their credits separate from yours — you're never billed for their videos.
+          </p>
+          <div style={{ background: '#FEF3C7', borderRadius: 8, padding: '14px 16px', marginBottom: 16 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#92400E', marginBottom: 8 }}>Setup takes 3 steps:</div>
+            {[
+              '1. Client creates a HeyGen account at heygen.com ($29/mo Creator plan)',
+              '2. Client records their Video Avatar in HeyGen (2–3 min of footage, one time)',
+              '3. Client pastes their API key + Avatar ID into their 8th Ascent profile below',
+            ].map((step, i) => (
+              <div key={i} style={{ fontSize: 12, color: '#78350F', marginBottom: 4 }}>{step}</div>
+            ))}
+          </div>
+          <div style={{ fontSize: 12, color: '#92400E', fontWeight: 600 }}>
+            Go to Brain → Client Profiles → Edit {activeClient?.name || 'client'} → scroll to "AI Twin Video" section
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── CONFIGURED ──────────────────────────────────────────────────────────────
+  return (
+    <div style={{ maxWidth: 680, margin: '0 auto' }}>
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 3, height: 28, background: '#2563EB', borderRadius: 2 }}/>
+          <div>
+            <h2 style={{ color: '#1A1A1A', margin: 0, fontSize: 18, fontWeight: 800 }}>AI Twin Video</h2>
+            <p style={{ color: '#6B7280', margin: '4px 0 0', fontSize: 13 }}>
+              {activeClient?.name || 'Your'} avatar · {aspectRatio} · Credits charged to their HeyGen account
+            </p>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', color: '#16A34A', fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 5 }}>
+            HeyGen Connected ✓
+          </span>
+          {videoUrl && (
+            <button onClick={reset} style={{ background: '#F3F2EF', border: 'none', borderRadius: 7, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer', color: '#6B7280', fontFamily: 'inherit' }}>
+              New Video
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Script input — only show when not generating */}
+      {!status && (
+        <>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: 8 }}>
+              Script
+            </label>
+            <textarea
+              value={script}
+              onChange={e => setScript(e.target.value)}
+              placeholder="Paste your script here. This is exactly what your avatar will say. Write conversationally — the way you actually talk, not how you write.&#10;&#10;Tip: Use an approved piece from your Content Library and adapt it for speaking."
+              rows={8}
+              style={{ ...inStyle, resize: 'vertical', lineHeight: 1.7 }}
+              onFocus={e => e.target.style.borderColor = '#2563EB'}
+              onBlur={e => e.target.style.borderColor = '#E8E6E1'}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+              <span style={{ fontSize: 11, color: '#9CA3AF' }}>
+                {script.length > 4900
+                  ? <span style={{ color: '#DC2626', fontWeight: 600 }}>Script too long — will be trimmed to 4,900 chars</span>
+                  : `${script.length} / 4,900 chars`
+                }
+              </span>
+              <span style={{ fontSize: 11, color: '#9CA3AF' }}>
+                ~{Math.ceil(script.split(' ').filter(Boolean).length / 130)} min estimated
+              </span>
+            </div>
+          </div>
+
+          {/* Aspect ratio */}
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: 8 }}>
+              Format
+            </label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {[
+                { id: '9:16', label: '9:16', sub: 'Reels / TikTok / Shorts' },
+                { id: '16:9', label: '16:9', sub: 'YouTube / Landscape' },
+                { id: '1:1',  label: '1:1',  sub: 'Square' },
+              ].map(r => (
+                <button key={r.id} onClick={() => setAspectRatio(r.id)}
+                  style={{ flex: 1, background: aspectRatio === r.id ? '#EFF6FF' : '#FAFAF8', border: '1px solid ' + (aspectRatio === r.id ? '#2563EB' : '#E8E6E1'), borderRadius: 9, padding: '10px 8px', cursor: 'pointer', textAlign: 'center', fontFamily: 'inherit', transition: 'all 0.12s' }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: aspectRatio === r.id ? '#2563EB' : '#1A1A1A' }}>{r.label}</div>
+                  <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 2 }}>{r.sub}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button onClick={generate} disabled={!script.trim() || submitting}
+            style={{ width: '100%', background: script.trim() ? '#1A1A1A' : '#F3F2EF', color: script.trim() ? '#fff' : '#C5C3BE', border: 'none', borderRadius: 10, padding: '15px', fontSize: 15, fontWeight: 800, cursor: script.trim() ? 'pointer' : 'not-allowed', fontFamily: 'inherit', letterSpacing: '-0.01em', transition: 'all 0.15s' }}>
+            {submitting ? 'Submitting to HeyGen...' : 'Generate Video →'}
+          </button>
+
+          <p style={{ textAlign: 'center', fontSize: 11, color: '#C5C3BE', marginTop: 8 }}>
+            Credits charged to {activeClient?.name || 'client'}'s HeyGen account · Typically renders in 2–5 minutes
+          </p>
+        </>
+      )}
+
+      {/* Status card */}
+      {status && sc && (
+        <div style={{ background: sc.bg, border: '1px solid ' + sc.border, borderRadius: 12, padding: '20px 24px', marginBottom: videoUrl ? 16 : 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {(status === 'pending' || status === 'processing') && (
+              <div style={{ width: 20, height: 20, border: '2px solid ' + sc.border, borderTopColor: sc.color, borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }}/>
+            )}
+            {status === 'completed' && <span style={{ fontSize: 20 }}>✓</span>}
+            {status === 'failed' && <span style={{ fontSize: 20 }}>✗</span>}
+            <div>
+              <div style={{ fontWeight: 700, color: sc.color, fontSize: 14 }}>{sc.label}</div>
+              {(status === 'pending' || status === 'processing') && (
+                <div style={{ color: '#6B7280', fontSize: 12, marginTop: 2 }}>
+                  Checking every 8 seconds · {pollCount > 0 ? `${pollCount} check${pollCount !== 1 ? 's' : ''}` : 'first check coming up'}
+                </div>
+              )}
+              {error && <div style={{ color: '#DC2626', fontSize: 12, marginTop: 2 }}>{error}</div>}
+            </div>
+            {(status === 'failed' || error) && (
+              <button onClick={reset} style={{ marginLeft: 'auto', background: '#fff', border: '1px solid #E8E6E1', borderRadius: 7, padding: '6px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', color: '#374151' }}>
+                Try Again
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Completed video */}
+      {status === 'completed' && videoUrl && (
+        <div style={{ background: '#fff', border: '1px solid #E8E6E1', borderRadius: 12, overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+          <video
+            src={videoUrl}
+            controls
+            poster={thumbnailUrl || undefined}
+            style={{ width: '100%', maxHeight: 480, background: '#000', display: 'block' }}
+          />
+          <div style={{ padding: '16px 20px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <a href={videoUrl} download target="_blank" rel="noopener noreferrer"
+              style={{ flex: 1, background: '#1A1A1A', color: '#fff', border: 'none', borderRadius: 9, padding: '11px', fontSize: 13, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', textAlign: 'center', display: 'block' }}>
+              Download Video
+            </a>
+            <button onClick={copyUrl}
+              style={{ background: '#FAFAF8', color: '#374151', border: '1px solid #E8E6E1', borderRadius: 9, padding: '11px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              Copy URL
+            </button>
+            <button onClick={reset}
+              style={{ background: '#FAFAF8', color: '#374151', border: '1px solid #E8E6E1', borderRadius: 9, padding: '11px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              New Video
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ClientMode({ setActiveClientExternal }) {
   const [clients, saveClients] = useClients();
   const [activeClient, setActiveClient] = useActiveClient();
@@ -3319,7 +3754,7 @@ function ClientMode({ setActiveClientExternal }) {
   const [editTarget, setEditTarget] = React.useState(null);
   const [search, setSearch] = React.useState('');
 
-  const blank = { id: '', name: '', handle: '', platforms: 'Instagram', voice: '', angles: '', colors: '', notes: '', trust: 'incomplete' };
+  const blank = { id: '', name: '', handle: '', platforms: 'Instagram', voice: '', angles: '', colors: '', notes: '', trust: 'incomplete', heygenApiKey: '', heygenAvatarId: '', heygenVoiceId: '' };
   const [form, setForm] = React.useState(blank);
 
   const activate = (client) => {
@@ -3505,6 +3940,9 @@ function ClientMode({ setActiveClientExternal }) {
                 ))}
               </div>
             </div>
+
+            {/* ── HEYGEN AI TWIN INTEGRATION ── */}
+            <HeyGenClientSection form={form} setForm={setForm} inputStyle={inputStyle} labelStyle={labelStyle} />
 
             <button onClick={saveForm} disabled={!form.name.trim()}
               style={{ background: form.name.trim() ? '#111827' : '#F3F4F6', color: form.name.trim() ? '#FFF' : '#9CA3AF', border: 'none', borderRadius: 10, padding: '13px', fontWeight: 800, cursor: form.name.trim() ? 'pointer' : 'not-allowed', fontSize: 14 }}>
@@ -5838,6 +6276,7 @@ const SUB_NAV = {
     { id:'persona',      label:'AI Persona' },
     { id:'calendar',     label:'Content Calendar' },
     { id:'visualcal',    label:'Visual Calendar' },
+    { id:'aitwin',       label:'AI Twin Video' },
   ],
   agents: [
     { id:'contentengine', label:'Content Engine' },
@@ -24463,6 +24902,7 @@ const COMPONENT_MAP = {
   transcript: TranscriptIntel,
   analytics: AnalyticsHub,
   visualcal: VisualCalendar,
+  aitwin: AITwinVideo,
   stratreview: AIStrategyReview,
   library: ContentLibrary,
   libraryview: ContentLibrary,
