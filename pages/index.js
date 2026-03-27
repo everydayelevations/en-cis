@@ -49,7 +49,46 @@ Spiritual: Not religion unless relevant. Purpose. Values. The deeper reason behi
 
 const CONTENT_SOP = `Content standards I've built my system on: No intros, no fluff : drop them into value on the first frame. Four-layer journey: See It→Click It→Watch It→Go Deeper. CTA split: 60% comment-based, 20% DM, 20% link. I measure wins by shares and saves first : not likes.`;
 
-const VOICE = `Write in Jason Fricka's voice.
+function getVoice(client) {
+  // If a non-default client is active, use their voice profile
+  if (client && !client.isDefault && client.voice) {
+    const name = client.name || 'the creator';
+    const handle = client.handle ? ' (' + client.handle + ')' : '';
+    const role = client.role || '';
+    const niche = client.niche || '';
+    const location = client.location || '';
+    // Pull Brain voice profile if available
+    const brainVoice = (() => {
+      try {
+        const brains = JSON.parse(localStorage.getItem('encis_living_brain') || '{}');
+        const b = brains[client.id];
+        if (b?.voice_profile?.description) return b.voice_profile.description;
+      } catch {}
+      return null;
+    })();
+    const banned = (() => {
+      try {
+        const brains = JSON.parse(localStorage.getItem('encis_living_brain') || '{}');
+        const b = brains[client.id];
+        return b?.voice_profile?.banned_phrases?.join(', ') || '';
+      } catch { return ''; }
+    })();
+    return `Write in ${name}'s voice${handle}.
+
+WHO THEY ARE:
+${role ? role + '. ' : ''}${niche ? niche + '. ' : ''}${location ? 'Based in ' + location + '.' : ''}
+${brainVoice || client.voice}
+
+HOW THEY TALK:
+${brainVoice || client.voice}
+
+Their content must sound like them — not like a marketer writing about them. Never use em dashes. Never use AI buzzwords like "delve", "tapestry", "comprehensive", "leverage", "utilize", "paradigm", "synergy", "robust", "holistic", "facilitate", "foster", "streamline", or "cutting-edge". No hype. No filler.${banned ? '\n\nBanned phrases for this creator: ' + banned : ''}
+
+Today is ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}.`;
+  }
+
+  // Default: Jason Fricka
+  return `Write in Jason Fricka's voice.
 
 WHO HE IS:
 Jason is an HR Manager at a cabinet manufacturing company in Colorado - this is his primary career and where he spends most of his working hours. He deals with real HR every day: benefits, compliance, employee issues, hiring, difficult conversations, management problems. He knows what it's like to be the person everyone comes to when something goes wrong at work.
@@ -61,9 +100,14 @@ Direct. No fluff. Short sentences. Real stories. He sits across the table from y
 
 His community is everyday people who carry a lot - jobs, families, financial pressure, physical goals - and refuse to stay where they are. He roots for them out loud.
 
-Today is \${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}.
+Today is ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}.
 
 Write like him, not like a marketer writing about him. Never use em dashes. Never use AI buzzwords like "delve", "tapestry", "comprehensive", "leverage", "utilize", "paradigm", "synergy", "robust", "holistic", "facilitate", "foster", "streamline", or "cutting-edge". No hype. No filler. Jason does not talk like a LinkedIn consultant.`;
+}
+
+// Backward-compat: keep VOICE as a constant for top-level prompt strings
+// that can't access activeClient. These fire for Jason (isDefault) by definition.
+const VOICE = getVoice(null);
 
 // ═════════════════════════════════════════════════════════════════════════════
 const PLATFORMS = ['Instagram','YouTube','Facebook','LinkedIn','X','TikTok'];
@@ -699,20 +743,20 @@ Structure:
 
 Rules: Respectful but confident. Add genuine value. End with a question that drives comments.`;
 
-const TREND_PROMPT = (niche) => `
-You are a viral content strategist for @everydayelevations.
+const TREND_PROMPT = (niche, client) => `
+You are a viral content strategist for ${client ? client.name + (client.handle ? ' (' + client.handle + ')' : '') : '@everydayelevations'}.
 Find 6-8 trending topics right now in: ${niche}
 
 Return as JSON array:
 [{
   "trend": "trend name",
   "why_viral": "psychology behind it",
-  "jason_angle": "how Jason specifically should approach this",
+  "creator_angle": "how this creator specifically should approach this",
   "hook": "specific hook line",
   "format": "Reel/Carousel/Story/Live"
 }]
 
-Focus on: mindset/discipline/real estate/personal growth/outdoor lifestyle spaces.`;
+Focus on content spaces relevant to this creator's niche and audience.`;
 
 const PIPELINE_EXTRACT = (rawResearch, angle) => `
 ${VOICE}
@@ -747,7 +791,7 @@ What in his background (HR, real estate, Colorado, endurance athlete, mindset co
 `;
 
 
-const PIPELINE_SCRIPT = (intel, platform) => `${VOICE}
+const PIPELINE_SCRIPT = (intel, platform, client) => `${getVoice(client)}
 ${CONTENT_SOP}
 
 You are turning research intelligence into a camera-ready script. Be fast. No padding. Write the actual script.
@@ -1138,15 +1182,21 @@ One paragraph. Plain language. What actually happened this week, what it means, 
 Run this full review. Input data. Read the output. Execute the plan.
 `
 
-const PROFILE_PROMPT = (platform, liveData, extraContext) => `
-${VOICE}
+const PROFILE_PROMPT = (platform, liveData, extraContext, client) => {
+  const creatorName = client && !client.isDefault ? client.name : 'Jason Fricka';
+  const handle = client && !client.isDefault ? (client.handle || '') : '@everydayelevations';
+  const linkedInNote = client && !client.isDefault
+    ? (client.role ? '7. **Dual-Lane Strategy** (' + client.role + ')\n8. **Featured Section** (what to pin, in order)\n9. **Rewritten About Section** (full copy, ready to paste)' : '')
+    : '7. **Dual-Lane Strategy** (HR Manager at Highland Cabinetry + Everyday Elevations podcast)\n8. **Featured Section** (what to pin, in order)\n9. **Rewritten About Section** (full copy, ready to paste)';
+  return `
+${getVoice(client)}
 ${CONTENT_SOP}
 
 Platform: ${platform}
 Live profile data pulled from the web: ${liveData}
-Extra context from Jason: ${extraContext || 'None'}
+Extra context from ${creatorName}: ${extraContext || 'None'}
 
-You are auditing Jason Fricka's actual live ${platform} profile based on real data above. Not assumptions. Be specific. Call out exactly what is working, what is dead weight, and what is missing. Then rewrite it.
+You are auditing ${creatorName}'s actual live ${platform} profile based on real data above. Not assumptions. Be specific. Call out exactly what is working, what is dead weight, and what is missing. Then rewrite it.
 
 1. **What's Actually on the Profile Right Now** (summarize what the live data shows)
 2. **What's Working** (keep this, say why)
@@ -1155,11 +1205,12 @@ You are auditing Jason Fricka's actual live ${platform} profile based on real da
 5. **Name Field** (SEO + searchability)
 6. **Link Strategy** (what belongs in link-in-bio and why)
 ${platform === 'Instagram' ? '7. **Highlight Cover Strategy** (names + what goes in each)\n8. **Pinned Post Recommendation** (what and why)' : ''}
-${platform === 'LinkedIn' ? '7. **Dual-Lane Strategy** (HR Manager at Highland Cabinetry + Everyday Elevations podcast)\n8. **Featured Section** (what to pin, in order)\n9. **Rewritten About Section** (full copy, ready to paste)' : ''}
+${platform === 'LinkedIn' ? linkedInNote : ''}
 ${platform === 'YouTube' ? '7. **Channel Description Rewrite** (searchable, keyword-rich)\n8. **About Section** (full copy)\n9. **Thumbnail and Banner Direction**' : ''}
 ${platform === 'Facebook' ? '7. **Page vs Profile Strategy** (which to prioritize and why)\n8. **About Section Rewrite**\n9. **Cover Photo Direction**' : ''}
 
-Be direct. Write like Jason would actually use this today.`;
+Be direct. Write like ${creatorName} would actually use this today.`;
+};
 
 const COLLAB_PROMPT = (niche, goal) => `
 ${VOICE}
@@ -1919,10 +1970,10 @@ function useWorkflowStatus(itemId) {
 }
 
 // ─── PHASE 8: DESIGN PACK PROMPT ──────────────────────────────────────────────
-const DESIGN_PACK_PROMPT = (item, content) => `
+const DESIGN_PACK_PROMPT = (item, content, client) => `
 You are a creative director and content strategist building a visual-ready Design Pack for a social media content piece.
 
-Creator: Jason Fricka | @everydayelevations | Colorado | Voice: Direct, real, accountability energy. No hype.
+Creator: ${client && !client.isDefault ? client.name + (client.handle ? ' | ' + client.handle : '') + (client.location ? ' | ' + client.location : '') + ' | Voice: ' + (client.voice || 'Direct, real.') : 'Jason Fricka | @everydayelevations | Colorado | Voice: Direct, real, accountability energy. No hype.'}
 Platform: ${item.platform || 'Instagram'}
 Content Type: ${item.type || 'Content'}
 Topic/Title: ${item.title || 'Untitled'}
@@ -3955,13 +4006,15 @@ function ProfileAudit() {
   const [fetching, setFetching] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const handle = activeClient?.handle || '@everydayelevations';
+  const handleClean = handle.replace('@', '');
   const handles = {
-    Instagram: '@everydayelevations on Instagram: instagram.com/everydayelevations',
-    YouTube: 'youtube.com/@everydayelevations',
-    Facebook: 'facebook.com/jason.fricka',
-    LinkedIn: 'linkedin.com/in/jason-fricka: HR Manager + podcast host Jason Fricka',
-    X: '@everydayelevations on X (Twitter): x.com/everydayelevations',
-    TikTok: '@everydayelevations on TikTok: tiktok.com/@everydayelevations',
+    Instagram: `${handle} on Instagram: instagram.com/${handleClean}`,
+    YouTube: `youtube.com/@${handleClean}`,
+    Facebook: activeClient?.isDefault ? 'facebook.com/jason.fricka' : `facebook.com/${handleClean}`,
+    LinkedIn: activeClient?.isDefault ? 'linkedin.com/in/jason-fricka' : `linkedin.com/in/${handleClean}`,
+    X: `${handle} on X (Twitter): x.com/${handleClean}`,
+    TikTok: `${handle} on TikTok: tiktok.com/@${handleClean}`,
   };
 
   const fetchLive = async () => {
@@ -3973,7 +4026,7 @@ function ProfileAudit() {
   const run = async () => {
     if (!liveData) return;
     setLoading(true); setOut('');
-    const res = await ai(PROFILE_PROMPT(platform, liveData, extraContext));
+    const res = await ai(PROFILE_PROMPT(platform, liveData, extraContext, activeClient));
     setOut(res); setLoading(false);
   };
 
@@ -4207,7 +4260,7 @@ function Pipeline() {
   const runScript = async () => {
     if(!intel) return;
     setStep('scripting'); setScript('');
-    const res = await ai(PIPELINE_SCRIPT(intel, platform));
+    const res = await ai(PIPELINE_SCRIPT(intel, platform, activeClient));
     setScript(res); setStep('idle');
   };
 
@@ -5957,7 +6010,7 @@ function CaptionWriter() {
 // ═════════════════════════════════════════════════════════════════════════════
 function ScheduleOptimizer() {
   const [weeks] = useState(() => {
-    try { const s = localStorage.getItem('encis_roi_data'); return s ? JSON.parse(s) : []; } catch { return []; }
+    try { const s = localStorage.getItem('encis_roi_weeks'); return s ? JSON.parse(s) : []; } catch { return []; }
   });
   const [log] = useState(() => {
     try { const s = localStorage.getItem('encis_content_log'); return s ? JSON.parse(s) : []; } catch { return []; }
@@ -5975,9 +6028,9 @@ function ScheduleOptimizer() {
       ? log.slice(0, 30).map(e => `${e.date} : ${e.type} : ${e.title} : Rating: ${e.perf || 'unrated'}`).join('\n')
       : 'No content memory logged yet.';
 
-    const prompt = `${VOICE}
+    const prompt = `${getVoice(activeClient)}
 
-You are analyzing Jason Fricka's actual content performance data to build a specific posting schedule.
+You are analyzing ${activeClient?.name || 'this creator'}'s actual content performance data to build a specific posting schedule.
 
 ROI DATA (last 8 weeks):
 ${roiSummary}
@@ -5989,7 +6042,7 @@ Available hours per week: ${hours}
 
 Based on this actual data, build a specific weekly posting schedule. Do not give generic advice : base every recommendation on what the data shows.
 
-# Optimal Posting Schedule for @everydayelevations
+# Optimal Posting Schedule for ${activeClient?.handle || activeClient?.name || '@everydayelevations'}
 
 ## What the Data Shows
 [Specific patterns from the ROI and content memory data above : what's working, what's not, best performing content types]
@@ -6103,14 +6156,14 @@ Flopped content: ${rated.flopped.slice(0,5).join(' | ') || 'none rated yet'}
 Available angles: ${ANGLES.map(a=>a.label).join(', ')}
 `;
 
-    const prompt = `${VOICE}
+    const prompt = `${getVoice(activeClient)}
 
-You are analyzing Jason Fricka's content library to find gaps, over-posting, and missed opportunities.
+You are analyzing ${activeClient?.name || 'this creator'}'s content library to find gaps, over-posting, and missed opportunities.
 
 CONTENT AUDIT DATA:
 ${summary}
 
-# Content Gap Analysis : @everydayelevations
+# Content Gap Analysis : ${activeClient?.handle || activeClient?.name || '@everydayelevations'}
 
 ## What You're Over-Posting
 [Angles and formats appearing too frequently : risk of audience fatigue]
@@ -7132,10 +7185,10 @@ function EmailSequenceBuilder() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // PODCAST PRE-PRODUCTION SUITE
 // ═════════════════════════════════════════════════════════════════════════════
-const PODCAST_PREPROD_PROMPT = (guestName, guestBio, episode_angle, showContext) => `
-${VOICE}
+const PODCAST_PREPROD_PROMPT = (guestName, guestBio, episode_angle, showContext, client) => `
+${getVoice(client)}
 
-Show: Everyday Elevations Podcast (Host: Jason Fricka: veteran, HR manager, mindset coach, Colorado)
+Show: ${client && !client.isDefault ? (client.name + ' Podcast') : 'Everyday Elevations Podcast'} (Host: ${client ? client.name : 'Jason Fricka'}${client && !client.isDefault ? '' : ': veteran, HR manager, mindset coach, Colorado'})
 Guest: ${guestName}
 Guest Background: ${guestBio}
 Episode Angle / Theme: ${episode_angle}
@@ -7242,7 +7295,7 @@ function PodcastPreProd() {
     setLoading(true); setOut('');
     let res;
     if (mode === 'guest') {
-      res = await ai(PODCAST_PREPROD_PROMPT(guestName, guestBio, angle, showContext));
+      res = await ai(PODCAST_PREPROD_PROMPT(guestName, guestBio, angle, showContext, activeClient));
       logToMemory({ type:'podcast', title:`Episode Prep: ${guestName}`, preview:res.slice(0,200) });
     } else {
       const angleLabel = ANGLES.find(a=>a.id===soloAngle)?.label || soloAngle;
@@ -7575,18 +7628,18 @@ Something that drives engagement and adds value
 SCRIPT:
 ${script}`;
 
-const YT_AUDIT_PROMPT = (channelData, auditExtra='') => `
-${VOICE}
+const YT_AUDIT_PROMPT = (channelData, auditExtra='', client=null) => `
+${getVoice(client)}
 
 YouTube Channel Data (from Perplexity):
 ${channelData}
 
-${auditExtra ? `Additional Context from Jason (treat this as ground truth : he knows his channel better than any search):
+${auditExtra ? `Additional Context from ${client ? client.name : 'Jason'} (treat this as ground truth : they know their channel better than any search):
 ${auditExtra}` : ''}
 
-You are auditing Jason Fricka's YouTube channel @everydayelevations using the VIDIQ outlier framework. Be direct. No softening. Use the additional context above to make every recommendation specific.
+You are auditing ${client ? client.name + (client.handle ? ' (' + client.handle + ')' : '') : 'Jason Fricka (@everydayelevations)'}'s YouTube channel using the VIDIQ outlier framework. Be direct. No softening. Use the additional context above to make every recommendation specific.
 
-# YouTube Channel Audit : @everydayelevations
+# YouTube Channel Audit : ${client ? (client.handle || client.name) : '@everydayelevations'}
 
 ## Channel Health Score: [X/10]
 
@@ -7665,7 +7718,8 @@ function YouTubeToolkit() {
 
   const fetchChannel = async () => {
     setFetching(true); setChannelData('');
-    const res = await perp(`Audit the YouTube channel @everydayelevations. Report: subscriber count, total views, number of videos, recent upload frequency, most viewed videos (titles + approximate views), channel description, content topics covered, what's working and what isn't based on the data visible.`);
+    const ytHandle = activeClient?.handle || '@everydayelevations';
+    const res = await perp(`Audit the YouTube channel ${ytHandle}. Report: subscriber count, total views, number of videos, recent upload frequency, most viewed videos (titles + approximate views), channel description, content topics covered, what's working and what isn't based on the data visible.`);
     setChannelData(res);
     setFetching(false);
   };
@@ -7678,7 +7732,7 @@ function YouTubeToolkit() {
     if (tool === 'script') res = await ai(YT_SCRIPT_PROMPT(topic, angleLabel, ytDuration, ytStyle));
     else if (tool === 'titles') res = await ai(YT_TITLE_PROMPT(topic, angleLabel));
     else if (tool === 'seo') res = await ai(YT_CHAPTERS_PROMPT(script));
-    else if (tool === 'audit') res = await ai(YT_AUDIT_PROMPT(channelData, auditExtra));
+    else if (tool === 'audit') res = await ai(YT_AUDIT_PROMPT(channelData, auditExtra, activeClient));
     else if (tool === 'endscreen') res = await ai(YT_ENDSCREEN_PROMPT(topic, channelGoal));
 
     setOut(res);
@@ -7794,7 +7848,7 @@ function YouTubeToolkit() {
               style={{background:'#F9FAFB',color:'#111827',border:'1px solid rgba(255,255,255,0.2)',
                 borderRadius:8,padding:'10px 20px',fontWeight:700,cursor:fetching?'not-allowed':'pointer',
                 fontSize:13,marginBottom:16}}>
-              {fetching ? 'Pulling channel data...' : 'Pull @everydayelevations Data'}
+              {fetching ? 'Pulling channel data...' : `Pull ${activeClient?.handle || '@everydayelevations'} Data`}
             </button>
             {channelData && (
               <div style={{background:'#F9FAFB',borderRadius:8,padding:'12px',marginBottom:16,
@@ -7847,7 +7901,7 @@ function YouTubeToolkit() {
             <span style={{color:'#111827',fontWeight:700,fontSize:14}}>{tools.find(t=>t.id===tool)?.label} Results</span>
             <CopyBtn text={out}/>
           </div>
-          <DocOutput text={out} title={tool === 'script' ? `YouTube Script : ${topic}` : tool === 'audit' ? 'Channel Audit : @everydayelevations' : `YouTube ${tool} : ${topic || 'Content'}`}/>
+          <DocOutput text={out} title={tool === 'script' ? `YouTube Script : ${topic}` : tool === 'audit' ? `Channel Audit : ${activeClient?.handle || '@everydayelevations'}` : `YouTube ${tool} : ${topic || 'Content'}`}/>
         </div>
       )}
     </div>
@@ -8326,17 +8380,17 @@ function ChallengeBuilder() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPETITOR CONTENT SPY
 // ═════════════════════════════════════════════════════════════════════════════
-const SPY_PROMPT = (handle, platform, rawData, angle) => `
-${VOICE}
+const SPY_PROMPT = (handle, platform, rawData, angle, client) => `
+${getVoice(client)}
 
-You are analyzing a competitor's content strategy to find gaps Jason Fricka can own.
+You are analyzing a competitor's content strategy to find gaps ${client ? client.name : 'Jason Fricka'} can own.
 
 Creator: ${handle}
 Platform: ${platform}
 Live data pulled: ${rawData}
-Jason's angle to compete from: ${angle || 'mindset/real estate/Colorado/occupational purpose/financial independence'}
+${client ? client.name : 'Jason'}'s angle to compete from: ${angle || (client?.niche || 'mindset/real estate/Colorado/occupational purpose/financial independence')}
 
-This is intelligence work: not copying. Find what they are missing so Jason can own it.
+This is intelligence work: not copying. Find what they are missing so ${client ? client.name : 'Jason'} can own it.
 
 # Competitor Intel: ${handle}
 
@@ -8396,7 +8450,7 @@ function CompetitorSpy() {
   const run = async () => {
     if (!rawData) return;
     setLoading(true); setOut('');
-    const res = await ai(SPY_PROMPT(handle, platform, rawData, angle));
+    const res = await ai(SPY_PROMPT(handle, platform, rawData, angle, activeClient));
     setOut(res);
     // Save to history
     const entry = { id: Date.now().toString(), handle, platform, date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), preview: res.slice(0,100) };
@@ -8980,7 +9034,7 @@ function MonthlyReportSuite() {
 
   const roiData = (() => {
     try {
-      const stored = localStorage.getItem('encis_roi_data');
+      const stored = localStorage.getItem('encis_roi_weeks');
       if (!stored) return 'No ROI data logged yet.';
       const weeks = JSON.parse(stored).slice(-4);
       return weeks.map(w => `Week of ${w.week}: Followers ${w.followers|| 'N/A'}, Reach ${w.reach||'N/A'}, Saves ${w.saves|| 'N/A'}, Shares ${w.shares||'N/A'}, Leads ${w.leads|| 'N/A'}. Top content: ${w.topContent||'none'}. Notes: ${w.notes|| 'none'}`).join('\n');
@@ -9244,6 +9298,7 @@ Where they are overexposed, repetitive, inauthentic, or predictable.
 2-3 things to monitor about this competitor over the next 30 days.`;
 
 function CompetitorIntel() {
+  const [activeClient] = useActiveClient();
   const [competitors, setCompetitors] = useState([]);
   const [newHandle, setNewHandle] = useState('');
   const [newPlatform, setNewPlatform] = useState('Instagram');
@@ -9251,9 +9306,18 @@ function CompetitorIntel() {
   const [results, setResults] = useState({});
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
-  const [clientContext, setClientContext] = useState('Jason Fricka @everydayelevations - mindset, real estate, Colorado lifestyle, discipline content');
+  const [clientContext, setClientContext] = useState('');
 
   useEffect(() => {
+    // Auto-populate from activeClient
+    if (activeClient) {
+      const ctx = [
+        activeClient.name,
+        activeClient.handle,
+        activeClient.niche || activeClient.role || '',
+      ].filter(Boolean).join(' — ');
+      setClientContext(ctx);
+    }
     try {
       const stored = localStorage.getItem(COMP_INTEL_KEY);
       if (stored) {
@@ -9262,7 +9326,7 @@ function CompetitorIntel() {
         setResults(data.results || {});
       }
     } catch {}
-  }, []);
+  }, [activeClient]);
 
   const save = (comps, res) => {
     try { localStorage.setItem(COMP_INTEL_KEY, JSON.stringify({ competitors:comps, results:res })); } catch {}
@@ -9826,7 +9890,7 @@ function ContentPredictor() {
 
   const historicalData = (() => {
     try {
-      const roi = JSON.parse(localStorage.getItem('encis_roi_data') || '[]').slice(-4);
+      const roi = JSON.parse(localStorage.getItem('encis_roi_weeks') || '[]').slice(-4);
       const top = JSON.parse(localStorage.getItem('encis_content_log') || '[]').filter(e => e.perf === '').slice(0,5);
       if (!roi.length && !top.length) return '';
       return [
@@ -11152,7 +11216,7 @@ function AIStrategyReview() {
   const saveReviews = (list) => { setReviews(list); try { localStorage.setItem(STRATEGY_REVIEW_KEY, JSON.stringify(list)); } catch {} };
 
   const buildContext = () => {
-    const roi = (() => { try { return JSON.parse(localStorage.getItem('encis_roi_data')|| '[]').slice(-8); } catch { return []; } })();
+    const roi = (() => { try { return JSON.parse(localStorage.getItem('encis_roi_weeks')|| '[]').slice(-8); } catch { return []; } })();
     const log = (() => { try { return JSON.parse(localStorage.getItem('encis_content_log')|| '[]').slice(0,40); } catch { return []; } })();
     const calData = (() => { try { const c = JSON.parse(localStorage.getItem(VISUAL_CAL_KEY)||'{}'); const k = selectedClient?.id|| 'default'; return Object.values(c[k]||{}).flat().slice(0,20); } catch { return []; } })();
 
@@ -12121,7 +12185,8 @@ Types of deals to avoid regardless of the money.
 `;
 
 function PricingCalculator() {
-  const [niche, setNiche] = useState('Mindset coaching, real estate, Colorado lifestyle');
+  const [activeClient] = useActiveClient();
+  const [niche, setNiche] = useState('');
   const [platforms, setPlatforms] = useState(['Instagram','YouTube']);
   const [followers, setFollowers] = useState('2K–10K');
   const [engagementRate, setEngagementRate] = useState('4');
@@ -12129,7 +12194,13 @@ function PricingCalculator() {
   const [market, setMarket] = useState('US');
   const [out, setOut] = useState('');
   const [loading, setLoading] = useState(false);
-  const [activeClient] = useActiveClient();
+
+  React.useEffect(() => {
+    if (activeClient) {
+      const brain = (() => { try { const b = JSON.parse(localStorage.getItem('encis_living_brain') || '{}'); return b[activeClient.id] || null; } catch { return null; } })();
+      setNiche(brain?.niche_summary || activeClient.niche || activeClient.role || 'Content creator');
+    }
+  }, [activeClient]);
 
   const toggleItem = (arr, setArr, val) => setArr(prev => prev.includes(val) ? prev.filter(x=>x!==val) : [...prev, val]);
 
@@ -12582,7 +12653,7 @@ function ABTestTracker() {
       const r = results[t.id];
       return `Test: "${t.name}" (${t.platform}, ${t.type})\nVariant A: ${t.variantA}\nVariant B: ${t.variantB}\nWinner: Variant ${r?.winner|| 'TBD'} | A score: ${r?.aScore||'?'} | B score: ${r?.bScore|| '?'}`;
     }).join('\n\n');
-    const res = await ai(`${VOICE}\n\nAnalyze these completed A/B tests and extract the winning patterns:\n\n${summary}\n\nProvide:\n1. Overall patterns: what is consistently winning\n2. Platform-specific insights\n3. 5 specific recommendations for future content based on the data\n4. What to test next`);
+    const res = await ai(`${getVoice(activeClient)}\n\nAnalyze these completed A/B tests and extract the winning patterns:\n\n${summary}\n\nProvide:\n1. Overall patterns: what is consistently winning\n2. Platform-specific insights\n3. 5 specific recommendations for future content based on the data\n4. What to test next`);
     setAnalysisOut(res); setLoading(false);
   };
 
@@ -12866,7 +12937,7 @@ function RevenueAttribution() {
     if (entries.length < 3) return;
     setLoading(true); setAnalysisOut('');
     const summary = entries.slice(0,30).map(e=>`${e.platform} ${e.format}: "${e.contentTitle}" → ${e.outcomeType}: ${e.outcome}${e.revenue?` ($${e.revenue})`:''}. Date: ${e.date}. Notes: ${e.notes|| 'none'}`).join('\n');
-    const res = await ai(`${VOICE}\n\nAnalyze this content-to-revenue attribution data:\n\n${summary}\n\nProvide:\n1. Which platforms and formats are generating the most revenue opportunities\n2. Which content topics correlate with high-value outcomes\n3. The typical path from content to conversion for this account\n4. What to create more of based on ROI\n5. Estimated content ROI if tracked fully`);
+    const res = await ai(`${getVoice(activeClient)}\n\nAnalyze this content-to-revenue attribution data:\n\n${summary}\n\nProvide:\n1. Which platforms and formats are generating the most revenue opportunities\n2. Which content topics correlate with high-value outcomes\n3. The typical path from content to conversion for this account\n4. What to create more of based on ROI\n5. Estimated content ROI if tracked fully`);
     setAnalysisOut(res); setLoading(false);
   };
 
@@ -13511,7 +13582,7 @@ function OnboardingFlow({ onComplete }) {
         tone: voice,
         patterns: brain.voice_profile?.tone_patterns || [],
         banned: brain.voice_profile?.banned_phrases || [],
-        clientName: 'Jason Fricka',
+        clientName: updatedClient.name || 'Jason Fricka',
         createdAt: new Date().toISOString(),
       };
       localStorage.setItem(VOICE_KEY, JSON.stringify(fps));
@@ -13932,8 +14003,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
       }
 
       // Approval queue
-      const queueKey = 'encis_approval_queue_' + clientId;
-      const queue = JSON.parse(localStorage.getItem(queueKey) || '[]');
+      const queue = JSON.parse(localStorage.getItem('encis_approval_queue') || '[]');
       setPendingQueue(queue.filter(q => q.status === 'pending').length);
 
       // Recent content + top winner
@@ -14807,14 +14877,14 @@ function ContentCreationHub() {
     const client = selectedClient || activeClient;
     const voiceFP = (() => { try { const fps = JSON.parse(localStorage.getItem('encis_voice_fingerprints')||'{}'); return fps[client?.id] || null; } catch { return null; } })();
     const voiceHint = voiceFP ? `Voice: ${voiceFP.tone || ''}. ` : '';
-    const prompt = `You are a content strategist generating ideas for Jason Fricka.
+    const prompt = `You are a content strategist generating ideas for ${client?.name || 'this creator'}.
 
 CREATOR PROFILE:
-${client?.voice || ''}
+${getVoice(client)}
 Platform: ${platform} | Format: ${topicLength} | Dimension: ${topicAngle}
-${topicSeed ? 'Seed topic: "' + topicSeed + '"' : 'No seed - mix freely across all areas of Jason\'s life.'}
+${topicSeed ? 'Seed topic: "' + topicSeed + '"' : 'No seed - mix freely across all areas of ' + (client?.name || 'their') + '\'s life.'}
 
-JASON'S LIFE TERRITORIES - pull ideas from ALL of these and mix them:
+${client?.isDefault !== false ? 'JASON\'S LIFE TERRITORIES - pull ideas from ALL of these and mix them:' : (client?.name || 'CREATOR') + '\'S CONTENT TERRITORIES - draw from their background, role, and niche:'}
 
 HR & WORKPLACE (primary career - use heavily):
 HR Manager at a cabinet manufacturing company in Colorado. Daily: benefits, ADA compliance, terminations, hiring, policy enforcement, workers comp, manager training, difficult employee conversations. He's the person everyone goes to when work goes wrong. He sees human behavior under real pressure - people afraid of losing their jobs, managers who get it wrong, the gap between policy and human reality. Rich, underserved content territory.
@@ -14884,7 +14954,7 @@ Vary territories across the 5 ideas. No more than one real estate idea. Ground e
     else if (mode === 'batch') prompt = BULK_PROMPT(ANGLES.find(a=>a.id===angle)?.label||angle, platform, topic, batchCount, voiceContext);
     else if (mode === 'episode') prompt = EPISODE_PROMPT(episodeTitle||topic, episodeNotes||topic);
     else if (mode === 'repurpose') prompt = REPURPOSE_PROMPT(repurposeFrom||topic, repurposePlatform, platform);
-    else if (mode === 'brief') prompt = CONTENT_BRIEF_PROMPT(client||{name:'Jason Fricka',handle:'@everydayelevations'}, topic, intensity, sessionDate, sessionLocation, sessionEquip, sessionDuration);
+    else if (mode === 'brief') prompt = CONTENT_BRIEF_PROMPT(client||activeClient||{name:'Jason Fricka',handle:'@everydayelevations'}, topic, intensity, sessionDate, sessionLocation, sessionEquip, sessionDuration);
     const res = await ai(prompt);
     setOut(res); setLoading(false);
   };
@@ -15408,14 +15478,14 @@ function ResearchHub() {
   const runScriptFromIntel = async () => {
     if(!intel) return;
     setStep('scripting'); setScript('');
-    const res = await ai(PIPELINE_SCRIPT(intel, platform));
+    const res = await ai(PIPELINE_SCRIPT(intel, platform, activeClient));
     setScript(res); setStep('idle');
   };
 
   const runSpy = async () => {
     if(!spyHandle) return;
     setLoading(true); setOut('');
-    const res = await ai(SPY_PROMPT(spyHandle, platform, rawData, ANGLES.find(a=>a.id===angle)?.label||angle));
+    const res = await ai(SPY_PROMPT(spyHandle, platform, rawData, ANGLES.find(a=>a.id===angle)?.label||angle, activeClient));
     setOut(res); setLoading(false);
     try { const h = JSON.parse(localStorage.getItem('encis_spy_history')||'[]'); h.unshift({handle:spyHandle,platform,angle:ANGLES.find(a=>a.id===angle)?.label||angle,summary:res.slice(0,200),date:new Date().toLocaleDateString()}); localStorage.setItem('encis_spy_history',JSON.stringify(h.slice(0,10))); } catch {}
   };
@@ -15733,8 +15803,9 @@ function HookWorkshop() {
   );
 }
 
-function GrowthDashboard() {
-  const [mode, setMode] = useState('roi');
+function GrowthDashboard({ setNav, setSub: setSubNav, _sub }) {
+  const subToMode = { gaps: 'gaps', revenue: 'revenue', abtests: 'ab', growth: 'roi' };
+  const [mode, setMode] = React.useState(subToMode[_sub] || 'roi');
   const [activeClient] = useActiveClient();
 
   // ROI state (preserved from ROIDashboard)
@@ -15783,7 +15854,7 @@ function GrowthDashboard() {
     setGapLoading(true); setGapOut('');
     const log = (() => { try { return JSON.parse(localStorage.getItem('encis_content_log')||'[]'); } catch { return []; } })();
     const roiStr = weeks.length ? weeks.slice(0,8).map(w=>`Week ${w.week}: Followers ${w.followers||'?'}, Reach ${w.reach||'?'}, Saves ${w.saves||'?'}`).join('\n') : 'No ROI data';
-    const prompt = `${VOICE}
+    const prompt = `${getVoice(activeClient)}
 You are a content gap analyst. Based on this creator's data, identify the 5 highest-impact content angles they are under-using.
 
 ROI DATA:
@@ -16248,7 +16319,7 @@ function ContentLibrary() {
     setDesignPackLoading(true);
     const content = item.full_content || item.content_preview || '';
     try {
-      const raw = await ai(DESIGN_PACK_PROMPT(item, content));
+      const raw = await ai(DESIGN_PACK_PROMPT(item, content, activeClient));
       const clean = raw.replace(/```json|```/g, '').trim();
       const pack = JSON.parse(clean);
       setDesignPackResult(pack);
@@ -22822,7 +22893,7 @@ export default function App() {
         <AutoVoiceUpdateBanner activeClient={activeClient}/>
         <main className="signal-main" style={{maxWidth:1100,margin:'0 auto',padding:'1.5rem 16px',animation:'slideUp 0.3s ease-out'}}>
           {ActiveComponent
-            ? <ActiveComponent setNav={handleNav} setSub={setSub}/>
+            ? <ActiveComponent setNav={handleNav} setSub={setSub} _sub={sub}/>
             : (
               <div style={{textAlign:'center',padding:'4rem 0',color:'#6B7280'}}>
                 <p>Select a tool from the navigation above</p>
