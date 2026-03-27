@@ -17575,7 +17575,7 @@ const TREND_MONITOR_KEY = 'encis_trend_monitor';
 const TREND_MONITOR_DATE_KEY = 'encis_trend_monitor_date';
 
 const TREND_MONITOR_QUERIES = {
-  HR_Creator: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+  HR_Creator: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
 
 Search for the single most viral piece of content posted THIS WEEK by HR managers, people managers, or HR influencers on Instagram, TikTok, or LinkedIn.
 
@@ -17588,10 +17588,10 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea ${activeClient?.name || 'the creator'} should post this week based on this trend]
+STEAL: [one specific content idea ${creatorName} should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
-  RealEstate_Colorado: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+  RealEstate_Colorado: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
 
 Search for the single most viral piece of content posted THIS WEEK by real estate agents, mortgage professionals, or housing market commentators on Instagram, TikTok, or YouTube.
 
@@ -17604,10 +17604,10 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea ${activeClient?.name || 'the creator'} should post this week based and families, should post this week based on this trend]
+STEAL: [one specific content idea ${creatorName} should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
-  Veteran_Creator: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+  Veteran_Creator: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
 
 Search for the single most viral piece of content posted THIS WEEK by veteran creators, military-to-civilian transition voices, or veteran entrepreneur/athlete accounts on Instagram, TikTok, or YouTube.
 
@@ -17620,10 +17620,10 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea ${activeClient?.name || 'the creator'} should post this week based should post this week based on this trend]
+STEAL: [one specific content idea ${creatorName} should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
-  Endurance_Athlete: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+  Endurance_Athlete: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
 
 Search for the single most viral piece of content posted THIS WEEK by endurance athletes, trail runners, ultramarathon creators, or outdoor fitness accounts on Instagram, TikTok, or YouTube.
 
@@ -17636,10 +17636,10 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea ${activeClient?.name || 'the creator'} should post this week based this week based on this trend]
+STEAL: [one specific content idea ${creatorName} should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
-  Fatherhood_Family: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+  Fatherhood_Family: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
 
 Search for the single most viral piece of content posted THIS WEEK by dad creators, fatherhood voices, or family/parenting accounts on Instagram, TikTok, or YouTube.
 
@@ -17652,10 +17652,10 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea ${activeClient?.name || 'the creator'} should post this week basedd on this trend]
+STEAL: [one specific content idea ${creatorName} should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
-  Mindset_Discipline: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+  Mindset_Discipline: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
 
 Search for the single most viral piece of content posted THIS WEEK by mindset, discipline, or accountability creators on Instagram, TikTok, or YouTube.
 
@@ -17668,10 +17668,10 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea ${activeClient?.name || 'the creator'}, should post this week based on this trend]
+STEAL: [one specific content idea ${creatorName}, should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
-  Everyday_Wins: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+  Everyday_Wins: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
 
 Search for the single most viral piece of content posted THIS WEEK that celebrates ordinary people doing extraordinary things - not celebrities, not influencers, not people with massive platforms already.
 
@@ -17684,10 +17684,10 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea for ${activeClient?.name || 'the creator'}'s community — people who refuse to stay where they are - that Jason should post this week]
+STEAL: [one specific content idea for ${creatorName}'s community — people who refuse to stay where they are - that they should post this week]
 VIEWS: [approximate views/engagement or "trending"]`,
 
-  Health_Wellness_Pro: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+  Health_Wellness_Pro: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
 
 Search for the single most viral piece of content posted THIS WEEK by health, wellness, or longevity creators targeting working professionals in their 30s and 40s on Instagram, TikTok, or YouTube.
 
@@ -17700,7 +17700,7 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea ${activeClient?.name || 'the creator'} should post this week based post this week about health and wellness for working professionals]
+STEAL: [one specific content idea ${creatorName} should post this week about health and wellness for working professionals]
 VIEWS: [approximate views/engagement or "trending"]`,
 };
 
@@ -17736,7 +17736,7 @@ VIEWS: [approximate views/engagement count or "trending"]`;
 
   // Fallback to the static query library if no custom query
   const queryFn = TREND_MONITOR_QUERIES[niche.id];
-  if (queryFn) return queryFn(today);
+  if (queryFn) return queryFn(today, name);
 
   return `Today is ${today}. Find the most viral content this week in the "${niche.label}" space. Return: ACCOUNT: / PLATFORM: / HOOK: / WHY: / STEAL: [specific idea for ${name}, ${role} ${locationStr}] / VIEWS:`;
 };
