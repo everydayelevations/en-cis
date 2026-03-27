@@ -93,7 +93,7 @@ Today is ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',yea
 WHO HE IS:
 Jason is an HR Manager at a cabinet manufacturing company in Colorado - this is his primary career and where he spends most of his working hours. He deals with real HR every day: benefits, compliance, employee issues, hiring, difficult conversations, management problems. He knows what it's like to be the person everyone comes to when something goes wrong at work.
 
-He's also a licensed real estate agent serving veterans and families in the South Denver Metro area. He's a dad, a veteran, an endurance athlete training toward bigger challenges, and he hosts a podcast called Everyday Elevations. He manages multiple responsibilities simultaneously and knows what that pressure actually feels like.
+He's also a licensed real estate agent serving veterans and families in the South Denver Metro area. He's a US Air Force veteran, a dad to a toddler son, an endurance athlete training toward bigger challenges, and he hosts a podcast called Everyday Elevations. He manages multiple responsibilities simultaneously and knows what that pressure actually feels like.
 
 HOW HE TALKS:
 Direct. No fluff. Short sentences. Real stories. He sits across the table from you and tells you what he actually thinks. He doesn't hype things up. He doesn't use words like "transform" or "journey" or "find your potential." He says what he means. He talks about hard days, early mornings, the work nobody sees, and why showing up matters even when it doesn't feel like it.
@@ -2652,7 +2652,7 @@ const DEFAULT_CLIENT = {
   colors: '#0A1628, #E94560, #FFFFFF',
   notes: 'HR Manager at Highland Cabinetry. Podcast host. Real estate agent. Colorado father. Endurance athlete.',
   location: 'Colorado',
-  role: 'HR Manager, real estate agent, veteran, endurance athlete, mindset coach, dad',
+  role: 'HR Manager, real estate agent, US Air Force veteran, endurance athlete, mindset coach, dad to a toddler son',
   trendNiches: [
     { id: 'niche_1', label: 'HR Creator', query: 'viral HR manager content this week - workplace stories, hiring and firing realities, employee relations, what managers wish people knew' },
     { id: 'niche_2', label: 'Real Estate Colorado', query: 'viral Colorado real estate agent content this week - market updates, VA loans, buyer and seller tips, building wealth on a W-2' },
@@ -7189,7 +7189,7 @@ function EmailSequenceBuilder() {
 const PODCAST_PREPROD_PROMPT = (guestName, guestBio, episode_angle, showContext, client) => `
 ${getVoice(client)}
 
-Show: ${client && !client.isDefault ? (client.name + ' Podcast') : 'Everyday Elevations Podcast'} (Host: ${client ? client.name : 'Jason Fricka'}${client && !client.isDefault ? '' : ': veteran, HR manager, mindset coach, Colorado'})
+Show: ${client && !client.isDefault ? (client.name + ' Podcast') : 'Everyday Elevations Podcast'} (Host: ${client ? client.name : 'Jason Fricka'}${client && !client.isDefault ? '' : ': US Air Force veteran, HR manager, mindset coach, Colorado'})
 Guest: ${guestName}
 Guest Background: ${guestBio}
 Episode Angle / Theme: ${episode_angle}
@@ -14903,10 +14903,10 @@ ENDURANCE & PHYSICAL DISCIPLINE:
 Training toward RAGBRAI, 10Ks, bigger endurance goals. Not gym motivation - the raw reality of staying physically disciplined when exhausted from full-time career, side business, and fatherhood.
 
 FATHERHOOD & FAMILY:
-Dad to Jordan, partner to Lisa. Carrying responsibility for a family while building toward your own goals. The tension between being the person others depend on and still growing yourself.
+Dad to a toddler son (age 2) — he can't have a real conversation yet, still learning to talk. Partner to Lisa. Carrying responsibility for a family while building toward your own goals. The tension between being the person others depend on and still growing yourself. IMPORTANT: Do not write content where Jason's son says complex things or asks sophisticated questions — he is a toddler.
 
-VETERAN IDENTITY:
-What military service built that still runs in the background. The civilian transition, identity shift, what veterans carry that most people don't see.
+US AIR FORCE VETERAN IDENTITY:
+What Air Force service built that still runs in the background. The civilian transition, identity shift, what veterans carry that most people don't see. Service branch: US Air Force.
 
 PODCAST & PERSONAL GROWTH (Everyday Elevations):
 Practical growth - not aspirational. Small daily choices that compound. The gap between what self-help promises and what actually moves the needle in a real, complicated life.
@@ -17109,7 +17109,7 @@ ACCOUNT: [creator handle]
 PLATFORM: [platform]
 HOOK: [exact opening line or title]
 WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea Jason Fricka, Army veteran and mindset coach in Colorado, should post this week based on this trend]
+STEAL: [one specific content idea Jason Fricka, US Air Force veteran and mindset coach in Colorado, should post this week based on this trend]
 VIEWS: [approximate views/engagement or "trending"]`,
 
   Endurance_Athlete: (today) => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
@@ -17719,7 +17719,7 @@ function ContentPerformanceAgent() {
 
     const prompt = `You are a content performance analyst. Analyze this creator's content data and give direct, actionable intelligence.
 
-Creator: ${activeClient?.name || 'Jason Fricka'} (@everydayelevations) - HR Manager, Colorado real estate agent, endurance athlete, veteran, mindset coach, dad.
+Creator: ${activeClient?.name || 'Jason Fricka'} (@everydayelevations) - HR Manager, Colorado real estate agent, endurance athlete, US Air Force veteran, mindset coach, dad to a toddler son.
 
 CONTENT DATA:
 VIRAL (${viral.length} pieces):
@@ -21109,7 +21109,7 @@ const BRAIN_HEALTH_KEY = 'encis_brain_health';
 const SEEDING_QUESTIONS = [
   { id: 1, q: "What is something you have done at work that most people would not have the stomach for? Describe the moment specifically." },
   { id: 2, q: "What did you get completely wrong early in your career that you now see clearly? What did that cost you?" },
-  { id: 3, q: "What did military service teach you that still runs in the background every single day?" },
+  { id: 3, q: "What did your time in the Air Force teach you that still runs in the background every single day?" },
   { id: 4, q: "What is the hardest thing about being a dad that nobody talks about honestly?" },
   { id: 5, q: "What was the moment you realized HR was not what you thought it was going to be?" },
   { id: 6, q: "What does showing up at 5am to train actually feel like when you genuinely do not want to be there?" },
