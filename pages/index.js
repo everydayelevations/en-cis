@@ -191,19 +191,7 @@ async function ai(message, system='You are a helpful content strategist.') {
     body: JSON.stringify({ system, message })
   });
   const d = await res.json();
-  const result = d.text || d.result || d.error || 'No response';
-  if (result && result !== 'No response' && !result.startsWith('Error')) {
-    try {
-      await saveToSupabase({
-        type: 'content',
-        title: message.slice(0, 80),
-        preview: result.slice(0, 500),
-        full: result,
-        notes: 'auto-saved',
-      });
-    } catch(e) { /* silent */ }
-  }
-  return result;
+  return d.text || d.result || d.error || 'No response';
 }
 
 async function perp(query) {
@@ -15046,10 +15034,19 @@ function IntelligenceDashboard({ setNav, setSub }) {
         .order('created_at', { ascending: false }).limit(20);
       const recent = data || [];
       // Filter out bad saves where prompt text was stored as title
-      const BAD_PREFIXES = ['You are ', 'CREATOR PROFILE', 'Write in ', 'You are a', 'Generate'];
+      const BAD_PREFIXES = [
+        'You are ', 'CREATOR PROFILE', 'Write in ', 'You are a', 'Generate',
+        'STORY BANK', 'CREATOR:', 'Today is ', 'Search for ', 'You are the',
+        'Build a', 'Create a', 'Write a', 'Return ONLY', 'Return only',
+        '${', 'VOICE:', 'WHO HE', 'HOW HE', 'HOW THEY',
+      ];
       const cleanRecent = recent.filter(item => {
         const t = item.title || '';
-        return t.length > 0 && !BAD_PREFIXES.some(p => t.startsWith(p));
+        if (t.length < 3) return false;
+        if (BAD_PREFIXES.some(p => t.startsWith(p))) return false;
+        // Also filter items where notes = 'auto-saved' (came from ai() helper directly)
+        if (item.notes === 'auto-saved') return false;
+        return true;
       });
       setRecentContent(cleanRecent.slice(0, 5));
       const winner = recent.find(c => c.notes && (c.notes.includes('winner') || c.notes.includes('outperformed')));
@@ -15127,14 +15124,22 @@ function IntelligenceDashboard({ setNav, setSub }) {
   const [activeStudioCard, setActiveStudioCard] = React.useState('plan');
 
   const handleStudioNav = (card) => {
-    if (card.action === 'plan_week') {
-      setActiveStudioCard('plan');
-      setShowPlanWeek(true);
-      return;
-    }
     setActiveStudioCard(card.id);
+    // Plan Week opens as an overlay — never navigates away
+    if (card.action === 'plan_week') {
+      setShowPlanWeek(true);
+    }
+    // All other cards: just highlight in the sidebar.
+    // The main area shows a launch card. User taps "Open" to go to the full tool.
+    // This keeps Studio as a stable home on both desktop and mobile.
+  };
+
+  const openCard = (card) => {
+    if (card.action === 'plan_week') { setShowPlanWeek(true); return; }
     go(card.nav, card.sub);
   };
+
+  const activeCard = STUDIO_CARDS.find(c => c.id === activeStudioCard) || STUDIO_CARDS[0];
 
   return (
     <div style={{ background: '#F8FAFC', minHeight: '100vh' }}>
@@ -15214,6 +15219,31 @@ function IntelligenceDashboard({ setNav, setSub }) {
               </div>
             </div>
           )}
+
+          {/* ── SELECTED CARD LAUNCH PANEL ── */}
+          {/* Shows the active Studio nav item with a big Open button.
+              On desktop this is a secondary cue. On mobile this is the primary action. */}
+          <div style={{ background: '#fff', border: '1px solid #E8E6E1', borderRadius: 14, padding: '20px 22px', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#2563EB', marginBottom: 4 }}>
+                Selected
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#1A1A1A', marginBottom: 4, letterSpacing: '-0.02em' }}>
+                {activeCard.title}
+              </div>
+              <div style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.5 }}>
+                {activeCard.desc}
+              </div>
+            </div>
+            <button
+              onClick={() => openCard(activeCard)}
+              style={{ background: '#1A1A1A', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 22px', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0, letterSpacing: '-0.01em', transition: 'background 0.15s' }}
+              onMouseEnter={e => e.currentTarget.style.background = '#2563EB'}
+              onMouseLeave={e => e.currentTarget.style.background = '#1A1A1A'}
+            >
+              {activeCard.action === 'plan_week' ? 'Plan My Week →' : 'Open →'}
+            </button>
+          </div>
 
           {/* Live stat strip */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 24 }}>
