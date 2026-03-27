@@ -5567,6 +5567,22 @@ function TrendAlertBanner() {
 }
 
 
+const Sparkline = ({ data, color='#00C2FF', height=40 }) => {
+    if (data.length < 2) return null;
+    const nums = data.map(Number).filter(n=>!isNaN(n));
+    if (!nums.length) return null;
+    const min = Math.min(...nums), max = Math.max(...nums);
+    const range = max - min || 1;
+    const w = 120, h = height;
+    const pts = nums.map((v,i) => `${(i/(nums.length-1))*w},${h - ((v-min)/range)*(h-4)+2}`).join(' ');
+    return (
+      <svg width={w} height={h} style={{display:'block'}}>
+        <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round"/>
+        <circle cx={(nums.length-1)/(nums.length-1)*w} cy={h - ((nums[nums.length-1]-min)/range)*(h-4)+2} r="3" fill={color}/>
+      </svg>
+    );
+  };
+
 function ROIDashboard() {
   const [weeks,    setWeeks]    = useState([]);
   const [form,     setForm]     = useState({ week:'', followers:'', reach:'', saves:'', shares:'', leads:'', topContent:'', notes:'' });
@@ -5605,21 +5621,6 @@ function ROIDashboard() {
   };
 
   // Simple SVG sparkline
-  const Sparkline = ({ data, color='#00C2FF', height=40 }) => {
-    if (data.length < 2) return null;
-    const nums = data.map(Number).filter(n=>!isNaN(n));
-    if (!nums.length) return null;
-    const min = Math.min(...nums), max = Math.max(...nums);
-    const range = max - min || 1;
-    const w = 120, h = height;
-    const pts = nums.map((v,i) => `${(i/(nums.length-1))*w},${h - ((v-min)/range)*(h-4)+2}`).join(' ');
-    return (
-      <svg width={w} height={h} style={{display:'block'}}>
-        <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round"/>
-        <circle cx={(nums.length-1)/(nums.length-1)*w} cy={h - ((nums[nums.length-1]-min)/range)*(h-4)+2} r="3" fill={color}/>
-      </svg>
-    );
-  };
 
   // Growth calculations
   const latest  = weeks[weeks.length - 1];
@@ -13303,6 +13304,14 @@ const OB_STEPS_GUIDED = [
   { id: 'action',     label: 'Action',     icon: '⚡' },
 ];
 
+const Pill = ({ active, onClick, children }) => (
+
+    <button onClick={onClick}
+      style={{ background: active ? '#EEF2FF' : '#F9FAFB', color: active ? '#2563EB' : '#6B7280', border: '1px solid ' + (active ? '#C7D2FE' : '#E5E7EB'), borderRadius: 8, padding: '8px 18px', cursor: 'pointer', fontSize: 13, fontWeight: active ? 700 : 500, transition: 'all 0.15s' }}>
+      {children}
+    </button>
+  );
+
 function OnboardingFlow({ onComplete }) {
   const [path, setPath] = React.useState(null);         // null | 'guided' | 'upload'
   const [guidedStep, setGuidedStep] = React.useState(0);
@@ -13659,12 +13668,6 @@ function OnboardingFlow({ onComplete }) {
 
   // ── Styles ──
   const C = { navy: '#080D14', card: '#FFFFFF', border: '#E5E7EB', accent: '#00C2FF', red: '#DC2626', text: '#111827', sub: '#6B7280' };
-  const Pill = ({ active, onClick, children }) => (
-    <button onClick={onClick}
-      style={{ background: active ? '#EEF2FF' : '#F9FAFB', color: active ? '#2563EB' : '#6B7280', border: '1px solid ' + (active ? '#C7D2FE' : '#E5E7EB'), borderRadius: 8, padding: '8px 18px', cursor: 'pointer', fontSize: 13, fontWeight: active ? 700 : 500, transition: 'all 0.15s' }}>
-      {children}
-    </button>
-  );
 
   // ─────────────── PATH SELECTION ───────────────────────────────────────────
   if (!path) return (
@@ -13949,6 +13952,22 @@ function OnboardingFlow({ onComplete }) {
 // Shows: key metrics, trend alerts, pending deliverables, recent content,
 // content gap score, top performer, and quick-launch recent tools.
 // ═════════════════════════════════════════════════════════════════════════════
+// ── Dashboard sub-components — defined outside to prevent remount on re-render ──
+const DashCard = ({ children, style = {}, onClick }) => (
+  <div onClick={onClick}
+    style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '18px 20px', cursor: onClick ? 'pointer' : 'default', transition: onClick ? 'border-color 0.15s' : 'none', ...style }}
+    onMouseEnter={onClick ? e => e.currentTarget.style.borderColor = '#111827' : undefined}
+    onMouseLeave={onClick ? e => e.currentTarget.style.borderColor = '#E5E7EB' : undefined}>
+    {children}
+  </div>
+);
+
+const DashSectionLabel = ({ children }) => (
+  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9CA3AF', marginBottom: 10 }}>
+    {children}
+  </div>
+);
+
 function IntelligenceDashboard({ setNav, setSub }) {
   const [activeClient] = useActiveClient();
   const [clients] = useClients();
@@ -14095,21 +14114,6 @@ function IntelligenceDashboard({ setNav, setSub }) {
     yellow: '#F59E0B', red: '#EF4444',
   };
 
-  const Card = ({ children, style = {}, onClick }) => (
-    <div onClick={onClick}
-      style={{ background: C.card, border: '1px solid ' + C.border, borderRadius: 12, padding: '18px 20px', cursor: onClick ? 'pointer' : 'default', transition: onClick ? 'border-color 0.15s' : 'none', ...style }}
-      onMouseEnter={onClick ? e => e.currentTarget.style.borderColor = '#111827' : undefined}
-      onMouseLeave={onClick ? e => e.currentTarget.style.borderColor = C.border : undefined}>
-      {children}
-    </div>
-  );
-
-  const SectionLabel = ({ children }) => (
-    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: C.subtle, marginBottom: 10 }}>
-      {children}
-    </div>
-  );
-
   return (
     <div style={{ background: C.bg, minHeight: '100vh' }}>
       <div style={{ maxWidth: 820, margin: '0 auto', padding: '28px 20px 60px' }}>
@@ -14152,8 +14156,8 @@ function IntelligenceDashboard({ setNav, setSub }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
 
           {/* Q1: What should I make next? */}
-          <Card onClick={() => go('create', 'smartbrief')}>
-            <SectionLabel>What should I make next?</SectionLabel>
+          <DashCard onClick={() => go('create', 'smartbrief')}>
+            <DashSectionLabel>What should I make next?</DashSectionLabel>
             {trendAlerts.length > 0 ? (
               <div>
                 <div style={{ color: C.text, fontSize: 13, fontWeight: 600, lineHeight: 1.5, marginBottom: 8 }}>
@@ -14175,11 +14179,11 @@ function IntelligenceDashboard({ setNav, setSub }) {
               </div>
             )}
             <div style={{ marginTop: 12, color: C.accent, fontSize: 12, fontWeight: 700 }}>Create → Smart Brief →</div>
-          </Card>
+          </DashCard>
 
           {/* Q2: What needs review? */}
-          <Card onClick={() => go('library', 'approvalqueue')}>
-            <SectionLabel>What needs review?</SectionLabel>
+          <DashCard onClick={() => go('library', 'approvalqueue')}>
+            <DashSectionLabel>What needs review?</DashSectionLabel>
             {pendingQueue > 0 ? (
               <div>
                 <div style={{ fontSize: 32, fontWeight: 900, color: C.text, lineHeight: 1, marginBottom: 6 }}>{pendingQueue}</div>
@@ -14192,11 +14196,11 @@ function IntelligenceDashboard({ setNav, setSub }) {
               </div>
             )}
             <div style={{ marginTop: 12, color: C.accent, fontSize: 12, fontWeight: 700 }}>Library → Approval Queue →</div>
-          </Card>
+          </DashCard>
 
           {/* Q3: What is working? */}
-          <Card onClick={() => go('insights', 'growth')}>
-            <SectionLabel>What is working?</SectionLabel>
+          <DashCard onClick={() => go('insights', 'growth')}>
+            <DashSectionLabel>What is working?</DashSectionLabel>
             {topWinner ? (
               <div>
                 <div style={{ color: C.text, fontSize: 13, fontWeight: 600, lineHeight: 1.5, marginBottom: 4 }}>
@@ -14215,11 +14219,11 @@ function IntelligenceDashboard({ setNav, setSub }) {
               </div>
             )}
             <div style={{ marginTop: 12, color: C.accent, fontSize: 12, fontWeight: 700 }}>Insights → Growth Dashboard →</div>
-          </Card>
+          </DashCard>
 
           {/* Q4: Where do I start right now? */}
-          <Card>
-            <SectionLabel>Where do I start right now?</SectionLabel>
+          <DashCard>
+            <DashSectionLabel>Where do I start right now?</DashSectionLabel>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {!brainSeeded && (
                 <button onClick={() => go('create', 'brain')}
@@ -14247,15 +14251,15 @@ function IntelligenceDashboard({ setNav, setSub }) {
                 </button>
               )}
             </div>
-          </Card>
+          </DashCard>
         </div>
 
         {/* ── STORY PROMPT OF THE DAY ── */}
-        <Card style={{ marginBottom: 20 }}>
+        <DashCard style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
             <div style={{ fontSize: 22, flexShrink: 0, marginTop: 2 }}></div>
             <div style={{ flex: 1 }}>
-              <SectionLabel>Story prompt of the day</SectionLabel>
+              <DashSectionLabel>Story prompt of the day</DashSectionLabel>
               <div style={{ color: C.text, fontSize: 14, fontWeight: 600, lineHeight: 1.6, marginBottom: 12 }}>
                 {storyPrompt}
               </div>
@@ -14280,15 +14284,15 @@ function IntelligenceDashboard({ setNav, setSub }) {
               )}
             </div>
           </div>
-        </Card>
+        </DashCard>
 
         {/* ── RECENT CONTENT + QUICK ACTIONS ── */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
 
           {/* Recent content */}
-          <Card>
+          <DashCard>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <SectionLabel>Recent content</SectionLabel>
+              <DashSectionLabel>Recent content</DashSectionLabel>
               <button onClick={() => go('library', 'libraryview')}
                 style={{ background: 'none', border: 'none', color: C.accent, cursor: 'pointer', fontSize: 11, fontWeight: 700 }}>View all →</button>
             </div>
@@ -14309,11 +14313,11 @@ function IntelligenceDashboard({ setNav, setSub }) {
                 ))}
               </div>
             )}
-          </Card>
+          </DashCard>
 
           {/* Quick actions */}
-          <Card>
-            <SectionLabel>Quick actions</SectionLabel>
+          <DashCard>
+            <DashSectionLabel>Quick actions</DashSectionLabel>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               {[
                 { label: 'Smart Brief', sub: 'Create your next piece', nav: 'create', subnav: 'smartbrief', icon: '✦' },
@@ -14334,14 +14338,14 @@ function IntelligenceDashboard({ setNav, setSub }) {
                 </button>
               ))}
             </div>
-          </Card>
+          </DashCard>
         </div>
 
         {/* ── CLIENT SWITCHER ── */}
         {clients.length > 1 && (
           <div style={{ marginTop: 14 }}>
-            <Card>
-              <SectionLabel>Switch client</SectionLabel>
+            <DashCard>
+              <DashSectionLabel>Switch client</DashSectionLabel>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {clients.map(c => (
                   <button key={c.id} onClick={() => {
@@ -14356,7 +14360,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
                   </button>
                 ))}
               </div>
-            </Card>
+            </DashCard>
           </div>
         )}
 
