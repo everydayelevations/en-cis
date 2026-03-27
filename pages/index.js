@@ -14509,36 +14509,45 @@ const STUDIO_CSS = `
   }
 
   /* ── MOBILE ── */
-  @media (max-width: 700px) {
-    .studio-layout { flex-direction: column; }
+  @media (max-width: 768px) {
+    .studio-layout { flex-direction: column !important; }
     .studio-nav {
-      width: 100%;
-      height: auto;
-      position: static;
-      padding: 0;
-      border-right: none;
-      border-bottom: 1px solid #ECEAE6;
-      display: flex;
-      flex-direction: row;
-      overflow-x: auto;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
+      width: 100% !important;
+      height: auto !important;
+      min-height: unset !important;
+      position: static !important;
+      padding: 0 !important;
+      border-right: none !important;
+      border-bottom: 1px solid #ECEAE6 !important;
+      display: flex !important;
+      flex-direction: row !important;
+      overflow-x: auto !important;
+      overflow-y: visible !important;
+      scrollbar-width: none !important;
+      -webkit-overflow-scrolling: touch !important;
+      background: #FFFFFF !important;
     }
-    .studio-nav-section { display: none; }
+    .studio-nav::-webkit-scrollbar { display: none; }
+    .studio-nav-section { display: none !important; }
     .studio-nav-item {
-      border-left: none;
-      border-bottom: 2px solid transparent;
-      padding: 14px 16px;
-      white-space: nowrap;
-      font-size: 13px;
-      flex-shrink: 0;
+      border-left: none !important;
+      border-bottom: 2px solid transparent !important;
+      padding: 13px 14px !important;
+      white-space: nowrap !important;
+      font-size: 13px !important;
+      flex-shrink: 0 !important;
+      width: auto !important;
     }
     .studio-nav-item.active {
-      border-bottom-color: #2563EB;
-      background: none;
+      border-left-color: transparent !important;
+      border-bottom-color: #2563EB !important;
+      background: none !important;
     }
-    .studio-nav-item .nav-desc { display: none; }
-    .studio-main { padding: 20px 16px 60px; }
+    .studio-nav-item .nav-desc { display: none !important; }
+    .studio-main { padding: 20px 16px 80px !important; max-width: 100% !important; }
+  }
+  @media (max-width: 480px) {
+    .studio-nav-item { padding: 12px 10px !important; font-size: 12px !important; }
   }
 `;
 
@@ -14597,7 +14606,13 @@ function IntelligenceDashboard({ setNav, setSub }) {
         .from('saved_content').select('*').eq('client_id', clientId)
         .order('created_at', { ascending: false }).limit(20);
       const recent = data || [];
-      setRecentContent(recent.slice(0, 5));
+      // Filter out bad saves where prompt text was stored as title
+      const BAD_PREFIXES = ['You are ', 'CREATOR PROFILE', 'Write in ', 'You are a', 'Generate'];
+      const cleanRecent = recent.filter(item => {
+        const t = item.title || '';
+        return t.length > 0 && !BAD_PREFIXES.some(p => t.startsWith(p));
+      });
+      setRecentContent(cleanRecent.slice(0, 5));
       const winner = recent.find(c => c.notes && (c.notes.includes('winner') || c.notes.includes('outperformed')));
       setTopWinner(winner || null);
       const allStories = JSON.parse(localStorage.getItem(typeof STORY_BANK_KEY !== 'undefined' ? STORY_BANK_KEY : 'encis_story_bank') || '{}');
@@ -14827,7 +14842,12 @@ function IntelligenceDashboard({ setNav, setSub }) {
                     <div style={{ width: 6, height: 6, borderRadius: '50%', background: item.notes?.includes('winner') ? C.green : C.border, flexShrink: 0 }}/>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ color: C.text, fontSize: 12, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {item.title || item.topic || 'Untitled'}
+                        {(() => {
+                          const t = item.title || item.topic || '';
+                          const bad = ['You are ', 'CREATOR PROFILE', 'Write in ', 'Generate'];
+                          if (!t || bad.some(p => t.startsWith(p))) return item.type || 'Content';
+                          return t;
+                        })()}
                       </div>
                       <div style={{ color: C.subtle, fontSize: 10, marginTop: 1 }}>{item.platform || ''}</div>
                     </div>
@@ -15449,7 +15469,7 @@ Vary territories across the 5 ideas. No more than one real estate idea. Ground e
     else if (mode === 'batch') prompt = BULK_PROMPT(ANGLES.find(a=>a.id===angle)?.label||angle, platform, topic, batchCount, voiceContext);
     else if (mode === 'episode') prompt = EPISODE_PROMPT(episodeTitle||topic, episodeNotes||topic);
     else if (mode === 'repurpose') prompt = REPURPOSE_PROMPT(repurposeFrom||topic, repurposePlatform, platform);
-    else if (mode === 'brief') prompt = CONTENT_BRIEF_PROMPT(client||activeClient||{name:activeClient?.name||'the creator',handle:activeClient?.handle||'',voice:activeClient?.voice||''}), topic, intensity, sessionDate, sessionLocation, sessionEquip, sessionDuration);
+    else if (mode === 'brief') prompt = CONTENT_BRIEF_PROMPT(client||activeClient||{name:activeClient?.name||'the creator',handle:activeClient?.handle||'',voice:activeClient?.voice||''}, topic, intensity, sessionDate, sessionLocation, sessionEquip, sessionDuration);
     const res = await ai(prompt);
     setOut(res); setLoading(false);
   };
