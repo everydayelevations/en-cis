@@ -420,8 +420,33 @@ const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
 };
 
 // Universal Doc Output: renders markdown + print/PDF download
-function DocOutput({text, title='Document', showDownload=true}) {
+function DocOutput({text, title='Document', showDownload=true, platform='Instagram'}) {
   const [downloading, setDownloading] = useState(false);
+  const [scoring, setScoring] = useState(false);
+  const [score, setScore] = useState(null);
+  const [activeClient] = useActiveClient();
+
+  const runScore = async () => {
+    if (!text || scoring) return;
+    setScoring(true);
+    setScore(null);
+    try {
+      const voice = activeClient?.voice || '';
+      const raw = await ai(GENERIC_RISK_PROMPT(text.slice(0, 3000), platform, voice));
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const result = JSON.parse(clean);
+      setScore(result);
+    } catch(e) {
+      setScore({ overall_risk: 5, risk_level: 'yellow', single_fix: 'Could not score — try again', passes: false });
+    }
+    setScoring(false);
+  };
+
+  const scoreCfg = {
+    green:  { bg: '#F0FDF4', border: '#BBF7D0', dot: '#10B981', label: 'Quality check passed',        text: '#166534' },
+    yellow: { bg: '#FFFBEB', border: '#FDE68A', dot: '#F59E0B', label: 'Could be sharper',             text: '#92400E' },
+    red:    { bg: '#FFF1F2', border: '#FECDD3', dot: '#EF4444', label: 'Needs specificity',            text: '#9F1239' },
+  };
 
   const download = async () => {
     setDownloading(true);
@@ -574,18 +599,40 @@ function DocOutput({text, title='Document', showDownload=true}) {
     return parts.map((p,i) => p.startsWith('**') && p.endsWith('**') ? <strong key={i} style={{color:'#111827',fontWeight:700}}>{p.replace(/\*\*/g,'')}</strong> : p);
   };
 
+  const scoreCfg = {
+    green:  { bg:'#F0FDF4', border:'#BBF7D0', dot:'#10B981', label:'Quality check passed', text:'#166534' },
+    yellow: { bg:'#FFFBEB', border:'#FDE68A', dot:'#F59E0B', label:'Could be sharper',     text:'#92400E' },
+    red:    { bg:'#FFF1F2', border:'#FECDD3', dot:'#EF4444', label:'Needs specificity',    text:'#9F1239' },
+  };
+  const sc = score ? (scoreCfg[score.risk_level] || scoreCfg.yellow) : null;
+
   return (
     <div style={{marginTop:20}}>
       {showDownload && (
-        <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginBottom:12}}>
+        <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginBottom:12,flexWrap:'wrap'}}>
           <SaveButton entry={{type:'content', title:title, preview:text.slice(0,400), full:text}}/>
           <CopyBtn text={text}/>
+          <button onClick={runScore} disabled={scoring}
+            style={{background:sc?sc.bg:'#F3F4F6',color:sc?sc.text:'#374151',border:'1px solid '+(sc?sc.border:'#E5E7EB'),
+              borderRadius:8,padding:'7px 14px',fontWeight:700,cursor:scoring?'wait':'pointer',fontSize:13}}>
+            {scoring ? 'Scoring...' : score ? (score.risk_level==='green' ? '✓ Passed' : score.risk_level==='yellow' ? '⚠ Review' : '✗ Fix needed') : 'Score'}
+          </button>
           <button onClick={download} disabled={downloading}
             style={{background:downloading?'#6B7280':'#2563EB',color:'#fff',border:'none',
               borderRadius:8,padding:'7px 16px',fontWeight:700,cursor:downloading?'not-allowed':'pointer',
               fontSize:13,display:'flex',alignItems:'center',gap:6}}>
             {downloading ? 'Preparing...' : 'Download PDF / Print'}
           </button>
+        </div>
+      )}
+      {sc && (
+        <div style={{background:sc.bg,border:'1px solid '+sc.border,borderRadius:10,padding:'10px 16px',marginBottom:12,display:'flex',alignItems:'flex-start',gap:10}}>
+          <div style={{width:8,height:8,borderRadius:'50%',background:sc.dot,flexShrink:0,marginTop:4}}/>
+          <div style={{flex:1}}>
+            <div style={{fontSize:12,fontWeight:700,color:sc.text}}>{sc.label} · {score.overall_risk}/10</div>
+            {score.single_fix && <div style={{fontSize:12,color:sc.text,opacity:0.85,marginTop:2}}>Fix: {score.single_fix}</div>}
+          </div>
+          <button onClick={()=>setScore(null)} style={{background:'none',border:'none',color:sc.text,opacity:0.4,cursor:'pointer',fontSize:16,padding:0,lineHeight:1}}>×</button>
         </div>
       )}
       <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:14,padding:'28px 32px',boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
@@ -17286,6 +17333,94 @@ function ContentLibrary() {
     showToast('Marked as ' + status, P8_STATUS_COLORS[status]?.color);
   };
 
+  // ── Platform formatter — formats content for specific destination platforms ──
+  const formatForPlatform = (rawContent, targetPlatform) => {
+    const text = rawContent || '';
+    const lines = text.split('
+');
+
+    // Extract meaningful content lines — strip markdown headers and labels
+    const cleanLines = lines
+      .map(l => l.replace(/^\*\*[^*]+\*\*:?\s*/, '').replace(/^#{1,4}\s*/, '').trim())
+      .filter(l => l.length > 2);
+
+    switch (targetPlatform) {
+      case 'Instagram': {
+        // Instagram: hook on first line, double-spaced body, hashtags at end
+        const hook = cleanLines[0] || '';
+        const body = cleanLines.slice(1, 8).join('
+
+');
+        const hashMatch = text.match(/#[\w]+/g);
+        const hashtags = hashMatch ? '
+
+' + hashMatch.slice(0, 30).join(' ') : '';
+        return hook + '
+
+' + body + hashtags;
+      }
+      case 'TikTok': {
+        // TikTok: very short, punchy, hook + 2-3 lines max, few hashtags
+        const hook = cleanLines[0] || '';
+        const body = cleanLines.slice(1, 3).join('
+');
+        const hashMatch = text.match(/#[\w]+/g);
+        const hashtags = hashMatch ? '
+
+' + hashMatch.slice(0, 5).join(' ') : '';
+        return hook + '
+
+' + body + hashtags;
+      }
+      case 'LinkedIn': {
+        // LinkedIn: no hashtags at start, professional tone preserved, line breaks compressed
+        const stripped = text
+          .replace(/^\*\*[^*]+\*\*:?\s*/gm, '')
+          .replace(/^#{1,4}\s*/gm, '')
+          .replace(/
+{3,}/g, '
+
+')
+          .trim();
+        // LinkedIn allows up to 3000 chars
+        return stripped.slice(0, 3000);
+      }
+      case 'X / Twitter': {
+        // X: 280 char limit, strip all hashtags except 1-2, very tight
+        const core = cleanLines.slice(0, 3).join(' ').replace(/#[\w]+/g, '').trim();
+        const oneTag = (text.match(/#[\w]+/) || [''])[0];
+        const tweet = (core + ' ' + oneTag).trim();
+        return tweet.slice(0, 278);
+      }
+      case 'Facebook': {
+        // Facebook: longer is fine, more conversational, no heavy formatting
+        const stripped = text
+          .replace(/^\*\*[^*]+\*\*:?\s*/gm, '')
+          .replace(/^#{1,4}\s*/gm, '')
+          .replace(/
+{3,}/g, '
+
+')
+          .trim();
+        return stripped.slice(0, 5000);
+      }
+      case 'YouTube': {
+        // YouTube description: title line, spacing, keywords, no short-form formatting
+        const title = cleanLines[0] || '';
+        const body = cleanLines.slice(1, 10).join('
+
+');
+        return title + '
+
+' + body + '
+
+' + (text.match(/#[\w]+/g) || []).slice(0, 15).join(' ');
+      }
+      default:
+        return text;
+    }
+  };
+
   // ── Phase 8: Smart copy actions by content type ────────────────────────────
   const getCopyActions = (item) => {
     const content = item.full_content || item.content_preview || '';
@@ -17332,6 +17467,16 @@ function ContentLibrary() {
       if (body) actions.push({ label: 'Email Body', fn: () => copyItem(body, item.id, 'Email body') });
     }
     if (caption) actions.push({ label: 'Caption', fn: () => copyItem(caption, item.id, 'Caption') });
+
+    // Platform-formatted copies — always available
+    const platforms = ['Instagram', 'TikTok', 'LinkedIn', 'X / Twitter', 'Facebook', 'YouTube'];
+    platforms.forEach(p => {
+      actions.push({
+        label: 'For ' + p,
+        fn: () => copyItem(formatForPlatform(content, p), item.id, p + ' copy'),
+        isPlatform: true,
+      });
+    });
 
     return actions;
   };
@@ -17842,12 +17987,25 @@ function ContentLibrary() {
                             Copy ▾
                           </button>
                           {copyMenuId === item.id && (
-                            <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 100, minWidth: 160, overflow: 'hidden' }}>
-                              {copyActions.map((action, i) => (
+                            <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 100, minWidth: 180, overflow: 'hidden' }}>
+                              {/* Section: content parts */}
+                              {copyActions.filter(a => !a.isPlatform).map((action, i, arr) => (
                                 <button key={i} onClick={() => { action.fn(); setCopyMenuId(null); }}
-                                  style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', borderBottom: i < copyActions.length - 1 ? '1px solid #F3F4F6' : 'none', padding: '9px 14px', fontSize: 12, color: '#374151', cursor: 'pointer', fontWeight: 500 }}
-                                  onMouseEnter={e => e.target.style.background = '#F9FAFB'}
-                                  onMouseLeave={e => e.target.style.background = 'none'}>
+                                  style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', borderBottom: '1px solid #F3F4F6', padding: '9px 14px', fontSize: 12, color: '#374151', cursor: 'pointer', fontWeight: 500, fontFamily: 'inherit' }}
+                                  onMouseEnter={e => e.currentTarget.style.background = '#F9FAFB'}
+                                  onMouseLeave={e => e.currentTarget.style.background = 'none'}>
+                                  {action.label}
+                                </button>
+                              ))}
+                              {/* Divider + platform section */}
+                              <div style={{ padding: '5px 14px 3px', fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9CA3AF', background: '#FAFAFA', borderTop: '1px solid #F3F4F6', borderBottom: '1px solid #F3F4F6' }}>
+                                Copy formatted for platform
+                              </div>
+                              {copyActions.filter(a => a.isPlatform).map((action, i) => (
+                                <button key={i} onClick={() => { action.fn(); setCopyMenuId(null); }}
+                                  style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', borderBottom: '1px solid #F3F4F6', padding: '8px 14px', fontSize: 12, color: '#2563EB', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit' }}
+                                  onMouseEnter={e => e.currentTarget.style.background = '#EFF6FF'}
+                                  onMouseLeave={e => e.currentTarget.style.background = 'none'}>
                                   {action.label}
                                 </button>
                               ))}
@@ -22998,62 +23156,92 @@ function BrainBuilder() {
       )}
 
       {/* ── TAB: BRAIN HEALTH ── */}
-      {tab === 'health' && health && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {tab === 'health' && health && (() => {
+        // Compute overall score 0-100
+        const storyScore   = Math.min(health.storyCount / 10, 1) * 30;
+        const anchorScore  = Math.min(health.anchorCount / 10, 1) * 25;
+        const pillarCount  = Object.keys(health.pillarUsage).length;
+        const pillarScore  = Math.min(pillarCount / 6, 1) * 20;
+        const patternScore = patterns ? 25 : 0;
+        const totalScore   = Math.round(storyScore + anchorScore + pillarScore + patternScore);
+        const tier = totalScore >= 75 ? 'strong' : totalScore >= 45 ? 'moderate' : 'weak';
+        const tierCfg = {
+          strong:   { color: '#10B981', bg: '#F0FDF4', border: '#BBF7D0', label: 'Strong' },
+          moderate: { color: '#F59E0B', bg: '#FFFBEB', border: '#FDE68A', label: 'Moderate' },
+          weak:     { color: '#EF4444', bg: '#FFF1F2', border: '#FECDD3', label: 'Needs Work' },
+        };
+        const tc = tierCfg[tier];
 
-          {/* Quality Anchors */}
-          <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '18px 20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <div style={{ color: '#111827', fontWeight: 700, fontSize: 14 }}>Quality Anchors</div>
-              <div style={{ background: health.recentAnchorCount > 0 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', color: health.recentAnchorCount > 0 ? '#10B981' : '#F59E0B', fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4 }}>
-                {health.recentAnchorCount > 0 ? `${health.recentAnchorCount} in last 14 days` : 'None recently'}
-              </div>
-            </div>
-            <div style={{ color: '#6B7280', fontSize: 13, lineHeight: 1.6, marginBottom: 10 }}>
-              Only content with Generic Risk ≤ 3 and Score ≥ 8 updates your Brain voice pattern. {health.anchorCount} total anchors saved.
-            </div>
-            {health.needsAnchorAlert && (
-              <div style={{ background: 'rgba(245,158,11,0.08)', borderRadius: 8, padding: '10px 12px', color: '#92400E', fontSize: 12, lineHeight: 1.6 }}>
-                Your Brain has not updated in 14+ days. Either approve higher-quality content or check if the quality threshold is set too high.
-              </div>
-            )}
-            {qualityAnchors.slice(0, 3).map((anchor, i) => (
-              <div key={i} style={{ background: '#F9FAFB', borderRadius: 6, padding: '8px 12px', marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#374151', fontSize: 12, flex: 1 }}>{anchor.topic?.slice(0, 60)}{anchor.topic?.length > 60 ? '...' : ''}</span>
-                <span style={{ color: '#10B981', fontSize: 11, fontWeight: 700, flexShrink: 0, marginLeft: 8 }}>Risk {anchor.risk}/10</span>
-              </div>
-            ))}
-          </div>
+        // Generate specific next-step recommendations
+        const recs = [];
+        if (health.storyCount < 5)  recs.push({ priority: 1, action: 'Run a Seeding Sprint', why: 'You need at least 5 stories before content gets specific. Right now outputs are generic.', cta: 'seeding' });
+        if (health.storyCount >= 5 && health.storyCount < 15) recs.push({ priority: 2, action: 'Bank ' + (15 - health.storyCount) + ' more stories', why: 'At 15+ stories, every generation can pull a real moment. Currently at ' + health.storyCount + '.', cta: null });
+        if (health.anchorCount < 5)  recs.push({ priority: 1, action: 'Approve more quality content', why: 'You have ' + health.anchorCount + ' quality anchors. Approving 5+ pieces trains your voice pattern.', cta: null });
+        if (health.needsAnchorAlert) recs.push({ priority: 2, action: 'Your Brain is stale', why: 'No quality anchors added in 14+ days. Approve something this week.', cta: null });
+        if (!patterns)               recs.push({ priority: 2, action: 'Run Learning Loop', why: 'No winner patterns extracted yet. After 5 approvals the system runs automatically.', cta: 'learning' });
+        if (health.stalePillars.length > 2) recs.push({ priority: 3, action: 'Diversify your content angles', why: health.stalePillars.slice(0,2).join(', ') + ' are underused. Unbalanced pillars weaken the Brain.', cta: null });
+        const sortedRecs = recs.sort((a,b) => a.priority - b.priority).slice(0, 3);
 
-          {/* Story Bank Health */}
-          <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '18px 20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <div style={{ color: '#111827', fontWeight: 700, fontSize: 14 }}>Story Bank</div>
-              <div style={{ background: health.isSeeded ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: health.isSeeded ? '#10B981' : '#EF4444', fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4 }}>
-                {health.isSeeded ? `${health.storyCount} stories` : 'Needs seeding'}
+        return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+          {/* Score card */}
+          <div style={{ background: tc.bg, border: '1px solid ' + tc.border, borderRadius: 14, padding: '22px 24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: tc.color, marginBottom: 4 }}>Brain Health</div>
+                <div style={{ fontSize: 32, fontWeight: 900, color: '#111827', letterSpacing: '-0.03em', lineHeight: 1 }}>{totalScore}<span style={{ fontSize: 16, fontWeight: 500, color: '#9CA3AF' }}>/100</span></div>
               </div>
+              <div style={{ background: tc.color, color: '#fff', borderRadius: 8, padding: '6px 16px', fontSize: 14, fontWeight: 800 }}>{tc.label}</div>
             </div>
-            {!health.isSeeded ? (
-              <div>
-                <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 12 }}>Your Brain needs at least 5 stories to produce specific content consistently.</div>
-                <button onClick={() => setTab('seeding')}
-                  style={{ background: '#111827', color: '#FFF', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
-                  Run Seeding Sprint →
-                </button>
-              </div>
-            ) : (
-              <div>
-                <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 10 }}>{health.storyCount} stories loaded. Brain can reference real moments in every generation.</div>
-                {health.staleStoryCount > 0 && (
-                  <div style={{ background: 'rgba(245,158,11,0.06)', borderRadius: 8, padding: '10px 12px', color: '#92400E', fontSize: 12 }}>
-                    {health.staleStoryCount} stories unused for 60+ days. Consider refreshing them or adding new angles.
+            {/* Score breakdown bars */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                { label: 'Story Bank',       score: Math.round(storyScore),   max: 30, val: health.storyCount + ' stories',   goal: '10+ stories' },
+                { label: 'Quality Anchors',  score: Math.round(anchorScore),  max: 25, val: health.anchorCount + ' anchors',  goal: '10+ anchors' },
+                { label: 'Content Pillars',  score: Math.round(pillarScore),  max: 20, val: pillarCount + ' active',          goal: '6 pillars' },
+                { label: 'Winner Patterns',  score: patternScore,             max: 25, val: patterns ? 'Extracted' : 'None',  goal: 'Run Learning Loop' },
+              ].map(item => (
+                <div key={item.label}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>{item.label}</span>
+                    <span style={{ fontSize: 11, color: '#6B7280' }}>{item.score}/{item.max} · {item.val}</span>
                   </div>
-                )}
-              </div>
-            )}
+                  <div style={{ background: 'rgba(0,0,0,0.08)', borderRadius: 4, height: 6 }}>
+                    <div style={{ background: tc.color, height: '100%', borderRadius: 4, width: (item.score/item.max*100)+'%', transition: 'width 0.6s ease' }}/>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Pillar Usage */}
+          {/* Recommendations */}
+          {sortedRecs.length > 0 && (
+            <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '18px 20px' }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#111827', marginBottom: 12 }}>
+                To get from {tc.label} to {tier === 'weak' ? 'Moderate' : 'Strong'}:
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {sortedRecs.map((rec, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: rec.priority === 1 ? '#FEE2E2' : rec.priority === 2 ? '#FEF3C7' : '#F3F4F6', color: rec.priority === 1 ? '#DC2626' : rec.priority === 2 ? '#D97706' : '#6B7280', fontSize: 11, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>{i + 1}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#111827', marginBottom: 2 }}>{rec.action}</div>
+                      <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.5 }}>{rec.why}</div>
+                      {rec.cta && (
+                        <button onClick={() => setTab(rec.cta)}
+                          style={{ marginTop: 6, background: '#111827', color: '#fff', border: 'none', borderRadius: 6, padding: '5px 12px', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                          {rec.cta === 'seeding' ? 'Run Seeding Sprint →' : 'Open Learning Loop →'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Pillar distribution */}
           {Object.keys(health.pillarUsage).length > 0 && (
             <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '18px 20px' }}>
               <div style={{ color: '#111827', fontWeight: 700, fontSize: 14, marginBottom: 12 }}>Content Distribution</div>
@@ -23061,28 +23249,38 @@ function BrainBuilder() {
                 {Object.entries(health.pillarUsage).sort((a, b) => b[1] - a[1]).map(([pillar, count]) => {
                   const max = Math.max(...Object.values(health.pillarUsage));
                   const pct = Math.round((count / max) * 100);
+                  const isLow = count < 2;
                   return (
                     <div key={pillar}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                        <span style={{ color: '#374151', fontSize: 12, fontWeight: 500 }}>{pillar}</span>
+                        <span style={{ fontSize: 12, fontWeight: 500, color: isLow ? '#D97706' : '#374151' }}>{pillar}{isLow ? ' — underused' : ''}</span>
                         <span style={{ color: '#9CA3AF', fontSize: 11 }}>{count} posts</span>
                       </div>
                       <div style={{ background: '#F3F4F6', borderRadius: 4, height: 6 }}>
-                        <div style={{ background: count < 2 ? '#F59E0B' : '#111827', height: '100%', borderRadius: 4, width: `${pct}%`, transition: 'width 0.5s' }}/>
+                        <div style={{ background: isLow ? '#F59E0B' : '#111827', height: '100%', borderRadius: 4, width: pct+'%', transition: 'width 0.5s' }}/>
                       </div>
                     </div>
                   );
                 })}
               </div>
-              {health.stalePillars.length > 0 && (
-                <div style={{ marginTop: 12, color: '#6B7280', fontSize: 12 }}>
-                  <span style={{ color: '#F59E0B', fontWeight: 700 }}>Yellow bars</span> = underused pillars. Consider mixing these into your next brief.
+            </div>
+          )}
+
+          {/* Quality anchors list */}
+          {qualityAnchors.length > 0 && (
+            <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, padding: '18px 20px' }}>
+              <div style={{ color: '#111827', fontWeight: 700, fontSize: 14, marginBottom: 12 }}>Recent Quality Anchors</div>
+              {qualityAnchors.slice(0, 5).map((anchor, i) => (
+                <div key={i} style={{ background: '#F9FAFB', borderRadius: 6, padding: '8px 12px', marginTop: i===0?0:6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#374151', fontSize: 12, flex: 1 }}>{(anchor.topic||'').slice(0, 60)}{(anchor.topic||'').length > 60 ? '...' : ''}</span>
+                  <span style={{ color: '#10B981', fontSize: 11, fontWeight: 700, flexShrink: 0, marginLeft: 8 }}>Risk {anchor.risk}/10</span>
                 </div>
-              )}
+              ))}
             </div>
           )}
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
