@@ -599,11 +599,6 @@ function DocOutput({text, title='Document', showDownload=true, platform='Instagr
     return parts.map((p,i) => p.startsWith('**') && p.endsWith('**') ? <strong key={i} style={{color:'#111827',fontWeight:700}}>{p.replace(/\*\*/g,'')}</strong> : p);
   };
 
-  const scoreCfg = {
-    green:  { bg:'#F0FDF4', border:'#BBF7D0', dot:'#10B981', label:'Quality check passed', text:'#166534' },
-    yellow: { bg:'#FFFBEB', border:'#FDE68A', dot:'#F59E0B', label:'Could be sharper',     text:'#92400E' },
-    red:    { bg:'#FFF1F2', border:'#FECDD3', dot:'#EF4444', label:'Needs specificity',    text:'#9F1239' },
-  };
   const sc = score ? (scoreCfg[score.risk_level] || scoreCfg.yellow) : null;
 
   return (
