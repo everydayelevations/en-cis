@@ -15839,6 +15839,62 @@ function ApprovalLinkGenerator({ content: delivContent, title, clientName }) {
   );
 }
 
+// Standalone report page renders when URL contains #report=
+function ReportPage({ encodedPayload, onBack }) {
+  const data = (() => {
+    try { return JSON.parse(decodeURIComponent(escape(atob(encodedPayload)))); }
+    catch { return null; }
+  })();
+
+  if (!data) return (
+    <div style={{minHeight:'100vh',background:'#F8FAFC',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
+      <div style={{textAlign:'center'}}>
+        <div style={{fontSize:16,fontWeight:700,color:'#111827'}}>Invalid report link</div>
+        <div style={{color:'#6B7280',fontSize:13,marginTop:8}}>This link may have expired.</div>
+      </div>
+    </div>
+  );
+
+  const agencyName = data.agency || '8th Ascent';
+  const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+
+  // Render markdown-ish text
+  const renderBody = (text) => (text || '').split('
+').map((line, i) => {
+    if (line.startsWith('# ')) return <h1 key={i} style={{fontSize:22,fontWeight:900,color:'#111827',marginBottom:8,marginTop:24,borderBottom:'2px solid #2563EB',paddingBottom:8}}>{line.slice(2)}</h1>;
+    if (line.startsWith('## ')) return <h2 key={i} style={{fontSize:15,fontWeight:800,color:'#1D4ED8',marginTop:20,marginBottom:6}}>{line.slice(3)}</h2>;
+    if (line.startsWith('**') && line.endsWith('**')) return <p key={i} style={{fontWeight:700,color:'#111827',margin:'8px 0 2px'}}>{line.replace(/\*\*/g,'')}</p>;
+    if (line.startsWith('- ')) return <div key={i} style={{display:'flex',gap:8,marginBottom:4,paddingLeft:8}}><span style={{color:'#2563EB',fontWeight:700,flexShrink:0}}>•</span><span style={{color:'#374151',fontSize:13,lineHeight:1.7}}>{line.slice(2)}</span></div>;
+    if (!line.trim()) return <div key={i} style={{height:8}}/>;
+    return <p key={i} style={{color:'#374151',fontSize:13,lineHeight:1.75,margin:'4px 0'}}>{line}</p>;
+  });
+
+  return (
+    <div style={{minHeight:'100vh',background:'#F8FAFC',fontFamily:'"DM Sans",-apple-system,sans-serif'}}>
+      {/* Cover */}
+      <div style={{background:'#0A1628',color:'#fff',padding:'40px',marginBottom:0}}>
+        <div style={{maxWidth:720,margin:'0 auto'}}>
+          <div style={{fontSize:10,fontWeight:700,letterSpacing:'3px',textTransform:'uppercase',color:'#00C2FF',marginBottom:20}}>{agencyName}</div>
+          <div style={{fontSize:26,fontWeight:900,letterSpacing:'-0.03em',lineHeight:1.2,marginBottom:16}}>{data.title || 'Performance Report'}</div>
+          <div style={{display:'flex',gap:24,borderTop:'1px solid rgba(255,255,255,0.1)',paddingTop:16,flexWrap:'wrap'}}>
+            <div><div style={{fontSize:9,color:'#00C2FF',fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:3}}>Client</div><div style={{fontSize:12,color:'rgba(255,255,255,0.75)'}}>{data.client}</div></div>
+            <div><div style={{fontSize:9,color:'#00C2FF',fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:3}}>Period</div><div style={{fontSize:12,color:'rgba(255,255,255,0.75)'}}>{data.period || 'Weekly'}</div></div>
+            <div><div style={{fontSize:9,color:'#00C2FF',fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:3}}>Prepared</div><div style={{fontSize:12,color:'rgba(255,255,255,0.75)'}}>{today}</div></div>
+          </div>
+        </div>
+      </div>
+      {/* Body */}
+      <div style={{maxWidth:720,margin:'0 auto',padding:'32px 24px 64px'}}>
+        {renderBody(data.content)}
+        <div style={{marginTop:40,paddingTop:16,borderTop:'1px solid #E5E7EB',display:'flex',justifyContent:'space-between',fontSize:11,color:'#9CA3AF'}}>
+          <span>{agencyName} — Confidential</span>
+          <span>{today}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Standalone approval page renders when URL contains #approval=
 function ApprovalPage({ encodedPayload, onBack }) {
   const [status, setStatus] = useState(null);
@@ -19146,6 +19202,8 @@ function ApprovalQueueAgent() {
   const [genAngle, setGenAngle] = useState('occupational');
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState('');
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [bulkApproving, setBulkApproving] = useState(false);
 
   useEffect(() => {
     try { const s = localStorage.getItem(APPROVAL_QUEUE_KEY); if (s) setQueue(JSON.parse(s)); } catch {}
@@ -19181,6 +19239,38 @@ Include: Hook, Body (3 punchy points), CTA, Caption, 10 Hashtags.`;
   const removeItem = (id) => { saveQueue(queue.filter(q => q.id !== id)); if (editingId === id) setEditingId(null); };
   const startEdit = (item) => { setEditingId(item.id); setEditText(item.content); };
   const saveEdit = (id) => { saveQueue(queue.map(q => q.id === id ? {...q, content: editText} : q)); setEditingId(null); };
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const selectAllPending = () => {
+    const allPendingIds = pending.map(i => i.id);
+    const allSelected = allPendingIds.every(id => selectedIds.has(id));
+    setSelectedIds(allSelected ? new Set() : new Set(allPendingIds));
+  };
+
+  const approveSelected = async () => {
+    if (selectedIds.size === 0) return;
+    setBulkApproving(true);
+    const toApprove = queue.filter(q => selectedIds.has(q.id) && q.status === 'pending');
+    let updatedQueue = [...queue];
+    for (const item of toApprove) {
+      updatedQueue = updatedQueue.map(q => q.id === item.id ? { ...q, status: 'approved', approvedAt: Date.now() } : q);
+      try {
+        await saveToSupabase({ type: item.type.toLowerCase(), title: item.topic, platform: item.platform, angle: item.angle, preview: item.content.slice(0, 500), full: item.content, client: item.client, notes: 'approved via queue' });
+        passiveLearnOnApprove(activeClient);
+      } catch {}
+      await new Promise(r => setTimeout(r, 200));
+    }
+    saveQueue(updatedQueue);
+    setSelectedIds(new Set());
+    setBulkApproving(false);
+  };
 
   const pending = queue.filter(q => q.status === 'pending');
   const approved = queue.filter(q => q.status === 'approved');
@@ -19251,7 +19341,26 @@ Include: Hook, Body (3 punchy points), CTA, Caption, 10 Hashtags.`;
               <button onClick={()=>setView('generate')} style={{background:'#2563EB',color:'#fff',border:'none',borderRadius:8,padding:'10px 24px',fontSize:13,fontWeight:700,cursor:'pointer'}}>Generate First Piece</button>
             </div>
           ) : (
-            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+            {/* Bulk action bar — shows when pending items exist */}
+          {pending.length > 0 && (
+            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12,padding:'10px 14px',background:'#F8F9FF',border:'1px solid #DBEAFE',borderRadius:10,flexWrap:'wrap'}}>
+              <button onClick={selectAllPending}
+                style={{background:'none',border:'1px solid #BFDBFE',borderRadius:6,padding:'5px 12px',fontSize:12,fontWeight:700,color:'#2563EB',cursor:'pointer',fontFamily:'inherit'}}>
+                {pending.every(i => selectedIds.has(i.id)) ? 'Deselect All' : 'Select All Pending'}
+              </button>
+              {selectedIds.size > 0 && (
+                <>
+                  <span style={{fontSize:12,color:'#6B7280'}}>{selectedIds.size} selected</span>
+                  <button onClick={approveSelected} disabled={bulkApproving}
+                    style={{background:bulkApproving?'#F3F4F6':'#10B981',color:bulkApproving?'#9CA3AF':'#fff',border:'none',borderRadius:6,padding:'6px 16px',fontSize:12,fontWeight:700,cursor:bulkApproving?'not-allowed':'pointer',fontFamily:'inherit'}}>
+                    {bulkApproving ? 'Approving...' : 'Approve ' + selectedIds.size + ' Selected'}
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
+          <div style={{display:'flex',flexDirection:'column',gap:12}}>
               {queue.map(item => (
                 <div key={item.id} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderLeft:`4px solid ${statusColors[item.status]}`,borderRadius:10,overflow:'hidden'}}>
                   <div style={{padding:'14px 16px',borderBottom:'1px solid #F3F4F6'}}>
@@ -19265,7 +19374,11 @@ Include: Hook, Body (3 punchy points), CTA, Caption, 10 Hashtags.`;
                         </div>
                         <div style={{color:'#111827',fontWeight:700,fontSize:14}}>{item.topic}</div>
                       </div>
-                      <div style={{display:'flex',gap:6}}>
+                      <div style={{display:'flex',gap:6,alignItems:'center'}}>
+                        {item.status === 'pending' && (
+                          <input type="checkbox" checked={selectedIds.has(item.id)} onChange={() => toggleSelect(item.id)}
+                            style={{width:16,height:16,cursor:'pointer',accentColor:'#2563EB',flexShrink:0}}/>
+                        )}
                         {item.status === 'pending' && <>
                           <button onClick={()=>approve(item.id)} style={{background:'rgba(16,185,129,0.1)',color:'#10B981',border:'1px solid rgba(16,185,129,0.3)',borderRadius:6,padding:'6px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>✓ Approve</button>
                           <button onClick={()=>startEdit(item)} style={{background:'#F9FAFB',color:'#374151',border:'1px solid #E5E7EB',borderRadius:6,padding:'6px 12px',fontSize:12,fontWeight:700,cursor:'pointer'}}>Edit</button>
@@ -19771,6 +19884,10 @@ function ClientReportingAgent() {
   const [report, setReport] = useState('');
   const [period, setPeriod] = useState('week');
   const [queued, setQueued] = useState(false);
+  const [summaryMode, setSummaryMode] = useState(false);
+  const [summaryOut, setSummaryOut] = useState('');
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryCopied, setSummaryCopied] = useState(false);
 
   useEffect(() => {
     if (activeClient) setSelectedClient(activeClient);
@@ -19954,6 +20071,61 @@ One sentence. One priority.
     } catch {}
   };
 
+  const [reportLink, setReportLink] = useState('');
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const shareReport = () => {
+    if (!report || !selectedClient) return;
+    try {
+      const agencyName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.agencyName) ? wl.agencyName : '8th Ascent'; } catch { return '8th Ascent'; } })();
+      const payload = JSON.stringify({
+        title: (period === 'week' ? 'Weekly' : 'Monthly') + ' Report — ' + selectedClient.name,
+        client: selectedClient.name,
+        period: period === 'week' ? 'Weekly' : 'Monthly',
+        content: report,
+        agency: agencyName,
+        created: new Date().toISOString(),
+      });
+      const encoded = btoa(unescape(encodeURIComponent(payload)));
+      const link = window.location.origin + window.location.pathname + '#report=' + encoded;
+      setReportLink(link);
+      navigator.clipboard.writeText(link);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 3000);
+    } catch(e) { console.error('shareReport error:', e); }
+  };
+
+  const generateWeeklySummary = async () => {
+    if (!selectedClient || items.length === 0) return;
+    setSummaryLoading(true); setSummaryOut('');
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const weekItems = items.filter(i => i.created_at && i.created_at > weekAgo);
+    const agencyName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.agencyName) ? wl.agencyName : '8th Ascent'; } catch { return '8th Ascent'; } })();
+    const today = new Date().toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
+    const NL = '\n';
+    const itemBlock = weekItems.map(i => {
+      const day = new Date(i.created_at).toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+      return day + ' -- ' + (i.type || 'Content') + ' for ' + (i.platform || 'Social') + ': "' + (i.title || 'Untitled').slice(0, 60) + '"';
+    }).join(NL);
+    const prompt =
+      'You are writing a brief "Here is what we are posting this week" summary for an agency client.' + NL + NL +
+      'Client: ' + selectedClient.name + NL +
+      'Agency: ' + agencyName + NL +
+      'Week of: ' + today + NL + NL +
+      'CONTENT THIS WEEK:' + NL + (itemBlock || 'No content this week yet.') + NL + NL +
+      'Write a short, professional weekly content summary -- 3 to 5 sentences max.' +
+      ' Mention specific pieces by name. Sound like a consultant who knows their business.' +
+      ' End with one sentence about what to watch for.' +
+      ' Then list each piece as a clean bullet: Day -- Format -- Platform -- Title.' + NL + NL +
+      'Format:' + NL + '[2-3 sentence intro]' + NL + NL +
+      "This week's content:" + NL + '* [day] -- [format] -- [platform] -- [title]' + NL + '...';
+    const res = await ai(prompt);
+    setSummaryOut(res);
+    setSummaryLoading(false);
+  };
+
+  return (;
+
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}>
@@ -19975,14 +20147,18 @@ One sentence. One priority.
           ))}
         </div>
 
-        <SecLabel>Report Period</SecLabel>
-        <div style={{display:'flex',gap:6,marginBottom:16}}>
-          {[['week','Weekly'],['month','Monthly']].map(([val,label]) => (
-            <button key={val} onClick={()=>setPeriod(val)}
-              style={{background:period===val?'#EEF2FF':'#F9FAFB',color:period===val?'#2563EB':'#374151',border:'1px solid '+(period===val?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'7px 16px',cursor:'pointer',fontSize:12,fontWeight:period===val?700:500}}>
+        <SecLabel>Report Type</SecLabel>
+        <div style={{display:'flex',gap:6,marginBottom:16,flexWrap:'wrap'}}>
+          {[['week','Weekly Report'],['month','Monthly Report']].map(([val,label]) => (
+            <button key={val} onClick={()=>{setPeriod(val);setSummaryMode(false);}}
+              style={{background:!summaryMode&&period===val?'#EEF2FF':'#F9FAFB',color:!summaryMode&&period===val?'#2563EB':'#374151',border:'1px solid '+(!summaryMode&&period===val?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'7px 16px',cursor:'pointer',fontSize:12,fontWeight:!summaryMode&&period===val?700:500,fontFamily:'inherit'}}>
               {label}
             </button>
           ))}
+          <button onClick={()=>setSummaryMode(true)}
+            style={{background:summaryMode?'#EEF2FF':'#F9FAFB',color:summaryMode?'#2563EB':'#374151',border:'1px solid '+(summaryMode?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'7px 16px',cursor:'pointer',fontSize:12,fontWeight:summaryMode?700:500,fontFamily:'inherit'}}>
+            This Week Summary
+          </button>
         </div>
 
         {selectedClient && (
@@ -19997,13 +20173,50 @@ One sentence. One priority.
           </div>
         )}
 
-        <button onClick={run} disabled={loading||fetching||!selectedClient||items.length===0}
-          style={{background:loading||fetching||!selectedClient||items.length===0?'#F3F4F6':'linear-gradient(135deg,#00C2FF,#0096CC)',color:loading||fetching||!selectedClient||items.length===0?'#9CA3AF':'#000D1A',border:'none',borderRadius:8,padding:'12px 24px',fontWeight:800,cursor:loading||fetching||!selectedClient||items.length===0?'not-allowed':'pointer',fontSize:14,width:'100%'}}>
-          {loading ? 'Writing report...' : fetching ? 'Loading data...' : items.length===0 ? 'No content data for this client' : `Generate ${period==='week'?'Weekly':'Monthly'} Report`}
-        </button>
+        {!summaryMode ? (
+          <button onClick={run} disabled={loading||fetching||!selectedClient||items.length===0}
+            style={{background:loading||fetching||!selectedClient||items.length===0?'#F3F4F6':'linear-gradient(135deg,#00C2FF,#0096CC)',color:loading||fetching||!selectedClient||items.length===0?'#9CA3AF':'#000D1A',border:'none',borderRadius:8,padding:'12px 24px',fontWeight:800,cursor:loading||fetching||!selectedClient||items.length===0?'not-allowed':'pointer',fontSize:14,width:'100%',fontFamily:'inherit'}}>
+            {loading ? 'Writing report...' : fetching ? 'Loading data...' : items.length===0 ? 'No content data for this client' : 'Generate ' + (period==='week'?'Weekly':'Monthly') + ' Report'}
+          </button>
+        ) : (
+          <button onClick={generateWeeklySummary} disabled={summaryLoading||fetching||!selectedClient||items.length===0}
+            style={{background:summaryLoading||fetching||!selectedClient||items.length===0?'#F3F4F6':'#1A1A1A',color:summaryLoading||fetching||!selectedClient||items.length===0?'#9CA3AF':'#fff',border:'none',borderRadius:8,padding:'12px 24px',fontWeight:800,cursor:summaryLoading||fetching||!selectedClient||items.length===0?'not-allowed':'pointer',fontSize:14,width:'100%',fontFamily:'inherit'}}>
+            {summaryLoading ? 'Writing summary...' : items.length===0 ? 'No content data' : 'Generate This Week Summary →'}
+          </button>
+        )}
       </Card>
 
       {loading && <Spin/>}
+
+      {summaryOut && summaryMode && (
+        <div style={{marginTop:16}}>
+          <div style={{background:'#fff',border:'1px solid #E8E6E1',borderRadius:12,padding:'20px 24px',marginBottom:12}}>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#9CA3AF',marginBottom:12}}>This Week Summary — {selectedClient?.name}</div>
+            <div style={{fontSize:13,color:'#374151',lineHeight:1.75,whiteSpace:'pre-wrap'}}>{summaryOut}</div>
+          </div>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+            <button onClick={() => { navigator.clipboard.writeText(summaryOut); setSummaryCopied(true); setTimeout(()=>setSummaryCopied(false),2500); }}
+              style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:8,padding:'9px 18px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+              {summaryCopied ? 'Copied ✓' : 'Copy Summary'}
+            </button>
+            <button onClick={() => {
+              if (!summaryOut || !selectedClient) return;
+              try {
+                const agName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.agencyName) ? wl.agencyName : '8th Ascent'; } catch { return '8th Ascent'; } })();
+                const payload = JSON.stringify({ title: 'This Week — ' + selectedClient.name, client: selectedClient.name, period: 'Weekly Summary', content: summaryOut, agency: agName, created: new Date().toISOString() });
+                const encoded = btoa(unescape(encodeURIComponent(payload)));
+                const link = window.location.origin + window.location.pathname + '#report=' + encoded;
+                navigator.clipboard.writeText(link);
+                setSummaryCopied(true);
+                setTimeout(() => setSummaryCopied(false), 2500);
+              } catch {}
+            }}
+              style={{background:'#EFF6FF',color:'#2563EB',border:'1px solid #BFDBFE',borderRadius:8,padding:'9px 18px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+              Share Link →
+            </button>
+          </div>
+        </div>
+      )}
 
       {report && (
         <div>
@@ -20014,6 +20227,15 @@ One sentence. One priority.
               {queued ? '✓ Added to Approval Queue' : 'Send to Approval Queue for Review'}
             </button>
             {queued && <p style={{color:'#6B7280',fontSize:12,textAlign:'center',margin:'8px 0 0'}}>Go to Optimize → Approval Queue to review and approve before sending.</p>}
+            <button onClick={shareReport}
+              style={{background:'#F8F9FF',color:'#2563EB',border:'1px solid #BFDBFE',borderRadius:8,padding:'9px 20px',fontWeight:700,cursor:'pointer',fontSize:13,width:'100%',marginTop:8,fontFamily:'inherit'}}>
+              {linkCopied ? 'Link copied ✓' : 'Share Report — Copy Client Link'}
+            </button>
+            {reportLink && (
+              <div style={{marginTop:6,background:'#F8F9FF',borderRadius:6,padding:'7px 12px',fontSize:11,color:'#6B7280',wordBreak:'break-all',border:'1px solid #DBEAFE'}}>
+                {reportLink.slice(0, 90)}{reportLink.length > 90 ? '...' : ''}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -26085,7 +26307,7 @@ export default function App() {
     try { return !!localStorage.getItem(ONBOARDING_DONE_KEY); } catch { return true; }
   });
 
-  // Check if this is a client approval link
+  // Check if this is a client approval or report link
   const approvalPayload = (() => {
     try {
       const hash = typeof window !== 'undefined' ? window.location.hash : '';
@@ -26093,10 +26315,19 @@ export default function App() {
     } catch {}
     return null;
   })();
+  const reportPayload = (() => {
+    try {
+      const hash = typeof window !== 'undefined' ? window.location.hash : '';
+      if (hash.startsWith('#report=')) return hash.slice(8);
+    } catch {}
+    return null;
+  })();
 
-  // If approval link, render standalone approval page
   if (approvalPayload) {
     return <ApprovalPage encodedPayload={approvalPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
+  }
+  if (reportPayload) {
+    return <ReportPage encodedPayload={reportPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
   }
 
   // Register memory save function globally so all tools can log to it
