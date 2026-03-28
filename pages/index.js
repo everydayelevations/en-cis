@@ -15859,8 +15859,7 @@ function ReportPage({ encodedPayload, onBack }) {
   const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
 
   // Render markdown-ish text
-  const renderBody = (text) => (text || '').split('
-').map((line, i) => {
+  const renderBody = (text) => (text || '').split('\n').map((line, i) => {
     if (line.startsWith('# ')) return <h1 key={i} style={{fontSize:22,fontWeight:900,color:'#111827',marginBottom:8,marginTop:24,borderBottom:'2px solid #2563EB',paddingBottom:8}}>{line.slice(2)}</h1>;
     if (line.startsWith('## ')) return <h2 key={i} style={{fontSize:15,fontWeight:800,color:'#1D4ED8',marginTop:20,marginBottom:6}}>{line.slice(3)}</h2>;
     if (line.startsWith('**') && line.endsWith('**')) return <p key={i} style={{fontWeight:700,color:'#111827',margin:'8px 0 2px'}}>{line.replace(/\*\*/g,'')}</p>;
