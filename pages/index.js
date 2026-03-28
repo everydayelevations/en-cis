@@ -16888,6 +16888,52 @@ function ResearchHub() {
   );
 }
 
+const HOOK_REWRITE_PROMPT = (hook, topic, voice) => `${voice || VOICE}
+
+You are a hook rewriter. Take this hook and rewrite it 5 ways — each one better and more specific than the last.
+
+ORIGINAL HOOK: "${hook}"
+TOPIC/CONTEXT: ${topic || 'unknown — infer from the hook'}
+
+Rewrite it in each of these 5 styles. Every version must be scroll-stopping. Never generic. Always specific.
+
+Return ONLY valid JSON, no markdown:
+{
+  "original": "${hook}",
+  "rewrites": [
+    {
+      "style": "Voice Match",
+      "label": "In your exact voice",
+      "hook": "rewritten hook in the creator's specific voice and cadence",
+      "why": "one sentence — what makes this version stronger"
+    },
+    {
+      "style": "Curiosity Gap",
+      "label": "Open a loop they must close",
+      "hook": "rewritten hook that creates a burning question",
+      "why": "one sentence — what curiosity gap it opens"
+    },
+    {
+      "style": "Bold Take",
+      "label": "Controversial or contrarian angle",
+      "hook": "rewritten hook that challenges a common belief",
+      "why": "one sentence — why this creates tension"
+    },
+    {
+      "style": "Story Lead",
+      "label": "Start in the middle of a moment",
+      "hook": "rewritten hook that drops into a specific scene or moment",
+      "why": "one sentence — what makes this feel real"
+    },
+    {
+      "style": "Sharpest Version",
+      "label": "Best overall — no wasted words",
+      "hook": "the single best rewrite — most specific, most compelling",
+      "why": "one sentence — why this is the winner"
+    }
+  ]
+}`;
+
 function HookWorkshop() {
   const [activeClient] = useActiveClient();
   const [mode, setMode] = useState('generate');
@@ -16911,6 +16957,24 @@ function HookWorkshop() {
     setOut(res); setLoading(false);
   };
 
+  // Rewriter state
+  const [rewriteHook, setRewriteHook] = useState('');
+  const [rewriteTopic, setRewriteTopic] = useState('');
+  const [rewriteResult, setRewriteResult] = useState(null);
+
+  const runRewrite = async () => {
+    if (!rewriteHook.trim()) return;
+    setLoading(true); setRewriteResult(null);
+    try {
+      const raw = await ai(HOOK_REWRITE_PROMPT(rewriteHook.trim(), rewriteTopic.trim(), getVoice(activeClient)));
+      const clean = raw.replace(/```json|```/g, '').trim();
+      setRewriteResult(JSON.parse(clean));
+    } catch(e) {
+      console.error('Hook rewrite error:', e);
+    }
+    setLoading(false);
+  };
+
   const inStyle = {width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,marginBottom:12,boxSizing:'border-box'};
   const taStyle = {width:'100%',background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit'};
 
@@ -16924,48 +16988,97 @@ function HookWorkshop() {
         </div>
       </div>
       <div style={{display:'flex',gap:6,marginBottom:20}}>
-        {[{id:'generate',label:'Generate Hooks'},{id:'test',label:'Score Hooks'}].map(m=>(
+        {[{id:'generate',label:'Generate Hooks'},{id:'test',label:'Score Hooks'},{id:'rewrite',label:'Rewrite a Hook'}].map(m=>(
           <button key={m.id} onClick={()=>{setMode(m.id);setOut('');}}
             style={{background:mode===m.id?'#EEF2FF':'#F9FAFB',color:mode===m.id?'#2563EB':'#6B7280',border:'1px solid '+(mode===m.id?'#C7D2FE':'#E5E7EB'),borderRadius:6,padding:'7px 18px',cursor:'pointer',fontSize:12,fontWeight:700}}>
             {m.label}
           </button>
         ))}
       </div>
-      <Card>
-        {mode==='generate' ? (
-          <>
-            <SecLabel>Topic or Concept</SecLabel>
-            <input value={topic} onChange={e=>setTopic(e.target.value)} placeholder="e.g. morning routine, real estate investing, mindset shift..." style={inStyle}/>
-            <SecLabel>Number of Hooks</SecLabel>
-            <div style={{display:'flex',gap:6,marginBottom:14}}>
-              {['5','10','15','20'].map(n=>(
-                <button key={n} onClick={()=>setQuantity(n)}
-                  style={{background:quantity===n?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>
-                  {n}
-                </button>
-              ))}
+      {mode === 'generate' && (
+        <Card>
+          <SecLabel>Topic or Concept</SecLabel>
+          <input value={topic} onChange={e=>setTopic(e.target.value)} placeholder="e.g. morning routine, real estate investing, mindset shift..." style={inStyle}/>
+          <SecLabel>Number of Hooks</SecLabel>
+          <div style={{display:'flex',gap:6,marginBottom:14}}>
+            {['5','10','15','20'].map(n=>(
+              <button key={n} onClick={()=>setQuantity(n)}
+                style={{background:quantity===n?'#EEF2FF':'#F9FAFB',color:'#111827',border:'1px solid #E5E7EB',borderRadius:6,padding:'5px 14px',cursor:'pointer',fontSize:12,fontWeight:700}}>
+                {n}
+              </button>
+            ))}
+          </div>
+          <button onClick={runGenerate} disabled={loading||!topic}
+            style={{background:!topic||loading?'#F3F4F6':'#00C2FF',color:!topic||loading?'#9CA3AF':'#000D1A',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:!topic||loading?'not-allowed':'pointer',fontSize:13,fontFamily:'inherit'}}>
+            {loading?'Writing hooks...':'Generate Hooks'}
+          </button>
+        </Card>
+      )}
+
+      {mode === 'test' && (
+        <Card>
+          <SecLabel>Paste Your Hooks to Score</SecLabel>
+          <textarea value={hooks} onChange={e=>setHooks(e.target.value)} rows={6}
+            placeholder="Paste your hooks here, one per line..." style={taStyle}/>
+          <SecLabel>Topic Context (optional)</SecLabel>
+          <input value={testTopic} onChange={e=>setTestTopic(e.target.value)} placeholder="What is this content about?" style={inStyle}/>
+          <button onClick={runTest} disabled={loading||!hooks}
+            style={{background:!hooks||loading?'#F3F4F6':'#00C2FF',color:!hooks||loading?'#9CA3AF':'#000D1A',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:!hooks||loading?'not-allowed':'pointer',fontSize:13,fontFamily:'inherit'}}>
+            {loading?'Scoring...':'Score Hooks'}
+          </button>
+        </Card>
+      )}
+
+      {mode === 'rewrite' && (
+        <Card>
+          <SecLabel>Hook to Rewrite</SecLabel>
+          <textarea value={rewriteHook} onChange={e=>setRewriteHook(e.target.value)} rows={3}
+            placeholder="Paste any hook — yours, a competitor's, or one you already posted. We'll rewrite it 5 ways in your voice."
+            style={taStyle}/>
+          <SecLabel>Topic / Context (optional)</SecLabel>
+          <input value={rewriteTopic} onChange={e=>setRewriteTopic(e.target.value)}
+            placeholder="e.g. The mindset shift that changed how I approach hard days"
+            style={inStyle}/>
+          <button onClick={runRewrite} disabled={loading||!rewriteHook.trim()}
+            style={{background:!rewriteHook.trim()||loading?'#F3F4F6':'#1A1A1A',color:!rewriteHook.trim()||loading?'#9CA3AF':'#fff',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:!rewriteHook.trim()||loading?'not-allowed':'pointer',fontSize:13,fontFamily:'inherit'}}>
+            {loading?'Rewriting...':'Rewrite 5 Ways →'}
+          </button>
+
+          {rewriteResult && !loading && (
+            <div style={{marginTop:20}}>
+              <div style={{background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:8,padding:'12px 14px',marginBottom:16}}>
+                <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#9CA3AF',marginBottom:6}}>Original</div>
+                <div style={{fontSize:14,color:'#6B7280',lineHeight:1.5,fontStyle:'italic'}}>"{rewriteResult.original}"</div>
+              </div>
+              <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                {(rewriteResult.rewrites||[]).map((r,i) => (
+                  <div key={i} style={{background:'#fff',border:'1px solid '+(i===4?'#2563EB':'#E8E6E1'),borderLeft:'3px solid '+(i===4?'#2563EB':'#E8E6E1'),borderRadius:10,padding:'14px 16px'}}>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8,flexWrap:'wrap',gap:6}}>
+                      <div style={{display:'flex',alignItems:'center',gap:8}}>
+                        <span style={{background:i===4?'#2563EB':'#F3F4F6',color:i===4?'#fff':'#6B7280',fontSize:9,fontWeight:700,padding:'2px 7px',borderRadius:4,textTransform:'uppercase',letterSpacing:0.5}}>{r.style}</span>
+                        <span style={{fontSize:12,color:'#9CA3AF'}}>{r.label}</span>
+                      </div>
+                      <button onClick={()=>navigator.clipboard.writeText(r.hook||'')}
+                        style={{background:'#F3F4F6',color:'#374151',border:'none',borderRadius:6,padding:'4px 10px',fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+                        Copy
+                      </button>
+                    </div>
+                    <div style={{fontSize:15,fontWeight:700,color:'#111827',lineHeight:1.5,marginBottom:5}}>{r.hook}</div>
+                    <div style={{fontSize:12,color:'#9CA3AF',lineHeight:1.4}}>{r.why}</div>
+                  </div>
+                ))}
+              </div>
+              <button onClick={()=>{setRewriteHook('');setRewriteTopic('');setRewriteResult(null);}}
+                style={{marginTop:14,background:'none',color:'#9CA3AF',border:'1px solid #E5E7EB',borderRadius:7,padding:'7px 16px',fontSize:12,cursor:'pointer',fontFamily:'inherit',width:'100%'}}>
+                Rewrite Another Hook
+              </button>
             </div>
-            <button onClick={runGenerate} disabled={loading||!topic}
-              style={{background:!topic||loading?'rgba(255,255,255,0.04)':'#00C2FF',color:!topic||loading?'#6B7280':'#000D1A',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:!topic||loading?'not-allowed':'pointer',fontSize:13}}>
-              {loading?'Writing hooks...':'Generate Hooks'}
-            </button>
-          </>
-        ) : (
-          <>
-            <SecLabel>Paste Your Hooks to Score</SecLabel>
-            <textarea value={hooks} onChange={e=>setHooks(e.target.value)} rows={6}
-              placeholder="Paste your hooks here, one per line..." style={taStyle}/>
-            <SecLabel>Topic Context (optional)</SecLabel>
-            <input value={testTopic} onChange={e=>setTestTopic(e.target.value)} placeholder="What is this content about?" style={inStyle}/>
-            <button onClick={runTest} disabled={loading||!hooks}
-              style={{background:!hooks||loading?'rgba(255,255,255,0.04)':'#00C2FF',color:!hooks||loading?'#6B7280':'#000D1A',border:'none',borderRadius:6,padding:'9px 20px',fontWeight:700,cursor:!hooks||loading?'not-allowed':'pointer',fontSize:13}}>
-              {loading?'Scoring...':'Score Hooks'}
-            </button>
-          </>
-        )}
-      </Card>
-      {loading&&<Spin/>}
-      {out&&<DocOutput text={out} title="Hook Workshop  - 8th Ascent"/>}
+          )}
+        </Card>
+      )}
+
+      {loading&&mode!=='rewrite'&&<Spin/>}
+      {out&&(mode==='generate'||mode==='test')&&<DocOutput text={out} title="Hook Workshop - 8th Ascent"/>}
     </div>
   );
 }
@@ -17351,6 +17464,70 @@ function ContentLibrary() {
   const [repurposeLoading, setRepurposeLoading] = React.useState(false);
   const [copyMenuId, setCopyMenuId] = React.useState(null);
 
+  // Export a library item as a branded PDF
+  const exportItemPDF = (item) => {
+    const text = item.full_content || item.content_preview || '';
+    const title = item.title || 'Untitled';
+    const meta = [
+      item.type && ('Type: ' + item.type),
+      item.platform && ('Platform: ' + item.platform),
+      item.angle && ('Pillar: ' + item.angle),
+      item.created_at && ('Created: ' + new Date(item.created_at).toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})),
+    ].filter(Boolean);
+
+    const agencyName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.agencyName) ? wl.agencyName : '8th Ascent'; } catch { return '8th Ascent'; } })();
+    const accentColor = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.primaryColor) ? wl.primaryColor : '#00C2FF'; } catch { return '#00C2FF'; } })();
+    const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+    const clientName = activeClient?.name || agencyName;
+
+    // Format body text — preserve line breaks and bold markdown
+    const escHtml = (s) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const boldify = (s) => s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    const bodyLines = text.split('
+').map(function(line) {
+      if (line.startsWith('## ')) return '<h2 style="font-size:14px;font-weight:800;color:#111827;margin:20px 0 6px;padding-bottom:6px;border-bottom:1px solid #E5E7EB">' + escHtml(line.slice(3)) + '</h2>';
+      if (line.startsWith('### ')) return '<h3 style="font-size:13px;font-weight:700;color:' + accentColor + ';margin:14px 0 4px">' + escHtml(line.slice(4)) + '</h3>';
+      if (line.startsWith('**') && line.endsWith('**') && line.length > 4) return '<p style="font-weight:700;color:#111827;margin:8px 0 2px">' + escHtml(line.replace(/\*\*/g,'')) + '</p>';
+      if (line.startsWith('- ')) return '<div style="display:flex;gap:8px;margin:4px 0;padding-left:8px"><span style="color:' + accentColor + ';font-weight:700">•</span><span>' + boldify(escHtml(line.slice(2))) + '</span></div>';
+      if (!line.trim()) return '<div style="height:8px"></div>';
+      return '<p style="font-size:13px;color:#374151;line-height:1.75;margin:4px 0">' + boldify(escHtml(line)) + '</p>';
+    }).join('\n');
+
+    const fullHtml = '<!DOCTYPE html><html><head><meta charset="utf-8">'
+      + '<title>' + escHtml(title) + '</title>'
+      + '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">'
+      + '<style>@page{margin:0.75in}*{box-sizing:border-box;margin:0;padding:0}body{font-family:"DM Sans",-apple-system,sans-serif;color:#111827;background:#fff}'
+      + '.cover{background:#0A1628;color:#fff;padding:40px;}'
+      + '.agency{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:' + accentColor + ';margin-bottom:24px}'
+      + '.doc-title{font-size:28px;font-weight:900;letter-spacing:-0.03em;line-height:1.2;color:#fff;margin-bottom:20px}'
+      + '.meta-row{display:flex;gap:24px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px}'
+      + '.meta-item{}'
+      + '.meta-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:' + accentColor + ';margin-bottom:3px}'
+      + '.meta-value{font-size:12px;color:rgba(255,255,255,0.75)}'
+      + '.body{padding:32px 40px}'
+      + '.footer{margin-top:32px;padding-top:16px;border-top:1px solid #E5E7EB;display:flex;justify-content:space-between;font-size:10px;color:#9CA3AF}'
+      + '@media print{.cover,.cover *{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'
+      + '</style></head><body>'
+      + '<div class="cover">'
+      + '<div class="agency">' + agencyName + '</div>'
+      + '<div class="doc-title">' + escHtml(title) + '</div>'
+      + '<div class="meta-row">'
+      + meta.map(function(m){ return '<div class="meta-item"><div class="meta-label">' + escHtml(m.split(':')[0]) + '</div><div class="meta-value">' + escHtml(m.split(':').slice(1).join(':').trim()) + '</div></div>'; }).join('')
+      + '<div class="meta-item"><div class="meta-label">Client</div><div class="meta-value">' + escHtml(clientName) + '</div></div>'
+      + '<div class="meta-item"><div class="meta-label">Exported</div><div class="meta-value">' + today + '</div></div>'
+      + '</div></div>'
+      + '<div class="body">' + bodyLines
+      + '<div class="footer"><div>' + agencyName + ' — Confidential</div><div>' + today + '</div></div>'
+      + '</div></body></html>';
+
+    const blob = new Blob([fullHtml], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    if (win) { win.onload = () => win.print(); }
+    else { const a = document.createElement('a'); a.href=url; a.download=title.replace(/\s+/g,'-').slice(0,50)+'.html'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  };
+
   React.useEffect(() => { fetchItems(); }, [activeClient]);
   React.useEffect(() => {
     try {
@@ -17677,8 +17854,16 @@ function ContentLibrary() {
     if (filterPillar !== 'all' && item.angle !== filterPillar) return false;
     if (filterTier !== 'all' && getItemTier(item) !== filterTier) return false;
     if (search) {
-      const hay = [item.title, item.content_preview, item.platform, item.angle, item.type].join(' ').toLowerCase();
-      if (!hay.includes(search.toLowerCase())) return false;
+      const q = search.toLowerCase();
+      const hay = [
+        item.title,
+        item.content_preview,
+        item.full_content,
+        item.platform,
+        item.angle,
+        item.type,
+      ].filter(Boolean).join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
     }
     return true;
   });
@@ -17934,6 +18119,20 @@ function ContentLibrary() {
         </button>
       </div>
 
+      {/* Results count when searching */}
+      {search && (
+        <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 8, paddingLeft: 2 }}>
+          {sorted.length === 0
+            ? 'No results for "' + search + '"'
+            : sorted.length + ' result' + (sorted.length !== 1 ? 's' : '') + ' for "' + search + '"'
+          }
+          <button onClick={() => setSearch('')}
+            style={{ marginLeft: 10, color: '#2563EB', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'inherit' }}>
+            Clear
+          </button>
+        </div>
+      )}
+
       {/* Stats row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 16 }}>
         {[
@@ -17952,8 +18151,20 @@ function ContentLibrary() {
 
       {/* Search + filters */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search content..."
-          style={{ flex: 1, minWidth: 160, background: '#F9FAFB', border: '1px solid #D1D5DB', borderRadius: 8, padding: '8px 12px', color: '#111827', fontSize: 13, boxSizing: 'border-box' }} />
+        <div style={{ flex: 1, minWidth: 200, position: 'relative' }}>
+          <input value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Search titles, content, hooks, captions..."
+            style={{ width: '100%', background: '#FAFAF8', border: '1px solid ' + (search ? '#2563EB' : '#E8E6E1'), borderRadius: 8, padding: '8px 36px 8px 12px', color: '#111827', fontSize: 13, boxSizing: 'border-box', fontFamily: 'inherit', outline: 'none' }}
+            onFocus={e => e.target.style.borderColor = '#2563EB'}
+            onBlur={e => { if (!search) e.target.style.borderColor = '#E8E6E1'; }}
+          />
+          {search && (
+            <button onClick={() => setSearch('')}
+              style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: 0 }}>
+              ×
+            </button>
+          )}
+        </div>
         <select value={filterType} onChange={e => setFilterType(e.target.value)}
           style={{ background: '#F9FAFB', border: '1px solid #D1D5DB', borderRadius: 8, padding: '8px 10px', color: '#374151', fontSize: 12 }}>
           {types.map(t => <option key={t} value={t}>{t === 'all' ? 'All Types' : t}</option>)}
@@ -18087,6 +18298,12 @@ function ContentLibrary() {
                         <button onClick={() => { setRepurposeModal(item); setRepurposeResult(''); setRepurposeLoading(false); }}
                           style={{ background: 'rgba(124,58,237,0.08)', color: '#7C3AED', border: '1px solid rgba(124,58,237,0.2)', borderRadius: 7, padding: '7px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}>
                           Repurpose
+                        </button>
+
+                        {/* Export PDF */}
+                        <button onClick={() => exportItemPDF(item)}
+                          style={{ background: '#F9FAFB', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 7, padding: '7px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                          Export PDF
                         </button>
                       </div>
 
