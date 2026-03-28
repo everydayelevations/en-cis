@@ -6280,6 +6280,8 @@ const SUB_NAV = {
     { id:'dmscripts',    label:'DM Scripts' },
     { id:'comment',      label:'Comment Responder' },
     { id:'contentbrief', label:'Filming Brief' },
+    { id:'language',     label:'Language Adapter' },
+    { id:'linkedin',     label:'LinkedIn Engine' },
   ],
   discover: [
     { id:'discover',     label:'Discover Hub' },
@@ -6288,6 +6290,7 @@ const SUB_NAV = {
     { id:'compintel',    label:'Competitor Intel' },
     { id:'vault',        label:'Prompt Vault' },
     { id:'collab',       label:'Collab Finder' },
+    { id:'handleaudit',  label:'Handle Audit' },
   ],
   library: [
     { id:'libraryview',  label:'Content Library' },
@@ -6319,6 +6322,7 @@ const SUB_NAV = {
     { id:'onboardauto',  label:'Auto Onboarding' },
     { id:'compintel',    label:'Competitor Intel' },
     { id:'clientbrief',   label:'Client Brief' },
+    { id:'onboardplan',  label:'30-Day Plan' },
   ],
   insights: [
     { id:'growth',       label:'Growth Dashboard' },
@@ -26328,6 +26332,10 @@ const COMPONENT_MAP = {
   contentaudit: ContentAuditTool,
   brandkit: BrandKitGenerator,
   clientbrief: ClientContentBrief,
+  handleaudit: HandleAuditTool,
+  language: LanguageAdapter,
+  linkedin: LinkedInEngine,
+  onboardplan: OnboardingContentPlan,
 };
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -26839,6 +26847,633 @@ function ClientContentBrief() {
             </button>
           </div>
           <DocOutput text={out} title={month + ' Brief — ' + (selectedClient?.name || '')}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// HANDLE AUDIT TOOL
+// Paste any @handle → Perplexity scrapes → Claude analyses → teardown PDF
+// ════════════════════════════════════════════════════════════════════════════
+function HandleAuditTool() {
+  const [activeClient] = useActiveClient();
+  const [handle, setHandle] = useState('');
+  const [platform, setPlatform] = useState('Instagram');
+  const [loading, setLoading] = useState(false);
+  const [stage, setStage] = useState('');
+  const [out, setOut] = useState('');
+
+  const run = async () => {
+    if (!handle.trim()) return;
+    setLoading(true); setOut(''); setStage('Scraping public profile...');
+    const NL = '\n';
+    const cleanHandle = handle.trim().replace(/^@/, '');
+    const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const voice = getVoice(activeClient);
+
+    try {
+      // Stage 1 — Perplexity: scrape public content data
+      const searchQ = 'site:' + platform.toLowerCase() + '.com @' + cleanHandle +
+        ' most recent posts content strategy themes hooks formats ' + today;
+      const scrapePrompt = 'Search for the public ' + platform + ' account @' + cleanHandle + '.' + NL +
+        'Find their most recent 20+ posts. Analyse:' + NL +
+        '- What topics and themes dominate their content' + NL +
+        '- What hook styles they use (question, bold claim, story opener, statistic)' + NL +
+        '- What formats perform best (reel, carousel, static, long-form)' + NL +
+        '- Their posting frequency and consistency' + NL +
+        '- Any recurring series or content structures' + NL +
+        '- Their CTA patterns' + NL +
+        '- Approximate engagement signals if visible' + NL + NL +
+        'Return factual observations only. Be specific. If you cannot find their account, say ACCOUNT_NOT_FOUND.';
+
+      const rawData = await perp(scrapePrompt);
+
+      if (!rawData || rawData.includes('ACCOUNT_NOT_FOUND') || rawData.length < 50) {
+        setOut('Could not find public data for @' + cleanHandle + ' on ' + platform + '. Check the handle and try again.');
+        setLoading(false); setStage(''); return;
+      }
+
+      setStage('Analysing patterns...');
+
+      // Stage 2 — Claude: deep analysis in context of active client
+      const analysisPrompt = voice + NL + NL +
+        'You are a senior content strategist conducting a competitor teardown.' + NL +
+        'Account audited: @' + cleanHandle + ' on ' + platform + NL +
+        'Date: ' + today + NL + NL +
+        'RAW DATA FROM THEIR PROFILE:' + NL + rawData + NL + NL +
+        'Write a complete competitor teardown. Be specific. Name actual content patterns.' + NL +
+        'Frame every insight in terms of what ' + (activeClient?.name || 'your client') + ' can learn or steal.' + NL + NL +
+        '# Competitor Teardown: @' + cleanHandle + NL + NL +
+        '## Account Overview' + NL +
+        '(Platform, niche, content style, estimated positioning — 2-3 sentences)' + NL + NL +
+        '## What Is Working For Them' + NL +
+        '(Top 3-5 content patterns, hook styles, or formats getting the most traction — specific examples)' + NL + NL +
+        '## Their Hook Formula' + NL +
+        '(What structure do they use to stop the scroll? Write 3 example hooks in their style)' + NL + NL +
+        '## Posting Cadence & Format Mix' + NL +
+        '(Frequency, format breakdown, any patterns in timing or series)' + NL + NL +
+        '## Where They Are Weak' + NL +
+        '(Gaps, repetitive angles, missed opportunities, formats they underuse)' + NL + NL +
+        '## The Gaps They Are Leaving Open' + NL +
+        '(Specific content angles, topics, or formats in this niche that nobody is owning — this is the opportunity)' + NL + NL +
+        '## 5 Things To Steal This Week' + NL +
+        '(5 specific, actionable ideas adapted for ' + (activeClient?.name || 'your client') + ' — written as complete hooks or post ideas, not descriptions)' + NL + NL +
+        '## What NOT To Copy' + NL +
+        '(What would be off-brand or ineffective for ' + (activeClient?.name || 'your client') + ' even if it works for them)';
+
+      const result = await ai(analysisPrompt);
+      setOut(result);
+    } catch(e) {
+      setOut('Audit failed: ' + e.message);
+    }
+    setLoading(false); setStage('');
+  };
+
+  const exportPDF = () => {
+    if (!out) return;
+    const agencyName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.agencyName) ? wl.agencyName : '8th Ascent'; } catch { return '8th Ascent'; } })();
+    const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+    const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const body = out.split('\n').map(l => {
+      if (l.startsWith('# '))  return '<h1 style="font-size:22px;font-weight:900;color:#0A1628;margin:0 0 8px;padding-bottom:8px;border-bottom:3px solid #2563EB">' + esc(l.slice(2)) + '</h1>';
+      if (l.startsWith('## ')) return '<h2 style="font-size:15px;font-weight:800;color:#1D4ED8;margin:24px 0 8px">' + esc(l.slice(3)) + '</h2>';
+      if (l.startsWith('- '))  return '<div style="display:flex;gap:8px;margin:4px 0 4px 8px"><span style="color:#2563EB;font-weight:700">•</span><span style="color:#374151;font-size:13px;line-height:1.7">' + esc(l.slice(2)) + '</span></div>';
+      if (!l.trim()) return '<div style="height:8px"></div>';
+      return '<p style="font-size:13px;color:#374151;line-height:1.75;margin:4px 0">' + esc(l) + '</p>';
+    }).join('');
+    const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Competitor Teardown - @' + esc(handle) + '</title>'
+      + '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">'
+      + '<style>@page{margin:0.75in}*{box-sizing:border-box}body{font-family:"DM Sans",-apple-system,sans-serif;background:#fff}'
+      + '.cover{background:#0A1628;padding:48px}@media print{.cover,.cover *{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'
+      + '<div class="cover"><div style="font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#00C2FF;margin-bottom:20px">' + esc(agencyName) + '</div>'
+      + '<div style="font-size:28px;font-weight:900;letter-spacing:-0.03em;color:#fff;margin-bottom:8px">Competitor Teardown</div>'
+      + '<div style="font-size:18px;color:rgba(255,255,255,0.6);margin-bottom:20px">@' + esc(handle.replace(/^@/,'')) + ' — ' + esc(platform) + '</div>'
+      + '<div style="display:flex;gap:24px;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px">'
+      + '<div><div style="font-size:9px;color:#00C2FF;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px">Prepared by</div><div style="font-size:12px;color:rgba(255,255,255,0.75)">' + esc(agencyName) + '</div></div>'
+      + '<div><div style="font-size:9px;color:#00C2FF;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px">Date</div><div style="font-size:12px;color:rgba(255,255,255,0.75)">' + today + '</div></div>'
+      + '</div></div>'
+      + '<div style="padding:32px 40px">' + body
+      + '<div style="margin-top:40px;padding-top:16px;border-top:1px solid #E5E7EB;display:flex;justify-content:space-between;font-size:10px;color:#9CA3AF"><span>' + esc(agencyName) + ' — Confidential</span><span>' + today + '</span></div>'
+      + '</div></body></html>';
+    const blob = new Blob([html], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    if (win) win.onload = () => win.print();
+    else { const a = document.createElement('a'); a.href=url; a.download='Teardown-@' + handle.replace(/^@/,'') + '.html'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20}}>
+        <div style={{width:3,height:28,background:'#7C3AED',borderRadius:2,flexShrink:0}}/>
+        <div>
+          <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.02em'}}>Handle Audit</h2>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Paste any competitor or creator handle. Pulls their public content strategy, finds the gaps they are leaving open, and generates 5 ideas to steal this week.</p>
+        </div>
+      </div>
+      <Card style={{marginBottom:16}}>
+        <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:12}}>
+          <div>
+            <SecLabel>Handle</SecLabel>
+            <input value={handle} onChange={e => setHandle(e.target.value)}
+              placeholder="@handle or username"
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:16,fontFamily:'inherit',boxSizing:'border-box'}}/>
+          </div>
+          <div>
+            <SecLabel>Platform</SecLabel>
+            <select value={platform} onChange={e => setPlatform(e.target.value)}
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:16,fontFamily:'inherit',boxSizing:'border-box'}}>
+              {['Instagram','TikTok','LinkedIn','YouTube','X'].map(p => <option key={p}>{p}</option>)}
+            </select>
+          </div>
+        </div>
+        <button onClick={run} disabled={loading||!handle.trim()}
+          style={{width:'100%',background:loading||!handle.trim()?'#F3F4F6':'#7C3AED',color:loading||!handle.trim()?'#9CA3AF':'#fff',border:'none',borderRadius:8,padding:'12px',fontWeight:800,fontSize:14,cursor:loading||!handle.trim()?'not-allowed':'pointer',fontFamily:'inherit'}}>
+          {loading ? stage || 'Analysing...' : 'Run Competitor Teardown'}
+        </button>
+      </Card>
+      {loading && <Spin/>}
+      {out && !loading && (
+        <div>
+          <div style={{display:'flex',gap:8,marginBottom:12}}>
+            <button onClick={() => navigator.clipboard.writeText(out)}
+              style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Copy</button>
+            <button onClick={exportPDF}
+              style={{background:'#7C3AED',color:'#fff',border:'none',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Export PDF</button>
+          </div>
+          <DocOutput text={out} title={'Competitor Teardown — @' + handle.replace(/^@/,'')}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// LANGUAGE ADAPTER
+// Rewrites any content in target language, preserving brand voice + local idioms
+// ════════════════════════════════════════════════════════════════════════════
+function LanguageAdapter() {
+  const [activeClient] = useActiveClient();
+  const [inputText, setInputText] = useState('');
+  const [targetLang, setTargetLang] = useState('Spanish (Latin America)');
+  const [loading, setLoading] = useState(false);
+  const [out, setOut] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const LANGUAGES = [
+    'Spanish (Latin America)',
+    'Spanish (Spain)',
+    'Portuguese (Brazil)',
+    'Portuguese (Portugal)',
+    'French (France)',
+    'French (Canada)',
+    'German',
+    'Italian',
+    'Dutch',
+    'Polish',
+    'Japanese',
+    'Korean',
+    'Mandarin (Simplified)',
+  ];
+
+  const run = async () => {
+    if (!inputText.trim()) return;
+    setLoading(true); setOut('');
+    const NL = '\n';
+    const voice = getVoice(activeClient);
+    const clientName = activeClient?.name || 'this creator';
+
+    const prompt = voice + NL + NL +
+      'You are a brand-voice translator. Your job is NOT literal translation.' + NL +
+      'You adapt content into ' + targetLang + ' while preserving the exact brand voice,' + NL +
+      'energy, and personality of ' + clientName + '.' + NL + NL +
+      'Rules:' + NL +
+      '- Match the tone and energy exactly — direct, punchy, no filler' + NL +
+      '- Adapt idioms and CTAs to what sounds natural in ' + targetLang + NL +
+      '- Preserve the hook structure and sentence rhythm' + NL +
+      '- Keep any numbers, statistics, or specific references intact' + NL +
+      '- Hashtags: translate meaning, not literal words' + NL +
+      '- Do NOT add formality — match the casualness of the original' + NL + NL +
+      'ORIGINAL CONTENT:' + NL + inputText.trim() + NL + NL +
+      'OUTPUT FORMAT:' + NL +
+      '## ' + targetLang + ' Version' + NL +
+      '[full adapted content here]' + NL + NL +
+      '## Adaptation Notes' + NL +
+      '[2-3 sentences on key changes made and why — idioms adapted, cultural adjustments, tone choices]';
+
+    try {
+      const res = await ai(prompt);
+      setOut(res);
+    } catch(e) {
+      setOut('Adaptation failed: ' + e.message);
+    }
+    setLoading(false);
+  };
+
+  const copyOutput = () => {
+    // Extract just the translated content (before Adaptation Notes)
+    const parts = out.split('## Adaptation Notes');
+    const translated = parts[0].replace(/## .+ Version/, '').trim();
+    navigator.clipboard.writeText(translated);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20}}>
+        <div style={{width:3,height:28,background:'#059669',borderRadius:2,flexShrink:0}}/>
+        <div>
+          <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.02em'}}>Language Adapter</h2>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Adapts any content to a target language while preserving brand voice, energy, and local idioms. Not literal translation — brand-accurate adaptation.</p>
+        </div>
+      </div>
+      <Card style={{marginBottom:16}}>
+        <SecLabel>Content to Adapt</SecLabel>
+        <textarea value={inputText} onChange={e => setInputText(e.target.value)}
+          rows={6} placeholder="Paste any content — caption, script, email, hook..."
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box',fontFamily:'inherit',lineHeight:1.6,marginBottom:12}}/>
+        <SecLabel>Target Language</SecLabel>
+        <select value={targetLang} onChange={e => setTargetLang(e.target.value)}
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,fontFamily:'inherit',marginBottom:12}}>
+          {LANGUAGES.map(l => <option key={l}>{l}</option>)}
+        </select>
+        <button onClick={run} disabled={loading||!inputText.trim()}
+          style={{width:'100%',background:loading||!inputText.trim()?'#F3F4F6':'#059669',color:loading||!inputText.trim()?'#9CA3AF':'#fff',border:'none',borderRadius:8,padding:'12px',fontWeight:800,fontSize:14,cursor:loading||!inputText.trim()?'not-allowed':'pointer',fontFamily:'inherit'}}>
+          {loading ? 'Adapting...' : 'Adapt to ' + targetLang}
+        </button>
+      </Card>
+      {loading && <Spin/>}
+      {out && !loading && (
+        <div>
+          <div style={{display:'flex',gap:8,marginBottom:12}}>
+            <button onClick={copyOutput}
+              style={{background:'#F0FDF4',color:'#16A34A',border:'1px solid #BBF7D0',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+              {copied ? 'Copied ✓' : 'Copy Translated Content'}
+            </button>
+            <button onClick={() => navigator.clipboard.writeText(out)}
+              style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+              Copy Full Report
+            </button>
+          </div>
+          <DocOutput text={out} title={'Language Adaptation — ' + targetLang}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// LINKEDIN ENGINE
+// Native LinkedIn content: thought leadership, narrative posts, carousels,
+// frameworks, polls — built for B2B mechanics not IG/TikTok
+// ════════════════════════════════════════════════════════════════════════════
+function LinkedInEngine() {
+  const [activeClient] = useActiveClient();
+  const [mode, setMode] = useState('narrative');
+  const [topic, setTopic] = useState('');
+  const [context, setContext] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [out, setOut] = useState('');
+
+  const MODES = [
+    { id:'narrative',   label:'Personal Narrative',   desc:'Story-led insight post. Opening moment → lesson → application.' },
+    { id:'insight',     label:'Contrarian Insight',    desc:'Challenge a common belief in your industry with evidence and a clear POV.' },
+    { id:'framework',   label:'Framework Post',        desc:'A system, process, or model they can immediately apply.' },
+    { id:'carousel',    label:'Carousel Outline',      desc:'Slide-by-slide carousel with hooks, content, and CTA for each slide.' },
+    { id:'leadership',  label:'Thought Leadership',    desc:'Long-form authority piece. Research-backed, specific, quotable.' },
+  ];
+
+  const run = async () => {
+    if (!topic.trim()) return;
+    setLoading(true); setOut('');
+    const NL = '\n';
+    const voice = getVoice(activeClient);
+    const clientName = activeClient?.name || 'the creator';
+    const clientRole = activeClient?.role || 'professional';
+
+    const modeLabel = MODES.find(m => m.id === mode)?.label || mode;
+
+    const modeInstructions = {
+      narrative:
+        'Write a LinkedIn Personal Narrative post.' + NL +
+        'Structure: Opening moment (drop into a specific scene or realization, first-person) →' + NL +
+        'What happened / what you learned → The broader lesson → How readers apply it → CTA.' + NL +
+        'LinkedIn mechanics: short paragraphs (1-2 sentences max), line breaks for scannability,' + NL +
+        'no hashtag spam (maximum 3 at end), authority + vulnerability mix.' + NL +
+        'Length: 150-300 words. No em dashes. No buzzwords.',
+      insight:
+        'Write a LinkedIn Contrarian Insight post.' + NL +
+        'Structure: Bold opening statement that challenges a common belief →' + NL +
+        'The conventional wisdom (what everyone thinks) → Why it is wrong or incomplete →' + NL +
+        'Your specific evidence or reasoning → The better framework → CTA.' + NL +
+        'Must be specific and defensible — not just contrarian for attention.' + NL +
+        'Length: 150-250 words. Short punchy paragraphs. Max 3 hashtags.',
+      framework:
+        'Write a LinkedIn Framework post.' + NL +
+        'Structure: The problem this framework solves (1-2 lines) → Name the framework →' + NL +
+        'Each step or element numbered and explained in 1-2 sentences → Real example application →' + NL +
+        'Result they get from using it → CTA.' + NL +
+        'Frameworks work because they are immediately usable. Make this one specific and named.' + NL +
+        'Length: 200-350 words. Use numbered lists for the framework steps only.',
+      carousel:
+        'Write a LinkedIn Carousel outline (10-12 slides).' + NL +
+        'For each slide provide: Slide number | Headline (max 8 words) | Body copy (1-3 sentences) | Visual direction.' + NL +
+        'Slide 1: Hook — the one thing that makes someone swipe.' + NL +
+        'Slides 2-10: Value delivery — one idea per slide, build on each other.' + NL +
+        'Slide 11-12: Summary + strong CTA with follow or save prompt.' + NL +
+        'LinkedIn carousels are document uploads — they favour data, frameworks, and step-by-step guides.',
+      leadership:
+        'Write a LinkedIn Thought Leadership piece.' + NL +
+        'Structure: Opening observation or data point → The broader trend this points to →' + NL +
+        '3-4 specific insights with evidence → Implications for the industry →' + NL +
+        'Your clear POV and recommendation → CTA for discussion.' + NL +
+        'This should read like something worth bookmarking — specific, original, quotable.' + NL +
+        'Length: 300-500 words. Use headers sparingly. Max 3 hashtags.',
+    };
+
+    const prompt = voice + NL + NL +
+      'You are writing LinkedIn content for ' + clientName + ' (' + clientRole + ').' + NL +
+      'LinkedIn mode: ' + modeLabel + NL +
+      'Topic: ' + topic.trim() + NL +
+      (context.trim() ? 'Additional context: ' + context.trim() + NL : '') + NL +
+      'LINKEDIN-SPECIFIC RULES (non-negotiable):' + NL +
+      '- Short paragraphs — 1 to 2 sentences maximum per paragraph' + NL +
+      '- White space is engagement — use line breaks aggressively' + NL +
+      '- No em dashes' + NL +
+      '- No hashtag spam — maximum 3 hashtags, at the very end' + NL +
+      '- First line must stop the scroll — no preamble, no "I want to talk about"' + NL +
+      '- Authority AND vulnerability — LinkedIn rewards both' + NL +
+      '- End with a question or clear CTA that invites comments' + NL + NL +
+      modeInstructions[mode] + NL + NL +
+      'Also provide:' + NL +
+      '## 3 Hook Variations' + NL +
+      '(Three alternative opening lines for A/B testing)' + NL + NL +
+      '## Best Time to Post' + NL +
+      '(Day and time window with one-line rationale)';
+
+    try {
+      const res = await ai(prompt);
+      setOut(res);
+    } catch(e) {
+      setOut('Generation failed: ' + e.message);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20}}>
+        <div style={{width:3,height:28,background:'#0A66C2',borderRadius:2,flexShrink:0}}/>
+        <div>
+          <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.02em'}}>LinkedIn Engine</h2>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Native LinkedIn content built for B2B mechanics — personal narrative, contrarian insight, frameworks, carousels, thought leadership. Not repurposed Instagram copy.</p>
+        </div>
+      </div>
+
+      {/* Mode selector */}
+      <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:16}}>
+        {MODES.map(m => (
+          <button key={m.id} onClick={() => { setMode(m.id); setOut(''); }}
+            style={{display:'flex',alignItems:'flex-start',gap:12,background:mode===m.id?'#EFF6FF':'#F9FAFB',border:'1px solid '+(mode===m.id?'#BFDBFE':'#E5E7EB'),borderRadius:9,padding:'11px 14px',cursor:'pointer',textAlign:'left',fontFamily:'inherit'}}>
+            <div style={{width:14,height:14,borderRadius:'50%',border:'2px solid '+(mode===m.id?'#2563EB':'#D1D5DB'),background:mode===m.id?'#2563EB':'transparent',marginTop:2,flexShrink:0}}/>
+            <div>
+              <div style={{fontSize:13,fontWeight:700,color:mode===m.id?'#1D4ED8':'#111827'}}>{m.label}</div>
+              <div style={{fontSize:11,color:'#6B7280',marginTop:2}}>{m.desc}</div>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <Card style={{marginBottom:16}}>
+        <SecLabel>Topic or Angle</SecLabel>
+        <input value={topic} onChange={e => setTopic(e.target.value)}
+          placeholder="e.g. Why most managers confuse activity with output"
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,fontFamily:'inherit',boxSizing:'border-box',marginBottom:12}}/>
+        <SecLabel>Context / Story (optional)</SecLabel>
+        <textarea value={context} onChange={e => setContext(e.target.value)}
+          rows={3} placeholder="Any specific story, example, or data point to anchor the post..."
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:13,resize:'vertical',boxSizing:'border-box',fontFamily:'inherit',lineHeight:1.6,marginBottom:12}}/>
+        <button onClick={run} disabled={loading||!topic.trim()}
+          style={{width:'100%',background:loading||!topic.trim()?'#F3F4F6':'#0A66C2',color:loading||!topic.trim()?'#9CA3AF':'#fff',border:'none',borderRadius:8,padding:'12px',fontWeight:800,fontSize:14,cursor:loading||!topic.trim()?'not-allowed':'pointer',fontFamily:'inherit'}}>
+          {loading ? 'Writing...' : 'Generate LinkedIn Content'}
+        </button>
+      </Card>
+
+      {loading && <Spin/>}
+      {out && !loading && (
+        <div>
+          <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
+            <button onClick={() => navigator.clipboard.writeText(out.split('## 3 Hook')[0].trim())}
+              style={{background:'#EFF6FF',color:'#0A66C2',border:'1px solid #BFDBFE',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit',flex:'1 1 auto'}}>
+              Copy Post
+            </button>
+            <button onClick={() => navigator.clipboard.writeText(out)}
+              style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit',flex:'1 1 auto'}}>
+              Copy All
+            </button>
+          </div>
+          <DocOutput text={out} title={'LinkedIn — ' + MODES.find(m => m.id === mode)?.label}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// 30-DAY ONBOARDING CONTENT PLAN
+// Generates complete first-month calendar + populates Approval Queue with stubs
+// ════════════════════════════════════════════════════════════════════════════
+function OnboardingContentPlan() {
+  const [activeClient] = useActiveClient();
+  const [clients] = useClients();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [stage, setStage] = useState('');
+  const [plan, setPlan] = useState(null);
+  const [populated, setPopulated] = useState(false);
+
+  useEffect(() => { setSelectedClient(activeClient); }, [activeClient]);
+
+  const run = async () => {
+    if (!selectedClient) return;
+    setLoading(true); setPlan(null); setPopulated(false);
+    const NL = '\n';
+    const voice = getVoice(selectedClient);
+    const today = new Date();
+    const startDate = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+    setStage('Building 30-day plan...');
+
+    const pillars = selectedClient.angles || 'Mindset, Education, Personal Story, Behind the Scenes';
+    const platforms = selectedClient.platforms || 'Instagram, LinkedIn';
+    const role = selectedClient.role || 'Content Creator';
+
+    const prompt = voice + NL + NL +
+      'You are a senior content strategist building a complete 30-day content launch plan for a new client.' + NL +
+      'Client: ' + selectedClient.name + NL +
+      'Role: ' + role + NL +
+      'Platforms: ' + platforms + NL +
+      'Content Pillars: ' + pillars + NL +
+      'Start date: ' + startDate + NL + NL +
+      'Generate a complete 30-day content plan. Every post must be specific — a real topic, a real hook, a real format.' + NL +
+      'Balance pillars across the month. Mix formats (Reel, Carousel, Static, LinkedIn Post, Story).' + NL +
+      'Include awareness content (Days 1-10), nurture content (Days 11-20), and conversion content (Days 21-30).' + NL + NL +
+      'Return ONLY valid JSON — no markdown fences, no explanation. Exact structure:' + NL +
+      '{' + NL +
+      '  "overview": "2 sentence strategic overview of this plan",' + NL +
+      '  "theme": "The overarching monthly theme in 5 words or less",' + NL +
+      '  "posts": [' + NL +
+      '    {' + NL +
+      '      "day": 1,' + NL +
+      '      "week": 1,' + NL +
+      '      "platform": "Instagram",' + NL +
+      '      "format": "Reel",' + NL +
+      '      "pillar": "Personal Story",' + NL +
+      '      "topic": "specific topic for this post",' + NL +
+      '      "hook": "complete hook line for this post",' + NL +
+      '      "goal": "awareness | nurture | conversion"' + NL +
+      '    }' + NL +
+      '  ]' + NL +
+      '}' + NL + NL +
+      'Generate exactly 30 posts. Mix platforms based on: ' + platforms + '. Post to each platform 3-5 times per week.';
+
+    try {
+      const raw = await ai(prompt);
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(clean);
+      setPlan(parsed);
+    } catch(e) {
+      setStage('Parse failed — retrying with simpler format...');
+      // Fallback: generate as text
+      try {
+        const fallbackPrompt = voice + NL + NL +
+          'Generate a 30-day content calendar for ' + selectedClient.name + '.' + NL +
+          'Platforms: ' + platforms + NL +
+          'Pillars: ' + pillars + NL + NL +
+          'Format each day as: Day X | Platform | Format | Pillar | Topic | Hook' + NL +
+          'Generate all 30 days.';
+        const fallback = await ai(fallbackPrompt);
+        setPlan({ overview: 'Your 30-day plan is ready.', theme: 'Launch Month', posts: [], rawPlan: fallback });
+      } catch(e2) {
+        setStage('Generation failed. Try again.');
+      }
+    }
+    setLoading(false); setStage('');
+  };
+
+  const populateQueue = () => {
+    if (!plan || !plan.posts || plan.posts.length === 0) return;
+    try {
+      const existing = JSON.parse(localStorage.getItem(APPROVAL_QUEUE_KEY) || '[]');
+      const newEntries = plan.posts.map((post, i) => ({
+        id: Date.now() + i,
+        topic: post.topic || 'Content post',
+        type: post.format || 'Reel',
+        platform: post.platform || 'Instagram',
+        angle: post.pillar || 'General',
+        content: 'Day ' + post.day + ' — ' + (post.format || 'Post') + ' for ' + (post.platform || 'Social') + NL +
+          'Hook: ' + (post.hook || 'TBD') + NL + NL +
+          '[Draft your content here. The hook above is your opening line.]',
+        status: 'pending',
+        client: selectedClient.name,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        createdAt: Date.now() + i,
+        source: '30-day-plan',
+        day: post.day,
+        goal: post.goal || 'awareness',
+      }));
+      localStorage.setItem(APPROVAL_QUEUE_KEY, JSON.stringify([...newEntries, ...existing]));
+      setPopulated(true);
+    } catch(e) { console.error('Queue populate error:', e); }
+  };
+
+  const goalColors = { awareness: '#2563EB', nurture: '#059669', conversion: '#DC2626' };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20}}>
+        <div style={{width:3,height:28,background:'#F59E0B',borderRadius:2,flexShrink:0}}/>
+        <div>
+          <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.02em'}}>30-Day Onboarding Plan</h2>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Generates a complete first-month content calendar — specific topics, hooks, platforms, formats. One click populates the Approval Queue with all 30 stubs ready to draft.</p>
+        </div>
+      </div>
+
+      <Card style={{marginBottom:16}}>
+        <SecLabel>Client</SecLabel>
+        <select value={selectedClient?.id || ''} onChange={e => { setSelectedClient(clients.find(c => c.id === e.target.value) || null); setPlan(null); setPopulated(false); }}
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,fontFamily:'inherit',marginBottom:12}}>
+          {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+        <button onClick={run} disabled={loading||!selectedClient}
+          style={{width:'100%',background:loading||!selectedClient?'#F3F4F6':'#1A1A1A',color:loading||!selectedClient?'#9CA3AF':'#fff',border:'none',borderRadius:8,padding:'12px',fontWeight:800,fontSize:14,cursor:loading||!selectedClient?'not-allowed':'pointer',fontFamily:'inherit'}}>
+          {loading ? (stage || 'Building plan...') : 'Generate 30-Day Plan'}
+        </button>
+      </Card>
+
+      {loading && <Spin/>}
+
+      {plan && !loading && (
+        <div>
+          {/* Overview */}
+          <div style={{background:'#F8F9FF',border:'1px solid #E0E7FF',borderRadius:10,padding:'16px 18px',marginBottom:16}}>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#6366F1',marginBottom:6}}>Monthly Theme: {plan.theme}</div>
+            <div style={{fontSize:13,color:'#374151',lineHeight:1.6}}>{plan.overview}</div>
+          </div>
+
+          {/* Populate queue button */}
+          {plan.posts && plan.posts.length > 0 && (
+            <div style={{marginBottom:16}}>
+              <button onClick={populateQueue} disabled={populated}
+                style={{width:'100%',background:populated?'rgba(16,185,129,0.1)':'#1A1A1A',color:populated?'#10B981':'#fff',border:populated?'1px solid rgba(16,185,129,0.3)':'none',borderRadius:8,padding:'12px',fontWeight:800,fontSize:14,cursor:populated?'default':'pointer',fontFamily:'inherit'}}>
+                {populated ? '✓ ' + plan.posts.length + ' posts added to Approval Queue' : 'Send All ' + plan.posts.length + ' Posts to Approval Queue →'}
+              </button>
+            </div>
+          )}
+
+          {/* Raw plan fallback */}
+          {plan.rawPlan && (
+            <div style={{background:'#fff',border:'1px solid #E5E7EB',borderRadius:10,padding:'16px'}}>
+              <pre style={{fontSize:12,color:'#374151',whiteSpace:'pre-wrap',lineHeight:1.7,fontFamily:'inherit',margin:0}}>{plan.rawPlan}</pre>
+            </div>
+          )}
+
+          {/* Week-by-week grid */}
+          {plan.posts && plan.posts.length > 0 && [1,2,3,4].map(week => {
+            const weekPosts = plan.posts.filter(p => p.week === week);
+            if (weekPosts.length === 0) return null;
+            return (
+              <div key={week} style={{marginBottom:16}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#9CA3AF',marginBottom:8}}>Week {week}</div>
+                <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                  {weekPosts.map((post, i) => (
+                    <div key={i} style={{background:'#fff',border:'1px solid #E8E6E1',borderRadius:8,padding:'12px 14px',display:'flex',gap:12,alignItems:'flex-start'}}>
+                      <div style={{flexShrink:0,width:28,height:28,background:'#F3F4F6',borderRadius:6,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,color:'#6B7280'}}>
+                        {post.day}
+                      </div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{display:'flex',gap:6,marginBottom:4,flexWrap:'wrap'}}>
+                          <span style={{background:'#F3F4F6',color:'#374151',borderRadius:4,padding:'1px 7px',fontSize:10,fontWeight:700}}>{post.platform}</span>
+                          <span style={{background:'#F3F4F6',color:'#374151',borderRadius:4,padding:'1px 7px',fontSize:10}}>{post.format}</span>
+                          <span style={{background:'rgba(' + (post.goal==='awareness'?'37,99,235':post.goal==='conversion'?'220,38,38':'5,150,105') + ',0.08)',color:goalColors[post.goal]||'#6B7280',borderRadius:4,padding:'1px 7px',fontSize:10,fontWeight:600}}>{post.goal}</span>
+                        </div>
+                        <div style={{fontSize:13,fontWeight:600,color:'#111827',marginBottom:2}}>{post.topic}</div>
+                        <div style={{fontSize:12,color:'#6B7280',fontStyle:'italic'}}>{post.hook}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
