@@ -862,8 +862,8 @@ Use this structure:
 `;
 
 
-const CALENDAR_PROMPT = (pillars, platform, duration, strategyDoc='') => `
-${VOICE}
+const CALENDAR_PROMPT = (pillars, platform, duration, strategyDoc='', voice) => `
+${voice || VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
 
@@ -1840,8 +1840,8 @@ ${uploadedDoc ? 'Match the depth, specificity, and professional tone of the uplo
 `;
 };
 
-const DESIGN_PROMPT = (topic, format, angle) => `
-${VOICE}
+const DESIGN_PROMPT = (topic, format, angle, voice) => `
+${voice || VOICE}
 
 Topic: ${topic}
 Format: ${format} (Carousel/Static/Story)
@@ -1869,8 +1869,8 @@ Create visual content concepts:
 4. **Caption** (Instagram-native, saves-first)
 5. **Hashtag Strategy** (15-20 tags, tiered: niche/medium/broad)`;
 
-const EP_PROMPT = (content, question) => `
-${VOICE}
+const EP_PROMPT = (content, question, voice) => `
+${voice || VOICE}
 ${SWARBRICK}
 
 Content to analyze:
@@ -4169,7 +4169,7 @@ function Onboarding() {
     const fields = { goals, current, hours, brandPersonality, businessName, affiliateDeals,
       filmingSchedule, inspirationAccounts, offLimitTopics, repurposeLinks,
       idealAudience, desiredTransformation, emotionalJourney, additionalContext };
-    const res = await ai(ONBOARD_PROMPT(fields, uploadedDoc));
+    const res = await ai(ONBOARD_PROMPT(fields, uploadedDoc, getVoice(activeClient)));
     setOut(res); setLoading(false);
     // Auto-save strategy so ContentCalendar can pick it up
     try {
@@ -4375,7 +4375,7 @@ function ContentCalendar() {
     if(!pillars && !strategyDoc) return;
     setLoading(true); setOut('');
     const selectedPlatforms = platforms.join(', ');
-    const res = await ai(CALENDAR_PROMPT(pillars, selectedPlatforms, duration, strategyDoc));
+    const res = await ai(CALENDAR_PROMPT(pillars, selectedPlatforms, duration, strategyDoc, getVoice(activeClient)));
     setOut(res); setLoading(false);
   };
   return (
@@ -4946,7 +4946,7 @@ function Extract() {
   const run = async () => {
     if(!content) return;
     setLoading(true); setOut('');
-    const res = await ai(EP_PROMPT(content, question));
+    const res = await ai(EP_PROMPT(content, question, getVoice(activeClient)));
     setOut(res); setLoading(false);
   };
   return (
@@ -9438,8 +9438,8 @@ function ClientPortal() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // MONTHLY REPORTING SUITE
 // ═════════════════════════════════════════════════════════════════════════════
-const MONTHLY_REPORT_PROMPT = (client, roiData, contentData, month, goals, wins, challenges) => `
-${VOICE}
+const MONTHLY_REPORT_PROMPT = (client, roiData, contentData, month, goals, wins, challenges, voice) => `
+${voice || VOICE}
 
 You are writing a professional monthly performance report for a social media agency client.
 
@@ -9526,7 +9526,7 @@ function MonthlyReportSuite() {
   const run = async () => {
     if (!selectedClient) return;
     setLoading(true); setOut('');
-    const res = await ai(MONTHLY_REPORT_PROMPT(selectedClient, roiData, contentData, month, goals, wins, challenges));
+    const res = await ai(MONTHLY_REPORT_PROMPT(selectedClient, roiData, contentData, month, goals, wins, challenges, getVoice(selectedClient || activeClient)));
     setOut(res);
     setLoading(false);
   };
@@ -9605,8 +9605,8 @@ function MonthlyReportSuite() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // CLIENT DELIVERABLE BUILDER
 // ═════════════════════════════════════════════════════════════════════════════
-const DELIVERABLE_PROMPT = (client, type, brief, voiceFingerprint) => `
-${VOICE}
+const DELIVERABLE_PROMPT = (client, type, brief, voiceFingerprint, voice) => `
+${voice || VOICE}
 
 You are creating a professional client deliverable for a social media agency.
 
@@ -9663,7 +9663,7 @@ function DeliverableBuilder() {
     if (!selectedClient || !brief) return;
     setLoading(true); setOut('');
     const fp = getFingerprint(selectedClient.id);
-    const res = await ai(DELIVERABLE_PROMPT(selectedClient, delivTypes.find(d=>d.id===delivType)?.label || delivType, brief, fp));
+    const res = await ai(DELIVERABLE_PROMPT(selectedClient, delivTypes.find(d=>d.id===delivType)?.label || delivType, brief, fp, getVoice(selectedClient || activeClient)));
     setOut(res);
     logToMemory({ type:'deliverable', title:`Deliverable: ${delivType} for ${selectedClient.name}`, client:selectedClient.name, preview:res.slice(0,200) });
     setLoading(false);
@@ -9735,8 +9735,8 @@ function DeliverableBuilder() {
 // ═════════════════════════════════════════════════════════════════════════════
 const COMP_INTEL_KEY = 'encis_competitor_intel';
 
-const COMP_ANALYSIS_PROMPT = (competitor, rawData, clientContext) => `
-${VOICE}
+const COMP_ANALYSIS_PROMPT = (competitor, rawData, clientContext, voice) => `
+${voice || VOICE}
 Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
 COMPETITOR: ${competitor}
@@ -9824,7 +9824,7 @@ function CompetitorIntel() {
     const query = `Analyze the social media presence of ${comp.handle} on ${comp.platform} right now in 2026. Report: posting frequency, content types, estimated engagement rates, what topics they cover most, their best performing content types based on visible engagement, their bio and positioning, what their audience responds to, and any notable recent content or campaigns.`;
     const raw = await perp(query);
     setFetching(false); setLoading(true);
-    const analysis = await ai(COMP_ANALYSIS_PROMPT(comp.handle, raw, clientContext));
+    const analysis = await ai(COMP_ANALYSIS_PROMPT(comp.handle, raw, clientContext, getVoice(activeClient)));
     const newResults = { ...results, [comp.id]: { raw, analysis, updatedAt:Date.now() } };
     setResults(newResults); save(competitors, newResults); setLoading(false);
   };
@@ -11297,8 +11297,8 @@ ${out.slice(0, 4000)}`;
 // ═════════════════════════════════════════════════════════════════════════════
 const ANALYTICS_KEY = 'encis_analytics_data';
 
-const ANALYTICS_INSIGHT_PROMPT = (client, platform, data, period) => `
-${VOICE}
+const ANALYTICS_INSIGHT_PROMPT = (client, platform, data, period, voice) => `
+${voice || VOICE}
 Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
 CLIENT: ${client.name}
@@ -11410,7 +11410,7 @@ function AnalyticsHub() {
   const analyze = async () => {
     if (!rawData || !selectedClient) return;
     setAnalyzing(true); setOut('');
-    const res = await ai(ANALYTICS_INSIGHT_PROMPT(selectedClient, platform, rawData, period));
+    const res = await ai(ANALYTICS_INSIGHT_PROMPT(selectedClient, platform, rawData, period, getVoice(selectedClient || activeClient)));
     setOut(res);
     const entry = { id: Date.now(), clientId: selectedClient.id, clientName: selectedClient.name, platform, period, preview: rawData.slice(0, 200), analysis: res, importedAt: Date.now() };
     saveImports([entry, ...imports.slice(0, 49)]);
@@ -11539,10 +11539,51 @@ function VisualCalendar() {
   const [form, setForm] = useState({title:'',platform:'Instagram',format:'Reel',status:'planned',hook:'',cta:''});
   const [showForm, setShowForm] = useState(false);
 
+  const [approvedItems, setApprovedItems] = useState({}); // date -> [items]
+
   useEffect(() => {
     try { const s = localStorage.getItem(VISUAL_CAL_KEY); if (s) setCalendarData(JSON.parse(s)); } catch {}
     setSelectedClient(activeClient);
-  }, []);
+    loadApprovedContent(activeClient);
+  }, [activeClient]);
+
+  const loadApprovedContent = async (client) => {
+    if (!client) return;
+    try {
+      // Load from Supabase - items with scheduled_at set
+      const { data } = await supabase
+        .from('saved_content')
+        .select('id, title, type, platform, angle, notes, created_at')
+        .eq('client_id', client.id || 'jason')
+        .order('created_at', { ascending: false })
+        .limit(60);
+
+      const byDate = {};
+      const BAD = ['You are ', 'Write in ', 'CREATOR:', 'STORY BANK', 'Generate'];
+      (data || []).forEach(item => {
+        const t = item.title || '';
+        if (!t || t.length < 3 || BAD.some(p => t.startsWith(p))) return;
+        if (item.notes === 'auto-saved') return;
+        // Use created_at date as the calendar date
+        const date = item.created_at?.split('T')[0];
+        if (!date) return;
+        if (!byDate[date]) byDate[date] = [];
+        byDate[date].push({ ...item, _fromLibrary: true });
+      });
+
+      // Also pull from approval queue - pending/approved items
+      try {
+        const queue = JSON.parse(localStorage.getItem('encis_approval_queue') || '[]');
+        queue.filter(q => q.status === 'approved' || q.status === 'pending').forEach(q => {
+          const date = q.scheduledDate || new Date(q.createdAt || Date.now()).toISOString().split('T')[0];
+          if (!byDate[date]) byDate[date] = [];
+          byDate[date].push({ id: q.id, title: q.topic, type: q.type, platform: q.platform, notes: q.status, _fromQueue: true });
+        });
+      } catch {}
+
+      setApprovedItems(byDate);
+    } catch(e) { console.error('Calendar load approved:', e); }
+  };
 
   const save = (data) => { setCalendarData(data); try { localStorage.setItem(VISUAL_CAL_KEY, JSON.stringify(data)); } catch {} };
 
@@ -11652,13 +11693,14 @@ function VisualCalendar() {
           const d = i+1;
           const dateStr = formatDate(d);
           const posts = clientCal[dateStr] || [];
+          const approvedDayItems = (approvedItems[dateStr] || []).slice(0, 2);
           const isToday = dateStr === today;
           const isSelected = selectedDate === dateStr;
           return (
             <div key={d} onClick={()=>{setSelectedDate(dateStr);setShowForm(true);}}
               style={{minHeight:70,background:isSelected?'rgba(0,194,255,0.1)':isToday?'rgba(0,194,255,0.05)':'rgba(255,255,255,0.02)',border:`1px solid ${isSelected?'rgba(0,194,255,0.4)':isToday?'rgba(0,194,255,0.2)':'rgba(255,255,255,0.06)'}`,borderRadius:8,padding:'6px',cursor:'pointer',transition:'all 0.1s'}}>
               <div style={{fontSize:11,fontWeight:isToday?800:500,color:isToday?'#00C2FF':'#6B7280',marginBottom:3}}>{d}</div>
-              {posts.slice(0,3).map(p => (
+              {posts.slice(0,2).map(p => (
                 <div key={p.id} onClick={e=>{e.stopPropagation();}}
                   style={{background:statusColors[p.status]|| 'rgba(255,255,255,0.1)',borderRadius:3,padding:'2px 4px',marginBottom:2,display:'flex',alignItems:'center',gap:3}}>
                   <div style={{width:4,height:4,borderRadius:'50%',background:platformColors[p.platform]||'#2563EB',flexShrink:0}}/>
@@ -11666,7 +11708,14 @@ function VisualCalendar() {
                   <button onClick={e=>{e.stopPropagation();removePost(dateStr,p.id);}} style={{background:'none',border:'none',color:'rgba(255,255,255,0.3)',cursor:'pointer',fontSize:9,padding:0,lineHeight:1}}>×</button>
                 </div>
               ))}
-              {posts.length > 3 && <div style={{fontSize:9,color:'#6B7280'}}>+{posts.length-3} more</div>}
+              {approvedDayItems.map(item => (
+                <div key={item.id} title={item.title}
+                  style={{background:'rgba(37,99,235,0.15)',borderRadius:3,padding:'2px 4px',marginBottom:2,display:'flex',alignItems:'center',gap:3,borderLeft:'2px solid #2563EB'}}>
+                  <span style={{fontSize:9,color:'#93C5FD',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>{item.title?.slice(0,20)}</span>
+                  <span style={{fontSize:8,color:'#60A5FA',flexShrink:0}}>{item._fromQueue?'⏳':'✓'}</span>
+                </div>
+              ))}
+              {(posts.length + approvedDayItems.length) > 3 && <div style={{fontSize:9,color:'#6B7280'}}>+{posts.length+approvedDayItems.length-3} more</div>}
             </div>
           );
         })}
@@ -11727,8 +11776,8 @@ function VisualCalendar() {
 // ═════════════════════════════════════════════════════════════════════════════
 const STRATEGY_REVIEW_KEY = 'encis_strategy_reviews';
 
-const STRATEGY_REVIEW_PROMPT = (client, roiData, contentData, calendarData, period) => `
-${VOICE}
+const STRATEGY_REVIEW_PROMPT = (client, roiData, contentData, calendarData, period, voice) => `
+${voice || VOICE}
 Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
 CLIENT: ${client.name} (${client.handle})
@@ -11806,7 +11855,7 @@ function AIStrategyReview() {
     setLoading(true); setOut('');
     const { roiStr, contentStr, calStr } = buildContext();
     const period = new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'});
-    const res = await ai(STRATEGY_REVIEW_PROMPT(selectedClient, roiStr, contentStr, calStr, period));
+    const res = await ai(STRATEGY_REVIEW_PROMPT(selectedClient, roiStr, contentStr, calStr, period, getVoice(selectedClient || activeClient)));
     setOut(res);
     const review = { id: Date.now(), clientId: selectedClient.id, clientName: selectedClient.name, period, analysis: res, generatedAt: Date.now() };
     saveReviews([review, ...reviews.slice(0,11)]);
@@ -11886,8 +11935,8 @@ function AIStrategyReview() {
 // CLIENT ONBOARDING AUTOMATION
 // Runs all tools on new client add: audit, fingerprint, gaps, strategy draft
 // ═════════════════════════════════════════════════════════════════════════════
-const ONBOARDING_AUTO_PROMPT = (client) => `
-${VOICE}
+const ONBOARDING_AUTO_PROMPT = (client, voice) => `
+${voice || VOICE}
 Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
 NEW CLIENT ONBOARDING PACKAGE
@@ -11944,7 +11993,7 @@ function OnboardingAutomation() {
   const generate = async () => {
     if (!selectedClient) return;
     setLoading(true); setOut('');
-    const res = await ai(ONBOARDING_AUTO_PROMPT(selectedClient));
+    const res = await ai(ONBOARDING_AUTO_PROMPT(selectedClient, getVoice(selectedClient || activeClient)));
     setOut(res);
     const updated = {...packages, [selectedClient.id]: {analysis: res, generatedAt: Date.now()}};
     setPackages(updated);
@@ -11999,8 +12048,8 @@ function OnboardingAutomation() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // BIO LINK PAGE BUILDER
 // ═════════════════════════════════════════════════════════════════════════════
-const BIOLINK_PROMPT = (client, links, headline, subtext, style) => `
-${VOICE}
+const BIOLINK_PROMPT = (client, links, headline, subtext, style, voice) => `
+${voice || VOICE}
 
 CLIENT: ${client.name} (${client.handle})
 PLATFORMS: ${client.platforms}
@@ -12051,7 +12100,7 @@ function BioLinkBuilder() {
     if (!selectedClient) return;
     setLoading(true); setOut('');
     const linkList = links.map(l => `${l.icon} ${l.label}: ${l.url}`).join('\n');
-    const res = await ai(BIOLINK_PROMPT(selectedClient, linkList, headline || `${selectedClient.name} - ${selectedClient.handle}`, subtext, style), 'You build bio link pages. Return only raw HTML starting with <!DOCTYPE html>.');
+    const res = await ai(BIOLINK_PROMPT(selectedClient, linkList, headline || `${selectedClient.name} - ${selectedClient.handle}`, subtext, style), 'You build bio link pages. Return only raw HTML starting with <!DOCTYPE html>.', getVoice(selectedClient || activeClient));
     const html = res.replace(/```html|```/g, '').trim();
     setOut(html);
     setLoading(false);
@@ -12154,8 +12203,8 @@ function BioLinkBuilder() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // CLIENT COMMUNICATION TEMPLATES
 // ═════════════════════════════════════════════════════════════════════════════
-const COMM_TEMPLATES_PROMPT = (client, templateType, context, agencyName) => `
-${VOICE}
+const COMM_TEMPLATES_PROMPT = (client, templateType, context, agencyName, voice) => `
+${voice || VOICE}
 
 AGENCY: ${agencyName || '8th Ascent'}
 CLIENT: ${client.name} (${client.handle})
@@ -12202,7 +12251,7 @@ function ClientCommsTemplates() {
     if (!selectedClient || !templateType) return;
     setLoading(true); setOut('');
     const tLabel = templates.find(t=>t.id===templateType)?.label || templateType;
-    const res = await ai(COMM_TEMPLATES_PROMPT(selectedClient, tLabel, context, agencyName));
+    const res = await ai(COMM_TEMPLATES_PROMPT(selectedClient, tLabel, context, agencyName, getVoice(selectedClient || activeClient)));
     setOut(res); setLoading(false);
   };
 
@@ -12698,8 +12747,8 @@ function BioOptimizer() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // PRICING CALCULATOR
 // ═════════════════════════════════════════════════════════════════════════════
-const PRICING_PROMPT = (niche, platforms, followers, engagementRate, services, market) => `
-${VOICE}
+const PRICING_PROMPT = (niche, platforms, followers, engagementRate, services, market, voice) => `
+${voice || VOICE}
 Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
 NICHE: ${niche}
@@ -12823,7 +12872,7 @@ function PricingCalculator() {
             </div>
           </div>
         </div>
-        <RedBtn onClick={async()=>{if(!niche)return;setLoading(true);setOut('');const r=await ai(PRICING_PROMPT(niche,platforms.join(', '),followers,engagementRate,services.join(', '),market));setOut(r);setLoading(false);}} disabled={loading||!niche}>
+        <RedBtn onClick={async()=>{if(!niche)return;setLoading(true);setOut('');const r=await ai(PRICING_PROMPT(niche,platforms.join(', '),followers,engagementRate,services.join(', '),market,getVoice(activeClient)));setOut(r);setLoading(false);}} disabled={loading||!niche}>
           {loading?'Calculating rates...':'Generate Pricing Guide'}
         </RedBtn>
       </Card>
@@ -15137,6 +15186,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
   const [trendAlerts, setTrendAlerts] = React.useState([]);
   const [pendingQueue, setPendingQueue] = React.useState(0);
   const [recentContent, setRecentContent] = React.useState([]);
+  const [thisWeekContent, setThisWeekContent] = React.useState([]);
   const [topWinner, setTopWinner] = React.useState(null);
   const [storyPrompt, setStoryPrompt] = React.useState('');
   const [storyAnswer, setStoryAnswer] = React.useState('');
@@ -15204,6 +15254,13 @@ function IntelligenceDashboard({ setNav, setSub }) {
         return true;
       });
       setRecentContent(cleanRecent.slice(0, 5));
+
+      // This week's content — last 7 days
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const thisWeek = cleanRecent.filter(item =>
+        item.created_at && item.created_at > weekAgo
+      ).slice(0, 10);
+      setThisWeekContent(thisWeek);
       const winner = recent.find(c => c.notes && (c.notes.includes('winner') || c.notes.includes('outperformed')));
       setTopWinner(winner || null);
       const allStories = JSON.parse(localStorage.getItem(typeof STORY_BANK_KEY !== 'undefined' ? STORY_BANK_KEY : 'encis_story_bank') || '{}');
@@ -15476,6 +15533,40 @@ function IntelligenceDashboard({ setNav, setSub }) {
               <div style={{ color: C.green, fontWeight: 700, fontSize: 13 }}>✓ Saved to story bank</div>
             )}
           </DashCard>
+
+          {/* This Week content */}
+          {thisWeekContent.length > 0 && (
+            <DashCard style={{ marginBottom: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <DashSectionLabel>This week</DashSectionLabel>
+                <button onClick={() => go('library', 'libraryview')}
+                  style={{ background: 'none', border: 'none', color: C.accent, cursor: 'pointer', fontSize: 11, fontWeight: 700, fontFamily: 'inherit' }}>Library →</button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {thisWeekContent.map((item, i) => {
+                  const isWinner = item.notes?.includes('winner') || item.notes?.includes('outperformed');
+                  const dayLabel = new Date(item.created_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                  return (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: isWinner ? 'rgba(16,185,129,0.06)' : '#F9FAFB', borderRadius: 8, border: '1px solid ' + (isWinner ? 'rgba(16,185,129,0.2)' : '#E8E6E1') }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ color: C.text, fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {item.title || item.type || 'Content'}
+                        </div>
+                        <div style={{ color: C.subtle, fontSize: 10, marginTop: 1, display: 'flex', gap: 6 }}>
+                          <span>{item.platform || ''}</span>
+                          {item.type && <span>· {item.type}</span>}
+                        </div>
+                      </div>
+                      <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                        <div style={{ fontSize: 10, color: C.subtle }}>{dayLabel}</div>
+                        {isWinner && <div style={{ fontSize: 9, fontWeight: 700, color: C.green }}>Winner</div>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </DashCard>
+          )}
 
           {/* Recent content */}
           <DashCard style={{ marginBottom: 16 }}>
@@ -16670,7 +16761,7 @@ function ResearchHub() {
   const runExtract = async () => {
     if(!extractContent) return;
     setLoading(true); setOut('');
-    const res = await ai(EP_PROMPT(extractContent, extractQ));
+    const res = await ai(EP_PROMPT(extractContent, extractQ, getVoice(activeClient)));
     setOut(res); setLoading(false);
   };
 
@@ -17356,7 +17447,7 @@ function BioSuite() {
   const runBioLink = async () => {
     setLoading(true); setOut('');
     const linkList = links.map(l=>`${l.icon} ${l.label}: ${l.url}`).join('\n');
-    const res = await ai(BIOLINK_PROMPT(selectedClient||activeClient, headline, subtext, linkList));
+    const res = await ai(BIOLINK_PROMPT(selectedClient||activeClient, headline, subtext, linkList), getVoice(selectedClient || activeClient));
     setOut(res); setLoading(false);
   };
 
@@ -26020,6 +26111,20 @@ export default function App() {
     return () => window.removeEventListener('signal-nav', handler);
   }, []);
 
+  // ⌘K / Ctrl+K — quick create shortcut, opens Smart Brief anywhere in the app
+  const [cmdkOpen, setCmdkOpen] = useState(false);
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setCmdkOpen(prev => !prev);
+      }
+      if (e.key === 'Escape') setCmdkOpen(false);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
   const handleNav = (id) => {
     setNav(id);
     if(id === 'home') { setSub(null); return; }
@@ -26156,6 +26261,30 @@ export default function App() {
             )}
           </div>
         </nav>
+
+        {/* ⌘K / Ctrl+K Quick Create Modal */}
+        {cmdkOpen && (
+          <div onClick={e => { if (e.target === e.currentTarget) setCmdkOpen(false); }}
+            style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.55)',zIndex:9999,display:'flex',alignItems:'flex-start',justifyContent:'center',paddingTop:'10vh',backdropFilter:'blur(3px)'}}>
+            <div style={{background:'#fff',borderRadius:16,width:'100%',maxWidth:680,maxHeight:'82vh',overflowY:'auto',boxShadow:'0 24px 80px rgba(0,0,0,0.35)',margin:'0 16px'}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 20px',borderBottom:'1px solid #E8E6E1',position:'sticky',top:0,background:'#fff',zIndex:1}}>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <div style={{width:3,height:20,background:'#2563EB',borderRadius:2}}/>
+                  <span style={{fontSize:14,fontWeight:800,color:'#111827',letterSpacing:'-0.01em'}}>Quick Create</span>
+                  <span style={{fontSize:10,color:'#9CA3AF',background:'#F3F4F6',padding:'2px 7px',borderRadius:4,fontWeight:600}}>Smart Brief</span>
+                </div>
+                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                  <span style={{fontSize:10,color:'#9CA3AF'}}>Esc to close</span>
+                  <button onClick={() => setCmdkOpen(false)}
+                    style={{background:'none',border:'1px solid #E5E7EB',borderRadius:6,padding:'4px 10px',fontSize:12,color:'#6B7280',cursor:'pointer',fontFamily:'inherit'}}>×</button>
+                </div>
+              </div>
+              <div style={{padding:'0 0 8px'}}>
+                <SmartBrief/>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* SUB NAV */}
         {subItems && nav !== 'home' && (
