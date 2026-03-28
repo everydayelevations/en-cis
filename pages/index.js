@@ -17483,8 +17483,7 @@ function ContentLibrary() {
     // Format body text — preserve line breaks and bold markdown
     const escHtml = (s) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     const boldify = (s) => s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    const bodyLines = text.split('
-').map(function(line) {
+    const bodyLines = text.split('\n').map(function(line) {
       if (line.startsWith('## ')) return '<h2 style="font-size:14px;font-weight:800;color:#111827;margin:20px 0 6px;padding-bottom:6px;border-bottom:1px solid #E5E7EB">' + escHtml(line.slice(3)) + '</h2>';
       if (line.startsWith('### ')) return '<h3 style="font-size:13px;font-weight:700;color:' + accentColor + ';margin:14px 0 4px">' + escHtml(line.slice(4)) + '</h3>';
       if (line.startsWith('**') && line.endsWith('**') && line.length > 4) return '<p style="font-weight:700;color:#111827;margin:8px 0 2px">' + escHtml(line.replace(/\*\*/g,'')) + '</p>';
