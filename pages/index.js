@@ -19315,6 +19315,23 @@ function ClientReportingAgent() {
     const rcWinners = realityChecks.filter(c => c.response === 'yes').length;
     const rcFlops = realityChecks.filter(c => c.response === 'no').length;
 
+    const viralList = viral.length > 0
+      ? '\n  ' + viral.slice(0,5).map(i => '"' + (i.title?.slice(0,50)||'Untitled') + '" (' + (i.platform||'') + ')').join('\n  ')
+      : '';
+    const solidList = solid.length > 0
+      ? '\n  ' + solid.slice(0,3).map(i => '"' + (i.title?.slice(0,50)||'Untitled') + '"').join('\n  ')
+      : '';
+    const rcList = realityChecks.slice(0,5).map(c => '- "' + (c.topic?.slice(0,50)||'Unknown') + '": ' + c.response).join('\n');
+    const roiBlock = roiData.length > 0
+      ? 'GROWTH DATA (last ' + roiData.length + ' weeks):\n' + roiData.map(w => 'Week of ' + w.week + ': Followers ' + (w.followers||'?') + ', Reach ' + (w.reach||'?') + ', Saves ' + (w.saves||'?') + ', Leads ' + (w.leads||'?')).join('\n')
+      : '';
+    const patternBlock = patterns
+      ? 'WINNER PATTERNS (from AI analysis of their best content):\n- Top hook styles: ' + (patterns.hook_patterns?.slice(0,3).join(', ')||'N/A') + '\n- Best formats: ' + (patterns.format_patterns?.slice(0,3).join(', ')||'N/A') + '\n- Strongest angles: ' + (patterns.angle_patterns?.slice(0,3).join(', ')||'N/A') + '\n- What to avoid: ' + (patterns.avoid_patterns?.slice(0,2).join(', ')||'N/A')
+      : '';
+    const storyBlock = stories.length > 0
+      ? 'STORY BANK (' + stories.length + ' stories):\n' + stories.map(s => '- "' + s.title + '": ' + (s.summary?.slice(0,80)||'')).join('\n')
+      : '';
+
     const prompt = `You are writing a professional content performance report for an agency client.
 Sound like a knowledgeable consultant who actually knows their business — not a template filler.
 Be specific. Name the content. Name the patterns. Give real recommendations.
@@ -19331,34 +19348,21 @@ CONTENT OUTPUT ${periodLabel.toUpperCase()}:
 - Formats used: ${formats.join(', ') || 'Mixed'}
 
 PERFORMANCE BREAKDOWN:
-- Winners (outperformed or flagged viral): ${viral.length}${viral.length > 0 ? '
-  ' + viral.slice(0,5).map(i => `"${i.title?.slice(0,50)||'Untitled'}" (${i.platform||''})`).join('
-  ') : ''}
-- Solid performers: ${solid.length}${solid.length > 0 ? '
-  ' + solid.slice(0,3).map(i => `"${i.title?.slice(0,50)||'Untitled'}"`).join('
-  ') : ''}
+- Winners (outperformed or flagged viral): ${viral.length}${viralList}
+- Solid performers: ${solid.length}${solidList}
 - Did not perform: ${flopped.length}
 - Awaiting data: ${unrated.length}
 
 48HR REALITY CHECK RESULTS:
 - Outperformed: ${rcWinners} pieces confirmed as winners
 - Did not perform: ${rcFlops} pieces confirmed as weak
-${realityChecks.slice(0,5).map(c => `- "${c.topic?.slice(0,50)||'Unknown'}": ${c.response}`).join('
-')}
+${rcList}
 
-${roiData.length > 0 ? `GROWTH DATA (last ${roiData.length} weeks):
-${roiData.map(w => `Week of ${w.week}: Followers ${w.followers||'?'}, Reach ${w.reach||'?'}, Saves ${w.saves||'?'}, Leads ${w.leads||'?'}`).join('
-')}` : ''}
+${roiBlock}
 
-${patterns ? `WINNER PATTERNS (from AI analysis of their best content):
-- Top hook styles: ${patterns.hook_patterns?.slice(0,3).join(', ') || 'N/A'}
-- Best formats: ${patterns.format_patterns?.slice(0,3).join(', ') || 'N/A'}
-- Strongest angles: ${patterns.angle_patterns?.slice(0,3).join(', ') || 'N/A'}
-- What to avoid: ${patterns.avoid_patterns?.slice(0,2).join(', ') || 'N/A'}` : ''}
+${patternBlock}
 
-${stories.length > 0 ? `STORY BANK (${stories.length} stories in the bank):
-${stories.map(s => `- "${s.title}": ${s.summary?.slice(0,80)||''}`).join('
-')}` : ''}
+${storyBlock}
 
 Write the report now. This goes directly to the client so make it count.
 
@@ -19390,8 +19394,7 @@ One sentence. One priority.
 | Pieces Created | ${allItems.length} |
 | Winners | ${viral.length} |
 | Reality Check Wins | ${rcWinners} |
-| Platforms Active | ${platforms.length} |`;
-
+| Platforms Active | ${platforms.length} |`
     const res = await ai(prompt);
     setReport(res);
     setLoading(false);
