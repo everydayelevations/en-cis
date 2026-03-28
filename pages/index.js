@@ -17336,92 +17336,60 @@ function ContentLibrary() {
   // ── Platform formatter — formats content for specific destination platforms ──
   const formatForPlatform = (rawContent, targetPlatform) => {
     const text = rawContent || '';
-    const lines = text.split('
-');
+    const NL = '\n';
+    const NL2 = '\n\n';
 
-    // Extract meaningful content lines — strip markdown headers and labels
-    const cleanLines = lines
-      .map(l => l.replace(/^\*\*[^*]+\*\*:?\s*/, '').replace(/^#{1,4}\s*/, '').trim())
-      .filter(l => l.length > 2);
+    const cleanLines = text.split(NL)
+      .map(function(l) { return l.replace(/^\*\*[^*]+\*\*:?\s*/, '').replace(/^#{1,4}\s*/, '').trim(); })
+      .filter(function(l) { return l.length > 2; });
 
     switch (targetPlatform) {
       case 'Instagram': {
-        // Instagram: hook on first line, double-spaced body, hashtags at end
         const hook = cleanLines[0] || '';
-        const body = cleanLines.slice(1, 8).join('
-
-');
+        const body = cleanLines.slice(1, 8).join(NL2);
         const hashMatch = text.match(/#[\w]+/g);
-        const hashtags = hashMatch ? '
-
-' + hashMatch.slice(0, 30).join(' ') : '';
-        return hook + '
-
-' + body + hashtags;
+        const hashtags = hashMatch ? NL2 + hashMatch.slice(0, 30).join(' ') : '';
+        return hook + NL2 + body + hashtags;
       }
       case 'TikTok': {
-        // TikTok: very short, punchy, hook + 2-3 lines max, few hashtags
         const hook = cleanLines[0] || '';
-        const body = cleanLines.slice(1, 3).join('
-');
+        const body = cleanLines.slice(1, 3).join(NL);
         const hashMatch = text.match(/#[\w]+/g);
-        const hashtags = hashMatch ? '
-
-' + hashMatch.slice(0, 5).join(' ') : '';
-        return hook + '
-
-' + body + hashtags;
+        const hashtags = hashMatch ? NL2 + hashMatch.slice(0, 5).join(' ') : '';
+        return hook + NL2 + body + hashtags;
       }
       case 'LinkedIn': {
-        // LinkedIn: no hashtags at start, professional tone preserved, line breaks compressed
         const stripped = text
           .replace(/^\*\*[^*]+\*\*:?\s*/gm, '')
           .replace(/^#{1,4}\s*/gm, '')
-          .replace(/
-{3,}/g, '
-
-')
+          .replace(/\n{3,}/g, NL2)
           .trim();
-        // LinkedIn allows up to 3000 chars
         return stripped.slice(0, 3000);
       }
       case 'X / Twitter': {
-        // X: 280 char limit, strip all hashtags except 1-2, very tight
         const core = cleanLines.slice(0, 3).join(' ').replace(/#[\w]+/g, '').trim();
         const oneTag = (text.match(/#[\w]+/) || [''])[0];
-        const tweet = (core + ' ' + oneTag).trim();
-        return tweet.slice(0, 278);
+        return (core + ' ' + oneTag).trim().slice(0, 278);
       }
       case 'Facebook': {
-        // Facebook: longer is fine, more conversational, no heavy formatting
         const stripped = text
           .replace(/^\*\*[^*]+\*\*:?\s*/gm, '')
           .replace(/^#{1,4}\s*/gm, '')
-          .replace(/
-{3,}/g, '
-
-')
+          .replace(/\n{3,}/g, NL2)
           .trim();
         return stripped.slice(0, 5000);
       }
       case 'YouTube': {
-        // YouTube description: title line, spacing, keywords, no short-form formatting
         const title = cleanLines[0] || '';
-        const body = cleanLines.slice(1, 10).join('
-
-');
-        return title + '
-
-' + body + '
-
-' + (text.match(/#[\w]+/g) || []).slice(0, 15).join(' ');
+        const body = cleanLines.slice(1, 10).join(NL2);
+        const tags = (text.match(/#[\w]+/g) || []).slice(0, 15).join(' ');
+        return title + NL2 + body + NL2 + tags;
       }
       default:
         return text;
     }
   };
 
-  // ── Phase 8: Smart copy actions by content type ────────────────────────────
   const getCopyActions = (item) => {
     const content = item.full_content || item.content_preview || '';
     const type = (item.type || '').toLowerCase();
