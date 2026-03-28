@@ -15109,11 +15109,38 @@ function IntelligenceDashboard({ setNav, setSub }) {
       const checks = JSON.parse(localStorage.getItem('encis_reality_checks') || '[]');
       const updated = checks.map(c => c.id === realityCheckDue.id ? { ...c, answered: true, response } : c);
       localStorage.setItem('encis_reality_checks', JSON.stringify(updated));
+
       if (response === 'yes') {
+        // Mark as winner in Supabase — use both title match and topic for reliability
+        const titlePrefix = (realityCheckDue.topic || '').slice(0, 30);
         supabase.from('saved_content')
           .update({ notes: 'brief|winner|outperformed' })
-          .like('title', (realityCheckDue.topic || '').slice(0, 20) + '%')
+          .or(`title.ilike.%${titlePrefix}%`)
+          .eq('client_id', activeClient?.id || 'jason')
           .then(() => {});
+
+        // Also add to quality anchors localStorage so Learning Agent picks it up immediately
+        try {
+          const anchors = JSON.parse(localStorage.getItem(QUALITY_ANCHOR_KEY) || '[]');
+          const alreadyExists = anchors.some(a => a.topic === realityCheckDue.topic);
+          if (!alreadyExists) {
+            anchors.unshift({
+              id: Date.now(),
+              topic: realityCheckDue.topic || '',
+              platform: realityCheckDue.platform || '',
+              pillar: '',
+              preview: '',
+              risk: 0,
+              savedAt: new Date().toISOString(),
+              source: '48hr-reality-check',
+              clientId: activeClient?.id || 'jason',
+            });
+            localStorage.setItem(QUALITY_ANCHOR_KEY, JSON.stringify(anchors.slice(0, 50)));
+          }
+        } catch {}
+
+        // Trigger passive Learning Agent — a confirmed winner is meaningful signal
+        passiveLearnOnApprove(activeClient);
       }
     } catch {}
     setRealityCheckDue(null);
@@ -19239,55 +19266,131 @@ function ClientReportingAgent() {
     if (!selectedClient || items.length === 0) return;
     setLoading(true); setReport(''); setQueued(false);
 
+    const clientId = selectedClient.id || 'jason';
     const periodLabel = period === 'week' ? 'this week' : 'this month';
-    const viral = items.filter(i => i.perf_rating === 'viral');
-    const solid = items.filter(i => i.perf_rating === 'solid');
-    const flopped = items.filter(i => i.perf_rating === 'flopped');
-    const unrated = items.filter(i => !i.perf_rating);
 
-    const prompt = `You are writing a professional content performance report for a client.
+    // Slice to period
+    const cutoff = Date.now() - (period === 'week' ? 7 : 30) * 24 * 60 * 60 * 1000;
+    const periodItems = items.filter(i => new Date(i.created_at).getTime() > cutoff);
+    const allItems = periodItems.length > 0 ? periodItems : items.slice(0, 20);
 
-Client: ${selectedClient.name}
-Handle: ${selectedClient.handle || ''}
+    const viral = allItems.filter(i => i.notes?.includes('winner') || i.notes?.includes('outperformed') || i.perf_rating === 'viral');
+    const solid = allItems.filter(i => i.perf_rating === 'solid');
+    const flopped = allItems.filter(i => i.perf_rating === 'flopped');
+    const unrated = allItems.filter(i => !i.perf_rating && !i.notes?.includes('winner'));
+    const platforms = [...new Set(allItems.map(i => i.platform).filter(Boolean))];
+    const formats = [...new Set(allItems.map(i => i.type).filter(Boolean))];
+
+    // Pull story bank for this client
+    const stories = (() => {
+      try {
+        const all = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
+        return (all[clientId] || []).slice(0, 5);
+      } catch { return []; }
+    })();
+
+    // Pull winner patterns
+    const patterns = (() => {
+      try {
+        const all = JSON.parse(localStorage.getItem(WINNER_PATTERNS_KEY) || '{}');
+        return all[clientId] || null;
+      } catch { return null; }
+    })();
+
+    // Pull ROI / growth data
+    const roiData = (() => {
+      try {
+        const weeks = JSON.parse(localStorage.getItem('encis_roi_weeks') || '[]');
+        return weeks.slice(0, 4);
+      } catch { return []; }
+    })();
+
+    // Pull reality check outcomes
+    const realityChecks = (() => {
+      try {
+        const checks = JSON.parse(localStorage.getItem('encis_reality_checks') || '[]');
+        return checks.filter(c => c.answered).slice(0, 10);
+      } catch { return []; }
+    })();
+    const rcWinners = realityChecks.filter(c => c.response === 'yes').length;
+    const rcFlops = realityChecks.filter(c => c.response === 'no').length;
+
+    const prompt = `You are writing a professional content performance report for an agency client.
+Sound like a knowledgeable consultant who actually knows their business — not a template filler.
+Be specific. Name the content. Name the patterns. Give real recommendations.
+
+CLIENT: ${selectedClient.name}
+Handle: ${selectedClient.handle || 'N/A'}
+Role/Niche: ${selectedClient.role || selectedClient.notes || 'Creator'}
 Period: ${periodLabel}
 Report date: ${new Date().toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'})}
 
-Content data ${periodLabel}:
-- Total pieces generated: ${items.length}
-- Viral performers: ${viral.length} ${viral.slice(0,5).map(i=>`"${i.title?.slice(0,40)||'untitled'}"`).join(', ')}
-- Solid performers: ${solid.length} ${solid.slice(0,5).map(i=>`"${i.title?.slice(0,40)||'untitled'}"`).join(', ')}
-- Did not perform: ${flopped.length}
-- Awaiting performance data: ${unrated.length}
-- Platforms: ${[...new Set(items.map(i=>i.platform).filter(Boolean))].join(', ') || 'Various'}
+CONTENT OUTPUT ${periodLabel.toUpperCase()}:
+- Total pieces created: ${allItems.length}
+- Platforms: ${platforms.join(', ') || 'Not recorded'}
+- Formats used: ${formats.join(', ') || 'Mixed'}
 
-Write a professional but human client report. Sound like an expert consultant who genuinely cares about results - not a corporate bot.
+PERFORMANCE BREAKDOWN:
+- Winners (outperformed or flagged viral): ${viral.length}${viral.length > 0 ? '
+  ' + viral.slice(0,5).map(i => `"${i.title?.slice(0,50)||'Untitled'}" (${i.platform||''})`).join('
+  ') : ''}
+- Solid performers: ${solid.length}${solid.length > 0 ? '
+  ' + solid.slice(0,3).map(i => `"${i.title?.slice(0,50)||'Untitled'}"`).join('
+  ') : ''}
+- Did not perform: ${flopped.length}
+- Awaiting data: ${unrated.length}
+
+48HR REALITY CHECK RESULTS:
+- Outperformed: ${rcWinners} pieces confirmed as winners
+- Did not perform: ${rcFlops} pieces confirmed as weak
+${realityChecks.slice(0,5).map(c => `- "${c.topic?.slice(0,50)||'Unknown'}": ${c.response}`).join('
+')}
+
+${roiData.length > 0 ? `GROWTH DATA (last ${roiData.length} weeks):
+${roiData.map(w => `Week of ${w.week}: Followers ${w.followers||'?'}, Reach ${w.reach||'?'}, Saves ${w.saves||'?'}, Leads ${w.leads||'?'}`).join('
+')}` : ''}
+
+${patterns ? `WINNER PATTERNS (from AI analysis of their best content):
+- Top hook styles: ${patterns.hook_patterns?.slice(0,3).join(', ') || 'N/A'}
+- Best formats: ${patterns.format_patterns?.slice(0,3).join(', ') || 'N/A'}
+- Strongest angles: ${patterns.angle_patterns?.slice(0,3).join(', ') || 'N/A'}
+- What to avoid: ${patterns.avoid_patterns?.slice(0,2).join(', ') || 'N/A'}` : ''}
+
+${stories.length > 0 ? `STORY BANK (${stories.length} stories in the bank):
+${stories.map(s => `- "${s.title}": ${s.summary?.slice(0,80)||''}`).join('
+')}` : ''}
+
+Write the report now. This goes directly to the client so make it count.
 
 # Content Performance Report
-**${selectedClient.name} | ${periodLabel === 'this week' ? 'Weekly' : 'Monthly'} Report**
+**${selectedClient.name} | ${period === 'week' ? 'Weekly' : 'Monthly'} Report**
 *${new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})}*
 
 ## Performance Summary
-2-3 sentences. What the numbers say at a high level. Be direct.
+3 sentences max. The real story of this ${period === 'week' ? 'week' : 'month'} based on the actual data above.
 
 ## What Worked
-The top 2-3 performers and specifically why they worked. Name the content. Don't be vague.
+Name the specific pieces that won and exactly why they worked. Reference the hook, format, and angle. If winner patterns exist, connect them.
 
 ## What to Build On
-2-3 specific content recommendations for next week based on what performed. Exact topics and formats.
+3 specific content ideas for next ${period === 'week' ? 'week' : 'month'} based directly on what performed. Format: topic, format, why it will work.
 
 ## What to Adjust
-1-2 honest observations about what isn't working and why. Constructive but direct.
+1-2 honest observations about what isn't landing. Specific, not vague.
 
-## Next Week Focus
-One clear priority for the coming week. One sentence.
+## Story Opportunities
+If they have story bank entries, name 1-2 stories that would make strong content based on what worked this period.
 
-## Your Numbers
+## Next ${period === 'week' ? 'Week' : 'Month'} Focus
+One sentence. One priority.
+
+## Numbers
 | Metric | This ${period === 'week' ? 'Week' : 'Month'} |
 |--------|------|
-| Content Pieces | ${items.length} |
-| Viral Performers | ${viral.length} |
-| Solid Performers | ${solid.length} |
-| Platforms Active | ${[...new Set(items.map(i=>i.platform).filter(Boolean))].length || 1} |`;
+| Pieces Created | ${allItems.length} |
+| Winners | ${viral.length} |
+| Reality Check Wins | ${rcWinners} |
+| Platforms Active | ${platforms.length} |`;
 
     const res = await ai(prompt);
     setReport(res);
@@ -21955,12 +22058,72 @@ function StoryExtractorCard({ content, topic, platform, clientId, onSaved }) {
       const raw = await ai(STORY_EXTRACTOR_PROMPT(content, topic || '', platform || ''));
       const clean = raw.replace(/```json|```/g, '').trim();
       const parsed = JSON.parse(clean);
-      if (parsed.has_story && parsed.confidence !== 'low') {
-        setStory(parsed);
-        setEditedStory(parsed);
-        setState('found');
-      } else {
+
+      if (!parsed.has_story || parsed.confidence === 'low') {
         setState('none');
+        return;
+      }
+
+      setStory(parsed);
+      setEditedStory(parsed);
+
+      // AUTO-SAVE for high-confidence stories — no user action required
+      // Medium confidence still shows the card so user can confirm/edit
+      if (parsed.confidence === 'high') {
+        const cId = clientId || 'jason';
+        const entry = {
+          id: Date.now(),
+          title: parsed.title || topic?.slice(0, 50) || 'Extracted Story',
+          story_type: 'extracted',
+          summary: parsed.moment || '',
+          tension: parsed.tension || '',
+          key_lesson: parsed.lesson || '',
+          emotional_theme: parsed.emotional_tone || 'personal',
+          audience_relevance: parsed.audience_relevance || '',
+          reusable_hooks: parsed.hook_suggestions || [],
+          best_formats: parsed.use_cases || ['Reel Script', 'Caption'],
+          proof_type: 'lived experience',
+          clientId: cId,
+          savedAt: new Date().toISOString(),
+          source: 'auto-saved-high-confidence',
+          autoSaved: true,
+        };
+
+        // Save to localStorage
+        try {
+          const allStories = JSON.parse(localStorage.getItem(STORY_BANK_KEY) || '{}');
+          // Avoid duplicate saves — check if same topic already exists
+          const existing = allStories[cId] || [];
+          const isDupe = existing.some(s => s.title === entry.title || s.summary === entry.summary);
+          if (!isDupe) {
+            allStories[cId] = [entry, ...existing].slice(0, 100);
+            localStorage.setItem(STORY_BANK_KEY, JSON.stringify(allStories));
+          }
+        } catch {}
+
+        // Sync to Supabase
+        try {
+          supabase.from('story_bank').insert({
+            client_id: cId,
+            title: entry.title,
+            story_type: 'extracted',
+            summary: entry.summary,
+            key_lesson: entry.key_lesson,
+            emotional_theme: entry.emotional_theme,
+            audience_relevance: entry.audience_relevance,
+            reusable_hooks: entry.reusable_hooks,
+            best_formats: entry.best_formats,
+            proof_type: entry.proof_type,
+            saved_at: entry.savedAt,
+          });
+        } catch {}
+
+        // Show 'saved' state directly — no click required
+        setState('saved');
+        if (onSaved) onSaved(entry);
+      } else {
+        // Medium confidence — show card for user to confirm
+        setState('found');
       }
     } catch(e) {
       console.error('Story extractor error:', e);
