@@ -6308,6 +6308,7 @@ const SUB_NAV = {
     { id:'calendar',     label:'Content Calendar' },
     { id:'visualcal',    label:'Visual Calendar' },
     { id:'aitwin',       label:'AI Twin Video' },
+    { id:'brandkit',      label:'Brand Kit' },
   ],
   agents: [
     { id:'contentengine', label:'Content Engine' },
@@ -6317,6 +6318,7 @@ const SUB_NAV = {
     { id:'onboarding',   label:'Client Onboarding' },
     { id:'onboardauto',  label:'Auto Onboarding' },
     { id:'compintel',    label:'Competitor Intel' },
+    { id:'clientbrief',   label:'Client Brief' },
   ],
   insights: [
     { id:'growth',       label:'Growth Dashboard' },
@@ -6329,6 +6331,7 @@ const SUB_NAV = {
     { id:'analytics',    label:'Analytics Import' },
     { id:'transcript',   label:'Transcripts' },
     { id:'pricing',      label:'Pricing Calculator' },
+    { id:'contentaudit',  label:'Content Audit' },
   ],
 };
 
@@ -9919,47 +9922,62 @@ Available Equipment: ${equipment || 'phone, basic lighting'}
 Video Style: ${style}
 Shot Style: ${shotStyle}
 
-Write a complete AI Video Script Director brief. This goes to the videographer, editor, and talent. Every section must be specific enough that someone can pick this up and film tomorrow without asking a single question.
+Write a complete Video Script + Production Brief. This is the single document a creator picks up and films from start to finish without asking a single question.
 
-# Video Production Brief: "${topic}"
+# Video Script: "${topic}"
 
-## The Idea (One Sentence)
-What this video is and why someone will watch all the way through.
+## The Hook (Seconds 0-3)
+Exact words spoken or shown the moment the video starts. This is the one line that stops the scroll. No preamble, no intro, no "hey guys." The hook IS the first frame.
 
-## Hook (First 3 Seconds)
-Exact words. Exact action. What is on screen the moment the video starts.
+## Hook Timing Breakdown
+- 0-3 sec: [Exact hook — words, action, what is on screen]
+- 3-15 sec: [Tension build — what you establish, the problem or promise]
+- 15-${Math.round(parseInt(duration)||60 * 0.6)} sec: [Payoff — the meat, the value, the story]
+- ${Math.round(parseInt(duration)||60 * 0.6)}-${duration.split('-')[0] || '60'} sec: [CTA + close — what to do, where to go, how to follow]
+
+## Full Script (Word for Word)
+Every line of dialogue or voiceover. Mark clearly:
+[TALKING HEAD] [VOICEOVER] [TEXT ON SCREEN] [MUSIC ONLY] [B-ROLL]
 
 ## Shot List
-Number every shot. For each:
-- Shot number and type (close-up, medium, wide, over-shoulder, POV, b-roll)
-- Exact location or background
-- What subject is doing
-- Lighting direction (natural window left, ring light front, etc.)
-- Duration on screen (seconds)
-- Audio: talking to camera / voiceover / music only / ambient
+| # | Type | Location | Action | Duration | Audio |
+|---|------|----------|--------|----------|-------|
+(Number every shot. Close-up, medium, wide, POV, B-roll. Specific enough to film without direction.)
 
-## Script (Word for Word)
-Every line of dialogue or voiceover. Mark clearly: [TALKING HEAD], [VOICEOVER], [TEXT ON SCREEN], [MUSIC ONLY]
+## B-Roll Breakdown (10 shots minimum)
+For each B-roll shot:
+- Subject + action
+- Location + background
+- Camera movement (static / slow pan / handheld / tracking)
+- Duration on screen
+- Why this shot is needed (what it supports in the script)
 
-## B-Roll List
-10 specific b-roll shots that support the script. Each with: subject, location, movement (static/pan/handheld), and why it is needed.
-
-## On-Screen Text
-Every text overlay: exact words, when it appears (seconds), style direction (bold/subtle/color).
+## On-Screen Text & Captions
+Every text overlay: exact words, timestamp (seconds), style direction.
 
 ## Music Direction
-Mood, energy level, when music enters and exits, any specific reference tracks or genres.
+Mood, energy, when it enters, when it drops, reference genre or track.
 
 ## Thumbnail Shot
-Exact description of the frame that will become the thumbnail. Expression, framing, background, any text.
+Exact frame: expression, framing, background, any text overlay. The one frame that makes someone click.
+
+## Set Call Sheet — What to Prep Before Filming
+- Location(s) to set up
+- Wardrobe / appearance notes
+- Props or items needed on screen
+- Lighting setup (natural / artificial — exact position)
+- Equipment checklist based on: ${equipment || 'phone + basic lighting'}
+- Time estimate to film everything
 
 ## Editing Notes
-Pacing direction, transition style, color grade mood, any specific effects or cuts.
+Pacing direction, transition style, color grade mood, specific effects.
 
-## Equipment Checklist
-Based on ${equipment || 'phone + basic setup'}: exactly what to bring and how to set it up for this specific shoot.
+## Caption (Platform-Ready)
+Full caption for the primary platform. Hook in first line. No trailing off. CTA at the end.
 
-## Common Mistakes to Avoid for This Video
+## Common Mistakes That Kill This Video
+3 specific things that would ruin this shoot — and exactly how to avoid each.
+`
 3 specific things that would kill this video's performance.`;
 
 function VideoScriptDirector() {
@@ -26308,7 +26326,529 @@ const COMPONENT_MAP = {
   objections: ObjectionHandler,
   series: ContentSeriesPlanner,
   compintel: CompetitorIntel,
+  contentaudit: ContentAuditTool,
+  brandkit: BrandKitGenerator,
+  clientbrief: ClientContentBrief,
 };
+
+// ════════════════════════════════════════════════════════════════════════════
+// CONTENT AUDIT TOOL
+// Pulls last 90 days, grades every piece, finds patterns, outputs action plan
+// ════════════════════════════════════════════════════════════════════════════
+function ContentAuditTool() {
+  const [activeClient] = useActiveClient();
+  const [clients] = useClients();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [out, setOut] = useState('');
+  const [days, setDays] = useState('90');
+
+  useEffect(() => { setSelectedClient(activeClient); }, [activeClient]);
+
+  const runAudit = async () => {
+    if (!selectedClient) return;
+    setLoading(true); setOut('');
+    try {
+      const cutoff = new Date(Date.now() - parseInt(days) * 24 * 60 * 60 * 1000).toISOString();
+      const { data } = await supabase
+        .from('saved_content')
+        .select('title, type, platform, angle, notes, content_preview, created_at')
+        .eq('client_id', selectedClient.id || 'jason')
+        .gte('created_at', cutoff)
+        .order('created_at', { ascending: false })
+        .limit(150);
+
+      const items = (data || []).filter(i => {
+        const t = i.title || '';
+        const bad = ['You are ', 'Write in ', 'CREATOR:', 'Generate', 'STORY BANK'];
+        return t.length > 3 && !bad.some(p => t.startsWith(p)) && i.notes !== 'auto-saved';
+      });
+
+      if (items.length === 0) {
+        setOut('No content found for this client in the selected period. Generate and save content first.');
+        setLoading(false);
+        return;
+      }
+
+      const NL = '
+';
+      const voice = getVoice(selectedClient);
+      const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+      // Tally by type, platform, angle, tier
+      const byType = {};
+      const byPlatform = {};
+      const byAngle = {};
+      const winners = [];
+      const weak = [];
+
+      items.forEach(i => {
+        byType[i.type || 'Unknown'] = (byType[i.type || 'Unknown'] || 0) + 1;
+        byPlatform[i.platform || 'Unknown'] = (byPlatform[i.platform || 'Unknown'] || 0) + 1;
+        byAngle[i.angle || 'Untagged'] = (byAngle[i.angle || 'Untagged'] || 0) + 1;
+        if (i.notes && (i.notes.includes('winner') || i.notes.includes('outperformed'))) winners.push(i.title);
+        if (i.notes && i.notes.includes('weak')) weak.push(i.title);
+      });
+
+      const typeStr = Object.entries(byType).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+': '+v).join(', ');
+      const platformStr = Object.entries(byPlatform).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+': '+v).join(', ');
+      const angleStr = Object.entries(byAngle).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+': '+v).join(', ');
+      const sampleTitles = items.slice(0, 25).map(i => '"' + (i.title || 'Untitled').slice(0, 60) + '" (' + (i.platform || '') + ')').join(NL + '  ');
+
+      const prompt = voice + NL + NL +
+        'You are a senior content strategist conducting a performance audit for ' + selectedClient.name + '.' + NL +
+        'Audit period: Last ' + days + ' days (as of ' + today + ')' + NL +
+        'Total pieces: ' + items.length + NL + NL +
+        'CONTENT BREAKDOWN:' + NL +
+        'By Type: ' + typeStr + NL +
+        'By Platform: ' + platformStr + NL +
+        'By Pillar/Angle: ' + angleStr + NL +
+        'Known Winners: ' + (winners.length > 0 ? winners.slice(0,5).join(', ') : 'None flagged yet') + NL +
+        'Known Weak: ' + (weak.length > 0 ? weak.slice(0,3).join(', ') : 'None flagged yet') + NL + NL +
+        'CONTENT SAMPLE (most recent 25):' + NL + '  ' + sampleTitles + NL + NL +
+        'Write a complete content performance audit report. Be specific. Name actual content. Sound like a strategist who has read every post.' + NL + NL +
+        'Structure the report as:' + NL +
+        '# Content Audit — ' + selectedClient.name + NL +
+        '## Executive Summary (3-4 sentences — what is working, what is not, the #1 priority)' + NL +
+        '## What Is Working (specific formats, angles, platforms — why they work)' + NL +
+        '## What Is Underperforming (honest assessment — what to stop or change)' + NL +
+        '## Pillar Distribution Analysis (are they balanced? overusing one angle?)' + NL +
+        '## Platform Performance (which platforms are serving them best and why)' + NL +
+        '## Content Mix Grade (A/B/C/D per category with one-line rationale)' + NL +
+        '## The 5 Actions to Take This Month (specific, numbered, implementable)' + NL +
+        '## 3 Hook Formulas to Test Next (written out in full, based on their voice)';
+
+      const res = await ai(prompt);
+      setOut(res);
+    } catch(e) {
+      setOut('Audit failed: ' + e.message);
+    }
+    setLoading(false);
+  };
+
+  const exportPDF = () => {
+    if (!out || !selectedClient) return;
+    const agencyName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.agencyName) ? wl.agencyName : '8th Ascent'; } catch { return '8th Ascent'; } })();
+    const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+    const escHtml = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const bodyHtml = out.split('\n').map(line => {
+      if (line.startsWith('# ')) return '<h1 style="font-size:22px;font-weight:900;color:#0A1628;margin:0 0 8px;padding-bottom:8px;border-bottom:3px solid #2563EB">' + escHtml(line.slice(2)) + '</h1>';
+      if (line.startsWith('## ')) return '<h2 style="font-size:15px;font-weight:800;color:#1D4ED8;margin:24px 0 8px">' + escHtml(line.slice(3)) + '</h2>';
+      if (line.startsWith('- ')) return '<div style="display:flex;gap:8px;margin:4px 0 4px 8px"><span style="color:#2563EB;font-weight:700">•</span><span style="color:#374151;font-size:13px;line-height:1.7">' + escHtml(line.slice(2)) + '</span></div>';
+      if (!line.trim()) return '<div style="height:8px"></div>';
+      return '<p style="font-size:13px;color:#374151;line-height:1.75;margin:4px 0">' + escHtml(line) + '</p>';
+    }).join('');
+    const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Content Audit - ' + escHtml(selectedClient.name) + '</title>'
+      + '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">'
+      + '<style>@page{margin:0.75in}*{box-sizing:border-box}body{font-family:"DM Sans",-apple-system,sans-serif;color:#111827;background:#fff}'
+      + '.cover{background:#0A1628;color:#fff;padding:48px}'
+      + '@media print{.cover,.cover *{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'
+      + '</style></head><body>'
+      + '<div class="cover"><div style="font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#00C2FF;margin-bottom:20px">' + escHtml(agencyName) + '</div>'
+      + '<div style="font-size:28px;font-weight:900;letter-spacing:-0.03em;margin-bottom:20px">Content Performance Audit</div>'
+      + '<div style="display:flex;gap:24px;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px">'
+      + '<div><div style="font-size:9px;color:#00C2FF;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px">Client</div><div style="font-size:12px;color:rgba(255,255,255,0.75)">' + escHtml(selectedClient.name) + '</div></div>'
+      + '<div><div style="font-size:9px;color:#00C2FF;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px">Period</div><div style="font-size:12px;color:rgba(255,255,255,0.75)">Last ' + days + ' days</div></div>'
+      + '<div><div style="font-size:9px;color:#00C2FF;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px">Date</div><div style="font-size:12px;color:rgba(255,255,255,0.75)">' + today + '</div></div>'
+      + '</div></div>'
+      + '<div style="padding:32px 40px">' + bodyHtml
+      + '<div style="margin-top:40px;padding-top:16px;border-top:1px solid #E5E7EB;display:flex;justify-content:space-between;font-size:10px;color:#9CA3AF">'
+      + '<span>' + escHtml(agencyName) + ' — Confidential</span><span>' + today + '</span></div>'
+      + '</div></body></html>';
+    const blob = new Blob([html], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    if (win) win.onload = () => win.print();
+    else { const a = document.createElement('a'); a.href=url; a.download='Content-Audit-' + selectedClient.name.replace(/\s+/g,'-') + '.html'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20,flexWrap:'wrap'}}>
+        <div style={{width:3,height:28,background:'#2563EB',borderRadius:2,flexShrink:0}}/>
+        <div style={{flex:1}}>
+          <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.02em'}}>Content Audit</h2>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Grades the last 90 days of content. Finds what is working, what is dead, and exactly what to do next. Ships as a client-ready PDF.</p>
+        </div>
+      </div>
+
+      <Card style={{marginBottom:16}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+          <div>
+            <SecLabel>Client</SecLabel>
+            <select value={selectedClient?.id || ''} onChange={e => setSelectedClient(clients.find(c => c.id === e.target.value) || null)}
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,fontFamily:'inherit'}}>
+              {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <SecLabel>Audit Period</SecLabel>
+            <select value={days} onChange={e => setDays(e.target.value)}
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,fontFamily:'inherit'}}>
+              <option value="30">Last 30 days</option>
+              <option value="60">Last 60 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="180">Last 6 months</option>
+            </select>
+          </div>
+        </div>
+        <button onClick={runAudit} disabled={loading || !selectedClient}
+          style={{width:'100%',background:loading||!selectedClient?'#F3F4F6':'#1A1A1A',color:loading||!selectedClient?'#9CA3AF':'#fff',border:'none',borderRadius:8,padding:'12px',fontWeight:800,fontSize:14,cursor:loading||!selectedClient?'not-allowed':'pointer',fontFamily:'inherit'}}>
+          {loading ? 'Auditing content...' : 'Run Content Audit'}
+        </button>
+      </Card>
+
+      {loading && <Spin/>}
+
+      {out && !loading && (
+        <div>
+          <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
+            <button onClick={() => navigator.clipboard.writeText(out)}
+              style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+              Copy Report
+            </button>
+            <button onClick={exportPDF}
+              style={{background:'#2563EB',color:'#fff',border:'none',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+              Export PDF
+            </button>
+          </div>
+          <DocOutput text={out} title={'Content Audit — ' + (selectedClient?.name || '')}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// BRAND KIT GENERATOR
+// Takes client profile + voice, outputs a complete brand strategy document
+// ════════════════════════════════════════════════════════════════════════════
+function BrandKitGenerator() {
+  const [activeClient] = useActiveClient();
+  const [clients] = useClients();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [out, setOut] = useState('');
+
+  useEffect(() => { setSelectedClient(activeClient); }, [activeClient]);
+
+  const runGenerate = async () => {
+    if (!selectedClient) return;
+    setLoading(true); setOut('');
+    const NL = '
+';
+    const voice = getVoice(selectedClient);
+    const today = new Date().toLocaleDateString('en-US', {month:'long', year:'numeric'});
+    const stories = (() => { try { const s = JSON.parse(localStorage.getItem(STORY_BANK_KEY)||'{}'); return (s[selectedClient.id||'jason']||[]).slice(0,5); } catch { return []; } })();
+    const patterns = (() => { try { const p = JSON.parse(localStorage.getItem(WINNER_PATTERNS_KEY)||'{}'); return p[selectedClient.id||'jason'] || null; } catch { return null; } })();
+
+    const storyStr = stories.length > 0
+      ? stories.map(s => '- ' + s.title + ': ' + (s.summary||'').slice(0,80)).join(NL)
+      : 'No stories banked yet';
+    const patternStr = patterns
+      ? 'Top hooks: ' + (patterns.hook_patterns||[]).slice(0,3).join(', ') + NL + 'Best formats: ' + (patterns.format_patterns||[]).slice(0,3).join(', ')
+      : 'No performance patterns yet';
+
+    const prompt = voice + NL + NL +
+      'You are a brand strategist creating a complete Brand Kit document for ' + selectedClient.name + '.' + NL +
+      'This document is used internally by the agency and delivered to the client as a strategic deliverable.' + NL +
+      'Date: ' + today + NL +
+      'Role: ' + (selectedClient.role || 'Content Creator') + NL +
+      'Platforms: ' + (selectedClient.platforms || 'Instagram, TikTok') + NL +
+      'Story Bank:' + NL + storyStr + NL +
+      'Performance Patterns:' + NL + patternStr + NL + NL +
+      'Generate a complete Brand Kit with every section fully written — not described, not outlined. Actual usable content.' + NL + NL +
+      '# Brand Kit — ' + selectedClient.name + NL + NL +
+      '## Brand Identity Statement' + NL +
+      '(One paragraph — who they are, who they serve, what they stand for, what makes them different)' + NL + NL +
+      '## Voice & Tone Guide' + NL +
+      '(How they write and speak. Include: sentence length, vocabulary level, what to use, what to never say, energy level, 5 example phrases that sound exactly like them)' + NL + NL +
+      '## Content Pillars (5 pillars)' + NL +
+      '(For each pillar: name, one-line definition, why it matters to their audience, 3 example post angles)' + NL + NL +
+      '## Hook Formula Library' + NL +
+      '(8 hook formulas that work for their voice and audience — written out as complete hooks, not templates)' + NL + NL +
+      '## What We Never Say' + NL +
+      '(10 phrases, words, or approaches that are off-brand — with a one-line reason for each)' + NL + NL +
+      '## Platform Rules' + NL +
+      '(For each active platform: format rules, caption length, hashtag approach, posting cadence, content types that perform)' + NL + NL +
+      '## Signature Story Angles' + NL +
+      '(3-5 signature stories or recurring themes from their life that they can return to repeatedly — drawn from their story bank)' + NL + NL +
+      '## The Brand Promise' + NL +
+      '(One sentence. What the audience can always expect when they consume this content.)';
+
+    try {
+      const res = await ai(prompt);
+      setOut(res);
+    } catch(e) {
+      setOut('Generation failed: ' + e.message);
+    }
+    setLoading(false);
+  };
+
+  const exportPDF = () => {
+    if (!out || !selectedClient) return;
+    const agencyName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.agencyName) ? wl.agencyName : '8th Ascent'; } catch { return '8th Ascent'; } })();
+    const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+    const escHtml = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const bodyHtml = out.split('\n').map(line => {
+      if (line.startsWith('# ')) return '<h1 style="font-size:22px;font-weight:900;color:#0A1628;margin:0 0 8px;padding-bottom:8px;border-bottom:3px solid #E94560">' + escHtml(line.slice(2)) + '</h1>';
+      if (line.startsWith('## ')) return '<h2 style="font-size:15px;font-weight:800;color:#E94560;margin:28px 0 8px">' + escHtml(line.slice(3)) + '</h2>';
+      if (line.startsWith('- ')) return '<div style="display:flex;gap:8px;margin:4px 0 4px 8px"><span style="color:#E94560;font-weight:700">•</span><span style="color:#374151;font-size:13px;line-height:1.7">' + escHtml(line.slice(2)) + '</span></div>';
+      if (!line.trim()) return '<div style="height:8px"></div>';
+      return '<p style="font-size:13px;color:#374151;line-height:1.75;margin:4px 0">' + escHtml(line) + '</p>';
+    }).join('');
+    const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Brand Kit - ' + escHtml(selectedClient.name) + '</title>'
+      + '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">'
+      + '<style>@page{margin:0.75in}*{box-sizing:border-box}body{font-family:"DM Sans",-apple-system,sans-serif;color:#111827;background:#fff}'
+      + '.cover{background:#0A1628;padding:48px}'
+      + '@media print{.cover,.cover *{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'
+      + '</style></head><body>'
+      + '<div class="cover"><div style="font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#E94560;margin-bottom:20px">' + escHtml(agencyName) + '</div>'
+      + '<div style="font-size:28px;font-weight:900;letter-spacing:-0.03em;color:#fff;margin-bottom:8px">Brand Kit</div>'
+      + '<div style="font-size:16px;color:rgba(255,255,255,0.6);margin-bottom:20px">' + escHtml(selectedClient.name) + '</div>'
+      + '<div style="display:flex;gap:24px;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px">'
+      + '<div><div style="font-size:9px;color:#E94560;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px">Prepared by</div><div style="font-size:12px;color:rgba(255,255,255,0.75)">' + escHtml(agencyName) + '</div></div>'
+      + '<div><div style="font-size:9px;color:#E94560;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px">Date</div><div style="font-size:12px;color:rgba(255,255,255,0.75)">' + today + '</div></div>'
+      + '</div></div>'
+      + '<div style="padding:32px 40px">' + bodyHtml
+      + '<div style="margin-top:40px;padding-top:16px;border-top:1px solid #E5E7EB;display:flex;justify-content:space-between;font-size:10px;color:#9CA3AF">'
+      + '<span>' + escHtml(agencyName) + ' — Confidential</span><span>' + today + '</span></div>'
+      + '</div></body></html>';
+    const blob = new Blob([html], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    if (win) win.onload = () => win.print();
+    else { const a = document.createElement('a'); a.href=url; a.download='Brand-Kit-' + selectedClient.name.replace(/\s+/g,'-') + '.html'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20,flexWrap:'wrap'}}>
+        <div style={{width:3,height:28,background:'#E94560',borderRadius:2,flexShrink:0}}/>
+        <div style={{flex:1}}>
+          <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.02em'}}>Brand Kit Generator</h2>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Generates a complete brand strategy document — voice guide, content pillars, hook library, platform rules. Client-ready PDF in one click.</p>
+        </div>
+      </div>
+
+      <Card style={{marginBottom:16}}>
+        <SecLabel>Client</SecLabel>
+        <select value={selectedClient?.id || ''} onChange={e => setSelectedClient(clients.find(c => c.id === e.target.value) || null)}
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,fontFamily:'inherit',marginBottom:12}}>
+          {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+        <button onClick={runGenerate} disabled={loading || !selectedClient}
+          style={{width:'100%',background:loading||!selectedClient?'#F3F4F6':'#0A1628',color:loading||!selectedClient?'#9CA3AF':'#fff',border:'none',borderRadius:8,padding:'12px',fontWeight:800,fontSize:14,cursor:loading||!selectedClient?'not-allowed':'pointer',fontFamily:'inherit'}}>
+          {loading ? 'Building Brand Kit...' : 'Generate Brand Kit'}
+        </button>
+      </Card>
+
+      {loading && <Spin/>}
+
+      {out && !loading && (
+        <div>
+          <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
+            <button onClick={() => navigator.clipboard.writeText(out)}
+              style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+              Copy
+            </button>
+            <button onClick={exportPDF}
+              style={{background:'#0A1628',color:'#fff',border:'none',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+              Export PDF
+            </button>
+          </div>
+          <DocOutput text={out} title={'Brand Kit — ' + (selectedClient?.name || '')}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ════════════════════════════════════════════════════════════════════════════
+// CLIENT CONTENT BRIEF
+// Monthly structured brief: what we're creating, why, what client must do
+// Shareable link + PDF
+// ════════════════════════════════════════════════════════════════════════════
+function ClientContentBrief() {
+  const [activeClient] = useActiveClient();
+  const [clients] = useClients();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [out, setOut] = useState('');
+  const [month, setMonth] = useState(() => new Date().toLocaleDateString('en-US', {month:'long', year:'numeric'}));
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  useEffect(() => { setSelectedClient(activeClient); }, [activeClient]);
+
+  const runGenerate = async () => {
+    if (!selectedClient) return;
+    setLoading(true); setOut('');
+    const NL = '
+';
+    const voice = getVoice(selectedClient);
+
+    // Pull this month's content from queue
+    const queue = (() => { try { return JSON.parse(localStorage.getItem(APPROVAL_QUEUE_KEY)||'[]').filter(q => q.status === 'approved' || q.status === 'pending'); } catch { return []; } })();
+    const patterns = (() => { try { const p = JSON.parse(localStorage.getItem(WINNER_PATTERNS_KEY)||'{}'); return p[selectedClient.id||'jason'] || null; } catch { return null; } })();
+    const roiData = (() => { try { return JSON.parse(localStorage.getItem('encis_roi_weeks')||'[]').slice(0,4); } catch { return []; } })();
+
+    const queueStr = queue.length > 0
+      ? queue.slice(0,12).map(q => '- ' + (q.type||'Post') + ' for ' + (q.platform||'Social') + ': "' + (q.topic||'Untitled').slice(0,60) + '"').join(NL)
+      : 'No content queued yet';
+    const roiStr = roiData.length > 0
+      ? roiData.map(w => 'Week of ' + w.week + ': ' + (w.followers||'?') + ' followers, ' + (w.reach||'?') + ' reach').join(NL)
+      : 'No growth data yet';
+    const patternStr = patterns
+      ? 'Winning hooks: ' + (patterns.hook_patterns||[]).slice(0,3).join(', ') + '. Best formats: ' + (patterns.format_patterns||[]).slice(0,3).join(', ')
+      : 'Performance patterns not yet established';
+
+    const prompt = voice + NL + NL +
+      'You are writing a monthly content brief for ' + selectedClient.name + ' from their agency.' + NL +
+      'Month: ' + month + NL +
+      'This brief goes directly to the client. It tells them exactly what content is being created, why, and what they need to do.' + NL +
+      'Write like a professional consultant. Be specific. Use their real content.' + NL + NL +
+      'CONTENT IN PIPELINE:' + NL + queueStr + NL + NL +
+      'RECENT GROWTH DATA:' + NL + roiStr + NL + NL +
+      'WHAT IS WORKING:' + NL + patternStr + NL + NL +
+      'Generate the complete monthly brief. Every section fully written.' + NL + NL +
+      '# ' + month + ' Content Brief' + NL +
+      '### Prepared for ' + selectedClient.name + NL + NL +
+      '## Overview' + NL +
+      '(2-3 sentences: this month we are focusing on X because Y. Sets the strategic context.)' + NL + NL +
+      '## Content Schedule This Month' + NL +
+      '(List every piece in the pipeline by week. Format: Week 1 | Platform | Format | Topic | Goal)' + NL + NL +
+      '## Why This Content Mix' + NL +
+      '(Explain the strategic rationale — why these platforms, why these formats, why these topics. Be specific about what the data shows.)' + NL + NL +
+      '## What We Need From You This Month' + NL +
+      '(Specific filming requests, approvals needed, information to gather, dates to clear. Numbered list. Be direct.)' + NL + NL +
+      '## Your Approval Deadlines' + NL +
+      '(Clear dates/timeline for when client needs to review and approve content)' + NL + NL +
+      '## Growth Focus This Month' + NL +
+      '(The single biggest lever we are pulling this month — what we are optimizing for and why)' + NL + NL +
+      '## What Success Looks Like' + NL +
+      '(3-5 specific, measurable targets for this month. Not vague goals — actual numbers or outcomes.)';
+
+    try {
+      const res = await ai(prompt);
+      setOut(res);
+    } catch(e) {
+      setOut('Generation failed: ' + e.message);
+    }
+    setLoading(false);
+  };
+
+  const shareLink = () => {
+    if (!out || !selectedClient) return;
+    try {
+      const agencyName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.agencyName) ? wl.agencyName : '8th Ascent'; } catch { return '8th Ascent'; } })();
+      const payload = JSON.stringify({ title: month + ' Content Brief', client: selectedClient.name, period: month, content: out, agency: agencyName, created: new Date().toISOString() });
+      const encoded = btoa(unescape(encodeURIComponent(payload)));
+      const link = window.location.origin + window.location.pathname + '#report=' + encoded;
+      navigator.clipboard.writeText(link);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2500);
+    } catch(e) { console.error('shareLink error:', e); }
+  };
+
+  const exportPDF = () => {
+    if (!out || !selectedClient) return;
+    const agencyName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.agencyName) ? wl.agencyName : '8th Ascent'; } catch { return '8th Ascent'; } })();
+    const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+    const escHtml = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const bodyHtml = out.split('\n').map(line => {
+      if (line.startsWith('# ')) return '<h1 style="font-size:22px;font-weight:900;color:#0A1628;margin:0 0 4px;padding-bottom:8px;border-bottom:3px solid #2563EB">' + escHtml(line.slice(2)) + '</h1>';
+      if (line.startsWith('### ')) return '<p style="font-size:12px;color:#9CA3AF;margin:4px 0 20px">' + escHtml(line.slice(4)) + '</p>';
+      if (line.startsWith('## ')) return '<h2 style="font-size:15px;font-weight:800;color:#1D4ED8;margin:24px 0 8px">' + escHtml(line.slice(3)) + '</h2>';
+      if (line.startsWith('- ')) return '<div style="display:flex;gap:8px;margin:4px 0 4px 8px"><span style="color:#2563EB;font-weight:700">•</span><span style="color:#374151;font-size:13px;line-height:1.7">' + escHtml(line.slice(2)) + '</span></div>';
+      if (!line.trim()) return '<div style="height:8px"></div>';
+      return '<p style="font-size:13px;color:#374151;line-height:1.75;margin:4px 0">' + escHtml(line) + '</p>';
+    }).join('');
+    const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + escHtml(month) + ' Content Brief - ' + escHtml(selectedClient.name) + '</title>'
+      + '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">'
+      + '<style>@page{margin:0.75in}*{box-sizing:border-box}body{font-family:"DM Sans",-apple-system,sans-serif;color:#111827;background:#fff}'
+      + '.cover{background:#0A1628;padding:48px}'
+      + '@media print{.cover,.cover *{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'
+      + '</style></head><body>'
+      + '<div class="cover"><div style="font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#00C2FF;margin-bottom:20px">' + escHtml(agencyName) + '</div>'
+      + '<div style="font-size:28px;font-weight:900;letter-spacing:-0.03em;color:#fff;margin-bottom:8px">' + escHtml(month) + ' Content Brief</div>'
+      + '<div style="font-size:16px;color:rgba(255,255,255,0.6);margin-bottom:20px">' + escHtml(selectedClient.name) + '</div>'
+      + '<div style="display:flex;gap:24px;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px">'
+      + '<div><div style="font-size:9px;color:#00C2FF;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px">Prepared by</div><div style="font-size:12px;color:rgba(255,255,255,0.75)">' + escHtml(agencyName) + '</div></div>'
+      + '<div><div style="font-size:9px;color:#00C2FF;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px">Sent</div><div style="font-size:12px;color:rgba(255,255,255,0.75)">' + today + '</div></div>'
+      + '</div></div>'
+      + '<div style="padding:32px 40px">' + bodyHtml
+      + '<div style="margin-top:40px;padding-top:16px;border-top:1px solid #E5E7EB;display:flex;justify-content:space-between;font-size:10px;color:#9CA3AF">'
+      + '<span>' + escHtml(agencyName) + ' — Confidential</span><span>' + today + '</span></div>'
+      + '</div></body></html>';
+    const blob = new Blob([html], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    if (win) win.onload = () => win.print();
+    else { const a = document.createElement('a'); a.href=url; a.download=month.replace(/\s+/g,'-') + '-Brief-' + selectedClient.name.replace(/\s+/g,'-') + '.html'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20,flexWrap:'wrap'}}>
+        <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
+        <div style={{flex:1}}>
+          <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.02em'}}>Client Content Brief</h2>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Generates the monthly deliverable agencies send clients — what we are building, why, what you need to film, and when to approve. PDF + shareable link.</p>
+        </div>
+      </div>
+
+      <Card style={{marginBottom:16}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+          <div>
+            <SecLabel>Client</SecLabel>
+            <select value={selectedClient?.id || ''} onChange={e => setSelectedClient(clients.find(c => c.id === e.target.value) || null)}
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,fontFamily:'inherit'}}>
+              {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <SecLabel>Month</SecLabel>
+            <input value={month} onChange={e => setMonth(e.target.value)}
+              placeholder="e.g. January 2026"
+              style={{width:'100%',background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,fontFamily:'inherit',boxSizing:'border-box'}}/>
+          </div>
+        </div>
+        <button onClick={runGenerate} disabled={loading || !selectedClient}
+          style={{width:'100%',background:loading||!selectedClient?'#F3F4F6':'#1A1A1A',color:loading||!selectedClient?'#9CA3AF':'#fff',border:'none',borderRadius:8,padding:'12px',fontWeight:800,fontSize:14,cursor:loading||!selectedClient?'not-allowed':'pointer',fontFamily:'inherit'}}>
+          {loading ? 'Writing brief...' : 'Generate Client Brief'}
+        </button>
+      </Card>
+
+      {loading && <Spin/>}
+
+      {out && !loading && (
+        <div>
+          <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
+            <button onClick={() => navigator.clipboard.writeText(out)}
+              style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+              Copy
+            </button>
+            <button onClick={shareLink}
+              style={{background:'#EFF6FF',color:'#2563EB',border:'1px solid #BFDBFE',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+              {linkCopied ? 'Link copied ✓' : 'Share Client Link'}
+            </button>
+            <button onClick={exportPDF}
+              style={{background:'#1A1A1A',color:'#fff',border:'none',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+              Export PDF
+            </button>
+          </div>
+          <DocOutput text={out} title={month + ' Brief — ' + (selectedClient?.name || '')}/>
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 // ── Global Error Boundary - prevents white screen crashes ───────────────────
 class ErrorBoundary extends React.Component {
