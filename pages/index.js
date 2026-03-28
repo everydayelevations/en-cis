@@ -17583,6 +17583,20 @@ function BioSuite() {
 }
 
 
+// Highlights search query matches inside text — returns array of plain/marked spans
+function highlightMatch(text, query) {
+  if (!text || !query || query.length < 2) return text || '';
+  const idx = text.toLowerCase().indexOf(query.toLowerCase());
+  if (idx === -1) return text;
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark style={{background:'#FEF08A',color:'#111827',borderRadius:2,padding:'0 1px'}}>{text.slice(idx, idx + query.length)}</mark>
+      {text.slice(idx + query.length)}
+    </>
+  );
+}
+
 function ContentLibrary() {
   const [activeClient] = useActiveClient();
   const [items, setItems] = React.useState([]);
@@ -18364,10 +18378,13 @@ function ContentLibrary() {
                         <span style={{ background: wfConfig.bg, color: wfConfig.color, border: '1px solid ' + wfConfig.border, fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4, textTransform: 'uppercase' }}>{wfConfig.label}</span>
                       )}
                     </div>
-                    <div style={{ color: '#111827', fontSize: 13, fontWeight: 600, lineHeight: 1.5, marginBottom: 3 }}>{item.title || 'Untitled'}</div>
+                    <div style={{ color: '#111827', fontSize: 13, fontWeight: 600, lineHeight: 1.5, marginBottom: 3 }}>
+                      {search ? highlightMatch(item.title || 'Untitled', search) : (item.title || 'Untitled')}
+                    </div>
                     <div style={{ color: '#9CA3AF', fontSize: 11 }}>
                       {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      {item.content_preview && ' · ' + item.content_preview.slice(0, 55) + '...'}
+                      {item.content_preview && ' · '}
+                      {item.content_preview && (search ? highlightMatch(item.content_preview.slice(0, 55) + '...', search) : item.content_preview.slice(0, 55) + '...')}
                     </div>
                   </div>
 
@@ -26451,8 +26468,13 @@ export default function App() {
             boxShadow: '0 1px 0 rgba(0,194,255,0.06), 0 4px 24px rgba(0,0,0,0.5)',
           }}>
           <div className="ea-nav-inner" style={{maxWidth:1100,margin:'0 auto',display:'flex',alignItems:'center',gap:4,overflowX:'auto',msOverflowStyle:'none',scrollbarWidth:'none'}}>
-            <div style={{marginRight:12,padding:'12px 0'}}>
+            <div style={{marginRight:12,padding:'12px 0',display:'flex',alignItems:'center',gap:8}}>
               <span style={{fontSize:13,fontWeight:900,letterSpacing:'-0.04em',color:'#FFFFFF',whiteSpace:'nowrap'}}>8th Ascent</span>
+              <button onClick={() => setCmdkOpen(true)}
+                title="Quick Create (⌘K)"
+                style={{background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',borderRadius:5,padding:'2px 7px',fontSize:10,fontWeight:700,color:'rgba(255,255,255,0.5)',cursor:'pointer',letterSpacing:'0.02em',fontFamily:'inherit',whiteSpace:'nowrap',flexShrink:0}}>
+                ⌘K
+              </button>
             </div>
             {TOP_NAV.map(n => (
               <button key={n.id} onClick={()=>handleNav(n.id)}
