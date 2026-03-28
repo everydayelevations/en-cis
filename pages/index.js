@@ -18828,186 +18828,44 @@ Written out and ready. First 2-3 words carry everything.
 const TREND_MONITOR_KEY = 'encis_trend_monitor'; // base key — appended with clientId inside component
 const TREND_MONITOR_DATE_KEY = 'encis_trend_monitor_date'; // base key — appended with clientId inside component
 
-const TREND_MONITOR_QUERIES = {
-  HR_Creator: (today, creatorName='the creator') => `Search for: viral HR manager workplace story TikTok Instagram this week ${today}
+// ── Stage 1: Perplexity query — find what's trending this week in this niche ──
+// Asks for patterns and themes, not one specific viral post (more reliable)
+const TREND_SEARCH_PROMPT = (niche, today) => {
+  const base = niche.query
+    ? niche.query + ' — week of ' + today
+    : 'viral ' + niche.label + ' content creators TikTok Instagram this week ' + today;
 
-Find a REAL post from this week (not older) by an HR professional or people manager that went viral on TikTok, Instagram Reels, or LinkedIn. The content should be a raw, real workplace story — not career tips or corporate advice.
+  return base + '''
 
-Examples of the type of content that goes viral in this niche:
-- "I had to fire someone today and here's what nobody tells you"
-- "What actually happens when HR gets a complaint"
-- "The meeting that changed how I manage people"
+Search for what content creators in this niche are posting this week that is getting strong engagement. Look for:
+- What topics or themes are performing well right now
+- What hook styles or angles are resonating (raw confession, hot take, story-led, data-backed)
+- Any emerging stories, news, or moments in this niche driving content
 
-Return ONLY this format with REAL information — if you cannot find a real post from this week, say NO_RESULTS:
-ACCOUNT: [real creator handle — e.g. @hrwithamy or full name]
-PLATFORM: [TikTok / Instagram / LinkedIn]
-HOOK: [the exact first line or title of the actual post]
-VIEWS: [real number or engagement metric if available — e.g. "2.4M views" or "trending"]
-WHY: [one sentence — the specific psychological trigger that made this perform]
-STEAL: [one specific hook ${creatorName} should post this week — written out in full, not a description]`,
-
-  RealEstate_Colorado: (today, creatorName='the creator') => `Search for: viral real estate agent TikTok Instagram Reels this week ${today} housing market
-
-Find a REAL post from this week by a real estate agent or mortgage professional that went viral. Look for content about market reality, buyer/seller mistakes, or what agents won't tell you — not just market updates.
-
-Examples of what goes viral:
-- "I just watched a buyer lose a house because of this one thing"
-- "What no one tells you about the inspection period"
-- "VA loan secrets most agents don't know"
-
-Return ONLY this format — if no real post found this week, say NO_RESULTS:
-ACCOUNT: [real creator handle]
-PLATFORM: [TikTok / Instagram / YouTube]
-HOOK: [exact first line or title of the actual post]
-VIEWS: [real engagement number if available]
-WHY: [one sentence — specific psychological trigger]
-STEAL: [one complete hook ${creatorName} should post this week — written out in full]`,
-
-  Veteran_Creator: (today, creatorName='the creator') => `Search for: viral veteran military content creator TikTok Instagram this week ${today} post-service identity discipline
-
-Find a REAL post from this week by a veteran creator that went viral. Look for content about post-military identity, discipline applied to civilian life, or what service taught them — not recruitment or gear content.
-
-Examples:
-- "The military habit I still can't shake 5 years later"
-- "What nobody tells you about leaving the military"
-- "The biggest lie about veteran transition"
-
-Return ONLY this format — if no real post found this week, say NO_RESULTS:
-ACCOUNT: [real creator handle]
-PLATFORM: [TikTok / Instagram / YouTube]
-HOOK: [exact first line or title of the actual post]
-VIEWS: [real engagement number if available]
-WHY: [one sentence — specific psychological trigger]
-STEAL: [one complete hook ${creatorName} should post this week — written out in full]`,
-
-  Endurance_Athlete: (today, creatorName='the creator') => `Search for: viral trail running ultramarathon endurance athlete TikTok Instagram this week ${today}
-
-Find a REAL post from this week by a trail runner, ultramarathon athlete, or endurance creator that went viral. Look for content about training reality, race prep, training while working full-time, or the mental side — not gear reviews or highlights.
-
-Examples:
-- "What training for a 50K actually looks like at 5am"
-- "I DNF'd my race. Here's what I learned."
-- "Why I train when I don't feel like it"
-
-Return ONLY this format — if no real post found this week, say NO_RESULTS:
-ACCOUNT: [real creator handle]
-PLATFORM: [TikTok / Instagram / YouTube / Strava community]
-HOOK: [exact first line or title]
-VIEWS: [real engagement if available]
-WHY: [one sentence — specific psychological trigger]
-STEAL: [one complete hook ${creatorName} should post this week — written out in full]`,
-
-  Fatherhood_Family: (today, creatorName='the creator') => `Search for: viral dad creator fatherhood parenting TikTok Instagram this week ${today}
-
-Find a REAL post from this week by a dad creator or fatherhood voice that went viral. Look for honest, unfiltered content about fatherhood — the hard moments, what raising kids actually costs you, the weight of being the provider — not parenting advice or family vlogs.
-
-Examples:
-- "The moment I realized I was becoming my dad"
-- "What I'm actually teaching my son by going to work every day"
-- "Nobody told me fatherhood would feel like this"
-
-Return ONLY this format — if no real post found, say NO_RESULTS:
-ACCOUNT: [real creator handle]
-PLATFORM: [TikTok / Instagram / YouTube]
-HOOK: [exact first line or title]
-VIEWS: [real engagement if available]
-WHY: [one sentence — specific psychological trigger]
-STEAL: [one complete hook ${creatorName} should post this week — written out in full]`,
-
-  Mindset_Discipline: (today, creatorName='the creator') => `Search for: viral discipline accountability mindset creator TikTok Instagram this week ${today} working adults
-
-Find a REAL post from this week by a mindset or discipline creator aimed at working adults that went viral. Look for content about doing hard things, showing up consistently, accountability — NOT hustle culture or morning routine hacks.
-
-Examples:
-- "You don't lack motivation. You lack standards."
-- "The difference between people who change and people who don't"
-- "What discipline actually looks like when life is full"
-
-Return ONLY this format — if no real post found, say NO_RESULTS:
-ACCOUNT: [real creator handle]
-PLATFORM: [TikTok / Instagram / YouTube]
-HOOK: [exact first line or title]
-VIEWS: [real engagement if available]
-WHY: [one sentence — specific psychological trigger]
-STEAL: [one complete hook ${creatorName} should post this week — written out in full]`,
-
-  Everyday_Wins: (today, creatorName='the creator') => `Search for: viral underdog regular person transformation story TikTok Instagram this week ${today}
-
-Find a REAL post from this week that celebrates an ordinary person doing something extraordinary — not a celebrity, not an influencer with 1M+ followers already. Look for content about regular people winning, small victories that compound, working parents grinding, first-generation builders.
-
-Examples:
-- "I worked the overnight shift and still showed up to coach my kid's game"
-- "Nobody clapped when I started. That's fine."
-- "What 5 years of showing up with no audience taught me"
-
-Return ONLY this format — if no real post found, say NO_RESULTS:
-ACCOUNT: [real creator handle]
-PLATFORM: [TikTok / Instagram / YouTube]
-HOOK: [exact first line or title]
-VIEWS: [real engagement if available]
-WHY: [one sentence — specific psychological trigger]
-STEAL: [one complete hook ${creatorName} should post this week — written out in full]`,
-
-  Health_Wellness_Pro: (today, creatorName='the creator') => `Search for: viral health wellness longevity working professional TikTok Instagram this week ${today} over 35
-
-Find a REAL post from this week by a health, wellness, or longevity creator targeting professionals in their 30s-40s that went viral. Look for content about training recovery, sleep, mental health for men who don't talk about it, the long game of health — not 6-pack aesthetics.
-
-Examples:
-- "The reason you're always tired has nothing to do with sleep"
-- "What I stopped doing at 37 that changed everything"
-- "Training while working full-time actually looks like this"
-
-Return ONLY this format — if no real post found, say NO_RESULTS:
-ACCOUNT: [real creator handle]
-PLATFORM: [TikTok / Instagram / YouTube]
-HOOK: [exact first line or title]
-VIEWS: [real engagement if available]
-WHY: [one sentence — specific psychological trigger]
-STEAL: [one complete hook ${creatorName} should post this week — written out in full]`,
+Return a factual summary in this format:
+TREND: [the dominant theme or topic driving engagement this week — 1-2 sentences]
+HOOK_STYLE: [the hook format winning right now — e.g. "confession-style opening", "contrarian take", "before/after story"]
+EXAMPLE: [one real example post or creator doing this well — handle or description]
+CONTEXT: [why this is resonating with this audience right now — 1 sentence]''';
 };
 
-// TREND_NICHES is now dynamic - pulled from active client profile
-// Falls back to Jason's default niches if client has none set
-const getClientTrendNiches = (client) => {
-  if (client?.trendNiches && client.trendNiches.length > 0) return client.trendNiches;
-  return DEFAULT_CLIENT.trendNiches;
+// ── Stage 2: Claude prompt — write hooks from the trend signal ──────────────
+const TREND_HOOKS_PROMPT = (trendSignal, niche, voice, clientName, clientRole) => {
+  const NL = '\n';
+  return voice + NL + NL +
+    'You are a content strategist. A trend scanner just found what is winning in the ' + niche + ' niche this week.' + NL + NL +
+    'TREND SIGNAL:' + NL + trendSignal + NL + NL +
+    'CREATOR: ' + clientName + NL +
+    'ROLE: ' + clientRole + NL + NL +
+    'Using this exact trend signal and this creator voice, write:' + NL + NL +
+    '1. WHY: One sentence explaining why this trend is working psychologically right now.' + NL +
+    '2. THREE HOOKS: Three complete, specific, ready-to-post hooks for this creator.' + NL +
+    '   - Hook 1: Direct personal story angle' + NL +
+    '   - Hook 2: Bold take or contrarian angle' + NL +
+    '   - Hook 3: The sharpest, most scroll-stopping version' + NL + NL +
+    'Return ONLY valid JSON — no markdown, no explanation:' + NL +
+    '{"why":"...","hooks":["hook one","hook two","hook three"]}';
 };
-
-const TREND_MONITOR_PROMPT = (niche, client) => {
-  const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
-  const name = client?.name || 'the creator';
-  const role = client?.role || 'content creator';
-
-  // Custom niche query from client profile — use directly as the search
-  if (niche.query) {
-    return `Search for: ${niche.query} — week of ${today}
-
-Find a REAL post from this week that matches this search. Return only real, verifiable content — if you cannot confirm a real post from this week, say NO_RESULTS.
-
-Return ONLY this format:
-ACCOUNT: [real creator handle or name]
-PLATFORM: [TikTok / Instagram / YouTube / LinkedIn / X]
-HOOK: [exact first line or title of the actual post]
-VIEWS: [real engagement number if available, or "trending"]
-WHY: [one sentence — the specific psychological trigger that made this perform]
-STEAL: [one complete, specific hook ${name} (${role}) should post this week based on this trend — write the full hook, not a description of it]`;
-  }
-
-  // Fallback to the static query library
-  const queryFn = TREND_MONITOR_QUERIES[niche.id];
-  if (queryFn) return queryFn(today, name);
-
-  return `Search for viral content this week: ${niche.label} creator TikTok Instagram ${today}
-
-Find a real post from this week. Return ONLY:
-ACCOUNT: [real handle]
-PLATFORM: [platform]
-HOOK: [exact first line]
-VIEWS: [engagement]
-WHY: [one sentence — why it worked]
-STEAL: [one complete hook ${name} should post this week]`;
-};
-
 
 function TrendNicheEditor({ client }) {
   const [, saveClients] = useClients();
@@ -19153,57 +19011,72 @@ function TrendMonitorAgent() {
     if (hoursSince > 20) runScan();
   }, [autoRunEnabled]);
 
-  const parseAlert = (raw, angle) => {
-    // If Perplexity couldn't find a real post this week, skip it
-    if (!raw || raw.includes('NO_RESULTS') || raw.length < 30) return null;
-
-    const lines = raw.split('\n').filter(l => l.trim());
-    const get = (key) => {
-      const line = lines.find(l => l.toUpperCase().startsWith(key.toUpperCase() + ':'));
-      return line ? line.slice(key.length + 1).trim() : '';
-    };
-
-    const account = get('ACCOUNT');
-    const hook = get('HOOK');
-
-    // If we got back something that looks like a placeholder or template, skip it
-    if (!account || account.includes('[') || !hook || hook.includes('[')) return null;
-
-    return {
-      id: Date.now() + Math.random(),
-      angle,
-      account,
-      platform: get('PLATFORM'),
-      hook,
-      why: get('WHY'),
-      steal: get('STEAL'),
-      views: get('VIEWS'),
-      scannedAt: Date.now(),
-      seen: false,
-    };
-  };
-
+  // Stage 1: Perplexity finds what's trending → Stage 2: Claude writes hooks
   const runScan = async () => {
     setLoading(true); setProgress(0);
     const newAlerts = [];
     const niches = getClientTrendNiches(activeClient);
+    const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+    const voice = getVoice(activeClient);
+    const clientName = activeClient?.name || 'the creator';
+    const clientRole = activeClient?.role || 'content creator';
+
     for (let i = 0; i < niches.length; i++) {
       const niche = niches[i];
       setScanning(niche.label);
-      setProgress(Math.round((i / niches.length) * 100));
+      setProgress(Math.round((i / niches.length) * 90));
       try {
-        const res = await perp(TREND_MONITOR_PROMPT(niche, activeClient));
-        const parsed = parseAlert(res, niche.label);
-        if (parsed) newAlerts.push(parsed);
-        await new Promise(r => setTimeout(r, 600));
+        // Stage 1: Perplexity — what's trending in this niche this week
+        const trendSignal = await perp(TREND_SEARCH_PROMPT(niche, today));
+
+        // Skip if Perplexity returned nothing useful
+        if (!trendSignal || trendSignal.length < 40 ||
+            trendSignal.toLowerCase().includes('no results') ||
+            trendSignal.toLowerCase().includes('api error') ||
+            trendSignal.toLowerCase().includes('network error')) {
+          await new Promise(r => setTimeout(r, 400));
+          continue;
+        }
+
+        // Stage 2: Claude — write hooks from trend signal in client voice
+        const hookRaw = await ai(TREND_HOOKS_PROMPT(trendSignal, niche.label, voice, clientName, clientRole));
+        let hookData = null;
+        try {
+          const clean = hookRaw.replace(/```json|```/g, '').trim();
+          hookData = JSON.parse(clean);
+        } catch { hookData = null; }
+
+        // Build the alert — trendSignal is the reference, hooks are the output
+        if (hookData && hookData.hooks && hookData.hooks.length > 0) {
+          newAlerts.push({
+            id: Date.now() + Math.random(),
+            angle: niche.label,
+            trendSignal,
+            why: hookData.why || '',
+            hooks: hookData.hooks || [],
+            steal: hookData.hooks[2] || hookData.hooks[0] || '',
+            scannedAt: Date.now(),
+            seen: false,
+          });
+        }
+
+        await new Promise(r => setTimeout(r, 500));
       } catch(e) { console.error('Trend scan error', niche.label, e); }
     }
+
     const timestamp = Date.now().toString();
     setAlerts(newAlerts);
-    setLastRun(new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}));
+    setLastRun(new Date().toLocaleString('en-US', {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'}));
     setProgress(100); setScanning(null);
     try { localStorage.setItem(trendKey, JSON.stringify(newAlerts)); localStorage.setItem(trendDateKey, timestamp); } catch {}
-    try { await supabase.from('agent_runs').insert([{ tool_name: 'trend_monitor', input_data: { niches: TREND_NICHES.map(n => n.label) }, output_text: JSON.stringify(newAlerts.map(a => ({angle:a.angle,hook:a.hook,steal:a.steal}))), platform: 'multi' }]); } catch {}
+    try {
+      await supabase.from('agent_runs').insert([{
+        tool_name: 'trend_monitor',
+        input_data: { niches: niches.map(n => n.label) },
+        output_text: JSON.stringify(newAlerts.map(a => ({ angle: a.angle, why: a.why, hooks: a.hooks }))),
+        platform: 'multi',
+      }]);
+    } catch {}
     setLoading(false);
   };
 
@@ -19278,43 +19151,52 @@ function TrendMonitorAgent() {
       {!loading && alerts.length > 0 && (
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
           {alerts.map(alert => (
-            <div key={alert.id} style={{background:'#FFFFFF',border:`1px solid ${!alert.seen?'#C7D2FE':'#E5E7EB'}`,borderLeft:`4px solid ${angleColors[alert.angle]||'#2563EB'}`,borderRadius:10,padding:'18px 20px',boxShadow:!alert.seen?'0 2px 8px rgba(37,99,235,0.06)':'none'}}>
+            <div key={alert.id} style={{background:'#FFFFFF',border:'1px solid ' + (!alert.seen?'#C7D2FE':'#E8E6E1'),borderLeft:'4px solid ' + (angleColors[alert.angle]||'#2563EB'),borderRadius:10,padding:'18px 20px',boxShadow:!alert.seen?'0 2px 8px rgba(37,99,235,0.06)':'none'}}>
 
-              {/* Top row */}
+              {/* Header row */}
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12,flexWrap:'wrap',gap:6}}>
                 <div style={{display:'flex',alignItems:'center',gap:8}}>
                   <span style={{background:angleColors[alert.angle]||'#2563EB',color:'#fff',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700,textTransform:'uppercase'}}>{alert.angle}</span>
                   {!alert.seen && <span style={{background:'#EEF2FF',color:'#2563EB',borderRadius:10,padding:'1px 6px',fontSize:9,fontWeight:800}}>NEW</span>}
                 </div>
-                <div style={{display:'flex',alignItems:'center',gap:8}}>
-                  {alert.views && <span style={{fontSize:11,color:'#10B981',fontWeight:700}}>{alert.views}</span>}
-                  {alert.platform && <span style={{fontSize:11,color:'#9CA3AF',background:'#F3F4F6',padding:'2px 7px',borderRadius:4}}>{alert.platform}</span>}
-                  {alert.account && <span style={{fontSize:11,color:'#374151',fontWeight:600}}>{alert.account}</span>}
-                </div>
+                <span style={{fontSize:10,color:'#9CA3AF'}}>{new Date(alert.scannedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>
               </div>
 
-              {/* Real post hook */}
-              {alert.hook && (
-                <div style={{marginBottom:10}}>
-                  <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#9CA3AF',marginBottom:4}}>Real hook that performed</div>
-                  <div style={{background:'#F9FAFB',borderRadius:6,padding:'10px 12px',fontSize:13,color:'#111827',lineHeight:1.6,fontStyle:'italic',borderLeft:'2px solid #E5E7EB'}}>
-                    "{alert.hook}"
+              {/* Trend signal */}
+              {alert.trendSignal && (
+                <div style={{marginBottom:12}}>
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#9CA3AF',marginBottom:6}}>What is trending this week</div>
+                  <div style={{background:'#F9FAFB',borderRadius:6,padding:'10px 12px',fontSize:12,color:'#374151',lineHeight:1.7,borderLeft:'2px solid #E5E7EB',whiteSpace:'pre-wrap'}}>
+                    {alert.trendSignal.slice(0, 400)}{alert.trendSignal.length > 400 ? '...' : ''}
                   </div>
                 </div>
               )}
 
-              {/* Why */}
+              {/* Why it's working */}
               {alert.why && (
-                <div style={{fontSize:12,color:'#6B7280',lineHeight:1.5,marginBottom:12}}>
-                  <strong style={{color:'#374151'}}>Why it worked: </strong>{alert.why}
+                <div style={{fontSize:12,color:'#6B7280',lineHeight:1.6,marginBottom:12,padding:'8px 12px',background:'#FFFBEB',borderRadius:6,border:'1px solid #FEF3C7'}}>
+                  <strong style={{color:'#92400E'}}>Why it works: </strong>{alert.why}
                 </div>
               )}
 
-              {/* STEAL — the hero */}
-              {alert.steal && (
-                <div style={{background:'#EFF6FF',border:'1px solid #BFDBFE',borderRadius:8,padding:'12px 14px',marginBottom:12}}>
-                  <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#2563EB',marginBottom:6}}>Your hook to post this week</div>
-                  <div style={{fontSize:14,color:'#1D4ED8',fontWeight:700,lineHeight:1.5}}>{alert.steal}</div>
+              {/* 3 hooks written by Claude in client voice */}
+              {alert.hooks && alert.hooks.length > 0 && (
+                <div style={{marginBottom:12}}>
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#2563EB',marginBottom:8}}>Your hooks — written in your voice</div>
+                  <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                    {alert.hooks.map((hook, hi) => (
+                      <div key={hi} style={{background:hi===2?'#EFF6FF':'#F8F9FF',border:'1px solid ' + (hi===2?'#BFDBFE':'#E5E7EB'),borderRadius:7,padding:'10px 14px',display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:10}}>
+                        <div style={{flex:1}}>
+                          {hi===2 && <div style={{fontSize:9,fontWeight:700,color:'#2563EB',letterSpacing:'0.06em',textTransform:'uppercase',marginBottom:3}}>Sharpest version</div>}
+                          <div style={{fontSize:13,fontWeight:hi===2?700:500,color:hi===2?'#1D4ED8':'#374151',lineHeight:1.55}}>{hook}</div>
+                        </div>
+                        <button onClick={() => navigator.clipboard.writeText(hook)}
+                          style={{background:'none',border:'1px solid #E5E7EB',borderRadius:5,padding:'3px 8px',fontSize:10,color:'#6B7280',cursor:'pointer',flexShrink:0,fontFamily:'inherit'}}>
+                          Copy
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -26563,15 +26445,15 @@ export default function App() {
 
           /* ── MOBILE RESPONSIVE ── */
           @media (max-width: 640px) {
-            /* Nav scrolls horizontally - never wraps */
-            .ea-nav-inner { gap: 0 !important; }
-            .ea-nav-btn { padding: 14px 10px !important; font-size: 11px !important; }
-            .ea-subnav { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            /* Hide top nav on mobile — replaced by bottom tab bar */
+            .ea-top-nav { display: none !important; }
+            /* Subnav becomes the top bar on mobile */
+            .ea-subnav { overflow-x: auto; -webkit-overflow-scrolling: touch; position: sticky; top: 0; z-index: 90; }
             .ea-subnav::-webkit-scrollbar { display: none; }
             .ea-subnav-inner { gap: 0 !important; padding-bottom: 1px; }
-            .ea-subnav-btn { padding: 8px 12px !important; font-size: 10px !important; flex-shrink: 0; }
-            /* Main content full-width */
-            .ea-main { padding: 1rem 12px !important; background: #F8FAFC !important; }
+            .ea-subnav-btn { padding: 10px 14px !important; font-size: 12px !important; flex-shrink: 0; }
+            /* Main content — clear bottom tab bar */
+            .ea-main { padding: 1rem 12px 90px !important; background: #F8FAFC !important; }
             /* Cards tighter on mobile */
             .ea-card { padding: 1rem !important; }
             /* Grids collapse to single column */
@@ -26591,9 +26473,62 @@ export default function App() {
             input, textarea, select { font-size: 16px !important; }
             /* Execution hub 2 col */
             .ea-exec-grid { grid-template-columns: 1fr 1fr !important; }
+            /* Bottom tab bar */
+            .ea-bottom-nav {
+              display: flex !important;
+              position: fixed;
+              bottom: 0; left: 0; right: 0;
+              background: rgba(10,22,40,0.97);
+              border-top: 1px solid rgba(0,194,255,0.12);
+              padding: 8px 0 env(safe-area-inset-bottom, 8px);
+              z-index: 200;
+              backdrop-filter: blur(20px);
+            }
+            .ea-bottom-nav-item {
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 3px;
+              padding: 4px 0;
+              cursor: pointer;
+              background: none;
+              border: none;
+              color: rgba(255,255,255,0.4);
+              font-family: 'DM Sans', sans-serif;
+            }
+            .ea-bottom-nav-item.active { color: #00C2FF; }
+            .ea-bottom-nav-item .ea-tab-label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+            /* Floating create button */
+            .ea-fab {
+              display: flex !important;
+              position: fixed;
+              bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+              right: 16px;
+              width: 52px; height: 52px;
+              background: #2563EB;
+              border-radius: 50%;
+              align-items: center;
+              justify-content: center;
+              font-size: 24px;
+              color: #fff;
+              border: none;
+              box-shadow: 0 4px 20px rgba(37,99,235,0.5);
+              cursor: pointer;
+              z-index: 199;
+              font-family: 'DM Sans', sans-serif;
+            }
+          }
+          @media (min-width: 641px) {
+            /* Desktop: hide mobile-only elements */
+            .ea-bottom-nav { display: none !important; }
+            .ea-fab { display: none !important; }
+            /* Show top nav on desktop */
+            .ea-top-nav { display: block !important; }
           }
           @media (max-width: 380px) {
-            .ea-nav-btn { padding: 12px 8px !important; font-size: 10px !important; }
+            .ea-bottom-nav-item .ea-tab-label { font-size: 10px; }
             .ea-kpi-grid { grid-template-columns: 1fr 1fr !important; }
           }
         `}</style>
@@ -26601,7 +26536,7 @@ export default function App() {
 
       <div style={{minHeight:'100vh',background:'#F7F9FC',color:'#111827',backgroundImage:'none'}}>
         {/* TOP NAV */}
-        <nav style={{
+        <nav className="ea-top-nav" style={{
             background: 'rgba(15,25,35,0.96)',
             borderBottom: '1px solid rgba(0,194,255,0.08)',
             padding: '0 16px',
@@ -26734,6 +26669,30 @@ export default function App() {
             )
           }
         </main>
+
+        {/* ── MOBILE BOTTOM TAB BAR ── */}
+        <nav className="ea-bottom-nav" style={{display:'none'}}>
+          {[
+            {id:'home',    label:'Studio'},
+            {id:'create',  label:'Create'},
+            {id:'library', label:'Library'},
+            {id:'brain',   label:'Brain'},
+            {id:'agents',  label:'Agents'},
+          ].map(tab => (
+            <button key={tab.id}
+              className={'ea-bottom-nav-item' + (nav===tab.id?' active':'')}
+              onClick={() => handleNav(tab.id)}>
+              <span className="ea-tab-label">{tab.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        {/* ── MOBILE FLOATING CREATE BUTTON ── */}
+        <button className="ea-fab" style={{display:'none'}}
+          onClick={() => setCmdkOpen(true)}
+          title="Quick Create">
+          +
+        </button>
       </div>
     </ErrorBoundary>
   );
