@@ -6323,6 +6323,7 @@ const SUB_NAV = {
     { id:'compintel',    label:'Competitor Intel' },
     { id:'clientbrief',   label:'Client Brief' },
     { id:'onboardplan',  label:'30-Day Plan' },
+    { id:'clientportal',  label:'Client Portal' },
   ],
   insights: [
     { id:'growth',       label:'Growth Dashboard' },
@@ -26336,6 +26337,7 @@ const COMPONENT_MAP = {
   language: LanguageAdapter,
   linkedin: LinkedInEngine,
   onboardplan: OnboardingContentPlan,
+  clientportal: ClientPortalGenerator,
 };
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -27481,6 +27483,362 @@ function OnboardingContentPlan() {
 }
 
 
+// ════════════════════════════════════════════════════════════════════════════
+// CLIENT PORTAL PAGE
+// Standalone read-only page clients bookmark — shows their content, approvals,
+// reports. Renders at #portal=ENCODED_PAYLOAD, no login required.
+// ════════════════════════════════════════════════════════════════════════════
+function ClientPortalPage({ encodedPayload, onBack }) {
+  const [approvedContent, setApprovedContent] = useState([]);
+  const [pendingContent, setPendingContent] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('pending');
+  const [copied, setCopied] = useState(null);
+
+  const data = (() => {
+    try { return JSON.parse(decodeURIComponent(escape(atob(encodedPayload)))); }
+    catch { return null; }
+  })();
+
+  useEffect(() => {
+    if (!data?.clientId) { setLoading(false); return; }
+    loadContent();
+  }, []);
+
+  const loadContent = async () => {
+    try {
+      // Load approved content from Supabase
+      const { data: rows } = await supabase
+        .from('saved_content')
+        .select('id, title, type, platform, angle, content_preview, created_at, notes')
+        .eq('client_id', data.clientId)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      const BAD = ['You are ', 'Write in ', 'CREATOR:', 'Generate', 'STORY BANK'];
+      const clean = (rows || []).filter(i => {
+        const t = i.title || '';
+        return t.length > 3 && !BAD.some(p => t.startsWith(p)) && i.notes !== 'auto-saved';
+      });
+      setApprovedContent(clean);
+
+      // Load pending items from approval queue stored in portal payload
+      const pendingItems = data.pendingQueue || [];
+      setPendingContent(pendingItems);
+    } catch(e) {
+      console.error('Portal load error:', e);
+    }
+    setLoading(false);
+  };
+
+  if (!data) return (
+    <div style={{minHeight:'100vh',background:'#F8FAFC',display:'flex',alignItems:'center',justifyContent:'center',padding:24,fontFamily:'"DM Sans",-apple-system,sans-serif'}}>
+      <div style={{textAlign:'center'}}>
+        <div style={{fontSize:16,fontWeight:700,color:'#111827',marginBottom:8}}>Invalid portal link</div>
+        <div style={{color:'#6B7280',fontSize:13}}>This link may have expired or been corrupted.</div>
+      </div>
+    </div>
+  );
+
+  const agencyName = data.agency || '8th Ascent';
+  const clientName = data.clientName || 'Client';
+  const accentColor = data.accentColor || '#2563EB';
+
+  const platformColors = {Instagram:'#E1306C',TikTok:'#000',LinkedIn:'#0A66C2',YouTube:'#FF0000',X:'#000',Facebook:'#1877F2',Email:'#059669'};
+  const isWinner = (item) => item.notes && (item.notes.includes('winner') || item.notes.includes('outperformed'));
+
+  const thisWeekCutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const thisWeek = approvedContent.filter(i => i.created_at > thisWeekCutoff);
+
+  const tabs = [
+    { id:'pending',  label:'Needs Review',   count: pendingContent.length },
+    { id:'approved', label:'Approved',        count: approvedContent.length },
+    { id:'thisweek', label:'This Week',       count: thisWeek.length },
+  ];
+
+  return (
+    <div style={{minHeight:'100vh',background:'#F8FAFC',fontFamily:'"DM Sans",-apple-system,sans-serif'}}>
+      {/* Header */}
+      <div style={{background:'#0A1628',color:'#fff',padding:'0 16px'}}>
+        <div style={{maxWidth:720,margin:'0 auto',padding:'20px 0'}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
+            <div>
+              <div style={{fontSize:10,fontWeight:700,letterSpacing:'3px',textTransform:'uppercase',color:accentColor,marginBottom:6}}>{agencyName}</div>
+              <div style={{fontSize:20,fontWeight:900,letterSpacing:'-0.03em',color:'#fff'}}>{clientName}</div>
+              <div style={{fontSize:12,color:'rgba(255,255,255,0.5)',marginTop:2}}>Content Portal</div>
+            </div>
+            {data.logoUrl && (
+              <img src={data.logoUrl} alt={agencyName} style={{height:36,objectFit:'contain',filter:'brightness(0) invert(1)',opacity:0.8}}/>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Stats strip */}
+      <div style={{background:'#fff',borderBottom:'1px solid #E8E6E1'}}>
+        <div style={{maxWidth:720,margin:'0 auto',padding:'0 16px',display:'flex',gap:0}}>
+          {tabs.map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+              style={{background:'none',border:'none',borderBottom:'2px solid '+(activeTab===tab.id?accentColor:'transparent'),padding:'14px 20px',cursor:'pointer',fontFamily:'inherit',color:activeTab===tab.id?accentColor:'#6B7280',fontWeight:activeTab===tab.id?700:500,fontSize:13,display:'flex',alignItems:'center',gap:6,flexShrink:0}}>
+              {tab.label}
+              {tab.count > 0 && (
+                <span style={{background:tab.id==='pending'?'#FEF3C7':accentColor+'1a',color:tab.id==='pending'?'#92400E':accentColor,borderRadius:10,padding:'1px 7px',fontSize:10,fontWeight:800}}>
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Body */}
+      <div style={{maxWidth:720,margin:'0 auto',padding:'24px 16px 80px'}}>
+        {loading && (
+          <div style={{textAlign:'center',padding:'3rem',color:'#9CA3AF',fontSize:13}}>Loading your content...</div>
+        )}
+
+        {/* Pending review tab */}
+        {!loading && activeTab === 'pending' && (
+          <div>
+            {pendingContent.length === 0 ? (
+              <div style={{textAlign:'center',padding:'3rem 1rem',background:'#fff',borderRadius:12,border:'1px solid #E8E6E1'}}>
+                <div style={{fontSize:15,fontWeight:700,color:'#111827',marginBottom:6}}>No content pending review</div>
+                <div style={{color:'#9CA3AF',fontSize:13}}>Your agency will send new content here when it is ready for your approval.</div>
+              </div>
+            ) : (
+              <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                {pendingContent.map((item, i) => (
+                  <div key={i} style={{background:'#fff',border:'1px solid #FDE68A',borderLeft:'4px solid #F59E0B',borderRadius:10,padding:'16px'}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8,flexWrap:'wrap'}}>
+                      <span style={{background:'#FEF3C7',color:'#92400E',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700}}>NEEDS REVIEW</span>
+                      <span style={{background:'#F3F4F6',color:'#374151',borderRadius:4,padding:'2px 8px',fontSize:10}}>{item.type}</span>
+                      <span style={{background:'#F3F4F6',color:'#374151',borderRadius:4,padding:'2px 8px',fontSize:10}}>{item.platform}</span>
+                    </div>
+                    <div style={{fontSize:14,fontWeight:700,color:'#111827',marginBottom:6}}>{item.topic}</div>
+                    <div style={{fontSize:12,color:'#6B7280',lineHeight:1.6,marginBottom:10,maxHeight:80,overflow:'hidden'}}>{item.content?.slice(0,200)}{item.content?.length > 200 ? '...' : ''}</div>
+                    {item.approvalLink && (
+                      <a href={item.approvalLink}
+                        style={{display:'inline-block',background:accentColor,color:'#fff',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,textDecoration:'none'}}>
+                        Review + Approve →
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Approved content tab */}
+        {!loading && activeTab === 'approved' && (
+          <div>
+            {approvedContent.length === 0 ? (
+              <div style={{textAlign:'center',padding:'3rem 1rem',background:'#fff',borderRadius:12,border:'1px solid #E8E6E1'}}>
+                <div style={{fontSize:15,fontWeight:700,color:'#111827',marginBottom:6}}>No approved content yet</div>
+                <div style={{color:'#9CA3AF',fontSize:13}}>Content you approve will appear here.</div>
+              </div>
+            ) : (
+              <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                {approvedContent.map((item, i) => (
+                  <div key={i} style={{background:'#fff',border:'1px solid '+(isWinner(item)?'rgba(16,185,129,0.3)':'#E8E6E1'),borderLeft:'4px solid '+(isWinner(item)?'#10B981':accentColor),borderRadius:10,padding:'14px 16px',display:'flex',alignItems:'flex-start',gap:12}}>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:5,flexWrap:'wrap'}}>
+                        {item.platform && <span style={{background:platformColors[item.platform]||'#6B7280',color:'#fff',borderRadius:4,padding:'1px 7px',fontSize:9,fontWeight:700}}>{item.platform}</span>}
+                        {item.type && <span style={{background:'#F3F4F6',color:'#374151',borderRadius:4,padding:'1px 7px',fontSize:9}}>{item.type}</span>}
+                        {isWinner(item) && <span style={{background:'rgba(16,185,129,0.1)',color:'#10B981',borderRadius:4,padding:'1px 7px',fontSize:9,fontWeight:700}}>Top Performer</span>}
+                      </div>
+                      <div style={{fontSize:13,fontWeight:600,color:'#111827',marginBottom:4,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.title || 'Untitled'}</div>
+                      <div style={{fontSize:11,color:'#9CA3AF'}}>
+                        {new Date(item.created_at).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'})}
+                        {item.angle && ' · ' + item.angle}
+                      </div>
+                    </div>
+                    <button onClick={() => {
+                      navigator.clipboard.writeText(item.content_preview || item.title || '');
+                      setCopied(item.id);
+                      setTimeout(() => setCopied(null), 2000);
+                    }}
+                      style={{background:'#F3F4F6',color:'#374151',border:'none',borderRadius:6,padding:'6px 10px',fontSize:11,fontWeight:600,cursor:'pointer',flexShrink:0,fontFamily:'inherit'}}>
+                      {copied === item.id ? 'Copied ✓' : 'Copy'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* This week tab */}
+        {!loading && activeTab === 'thisweek' && (
+          <div>
+            {thisWeek.length === 0 ? (
+              <div style={{textAlign:'center',padding:'3rem 1rem',background:'#fff',borderRadius:12,border:'1px solid #E8E6E1'}}>
+                <div style={{fontSize:15,fontWeight:700,color:'#111827',marginBottom:6}}>No content this week yet</div>
+                <div style={{color:'#9CA3AF',fontSize:13}}>Content created in the last 7 days will appear here.</div>
+              </div>
+            ) : (
+              <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                <div style={{fontSize:12,color:'#9CA3AF',marginBottom:4}}>{thisWeek.length} piece{thisWeek.length !== 1 ? 's' : ''} this week</div>
+                {thisWeek.map((item, i) => (
+                  <div key={i} style={{background:'#fff',border:'1px solid #E8E6E1',borderRadius:10,padding:'14px 16px'}}>
+                    <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:6,flexWrap:'wrap'}}>
+                      {item.platform && <span style={{background:platformColors[item.platform]||'#6B7280',color:'#fff',borderRadius:4,padding:'1px 7px',fontSize:9,fontWeight:700}}>{item.platform}</span>}
+                      {item.type && <span style={{background:'#F3F4F6',color:'#374151',borderRadius:4,padding:'1px 7px',fontSize:9}}>{item.type}</span>}
+                    </div>
+                    <div style={{fontSize:13,fontWeight:600,color:'#111827',marginBottom:3}}>{item.title || 'Untitled'}</div>
+                    {item.content_preview && (
+                      <div style={{fontSize:12,color:'#6B7280',lineHeight:1.6,marginTop:4}}>{item.content_preview.slice(0,120)}{item.content_preview.length > 120 ? '...' : ''}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div style={{background:'#fff',borderTop:'1px solid #E8E6E1',padding:'16px',textAlign:'center',position:'fixed',bottom:0,left:0,right:0}}>
+        <div style={{fontSize:11,color:'#9CA3AF'}}>Powered by <strong style={{color:'#374151'}}>{agencyName}</strong></div>
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// CLIENT PORTAL GENERATOR (in-app tool for agency to create portal links)
+// Lives in Agents nav — generates + copies the persistent portal URL
+// ════════════════════════════════════════════════════════════════════════════
+function ClientPortalGenerator() {
+  const [activeClient] = useActiveClient();
+  const [clients] = useClients();
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [portalLink, setPortalLink] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => { setSelectedClient(activeClient); }, [activeClient]);
+
+  const generatePortalLink = (client) => {
+    if (!client) return '';
+    try {
+      const agencyName = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.agencyName) ? wl.agencyName : '8th Ascent'; } catch { return '8th Ascent'; } })();
+      const accentColor = (() => { try { const wl = JSON.parse(localStorage.getItem('encis_whitelabel')||'null'); return (wl && wl.primaryColor) ? wl.primaryColor : '#2563EB'; } catch { return '#2563EB'; } })();
+
+      // Grab latest pending items from approval queue for this client
+      const queue = (() => { try { return JSON.parse(localStorage.getItem(APPROVAL_QUEUE_KEY)||'[]'); } catch { return []; } })();
+      const pending = queue
+        .filter(q => q.status === 'pending' && (q.client === client.name || q.clientId === client.id))
+        .slice(0, 10)
+        .map(q => ({
+          id: q.id,
+          topic: q.topic,
+          type: q.type,
+          platform: q.platform,
+          content: q.content?.slice(0, 300),
+          approvalLink: window.location.origin + window.location.pathname + '#approval=' + btoa(unescape(encodeURIComponent(JSON.stringify({
+            title: q.topic,
+            client: client.name,
+            content: q.content,
+            created: new Date().toISOString(),
+            agency: agencyName,
+          })))),
+        }));
+
+      const payload = JSON.stringify({
+        clientId: client.id || 'jason',
+        clientName: client.name,
+        agency: agencyName,
+        accentColor,
+        pendingQueue: pending,
+        generated: new Date().toISOString(),
+      });
+      const encoded = btoa(unescape(encodeURIComponent(payload)));
+      return window.location.origin + window.location.pathname + '#portal=' + encoded;
+    } catch(e) {
+      console.error('Portal link error:', e);
+      return '';
+    }
+  };
+
+  const handleGenerate = () => {
+    if (!selectedClient) return;
+    const link = generatePortalLink(selectedClient);
+    setPortalLink(link);
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20}}>
+        <div style={{width:3,height:28,background:'#6366F1',borderRadius:2,flexShrink:0}}/>
+        <div>
+          <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800,letterSpacing:'-0.02em'}}>Client Portal</h2>
+          <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Generate a permanent URL your client bookmarks. They see their approved content, pending approvals, and this week's posts — always live, no login required.</p>
+        </div>
+      </div>
+
+      <Card style={{marginBottom:16}}>
+        <SecLabel>Client</SecLabel>
+        <select value={selectedClient?.id || ''} onChange={e => { setSelectedClient(clients.find(c => c.id === e.target.value) || null); setPortalLink(''); setCopied(false); }}
+          style={{width:'100%',background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:8,padding:'10px 12px',color:'#111827',fontSize:16,fontFamily:'inherit',marginBottom:14}}>
+          {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+
+        <button onClick={handleGenerate} disabled={!selectedClient}
+          style={{width:'100%',background:!selectedClient?'#F3F4F6':'#6366F1',color:!selectedClient?'#9CA3AF':'#fff',border:'none',borderRadius:8,padding:'12px',fontWeight:800,fontSize:14,cursor:!selectedClient?'not-allowed':'pointer',fontFamily:'inherit'}}>
+          Generate + Copy Portal Link
+        </button>
+      </Card>
+
+      {portalLink && (
+        <div style={{background:'#F5F3FF',border:'1px solid #DDD6FE',borderRadius:10,padding:'16px',marginBottom:16}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#6366F1',marginBottom:8}}>
+            {copied ? 'Link copied to clipboard ✓' : 'Portal link generated'}
+          </div>
+          <div style={{fontSize:11,color:'#6B7280',wordBreak:'break-all',background:'#fff',borderRadius:6,padding:'8px 10px',border:'1px solid #E5E7EB',marginBottom:12,lineHeight:1.5}}>
+            {portalLink.slice(0, 100)}...
+          </div>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+            <button onClick={() => { navigator.clipboard.writeText(portalLink); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+              style={{background:'#6366F1',color:'#fff',border:'none',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit',flex:'1 1 auto'}}>
+              {copied ? 'Copied ✓' : 'Copy Link'}
+            </button>
+            <button onClick={() => window.open(portalLink, '_blank')}
+              style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit',flex:'1 1 auto'}}>
+              Preview Portal
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div style={{background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:10,padding:'16px'}}>
+        <div style={{fontSize:12,fontWeight:700,color:'#111827',marginBottom:10}}>What your client sees</div>
+        <div style={{display:'flex',flexDirection:'column',gap:8}}>
+          {[
+            ['Needs Review', 'Pending content from the Approval Queue with direct approve links'],
+            ['Approved', 'All approved content from their library — title, platform, type'],
+            ['This Week', 'Content created in the last 7 days'],
+          ].map(([title, desc]) => (
+            <div key={title} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
+              <div style={{width:6,height:6,borderRadius:'50%',background:'#6366F1',marginTop:5,flexShrink:0}}/>
+              <div>
+                <div style={{fontSize:12,fontWeight:700,color:'#111827'}}>{title}</div>
+                <div style={{fontSize:11,color:'#6B7280',marginTop:1}}>{desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{marginTop:12,padding:'10px 12px',background:'#EEF2FF',borderRadius:7,fontSize:11,color:'#4338CA'}}>
+          Regenerate the link anytime to refresh the pending queue. The approved content and this week tabs always show live data from Supabase.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 // ── Global Error Boundary - prevents white screen crashes ───────────────────
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -27539,6 +27897,17 @@ export default function App() {
   }
   if (reportPayload) {
     return <ReportPage encodedPayload={reportPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
+  }
+
+  const portalPayload = (() => {
+    try {
+      const hash = typeof window !== 'undefined' ? window.location.hash : '';
+      if (hash.startsWith('#portal=')) return hash.slice(8);
+    } catch {}
+    return null;
+  })();
+  if (portalPayload) {
+    return <ClientPortalPage encodedPayload={portalPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
   }
 
   // Register memory save function globally so all tools can log to it
