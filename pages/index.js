@@ -15022,10 +15022,14 @@ function IntelligenceDashboard({ setNav, setSub }) {
   const loadDashData = async () => {
     try {
       const clientId = activeClient?.id || 'jason';
-      const stored = localStorage.getItem('encis_trend_alerts');
+      // Load trend alerts for this client from their per-client trend cache
+      const clientTrendKey = TREND_MONITOR_KEY + '_' + clientId;
+      const stored = localStorage.getItem(clientTrendKey);
       if (stored) {
         const alerts = JSON.parse(stored);
         setTrendAlerts(Array.isArray(alerts) ? alerts.filter(a => !a.seen).slice(0, 3) : []);
+      } else {
+        setTrendAlerts([]);
       }
       const queue = JSON.parse(localStorage.getItem('encis_approval_queue') || '[]');
       setPendingQueue(queue.filter(q => q.status === 'pending').length);
@@ -18040,137 +18044,145 @@ Written out and ready. First 2-3 words carry everything.
 }
 
 
-const TREND_MONITOR_KEY = 'encis_trend_monitor';
-const TREND_MONITOR_DATE_KEY = 'encis_trend_monitor_date';
+const TREND_MONITOR_KEY = 'encis_trend_monitor'; // base key — appended with clientId inside component
+const TREND_MONITOR_DATE_KEY = 'encis_trend_monitor_date'; // base key — appended with clientId inside component
 
 const TREND_MONITOR_QUERIES = {
-  HR_Creator: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+  HR_Creator: (today, creatorName='the creator') => `Search for: viral HR manager workplace story TikTok Instagram this week ${today}
 
-Search for the single most viral piece of content posted THIS WEEK by HR managers, people managers, or HR influencers on Instagram, TikTok, or LinkedIn.
+Find a REAL post from this week (not older) by an HR professional or people manager that went viral on TikTok, Instagram Reels, or LinkedIn. The content should be a raw, real workplace story — not career tips or corporate advice.
 
-Look specifically for content about: workplace stories, employee relations, hiring and firing realities, managing difficult people, HR policy gone wrong or right, what no one tells you about being in HR, the real cost of leadership, toxic workplace culture, or what managers wish employees knew.
+Examples of the type of content that goes viral in this niche:
+- "I had to fire someone today and here's what nobody tells you"
+- "What actually happens when HR gets a complaint"
+- "The meeting that changed how I manage people"
 
-Target creators: HR professionals who post raw, real content - not corporate training accounts. Think creators with 10K-500K followers sharing real stories from inside companies.
+Return ONLY this format with REAL information — if you cannot find a real post from this week, say NO_RESULTS:
+ACCOUNT: [real creator handle — e.g. @hrwithamy or full name]
+PLATFORM: [TikTok / Instagram / LinkedIn]
+HOOK: [the exact first line or title of the actual post]
+VIEWS: [real number or engagement metric if available — e.g. "2.4M views" or "trending"]
+WHY: [one sentence — the specific psychological trigger that made this perform]
+STEAL: [one specific hook ${creatorName} should post this week — written out in full, not a description]`,
 
-Return ONLY this exact format - nothing else:
-ACCOUNT: [creator handle]
-PLATFORM: [platform]
-HOOK: [exact opening line or title]
-WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea ${creatorName} should post this week based on this trend]
-VIEWS: [approximate views/engagement or "trending"]`,
+  RealEstate_Colorado: (today, creatorName='the creator') => `Search for: viral real estate agent TikTok Instagram Reels this week ${today} housing market
 
-  RealEstate_Colorado: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+Find a REAL post from this week by a real estate agent or mortgage professional that went viral. Look for content about market reality, buyer/seller mistakes, or what agents won't tell you — not just market updates.
 
-Search for the single most viral piece of content posted THIS WEEK by real estate agents, mortgage professionals, or housing market commentators on Instagram, TikTok, or YouTube.
+Examples of what goes viral:
+- "I just watched a buyer lose a house because of this one thing"
+- "What no one tells you about the inspection period"
+- "VA loan secrets most agents don't know"
 
-Look specifically for content about: Colorado housing market updates, VA loans and veteran homebuying, first-time buyer mistakes, what agents won't tell you, the real math of renting vs buying, interest rate reality checks, how to buy in a competitive market, or wealth building through real estate on a regular income.
+Return ONLY this format — if no real post found this week, say NO_RESULTS:
+ACCOUNT: [real creator handle]
+PLATFORM: [TikTok / Instagram / YouTube]
+HOOK: [exact first line or title of the actual post]
+VIEWS: [real engagement number if available]
+WHY: [one sentence — specific psychological trigger]
+STEAL: [one complete hook ${creatorName} should post this week — written out in full]`,
 
-Target creators: real estate agents who educate, not just sell. Authentic market commentary. State-specific content performs well - Colorado, Denver, or Front Range content especially relevant.
+  Veteran_Creator: (today, creatorName='the creator') => `Search for: viral veteran military content creator TikTok Instagram this week ${today} post-service identity discipline
 
-Return ONLY this exact format - nothing else:
-ACCOUNT: [creator handle]
-PLATFORM: [platform]
-HOOK: [exact opening line or title]
-WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea ${creatorName} should post this week based on this trend]
-VIEWS: [approximate views/engagement or "trending"]`,
+Find a REAL post from this week by a veteran creator that went viral. Look for content about post-military identity, discipline applied to civilian life, or what service taught them — not recruitment or gear content.
 
-  Veteran_Creator: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+Examples:
+- "The military habit I still can't shake 5 years later"
+- "What nobody tells you about leaving the military"
+- "The biggest lie about veteran transition"
 
-Search for the single most viral piece of content posted THIS WEEK by veteran creators, military-to-civilian transition voices, or veteran entrepreneur/athlete accounts on Instagram, TikTok, or YouTube.
+Return ONLY this format — if no real post found this week, say NO_RESULTS:
+ACCOUNT: [real creator handle]
+PLATFORM: [TikTok / Instagram / YouTube]
+HOOK: [exact first line or title of the actual post]
+VIEWS: [real engagement number if available]
+WHY: [one sentence — specific psychological trigger]
+STEAL: [one complete hook ${creatorName} should post this week — written out in full]`,
 
-Look specifically for content about: life after the military, rebuilding identity post-service, what the military taught you that civilians don't understand, veteran mental health without being heavy, discipline and standards from service applied to civilian life, or veteran community and brotherhood.
+  Endurance_Athlete: (today, creatorName='the creator') => `Search for: viral trail running ultramarathon endurance athlete TikTok Instagram this week ${today}
 
-Target creators: veterans who are now athletes, entrepreneurs, coaches, or creators - not military gear or recruitment content. Real post-service identity content.
+Find a REAL post from this week by a trail runner, ultramarathon athlete, or endurance creator that went viral. Look for content about training reality, race prep, training while working full-time, or the mental side — not gear reviews or highlights.
 
-Return ONLY this exact format - nothing else:
-ACCOUNT: [creator handle]
-PLATFORM: [platform]
-HOOK: [exact opening line or title]
-WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea ${creatorName} should post this week based on this trend]
-VIEWS: [approximate views/engagement or "trending"]`,
+Examples:
+- "What training for a 50K actually looks like at 5am"
+- "I DNF'd my race. Here's what I learned."
+- "Why I train when I don't feel like it"
 
-  Endurance_Athlete: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+Return ONLY this format — if no real post found this week, say NO_RESULTS:
+ACCOUNT: [real creator handle]
+PLATFORM: [TikTok / Instagram / YouTube / Strava community]
+HOOK: [exact first line or title]
+VIEWS: [real engagement if available]
+WHY: [one sentence — specific psychological trigger]
+STEAL: [one complete hook ${creatorName} should post this week — written out in full]`,
 
-Search for the single most viral piece of content posted THIS WEEK by endurance athletes, trail runners, ultramarathon creators, or outdoor fitness accounts on Instagram, TikTok, or YouTube.
+  Fatherhood_Family: (today, creatorName='the creator') => `Search for: viral dad creator fatherhood parenting TikTok Instagram this week ${today}
 
-Look specifically for content about: trail running or ultramarathon training, training over 35 or 40, running and cycling in Colorado or mountain terrain, the mental side of endurance training, race day preparation, training while working a full-time job, or using athletic discipline as a life philosophy.
+Find a REAL post from this week by a dad creator or fatherhood voice that went viral. Look for honest, unfiltered content about fatherhood — the hard moments, what raising kids actually costs you, the weight of being the provider — not parenting advice or family vlogs.
 
-Target creators: real athletes who train hard and document it honestly - not fitness influencers selling aesthetics. People who run ultras, do triathlons, or train in the mountains.
+Examples:
+- "The moment I realized I was becoming my dad"
+- "What I'm actually teaching my son by going to work every day"
+- "Nobody told me fatherhood would feel like this"
 
-Return ONLY this exact format - nothing else:
-ACCOUNT: [creator handle]
-PLATFORM: [platform]
-HOOK: [exact opening line or title]
-WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea ${creatorName} should post this week based on this trend]
-VIEWS: [approximate views/engagement or "trending"]`,
+Return ONLY this format — if no real post found, say NO_RESULTS:
+ACCOUNT: [real creator handle]
+PLATFORM: [TikTok / Instagram / YouTube]
+HOOK: [exact first line or title]
+VIEWS: [real engagement if available]
+WHY: [one sentence — specific psychological trigger]
+STEAL: [one complete hook ${creatorName} should post this week — written out in full]`,
 
-  Fatherhood_Family: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+  Mindset_Discipline: (today, creatorName='the creator') => `Search for: viral discipline accountability mindset creator TikTok Instagram this week ${today} working adults
 
-Search for the single most viral piece of content posted THIS WEEK by dad creators, fatherhood voices, or family/parenting accounts on Instagram, TikTok, or YouTube.
+Find a REAL post from this week by a mindset or discipline creator aimed at working adults that went viral. Look for content about doing hard things, showing up consistently, accountability — NOT hustle culture or morning routine hacks.
 
-Look specifically for content about: being a present dad while building a career, what fathers actually teach their kids, parenting with discipline and love, the hard moments of fatherhood no one posts, raising kids who are tough and kind, or the weight of being the provider and the protector simultaneously.
+Examples:
+- "You don't lack motivation. You lack standards."
+- "The difference between people who change and people who don't"
+- "What discipline actually looks like when life is full"
 
-Target creators: real dads posting authentic content - not parenting advice accounts or mommy blog adjacent. Men who are honest about the pressure and privilege of fatherhood.
+Return ONLY this format — if no real post found, say NO_RESULTS:
+ACCOUNT: [real creator handle]
+PLATFORM: [TikTok / Instagram / YouTube]
+HOOK: [exact first line or title]
+VIEWS: [real engagement if available]
+WHY: [one sentence — specific psychological trigger]
+STEAL: [one complete hook ${creatorName} should post this week — written out in full]`,
 
-Return ONLY this exact format - nothing else:
-ACCOUNT: [creator handle]
-PLATFORM: [platform]
-HOOK: [exact opening line or title]
-WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea ${creatorName} should post this week based on this trend]
-VIEWS: [approximate views/engagement or "trending"]`,
+  Everyday_Wins: (today, creatorName='the creator') => `Search for: viral underdog regular person transformation story TikTok Instagram this week ${today}
 
-  Mindset_Discipline: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+Find a REAL post from this week that celebrates an ordinary person doing something extraordinary — not a celebrity, not an influencer with 1M+ followers already. Look for content about regular people winning, small victories that compound, working parents grinding, first-generation builders.
 
-Search for the single most viral piece of content posted THIS WEEK by mindset, discipline, or accountability creators on Instagram, TikTok, or YouTube.
+Examples:
+- "I worked the overnight shift and still showed up to coach my kid's game"
+- "Nobody clapped when I started. That's fine."
+- "What 5 years of showing up with no audience taught me"
 
-Look specifically for content about: doing the hard thing when you don't feel like it, the gap between wanting to change and actually changing, discipline as identity not motivation, morning routine and daily standards, accountability culture, what separates people who grow from people who stay stuck, or the unglamorous reality of consistent effort.
+Return ONLY this format — if no real post found, say NO_RESULTS:
+ACCOUNT: [real creator handle]
+PLATFORM: [TikTok / Instagram / YouTube]
+HOOK: [exact first line or title]
+VIEWS: [real engagement if available]
+WHY: [one sentence — specific psychological trigger]
+STEAL: [one complete hook ${creatorName} should post this week — written out in full]`,
 
-Target creators: coaches and creators who speak to working adults - not 22-year-old hustle culture bros. Voices that resonate with parents, professionals, and veterans who are building something real while life is already full.
+  Health_Wellness_Pro: (today, creatorName='the creator') => `Search for: viral health wellness longevity working professional TikTok Instagram this week ${today} over 35
 
-Return ONLY this exact format - nothing else:
-ACCOUNT: [creator handle]
-PLATFORM: [platform]
-HOOK: [exact opening line or title]
-WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea ${creatorName}, should post this week based on this trend]
-VIEWS: [approximate views/engagement or "trending"]`,
+Find a REAL post from this week by a health, wellness, or longevity creator targeting professionals in their 30s-40s that went viral. Look for content about training recovery, sleep, mental health for men who don't talk about it, the long game of health — not 6-pack aesthetics.
 
-  Everyday_Wins: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+Examples:
+- "The reason you're always tired has nothing to do with sleep"
+- "What I stopped doing at 37 that changed everything"
+- "Training while working full-time actually looks like this"
 
-Search for the single most viral piece of content posted THIS WEEK that celebrates ordinary people doing extraordinary things - not celebrities, not influencers, not people with massive platforms already.
-
-Look specifically for content about: the regular person who showed up when no one was watching, small wins that compound into big results, the working parent who trains at 5am, the person who built something real without going viral, underdog stories, or content that makes regular people feel seen and represented.
-
-Target creators: micro to mid-size creators (under 100K) whose content is blowing up precisely because it feels real and unpolished. Content that resonates with the Elevation Nation audience - everyday people who refuse to stay where they are.
-
-Return ONLY this exact format - nothing else:
-ACCOUNT: [creator handle]
-PLATFORM: [platform]
-HOOK: [exact opening line or title]
-WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea for ${creatorName}'s community — people who refuse to stay where they are - that they should post this week]
-VIEWS: [approximate views/engagement or "trending"]`,
-
-  Health_Wellness_Pro: (today, creatorName='the creator') => `Today is ${today}. You are a viral content analyst with access to real-time social media data.
-
-Search for the single most viral piece of content posted THIS WEEK by health, wellness, or longevity creators targeting working professionals in their 30s and 40s on Instagram, TikTok, or YouTube.
-
-Look specifically for content about: training and recovery for busy professionals, sleep optimization for high performers, nutrition for people who actually have jobs and families, mental health for men who don't talk about mental health, burnout prevention, or the long game of physical health - not 6-pack aesthetics but functional longevity.
-
-Target creators: doctors, coaches, and athletes who speak to professionals and parents - not fitness influencers targeting college students. Real health content for people with real lives and real responsibilities.
-
-Return ONLY this exact format - nothing else:
-ACCOUNT: [creator handle]
-PLATFORM: [platform]
-HOOK: [exact opening line or title]
-WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific content idea ${creatorName} should post this week about health and wellness for working professionals]
-VIEWS: [approximate views/engagement or "trending"]`,
+Return ONLY this format — if no real post found, say NO_RESULTS:
+ACCOUNT: [real creator handle]
+PLATFORM: [TikTok / Instagram / YouTube]
+HOOK: [exact first line or title]
+VIEWS: [real engagement if available]
+WHY: [one sentence — specific psychological trigger]
+STEAL: [one complete hook ${creatorName} should post this week — written out in full]`,
 };
 
 // TREND_NICHES is now dynamic - pulled from active client profile
@@ -18184,30 +18196,35 @@ const TREND_MONITOR_PROMPT = (niche, client) => {
   const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
   const name = client?.name || 'the creator';
   const role = client?.role || 'content creator';
-  const location = client?.location || '';
-  const locationStr = location ? `in ${location}` : '';
 
-  // If the niche has a custom query from the client profile, use it directly
+  // Custom niche query from client profile — use directly as the search
   if (niche.query) {
-    return `Today is ${today}. You are a viral content analyst with access to real-time social media data.
+    return `Search for: ${niche.query} — week of ${today}
 
-Search for the single most viral piece of content posted THIS WEEK matching this query:
-${niche.query}
+Find a REAL post from this week that matches this search. Return only real, verifiable content — if you cannot confirm a real post from this week, say NO_RESULTS.
 
-Return ONLY this exact format - nothing else:
-ACCOUNT: [creator handle or name]
-PLATFORM: [Instagram/TikTok/YouTube/X/LinkedIn]
-HOOK: [exact opening line or title that made it perform]
-WHY: [one sentence - the psychological reason it performed]
-STEAL: [one specific, actionable content idea ${name}, ${role} ${locationStr}, should post this week based on this trend]
-VIEWS: [approximate views/engagement count or "trending"]`;
+Return ONLY this format:
+ACCOUNT: [real creator handle or name]
+PLATFORM: [TikTok / Instagram / YouTube / LinkedIn / X]
+HOOK: [exact first line or title of the actual post]
+VIEWS: [real engagement number if available, or "trending"]
+WHY: [one sentence — the specific psychological trigger that made this perform]
+STEAL: [one complete, specific hook ${name} (${role}) should post this week based on this trend — write the full hook, not a description of it]`;
   }
 
-  // Fallback to the static query library if no custom query
+  // Fallback to the static query library
   const queryFn = TREND_MONITOR_QUERIES[niche.id];
   if (queryFn) return queryFn(today, name);
 
-  return `Today is ${today}. Find the most viral content this week in the "${niche.label}" space. Return: ACCOUNT: / PLATFORM: / HOOK: / WHY: / STEAL: [specific idea for ${name}, ${role} ${locationStr}] / VIEWS:`;
+  return `Search for viral content this week: ${niche.label} creator TikTok Instagram ${today}
+
+Find a real post from this week. Return ONLY:
+ACCOUNT: [real handle]
+PLATFORM: [platform]
+HOOK: [exact first line]
+VIEWS: [engagement]
+WHY: [one sentence — why it worked]
+STEAL: [one complete hook ${name} should post this week]`;
 };
 
 
@@ -18305,22 +18322,27 @@ function TrendMonitorAgent() {
   const [progress, setProgress] = useState(0);
   const [autoRunEnabled, setAutoRunEnabled] = useState(false);
 
+  // Per-client storage keys — each client gets their own trend results cache
+  const clientId = activeClient?.id || 'jason';
+  const trendKey = TREND_MONITOR_KEY + '_' + clientId;
+  const trendDateKey = TREND_MONITOR_DATE_KEY + '_' + clientId;
+
+  // Re-load alerts whenever active client changes
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(TREND_MONITOR_KEY);
-      if (stored) setAlerts(JSON.parse(stored));
-      const date = localStorage.getItem(TREND_MONITOR_DATE_KEY);
-      if (date) setLastRun(new Date(parseInt(date)).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}));
+      const stored = localStorage.getItem(trendKey);
+      setAlerts(stored ? JSON.parse(stored) : []);
+      const date = localStorage.getItem(trendDateKey);
+      setLastRun(date ? new Date(parseInt(date)).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : null);
       const auto = localStorage.getItem('encis_trend_auto');
       if (auto) setAutoRunEnabled(JSON.parse(auto));
     } catch {}
-    // Check if cron ran more recently than last manual scan
     checkCronResults();
-  }, []);
+  }, [clientId]); // ← re-runs when client switches
 
   const checkCronResults = async () => {
     try {
-      const lastTs = parseInt(localStorage.getItem(TREND_MONITOR_DATE_KEY) || '0');
+      const lastTs = parseInt(localStorage.getItem(trendDateKey) || '0');
       const { data } = await supabase
         .from('agent_runs')
         .select('output_text, created_at')
@@ -18344,16 +18366,40 @@ function TrendMonitorAgent() {
 
   useEffect(() => {
     if (!autoRunEnabled) return;
-    const lastTs = localStorage.getItem(TREND_MONITOR_DATE_KEY);
+    const lastTs = localStorage.getItem(trendDateKey);
     if (!lastTs) { runScan(); return; }
     const hoursSince = (Date.now() - parseInt(lastTs)) / (1000 * 60 * 60);
     if (hoursSince > 20) runScan();
   }, [autoRunEnabled]);
 
   const parseAlert = (raw, angle) => {
+    // If Perplexity couldn't find a real post this week, skip it
+    if (!raw || raw.includes('NO_RESULTS') || raw.length < 30) return null;
+
     const lines = raw.split('\n').filter(l => l.trim());
-    const get = (key) => { const line = lines.find(l => l.toUpperCase().startsWith(key + ':')); return line ? line.slice(key.length + 1).trim() : ''; };
-    return { id: Date.now() + Math.random(), angle, account: get('ACCOUNT'), platform: get('PLATFORM'), hook: get('HOOK'), why: get('WHY'), steal: get('STEAL'), views: get('VIEWS'), scannedAt: Date.now(), seen: false };
+    const get = (key) => {
+      const line = lines.find(l => l.toUpperCase().startsWith(key.toUpperCase() + ':'));
+      return line ? line.slice(key.length + 1).trim() : '';
+    };
+
+    const account = get('ACCOUNT');
+    const hook = get('HOOK');
+
+    // If we got back something that looks like a placeholder or template, skip it
+    if (!account || account.includes('[') || !hook || hook.includes('[')) return null;
+
+    return {
+      id: Date.now() + Math.random(),
+      angle,
+      account,
+      platform: get('PLATFORM'),
+      hook,
+      why: get('WHY'),
+      steal: get('STEAL'),
+      views: get('VIEWS'),
+      scannedAt: Date.now(),
+      seen: false,
+    };
   };
 
   const runScan = async () => {
@@ -18366,7 +18412,8 @@ function TrendMonitorAgent() {
       setProgress(Math.round((i / niches.length) * 100));
       try {
         const res = await perp(TREND_MONITOR_PROMPT(niche, activeClient));
-        if (res && res.length > 20) newAlerts.push(parseAlert(res, niche.label));
+        const parsed = parseAlert(res, niche.label);
+        if (parsed) newAlerts.push(parsed);
         await new Promise(r => setTimeout(r, 600));
       } catch(e) { console.error('Trend scan error', niche.label, e); }
     }
@@ -18374,7 +18421,7 @@ function TrendMonitorAgent() {
     setAlerts(newAlerts);
     setLastRun(new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}));
     setProgress(100); setScanning(null);
-    try { localStorage.setItem(TREND_MONITOR_KEY, JSON.stringify(newAlerts)); localStorage.setItem(TREND_MONITOR_DATE_KEY, timestamp); } catch {}
+    try { localStorage.setItem(trendKey, JSON.stringify(newAlerts)); localStorage.setItem(trendDateKey, timestamp); } catch {}
     try { await supabase.from('agent_runs').insert([{ tool_name: 'trend_monitor', input_data: { niches: TREND_NICHES.map(n => n.label) }, output_text: JSON.stringify(newAlerts.map(a => ({angle:a.angle,hook:a.hook,steal:a.steal}))), platform: 'multi' }]); } catch {}
     setLoading(false);
   };
@@ -18448,21 +18495,69 @@ function TrendMonitorAgent() {
         </div>
       )}
       {!loading && alerts.length > 0 && (
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:12}}>
+        <div style={{display:'flex',flexDirection:'column',gap:12}}>
           {alerts.map(alert => (
-            <div key={alert.id} onClick={()=>markSeen(alert.id)} style={{background:'#FFFFFF',border:`1px solid ${!alert.seen?'#C7D2FE':'#E5E7EB'}`,borderTop:`3px solid ${angleColors[alert.angle]||'#2563EB'}`,borderRadius:10,padding:'16px',cursor:'pointer',boxShadow:!alert.seen?'0 2px 8px rgba(37,99,235,0.08)':'none'}}>
-              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
-                <span style={{background:angleColors[alert.angle]||'#2563EB',color:'#fff',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700,textTransform:'uppercase'}}>{alert.angle}</span>
-                <div style={{display:'flex',gap:6,alignItems:'center'}}>
+            <div key={alert.id} style={{background:'#FFFFFF',border:`1px solid ${!alert.seen?'#C7D2FE':'#E5E7EB'}`,borderLeft:`4px solid ${angleColors[alert.angle]||'#2563EB'}`,borderRadius:10,padding:'18px 20px',boxShadow:!alert.seen?'0 2px 8px rgba(37,99,235,0.06)':'none'}}>
+
+              {/* Top row */}
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12,flexWrap:'wrap',gap:6}}>
+                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                  <span style={{background:angleColors[alert.angle]||'#2563EB',color:'#fff',borderRadius:4,padding:'2px 8px',fontSize:10,fontWeight:700,textTransform:'uppercase'}}>{alert.angle}</span>
                   {!alert.seen && <span style={{background:'#EEF2FF',color:'#2563EB',borderRadius:10,padding:'1px 6px',fontSize:9,fontWeight:800}}>NEW</span>}
-                  {alert.views && <span style={{fontSize:10,color:'#27ae60',fontWeight:700}}>{alert.views}</span>}
-                  {alert.platform && <span style={{fontSize:10,color:'#6B7280'}}>{alert.platform}</span>}
+                </div>
+                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                  {alert.views && <span style={{fontSize:11,color:'#10B981',fontWeight:700}}>{alert.views}</span>}
+                  {alert.platform && <span style={{fontSize:11,color:'#9CA3AF',background:'#F3F4F6',padding:'2px 7px',borderRadius:4}}>{alert.platform}</span>}
+                  {alert.account && <span style={{fontSize:11,color:'#374151',fontWeight:600}}>{alert.account}</span>}
                 </div>
               </div>
-              {alert.account && <div style={{color:'#111827',fontWeight:700,fontSize:13,marginBottom:6}}>{alert.account}</div>}
-              {alert.hook && <div style={{background:'#F9FAFB',borderRadius:6,padding:'8px 10px',marginBottom:8,fontSize:12,color:'#111827',lineHeight:1.5,fontStyle:'italic'}}>"{alert.hook}"</div>}
-              {alert.why && <div style={{fontSize:11,color:'#6B7280',lineHeight:1.5,marginBottom:6}}><strong style={{color:'#374151'}}>Why it works:</strong> {alert.why}</div>}
-              {alert.steal && <div style={{fontSize:11,color:'#2563EB',lineHeight:1.5,fontWeight:600}}>→ {alert.steal}</div>}
+
+              {/* Real post hook */}
+              {alert.hook && (
+                <div style={{marginBottom:10}}>
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#9CA3AF',marginBottom:4}}>Real hook that performed</div>
+                  <div style={{background:'#F9FAFB',borderRadius:6,padding:'10px 12px',fontSize:13,color:'#111827',lineHeight:1.6,fontStyle:'italic',borderLeft:'2px solid #E5E7EB'}}>
+                    "{alert.hook}"
+                  </div>
+                </div>
+              )}
+
+              {/* Why */}
+              {alert.why && (
+                <div style={{fontSize:12,color:'#6B7280',lineHeight:1.5,marginBottom:12}}>
+                  <strong style={{color:'#374151'}}>Why it worked: </strong>{alert.why}
+                </div>
+              )}
+
+              {/* STEAL — the hero */}
+              {alert.steal && (
+                <div style={{background:'#EFF6FF',border:'1px solid #BFDBFE',borderRadius:8,padding:'12px 14px',marginBottom:12}}>
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#2563EB',marginBottom:6}}>Your hook to post this week</div>
+                  <div style={{fontSize:14,color:'#1D4ED8',fontWeight:700,lineHeight:1.5}}>{alert.steal}</div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                {alert.steal && (
+                  <button
+                    onClick={() => {
+                      try { localStorage.setItem('encis_selected_topic', JSON.stringify({ topic: alert.steal, format: 'Reel Script', pillar: alert.angle, platform: alert.platform || 'Instagram', selectedAt: Date.now() })); } catch {}
+                      markSeen(alert.id);
+                    }}
+                    style={{background:'#1A1A1A',color:'#fff',border:'none',borderRadius:7,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}
+                  >Create from this →</button>
+                )}
+                <button
+                  onClick={() => { navigator.clipboard.writeText(alert.steal || alert.hook || ''); markSeen(alert.id); }}
+                  style={{background:'#F9FAFB',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'7px 12px',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}
+                >Copy hook</button>
+                {!alert.seen && (
+                  <button onClick={() => markSeen(alert.id)}
+                    style={{background:'none',color:'#9CA3AF',border:'none',padding:'7px 8px',fontSize:12,cursor:'pointer',fontFamily:'inherit',marginLeft:'auto'}}
+                  >Mark seen</button>
+                )}
+              </div>
             </div>
           ))}
         </div>
