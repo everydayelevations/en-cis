@@ -11079,19 +11079,13 @@ ${out.slice(0, 4000)}`;
         const hook = idea.hook || '';
         const angle = idea.angle || 'Educational';
 
-        const contentPrompt = voice + '
-
-Write a complete ' + format + ' about: "' + topic + '"
-' +
-          'Angle: ' + angle + '
-' +
-          (hook ? 'Start with this hook: ' + hook + '
-' : '') +
-          'Platform: Instagram
-' +
-          'Source: Extracted from a ' + transcriptType + ' transcript
-
-' +
+        const NL = '\n';
+        const contentPrompt = voice + NL + NL +
+          'Write a complete ' + format + ' about: "' + topic + '"' + NL +
+          'Angle: ' + angle + NL +
+          (hook ? 'Start with this hook: ' + hook + NL : '') +
+          'Platform: Instagram' + NL +
+          'Source: Extracted from a ' + transcriptType + ' transcript' + NL + NL +
           'Write the full piece. Be specific. Use the voice above exactly.';
 
         try {
