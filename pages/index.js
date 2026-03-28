@@ -9978,7 +9978,6 @@ Full caption for the primary platform. Hook in first line. No trailing off. CTA 
 ## Common Mistakes That Kill This Video
 3 specific things that would ruin this shoot — and exactly how to avoid each.
 `
-3 specific things that would kill this video's performance.`;
 
 function VideoScriptDirector() {
   const [topic, setTopic] = useState('');
