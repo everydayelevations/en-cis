@@ -605,8 +605,8 @@ const Output = ({text}) => text ? (
 ) : null;
 
 // ═════════════════════════════════════════════════════════════════════════════
-const SCRIPT_PROMPT = (topic, angle, platform, scriptMode, voiceContext) => `
-${VOICE}
+const SCRIPT_PROMPT = (topic, angle, platform, scriptMode, voiceContext, voice) => `
+${voice || VOICE}
 ${voiceContext ? voiceContext : ''}
 ${CONTENT_SOP}
 ${SWARBRICK}
@@ -717,8 +717,8 @@ X / TWITTER THREAD FORMAT:
 Total: 8-10 tweets. Every tweet worth reading alone.` : ''}
 `;
 
-const STITCH_PROMPT = (originalContent, angle) => `
-${VOICE}
+const STITCH_PROMPT = (originalContent, angle, voice) => `
+${voice || VOICE}
 ${CONTENT_SOP}
 
 Write a viral stitch response script for: "${originalContent}"
@@ -846,8 +846,8 @@ For each day provide:
 
 Output as a clean table. Make every topic specific enough to film tomorrow.`;
 
-const EPISODE_PROMPT = (episodeTitle, episodeNotes) => `
-${VOICE}
+const EPISODE_PROMPT = (episodeTitle, episodeNotes, voice) => `
+${voice || VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
 
@@ -875,8 +875,8 @@ Extract and create:
 
 5. **Email Newsletter Teaser**`;
 
-const REPURPOSE_PROMPT = (script, originalPlatform) => `
-${VOICE}
+const REPURPOSE_PROMPT = (script, originalPlatform, voice) => `
+${voice || VOICE}
 ${CONTENT_SOP}
 
 Original ${originalPlatform} script:
@@ -891,8 +891,8 @@ Repurpose into 4 platform-native versions:
 
 Each version should feel native : not copy-pasted. Adjust tone, length, and CTA for each platform's culture.`;
 
-const HOOK_PROMPT = (topic, quantity) => `
-${VOICE}
+const HOOK_PROMPT = (topic, quantity, voice) => `
+${voice || VOICE}
 
 Write ${quantity} hooks for the topic: "${topic}"
 
@@ -910,8 +910,8 @@ Rules:
 - Every hook must make viewer think "wait, what?"
 - Specific beats vague every time`;
 
-const MAGNET_PROMPT = (audience, problem, offer, currentContent, whatWorks) => `
-${VOICE}
+const MAGNET_PROMPT = (audience, problem, offer, currentContent, whatWorks, voice) => `
+${voice || VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
 
@@ -978,8 +978,8 @@ Slide 5: [exact text + CTA : keyword comment trigger]
 ### Keyword Trigger: [the word they comment to get the magnet]
 ### Where to send it: [DM automation or email link]`;
 
-const COMMUNITY_PROMPT = (focus, currentEngagement, whereTheyAre, whatTheyAsk) => `
-${VOICE}
+const COMMUNITY_PROMPT = (focus, currentEngagement, whereTheyAre, whatTheyAsk, voice) => `
+${voice || VOICE}
 ${SWARBRICK}
 
 Community focus / theme: ${focus}
@@ -1200,8 +1200,8 @@ ${platform === 'Facebook' ? '7. **Page vs Profile Strategy** (which to prioritiz
 Be direct. Write like ${creatorName} would actually use this today.`;
 };
 
-const COLLAB_PROMPT = (niche, goal) => `
-${VOICE}
+const COLLAB_PROMPT = (niche, goal, voice) => `
+${voice || VOICE}
 
 Niche: ${niche}
 Collaboration Goal: ${goal}
@@ -4526,7 +4526,7 @@ function LeadMagnet() {
 
   const run = async () => {
     setLoading(true); setOut('');
-    const res = await ai(MAGNET_PROMPT(audience, problem, offer, currentContent, whatWorks));
+    const res = await ai(MAGNET_PROMPT(audience, problem, offer, currentContent, whatWorks, getVoice(activeClient)));
     setOut(res); setLoading(false);
   };
 
@@ -4588,7 +4588,7 @@ function CommunityBuilder() {
 
   const run = async () => {
     setLoading(true); setOut('');
-    const res = await ai(COMMUNITY_PROMPT(focus, currentEngagement, whereTheyAre, whatTheyAsk));
+    const res = await ai(COMMUNITY_PROMPT(focus, currentEngagement, whereTheyAre, whatTheyAsk, getVoice(activeClient)));
     setOut(res); setLoading(false);
   };
 
@@ -4859,7 +4859,7 @@ function CollabFinder() {
     setLoading(true); setOut('');
     const researchQ = `Find collaboration opportunities in ${niche} for ${goal}`;
     const perpRes = await perp(researchQ);
-    const finalRes = await ai(COLLAB_PROMPT(niche, goal) + '\n\nResearch data:\n' + perpRes);
+    const finalRes = await ai(COLLAB_PROMPT(niche, goal, getVoice(activeClient)) + '\n\nResearch data:\n' + perpRes);
     setOut(finalRes); setLoading(false);
   };
   return (
@@ -4951,12 +4951,12 @@ function ScriptEngine() {
     if(mode==='write') {
       if(!topic) { setLoading(false); return; }
       const angleLabel = ANGLES.find(a=>a.id===angle)?.label;
-      res = await ai(SCRIPT_PROMPT(topic, angleLabel, platform));
+      res = await ai(SCRIPT_PROMPT(topic, angleLabel, platform, undefined, undefined, getVoice(activeClient)));
       logToMemory({ type:'script', title:topic, topic, platform, angle:angleLabel, preview:res.slice(0,200) });
     } else {
       if(!stitchContent) { setLoading(false); return; }
       let angleLabel = ANGLES.find(a=>a.id===angle)?.label;
-      res = await ai(STITCH_PROMPT(stitchContent, angleLabel));
+      res = await ai(STITCH_PROMPT(stitchContent, angleLabel, getVoice(activeClient)));
       logToMemory({ type:'script', title:`Stitch: ${stitchContent.slice(0,60)}`, platform, angle:angleLabel, preview:res.slice(0,200) });
     }
     setOut(res); setLoading(false);
@@ -5044,6 +5044,7 @@ function ScriptEngine() {
 }
 
 function EpisodeClips() {
+  const [activeClient] = useActiveClient();
   const [title,setTitle] = useState('');
   const [notes,setNotes] = useState('');
   const [out,setOut] = useState('');
@@ -5051,7 +5052,7 @@ function EpisodeClips() {
   const run = async () => {
     if(!title) return;
     setLoading(true); setOut('');
-    const res = await ai(EPISODE_PROMPT(title, notes));
+    const res = await ai(EPISODE_PROMPT(title, notes, getVoice(activeClient)));
     setOut(res); setLoading(false);
   };
   return (
@@ -5090,7 +5091,7 @@ function RepurposeEngine() {
   const run = async () => {
     if(!script) return;
     setLoading(true); setOut('');
-    const res = await ai(REPURPOSE_PROMPT(script, originalPlatform));
+    const res = await ai(REPURPOSE_PROMPT(script, originalPlatform, getVoice(activeClient)));
     setOut(res); setLoading(false);
   };
   return (
@@ -5134,7 +5135,7 @@ function HookLibrary() {
   const run = async () => {
     if(!topic) return;
     setLoading(true); setOut('');
-    const res = await ai(HOOK_PROMPT(topic, quantity));
+    const res = await ai(HOOK_PROMPT(topic, quantity, getVoice(activeClient)));
     setOut(res); setLoading(false);
   };
   return (
@@ -6293,8 +6294,8 @@ const SUB_NAV = {
 // ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE 1: CAPTION WRITER
 // ═════════════════════════════════════════════════════════════════════════════
-const CAPTION_PROMPT = (topic, platform, angle, hook, cta) => `
-${VOICE}
+const CAPTION_PROMPT = (topic, platform, angle, hook, cta, voice) => `
+${voice || VOICE}
 ${CONTENT_SOP}
 
 Topic: ${topic}
@@ -6341,7 +6342,7 @@ function CaptionWriter() {
     if (!topic) return;
     setLoading(true); setOut('');
     const angleLabel = ANGLES.find(a => a.id === angle)?.label || angle;
-    const res = await ai(CAPTION_PROMPT(topic, platform, angleLabel, hook, cta));
+    const res = await ai(CAPTION_PROMPT(topic, platform, angleLabel, hook, cta, getVoice(activeClient)));
     setOut(res);
     logToMemory({ type:'caption', title:`Caption: ${topic}`, topic, platform, angle:angleLabel, client:activeClient?.name, preview:res.slice(0,200) });
     setLoading(false);
@@ -7051,8 +7052,8 @@ function CommentResponder() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // HOOK TESTER
 // ═════════════════════════════════════════════════════════════════════════════
-const HOOK_TEST_PROMPT = (hooks, topic, platform) => `
-${VOICE}
+const HOOK_TEST_PROMPT = (hooks, topic, platform, voice) => `
+${voice || VOICE}
 
 You are a viral content strategist who has analyzed thousands of hooks across Instagram, TikTok, YouTube, and LinkedIn. Your job is to score hook variations with brutal honesty and build the best possible version.
 
@@ -7083,8 +7084,8 @@ Return ONLY valid JSON. No markdown fences, no preamble. Exact structure:
   "optimal_why": ["psychological reason it works", "format/structure reason", "why the first word earns the stop"]
 }`;
 
-const HOOK_GENERATE_PROMPT = (topic, platform, style) => `
-${VOICE}
+const HOOK_GENERATE_PROMPT = (topic, platform, style, voice) => `
+${voice || VOICE}
 
 You are a hook writer who has studied what stops the scroll on ${platform}. Generate 5 distinct hook variations for this topic.
 
@@ -7139,7 +7140,7 @@ function HookTester() {
     if (!topic.trim()) return;
     setGenerating(true);
     try {
-      const raw = await ai(HOOK_GENERATE_PROMPT(topic, platform, style));
+      const raw = await ai(HOOK_GENERATE_PROMPT(topic, platform, style, getVoice(activeClient)));
       const clean = raw.replace(/```json|```/g, '').trim();
       const data = JSON.parse(clean);
       if (data.hooks) {
@@ -7662,8 +7663,8 @@ For each question: the question + why it matters + the follow-up if they give a 
 1 carousel concept from this episode
 LinkedIn post angle for Jason post-release`;
 
-const PODCAST_SOLO_PROMPT = (topic, angle, duration) => `
-${VOICE}
+const PODCAST_SOLO_PROMPT = (topic, angle, duration, voice) => `
+${voice || VOICE}
 ${SWARBRICK}
 
 Solo episode topic: ${topic}
@@ -7729,7 +7730,7 @@ function PodcastPreProd() {
       logToMemory({ type:'podcast', title:`Episode Prep: ${guestName}`, preview:res.slice(0,200) });
     } else {
       const angleLabel = ANGLES.find(a=>a.id===soloAngle)?.label || soloAngle;
-      res = await ai(PODCAST_SOLO_PROMPT(soloTopic, angleLabel, duration));
+      res = await ai(PODCAST_SOLO_PROMPT(soloTopic, angleLabel, duration, getVoice(activeClient)));
       logToMemory({ type:'podcast', title:`Solo Episode: ${soloTopic}`, preview:res.slice(0,200) });
     }
     setOut(res);
@@ -7879,8 +7880,8 @@ PERFORMANCE METRICS THAT MATTER MOST (in order):
 4. Early engagement velocity : first 24-48 hours determines algorithm push
 `;
 
-const YT_SCRIPT_PROMPT = (topic, angle, duration, style) => `
-${VOICE}
+const YT_SCRIPT_PROMPT = (topic, angle, duration, style, voice) => `
+${voice || VOICE}
 ${CONTENT_SOP}
 ${SWARBRICK}
 ${VIDIQ_SOP}
@@ -8017,8 +8018,8 @@ ${duration === '15-20 min' ? '[Time]: [Section 5 title]' : ''}
 `;
 
 
-const YT_TITLE_PROMPT = (topic, angle) => `
-${VOICE}
+const YT_TITLE_PROMPT = (topic, angle, voice) => `
+${voice || VOICE}
 
 Topic: ${topic}
 Angle: ${angle}
@@ -8102,8 +8103,8 @@ Based on the data above:
 - **Next 3 videos to test:** [specific topics with outlier potential, in priority order]
 - **What to measure at 48 hours post-upload:** [specific metrics and what to do if they're low]`;
 
-const YT_ENDSCREEN_PROMPT = (videoTopic, channelGoal) => `
-${VOICE}
+const YT_ENDSCREEN_PROMPT = (videoTopic, channelGoal, voice) => `
+${voice || VOICE}
 
 Video topic: ${videoTopic}
 Channel goal: ${channelGoal}
@@ -8159,11 +8160,11 @@ function YouTubeToolkit() {
     let res;
     const angleLabel = ANGLES.find(a=>a.id===angle)?.label || angle;
 
-    if (tool === 'script') res = await ai(YT_SCRIPT_PROMPT(topic, angleLabel, ytDuration, ytStyle));
-    else if (tool === 'titles') res = await ai(YT_TITLE_PROMPT(topic, angleLabel));
+    if (tool === 'script') res = await ai(YT_SCRIPT_PROMPT(topic, angleLabel, ytDuration, ytStyle, getVoice(activeClient)));
+    else if (tool === 'titles') res = await ai(YT_TITLE_PROMPT(topic, angleLabel, getVoice(activeClient)));
     else if (tool === 'seo') res = await ai(YT_CHAPTERS_PROMPT(script));
     else if (tool === 'audit') res = await ai(YT_AUDIT_PROMPT(channelData, auditExtra, activeClient));
-    else if (tool === 'endscreen') res = await ai(YT_ENDSCREEN_PROMPT(topic, channelGoal));
+    else if (tool === 'endscreen') res = await ai(YT_ENDSCREEN_PROMPT(topic, channelGoal, getVoice(activeClient)));
 
     setOut(res);
     logToMemory({ type:'youtube', title:`YT ${tool}: ${topic || 'audit'}`, preview:res.slice(0,200) });
@@ -9865,8 +9866,8 @@ function CompetitorIntel() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // AI VIDEO SCRIPT DIRECTOR
 // ═════════════════════════════════════════════════════════════════════════════
-const VIDEO_DIRECTOR_PROMPT = (topic, angle, duration, location, equipment, style, shotStyle) => `
-${VOICE}
+const VIDEO_DIRECTOR_PROMPT = (topic, angle, duration, location, equipment, style, shotStyle, voice) => `
+${voice || VOICE}
 
 Topic: "${topic}"
 Content Angle: ${angle}
@@ -9934,7 +9935,7 @@ function VideoScriptDirector() {
   const run = async () => {
     if (!topic) return;
     setLoading(true); setOut('');
-    const res = await ai(VIDEO_DIRECTOR_PROMPT(topic, ANGLES.find(a=>a.id===angle)?.label||angle, duration, location, equipment, style, shotStyle));
+    const res = await ai(VIDEO_DIRECTOR_PROMPT(topic, ANGLES.find(a=>a.id===angle)?.label||angle, duration, location, equipment, style, shotStyle, getVoice(activeClient)));
     setOut(res);
     logToMemory({ type:'video-director', title:`Video Brief: ${topic}`, client:activeClient?.name, preview:res.slice(0,200) });
     setLoading(false);
@@ -10252,8 +10253,8 @@ function CampaignBuilder() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONTENT PERFORMANCE PREDICTOR
 // ═════════════════════════════════════════════════════════════════════════════
-const PREDICTOR_PROMPT = (content, platform, contentType, historicalData) => `
-${VOICE}
+const PREDICTOR_PROMPT = (content, platform, contentType, historicalData, voice) => `
+${voice || VOICE}
 Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
 You are a content performance analyst. Score this content before it is posted.
@@ -10939,8 +10940,8 @@ function CustomAnglesManager({ client, onClose }) {
 // ═════════════════════════════════════════════════════════════════════════════
 const TRANSCRIPTS_KEY = 'encis_transcripts';
 
-const TRANSCRIPT_ANALYSIS_PROMPT = (client, transcript, type) => `
-${VOICE}
+const TRANSCRIPT_ANALYSIS_PROMPT = (client, transcript, type, voice) => `
+${voice || VOICE}
 Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
 CLIENT: ${client.name} (${client.handle})
@@ -12213,8 +12214,8 @@ For each platform in ${client.platforms}: how each piece gets used, format, leng
 Write like a high-level creative director who planned this entire session. Remove hesitation. Make filming feel obvious and executable.
 `
 
-const HASHTAG_PROMPT = (niche, platform, angle, currentFollowers) => `
-${VOICE}
+const HASHTAG_PROMPT = (niche, platform, angle, currentFollowers, voice) => `
+${voice || VOICE}
 Today: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
 
 NICHE: ${niche}
@@ -12250,6 +12251,7 @@ How to rotate hashtags across posts to avoid the repetition penalty.
 `;
 
 function HashtagResearch() {
+  const [activeClient] = useActiveClient();
   const [niche, setNiche] = useState('');
   const [platform, setPlatform] = useState('Instagram');
   const [angle, setAngle] = useState('emotional');
@@ -12270,7 +12272,7 @@ function HashtagResearch() {
     if (!niche) return;
     setLoading(true); setOut('');
     const angleLabel = ANGLES.find(a=>a.id===angle)?.label || angle;
-    const combined = HASHTAG_PROMPT(niche, platform, angleLabel, followers) + (liveData ? `\n\nLIVE RESEARCH DATA:\n${liveData}` : '');
+    const combined = HASHTAG_PROMPT(niche, platform, angleLabel, followers, getVoice(activeClient)) + (liveData ? `\n\nLIVE RESEARCH DATA:\n${liveData}` : '');
     const res = await ai(combined);
     setOut(res); setLoading(false);
   };
@@ -12451,8 +12453,8 @@ function ContentSeriesPlanner() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // BIO OPTIMIZER (dedicated, more thorough than profile audit)
 // ═════════════════════════════════════════════════════════════════════════════
-const BIO_OPTIMIZER_PROMPT = (client, platform, currentBio, goals) => `
-${VOICE}
+const BIO_OPTIMIZER_PROMPT = (client, platform, currentBio, goals, voice) => `
+${voice || VOICE}
 
 CLIENT: ${client.name} (${client.handle})
 PLATFORM: ${platform}
@@ -15971,10 +15973,10 @@ Vary territories across the 5 ideas. No more than one real estate idea. Ground e
     const voiceContext = voiceFP ? `VOICE FINGERPRINT:\nTone: ${voiceFP.tone}\nVocabulary: ${(voiceFP.vocabulary||[]).join(', ')}\nAvoids: ${(voiceFP.avoids||[]).join(', ')}` : (client?.voice||'');
     const researchContext = autoContext?.source==='research' ? `\n\nRESEARCH INTEL CONTEXT:\n${autoContext.content?.slice(0,800)||''}` : '';
     if (mode === 'script') prompt = SCRIPT_PROMPT(topic, ANGLES.find(a=>a.id===angle)?.label||angle, platform, scriptMode, voiceContext + researchContext);
-    else if (mode === 'caption') prompt = CAPTION_PROMPT(topic, platform, ANGLES.find(a=>a.id===angle)?.label||angle, voiceContext);
+    else if (mode === 'caption') prompt = CAPTION_PROMPT(topic, platform, ANGLES.find(a=>a.id===angle)?.label||angle, voiceContext, getVoice(activeClient));
     else if (mode === 'batch') prompt = BULK_PROMPT(ANGLES.find(a=>a.id===angle)?.label||angle, platform, topic, batchCount, voiceContext);
-    else if (mode === 'episode') prompt = EPISODE_PROMPT(episodeTitle||topic, episodeNotes||topic);
-    else if (mode === 'repurpose') prompt = REPURPOSE_PROMPT(repurposeFrom||topic, repurposePlatform, platform);
+    else if (mode === 'episode') prompt = EPISODE_PROMPT(episodeTitle||topic, episodeNotes||topic, getVoice(activeClient));
+    else if (mode === 'repurpose') prompt = REPURPOSE_PROMPT(repurposeFrom||topic, repurposePlatform, platform, getVoice(activeClient));
     else if (mode === 'brief') prompt = CONTENT_BRIEF_PROMPT(client||activeClient||{name:activeClient?.name||'the creator',handle:activeClient?.handle||'',voice:activeClient?.voice||''}, topic, intensity, sessionDate, sessionLocation, sessionEquip, sessionDuration);
     const res = await ai(prompt);
     setOut(res); setLoading(false);
@@ -16744,6 +16746,7 @@ function ResearchHub() {
 }
 
 function HookWorkshop() {
+  const [activeClient] = useActiveClient();
   const [mode, setMode] = useState('generate');
   const [topic, setTopic] = useState('');
   const [quantity, setQuantity] = useState('10');
@@ -16755,13 +16758,13 @@ function HookWorkshop() {
   const runGenerate = async () => {
     if (!topic) return;
     setLoading(true); setOut('');
-    const res = await ai(HOOK_PROMPT(topic, parseInt(quantity)||10));
+    const res = await ai(HOOK_PROMPT(topic, parseInt(quantity)||10, getVoice(activeClient)));
     setOut(res); setLoading(false);
   };
   const runTest = async () => {
     if (!hooks) return;
     setLoading(true); setOut('');
-    const res = await ai(HOOK_TEST_PROMPT(hooks, testTopic||topic));
+    const res = await ai(HOOK_TEST_PROMPT(hooks, testTopic||topic, getVoice(activeClient)));
     setOut(res); setLoading(false);
   };
 
