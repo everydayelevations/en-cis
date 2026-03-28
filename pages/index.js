@@ -13670,7 +13670,13 @@ Return ONLY valid JSON. No markdown fences. No preamble. Exact structure:
   "first_week_topics": [
     { "topic": "specific filmable topic", "angle": "which pillar", "format": "Reel | Carousel | Caption", "why": "why this one first" }
   ],
-  "completion_score": "strong | moderate | weak"
+  "completion_score": "strong | moderate | weak",
+  "trend_niches": [
+    { "id": "niche_1", "label": "Short label (2-3 words)", "query": "specific search query to find viral content in this creator's exact niche this week on TikTok or Instagram — be specific about content style and sub-niche, not just broad topic" },
+    { "id": "niche_2", "label": "Short label", "query": "specific viral content search query" },
+    { "id": "niche_3", "label": "Short label", "query": "specific viral content search query" },
+    { "id": "niche_4", "label": "Short label", "query": "specific viral content search query" }
+  ]
 }
 
 PILLAR RULES — CRITICAL:
@@ -18608,6 +18614,8 @@ Include: Hook, Body (3 punchy points), CTA, Caption, 10 Hashtags.`;
     if (!item) return;
     saveQueue(queue.map(q => q.id === id ? {...q, status:'approved', approvedAt: Date.now()} : q));
     await saveToSupabase({ type: item.type.toLowerCase(), title: item.topic, platform: item.platform, angle: item.angle, preview: item.content.slice(0,500), full: item.content, client: item.client, notes: 'approved via queue' });
+    // Passive Learning Agent — silent background pattern extraction
+    passiveLearnOnApprove(activeClient);
   };
 
   const reject = (id) => saveQueue(queue.map(q => q.id === id ? {...q, status:'rejected'} : q));
@@ -21449,6 +21457,8 @@ function SmartBrief() {
     // Auto-build design pack
     const pack = buildDesignPackFromContent(generatedContent, format, topic);
     setDesignPack(pack);
+    // Passive Learning Agent — silent background pattern extraction
+    passiveLearnOnApprove(activeClient);
   };
 
   const handleOverride = () => {
@@ -22916,6 +22926,77 @@ function BrainBuilder() {
 // Insights dashboard - what the Brain has learned.
 // ═══════════════════════════════════════════════════════════════════════════
 
+// ── PASSIVE LEARNING AGENT ────────────────────────────────────────────────────
+// Fires silently in the background after every content approval.
+// Every 5th approval per client, extracts winner patterns automatically.
+// No UI. No clicks required. Pure background intelligence.
+
+const PASSIVE_LEARN_KEY = 'encis_passive_approval_count';
+
+async function passiveLearnOnApprove(activeClient) {
+  try {
+    const clientId = activeClient?.id || 'jason';
+
+    // Increment approval counter for this client
+    const counts = JSON.parse(localStorage.getItem(PASSIVE_LEARN_KEY) || '{}');
+    counts[clientId] = (counts[clientId] || 0) + 1;
+    localStorage.setItem(PASSIVE_LEARN_KEY, JSON.stringify(counts));
+
+    // Only extract patterns every 5th approval
+    if (counts[clientId] % 5 !== 0) return;
+
+    // Pull winners from Supabase
+    const { data: winnerData } = await supabase
+      .from('saved_content')
+      .select('title, platform, angle, notes, content_preview')
+      .eq('client_id', clientId)
+      .or('notes.ilike.%winner%,notes.ilike.%outperformed%,notes.ilike.%risk:1%,notes.ilike.%risk:2%,notes.ilike.%risk:3%')
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    const winners = winnerData || [];
+
+    // Also pull quality anchors from localStorage
+    const anchors = JSON.parse(localStorage.getItem(QUALITY_ANCHOR_KEY) || '[]');
+    const clientAnchors = anchors.filter(a => (a.clientId || 'jason') === clientId)
+      .map(a => ({ title: a.topic, platform: a.platform, angle: a.pillar, notes: 'quality-anchor', content_preview: a.preview }));
+
+    const allWinners = [...winners, ...clientAnchors].slice(0, 20);
+    if (allWinners.length < 3) return; // Not enough data yet
+
+    // Extract patterns silently
+    const clientName = activeClient?.name || 'the creator';
+    const raw = await ai(WINNER_PATTERN_PROMPT(allWinners, clientName));
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+
+    // Save patterns
+    const allPatterns = JSON.parse(localStorage.getItem(WINNER_PATTERNS_KEY) || '{}');
+    allPatterns[clientId] = {
+      ...result,
+      extractedAt: new Date().toISOString(),
+      winnerCount: allWinners.length,
+      autoExtracted: true,
+    };
+    localStorage.setItem(WINNER_PATTERNS_KEY, JSON.stringify(allPatterns));
+
+    // Sync to Supabase
+    try {
+      await supabase.from('winner_patterns').upsert({
+        client_id: clientId,
+        patterns_json: allPatterns[clientId],
+        winner_count: allWinners.length,
+        extracted_at: new Date().toISOString(),
+      }, { onConflict: 'client_id' });
+    } catch {}
+
+  } catch(e) {
+    // Silent — never surface errors to the user
+    console.debug('Passive learn error (non-critical):', e?.message);
+  }
+}
+
+
 const WINNER_PATTERNS_KEY = 'encis_winner_patterns';
 const LEARNING_LOOP_KEY   = 'encis_learning_loop';
 const TOPIC_WEIGHTS_KEY   = 'encis_topic_weights';
@@ -23953,6 +24034,14 @@ function DualOnboarding() {
     const handle = clientHandle || editedExtract?.handle || guided.handle || '';
 
     // Build client object
+    // trend_niches: comes from brain (AI-generated during build) or falls back to empty
+    const rawTrendNiches = brain.trend_niches || [];
+    const trendNiches = rawTrendNiches.map((n, i) => ({
+      id: n.id || `niche_${i + 1}`,
+      label: n.label || `Niche ${i + 1}`,
+      query: n.query || '',
+    })).filter(n => n.query);
+
     const newClient = {
       id: Date.now().toString(),
       name,
@@ -23964,6 +24053,7 @@ function DualOnboarding() {
       angles: brain.content_pillars?.map(p => p.name).join(', ') || '',
       niche: editedExtract?.niche || guided.niche || '',
       location: editedExtract?.location || '',
+      trendNiches,
       isDefault: false,
       onboardedAt: new Date().toISOString(),
     };
@@ -24044,8 +24134,11 @@ function DualOnboarding() {
     }
 
     setSaved(true);
-    setStep(4); // Done
+    setStep(4); // Done — show niches
   };
+
+  // Niche edit state for review step
+  const [editingNiches, setEditingNiches] = React.useState(false);
 
   // ── GUIDED FLOW ──
 
@@ -24432,20 +24525,92 @@ function DualOnboarding() {
 
       {/* ── STEP 4: DONE ── */}
       {step === 4 && saved && (
-        <div style={{ textAlign: 'center', padding: '40px 24px', background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 14 }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
-          <div style={{ color: '#111827', fontWeight: 800, fontSize: 22, marginBottom: 8 }}>{clientName} is ready</div>
-          <div style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.7, marginBottom: 8 }}>
-            Brain built. {brain?.content_pillars?.length || 0} content pillars. Voice profile active.
-          </div>
-          {extracted?.stories?.length > 0 && (
-            <div style={{ color: '#3B82F6', fontSize: 13, marginBottom: 20 }}>
-              {extracted.stories.length} stories added to story bank automatically.
+        <div>
+          {/* Success header */}
+          <div style={{ textAlign: 'center', padding: '32px 24px 24px', background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 14, marginBottom: 16 }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
+            <div style={{ color: '#111827', fontWeight: 800, fontSize: 20, marginBottom: 6 }}>{clientName} is ready</div>
+            <div style={{ color: '#6B7280', fontSize: 13, lineHeight: 1.6 }}>
+              Brain built · {brain?.content_pillars?.length || 0} pillars · Voice active
+              {extracted?.stories?.length > 0 && ` · ${extracted.stories.length} stories banked`}
             </div>
-          )}
+          </div>
+
+          {/* Trend Niches Review */}
+          {(() => {
+            const savedClient = (() => {
+              try {
+                const clients = JSON.parse(localStorage.getItem('encis_clients') || '[]');
+                return clients.find(c => c.name === clientName) || null;
+              } catch { return null; }
+            })();
+            const niches = savedClient?.trendNiches || brain?.trend_niches || [];
+
+            return niches.length > 0 ? (
+              <div style={{ background: '#F8F9FF', border: '1px solid #DBEAFE', borderRadius: 12, padding: '18px 20px', marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#1D4ED8', marginBottom: 2 }}>
+                      Trend Monitor Niches ({niches.length})
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6B7280' }}>
+                      These are the searches that run when you scan trends for {clientName}. Edit to make them more specific.
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setEditingNiches(n => !n)}
+                    style={{ background: '#2563EB', color: '#fff', border: 'none', borderRadius: 7, padding: '6px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}
+                  >{editingNiches ? 'Done editing' : 'Edit niches'}</button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {niches.map((niche, i) => (
+                    <div key={niche.id || i} style={{ background: '#fff', border: '1px solid #BFDBFE', borderRadius: 8, padding: '10px 14px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: editingNiches ? 6 : 0 }}>
+                        <span style={{ background: '#2563EB', color: '#fff', fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 3 }}>{niche.label}</span>
+                        {!editingNiches && (
+                          <span style={{ fontSize: 12, color: '#6B7280', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{niche.query}</span>
+                        )}
+                      </div>
+                      {editingNiches && (
+                        <input
+                          value={niche.query}
+                          onChange={e => {
+                            try {
+                              const clients = JSON.parse(localStorage.getItem('encis_clients') || '[]');
+                              const updated = clients.map(c => {
+                                if (c.name !== clientName) return c;
+                                const updatedNiches = (c.trendNiches || []).map((n, ni) => ni === i ? { ...n, query: e.target.value } : n);
+                                return { ...c, trendNiches: updatedNiches };
+                              });
+                              localStorage.setItem('encis_clients', JSON.stringify(updated));
+                            } catch {}
+                          }}
+                          style={{ width: '100%', background: '#F8F9FF', border: '1px solid #BFDBFE', borderRadius: 6, padding: '7px 10px', fontSize: 12, color: '#1A1A1A', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 10 }}>
+                  Tip: Queries work best when they include the platform (TikTok, Instagram) and content style (raw story, viral hook, this week)
+                </div>
+              </div>
+            ) : (
+              <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '14px 18px', marginBottom: 16 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#92400E', marginBottom: 4 }}>No trend niches generated</div>
+                <div style={{ fontSize: 12, color: '#78350F' }}>
+                  Go to Brain → Client Profiles → Edit {clientName} → add niches manually, or use the TrendNicheEditor in the Trend Monitor.
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Actions */}
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button onClick={() => { setPath(null); setStep(0); setSaved(false); setBrain(null); setExtracted(null); setRawText(''); setClientName(''); setClientHandle(''); setGuided({ name:'',handle:'',what_they_do:'',audience:'',problem:'',tone:'',differentiators:'',offers:'',beliefs:'' }); }}
-              style={{ background: '#111827', color: '#FFF', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
+            <button onClick={() => { setPath(null); setStep(0); setSaved(false); setBrain(null); setExtracted(null); setRawText(''); setClientName(''); setClientHandle(''); setEditingNiches(false); setGuided({ name:'',handle:'',what_they_do:'',audience:'',problem:'',tone:'',differentiators:'',offers:'',beliefs:'' }); }}
+              style={{ background: '#111827', color: '#FFF', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, cursor: 'pointer', fontSize: 13, fontFamily: 'inherit' }}>
               Add Another Client
             </button>
           </div>
@@ -24696,6 +24861,8 @@ function ContentEngine() {
       anchors.unshift({ id: Date.now(), topic, platform: format?.platform, preview: output.slice(0, 200), risk: gateResult?.overall_risk, savedAt: new Date().toISOString() });
       localStorage.setItem(QUALITY_ANCHOR_KEY, JSON.stringify(anchors.slice(0, 50)));
     } catch {}
+    // Passive Learning Agent — silent background pattern extraction
+    passiveLearnOnApprove(activeClient);
   };
 
   const reset = () => {
