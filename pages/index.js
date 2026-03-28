@@ -17505,6 +17505,77 @@ For each gap:
           {gapOut&&<DocOutput text={gapOut} title="Content Gap Analysis  - 8th Ascent"/>}
         </div>
       )}
+
+      {/* Hashtag Performance */}
+      {mode==='hashtags' && (() => {
+        const clientId = activeClient?.id || 'jason';
+        const log = (() => { try { return JSON.parse(localStorage.getItem(HASHTAG_LOG_KEY) || '[]').filter(e => (e.clientId || 'jason') === clientId); } catch { return []; } })();
+        if (log.length === 0) return (
+          <div style={{textAlign:'center',padding:'3rem 2rem',background:'#FAFAFA',borderRadius:12,border:'1px solid #E8E6E1'}}>
+            <div style={{color:'#111827',fontWeight:700,fontSize:15,marginBottom:6}}>No hashtags logged yet</div>
+            <div style={{color:'#9CA3AF',fontSize:13}}>Go to Content Library, expand any post, click Log Hashtags after you see how it performed.</div>
+          </div>
+        );
+        const tally = {};
+        log.forEach(entry => {
+          (entry.tags || []).forEach(tag => {
+            if (!tally[tag]) tally[tag] = { tag, winner:0, solid:0, weak:0, unrated:0, total:0 };
+            const t = entry.tier || 'unrated';
+            tally[tag][t] = (tally[tag][t] || 0) + 1;
+            tally[tag].total += 1;
+          });
+        });
+        const sorted = Object.values(tally).sort((a, b) => b.winner - a.winner || b.total - a.total);
+        const winners = sorted.filter(t => t.winner > 0);
+        const neutral = sorted.filter(t => t.winner === 0 && t.weak === 0);
+        const weak    = sorted.filter(t => t.weak > 0 && t.winner === 0);
+        return (
+          <div>
+            <div style={{fontSize:13,color:'#6B7280',marginBottom:16}}>{log.length} posts logged, {sorted.length} unique hashtags tracked</div>
+            {winners.length > 0 && (
+              <div style={{marginBottom:20}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#16A34A',marginBottom:10}}>Winning tags</div>
+                <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+                  {winners.map(t => (
+                    <div key={t.tag} style={{background:'#F0FDF4',border:'1px solid #BBF7D0',borderRadius:8,padding:'8px 14px',display:'flex',flexDirection:'column',alignItems:'center',minWidth:80}}>
+                      <div style={{fontSize:13,fontWeight:700,color:'#15803D',marginBottom:4}}>{t.tag}</div>
+                      <div style={{display:'flex',gap:6,fontSize:10}}>
+                        <span style={{color:'#16A34A',fontWeight:700}}>{t.winner}W</span>
+                        {t.solid > 0 && <span style={{color:'#6B7280'}}>{t.solid}S</span>}
+                        {t.weak > 0 && <span style={{color:'#EF4444'}}>{t.weak}x</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {weak.length > 0 && (
+              <div style={{marginBottom:20}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#DC2626',marginBottom:10}}>Underperforming tags</div>
+                <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+                  {weak.map(t => (
+                    <div key={t.tag} style={{background:'#FFF1F2',border:'1px solid #FECDD3',borderRadius:8,padding:'8px 14px',display:'flex',flexDirection:'column',alignItems:'center',minWidth:80}}>
+                      <div style={{fontSize:13,fontWeight:700,color:'#DC2626',marginBottom:4}}>{t.tag}</div>
+                      <div style={{fontSize:10,color:'#9CA3AF'}}>{t.weak} weak, {t.total} total</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {neutral.length > 0 && (
+              <div>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#9CA3AF',marginBottom:10}}>Neutral</div>
+                <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+                  {neutral.slice(0,30).map(t => (
+                    <span key={t.tag} style={{background:'#F3F4F6',color:'#6B7280',borderRadius:6,padding:'5px 10px',fontSize:12}}>{t.tag} ({t.total})</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
     </div>
   );
 }
@@ -19512,85 +19583,6 @@ Include: Hook, Body (3 punchy points), CTA, Caption, 10 Hashtags.`;
             </>
           )}
         </div>
-
-      {/* Hashtag Performance */}
-      {mode==='hashtags' && (() => {
-        const clientId = activeClient?.id || 'jason';
-        const log = (() => { try { return JSON.parse(localStorage.getItem(HASHTAG_LOG_KEY) || '[]').filter(e => (e.clientId || 'jason') === clientId); } catch { return []; } })();
-
-        if (log.length === 0) return (
-          <div style={{textAlign:'center',padding:'3rem 2rem',background:'#FAFAFA',borderRadius:12,border:'1px solid #E8E6E1'}}>
-            <div style={{color:'#111827',fontWeight:700,fontSize:15,marginBottom:6}}>No hashtags logged yet</div>
-            <div style={{color:'#9CA3AF',fontSize:13}}>Go to Content Library → expand a post → click "Log Hashtags" after you see how it performed.</div>
-          </div>
-        );
-
-        // Tally each hashtag across winner / solid / weak / unrated
-        const tally = {};
-        log.forEach(entry => {
-          (entry.tags || []).forEach(tag => {
-            if (!tally[tag]) tally[tag] = { tag, winner:0, solid:0, weak:0, unrated:0, total:0 };
-            const t = entry.tier || 'unrated';
-            tally[tag][t] = (tally[tag][t] || 0) + 1;
-            tally[tag].total += 1;
-          });
-        });
-
-        const sorted = Object.values(tally).sort((a, b) => b.winner - a.winner || b.total - a.total);
-        const winners = sorted.filter(t => t.winner > 0);
-        const neutral = sorted.filter(t => t.winner === 0 && t.weak === 0);
-        const weak    = sorted.filter(t => t.weak > 0 && t.winner === 0);
-
-        return (
-          <div>
-            <div style={{fontSize:13,color:'#6B7280',marginBottom:16}}>{log.length} posts logged · {sorted.length} unique hashtags tracked for {activeClient?.name || 'you'}</div>
-
-            {winners.length > 0 && (
-              <div style={{marginBottom:20}}>
-                <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#16A34A',marginBottom:10}}>Winning tags — associated with top-performing posts</div>
-                <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
-                  {winners.map(t => (
-                    <div key={t.tag} style={{background:'#F0FDF4',border:'1px solid #BBF7D0',borderRadius:8,padding:'8px 14px',display:'flex',flexDirection:'column',alignItems:'center',minWidth:100}}>
-                      <div style={{fontSize:13,fontWeight:700,color:'#15803D',marginBottom:4}}>{t.tag}</div>
-                      <div style={{display:'flex',gap:6,fontSize:10,color:'#6B7280'}}>
-                        <span style={{color:'#16A34A',fontWeight:700}}>{t.winner}W</span>
-                        {t.solid > 0 && <span>{t.solid}S</span>}
-                        {t.weak > 0 && <span style={{color:'#EF4444'}}>{t.weak}✗</span>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {weak.length > 0 && (
-              <div style={{marginBottom:20}}>
-                <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#DC2626',marginBottom:10}}>Underperforming tags — avoid or test differently</div>
-                <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
-                  {weak.map(t => (
-                    <div key={t.tag} style={{background:'#FFF1F2',border:'1px solid #FECDD3',borderRadius:8,padding:'8px 14px',display:'flex',flexDirection:'column',alignItems:'center',minWidth:100}}>
-                      <div style={{fontSize:13,fontWeight:700,color:'#DC2626',marginBottom:4}}>{t.tag}</div>
-                      <div style={{fontSize:10,color:'#9CA3AF'}}>{t.weak} weak · {t.total} total</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {neutral.length > 0 && (
-              <div>
-                <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#9CA3AF',marginBottom:10}}>Neutral — not enough data yet</div>
-                <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
-                  {neutral.slice(0,30).map(t => (
-                    <span key={t.tag} style={{background:'#F3F4F6',color:'#6B7280',borderRadius:6,padding:'5px 10px',fontSize:12}}>{t.tag} ({t.total})</span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      })()}
-
       )}
     </div>
   );
