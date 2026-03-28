@@ -11027,12 +11027,107 @@ function TranscriptIntel() {
   const [analyzing, setAnalyzing] = useState(false);
   const [out, setOut] = useState('');
   const [view, setView] = useState('upload');
+  const [generatingContent, setGeneratingContent] = useState(false);
+  const [contentGenerated, setContentGenerated] = useState(false);
   const fileRef = useRef(null);
 
   useEffect(() => {
     try { const s = localStorage.getItem(TRANSCRIPTS_KEY); if (s) setTranscripts(JSON.parse(s)); } catch {}
     setSelectedClient(activeClient);
   }, []);
+
+  // Parse content ideas from analysis output and generate 5 ready-to-approve pieces
+  const generateContentFromTranscript = async () => {
+    if (!out || !selectedClient || generatingContent) return;
+    setGeneratingContent(true);
+    setContentGenerated(false);
+
+    try {
+      // Step 1: Extract the content ideas list from the analysis
+      const extractPrompt = `From this transcript analysis, extract the "Content Ideas Extracted" section.
+Return ONLY a JSON array of up to 5 objects, each with: topic, angle, format, hook.
+If the section is missing, infer 5 ideas from the themes in the analysis.
+Return valid JSON only, no markdown, no explanation.
+
+ANALYSIS:
+${out.slice(0, 4000)}`;
+
+      const raw = await ai(extractPrompt);
+      const clean = raw.replace(/```json|```/g, '').trim();
+      let ideas = [];
+      try { ideas = JSON.parse(clean); } catch { ideas = []; }
+
+      // Fallback: generate generic ideas if parse fails
+      if (!Array.isArray(ideas) || ideas.length === 0) {
+        ideas = [
+          { topic: 'Key insight from call', angle: 'Mindset', format: 'Reel Script', hook: 'Here is what most people miss about this:' },
+          { topic: 'Client story from transcript', angle: 'Personal Story', format: 'Caption Post', hook: 'This conversation changed how I think about' },
+          { topic: 'Main takeaway', angle: 'Educational', format: 'Carousel', hook: 'The 3 things we talked about that matter most:' },
+        ];
+      }
+
+      const toGenerate = ideas.slice(0, 5);
+
+      // Step 2: Generate each piece using the client's voice
+      const voice = getVoice(selectedClient);
+      const queueEntries = [];
+
+      for (let i = 0; i < toGenerate.length; i++) {
+        const idea = toGenerate[i];
+        const format = idea.format || 'Reel Script';
+        const topic = idea.topic || 'Content from transcript';
+        const hook = idea.hook || '';
+        const angle = idea.angle || 'Educational';
+
+        const contentPrompt = voice + '
+
+Write a complete ' + format + ' about: "' + topic + '"
+' +
+          'Angle: ' + angle + '
+' +
+          (hook ? 'Start with this hook: ' + hook + '
+' : '') +
+          'Platform: Instagram
+' +
+          'Source: Extracted from a ' + transcriptType + ' transcript
+
+' +
+          'Write the full piece. Be specific. Use the voice above exactly.';
+
+        try {
+          const piece = await ai(contentPrompt);
+          queueEntries.push({
+            id: Date.now() + i,
+            topic,
+            type: format,
+            platform: 'Instagram',
+            angle,
+            content: piece,
+            status: 'pending',
+            client: selectedClient.name,
+            source: 'transcript-pipeline',
+            date: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
+            createdAt: Date.now() + i,
+          });
+        } catch { /* skip failed generations */ }
+
+        await new Promise(r => setTimeout(r, 400));
+      }
+
+      // Step 3: Save all to Approval Queue
+      if (queueEntries.length > 0) {
+        try {
+          const existing = JSON.parse(localStorage.getItem(APPROVAL_QUEUE_KEY) || '[]');
+          localStorage.setItem(APPROVAL_QUEUE_KEY, JSON.stringify([...queueEntries, ...existing]));
+        } catch {}
+        setContentGenerated(true);
+      }
+    } catch(e) {
+      console.error('generateContentFromTranscript error:', e);
+    }
+
+    setGeneratingContent(false);
+  };
 
   const saveTranscripts = (list) => { setTranscripts(list); try { localStorage.setItem(TRANSCRIPTS_KEY, JSON.stringify(list)); } catch {} };
 
@@ -11178,9 +11273,21 @@ function TranscriptIntel() {
 
       {view === 'results' && out && (
         <div>
-          <button onClick={() => setView('upload')} style={{background:'#FFFFFF',color:'#6B7280',border:'none',borderRadius:6,padding:'6px 14px',fontSize:12,cursor:'pointer',marginBottom:16}}>
-            New Transcript
-          </button>
+          <div style={{display:'flex',gap:8,marginBottom:16,flexWrap:'wrap',alignItems:'center'}}>
+            <button onClick={() => setView('upload')}
+              style={{background:'#F3F4F6',color:'#6B7280',border:'1px solid #E5E7EB',borderRadius:7,padding:'7px 14px',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+              ← New Transcript
+            </button>
+            <button onClick={generateContentFromTranscript} disabled={generatingContent}
+              style={{background:generatingContent?'#F3F4F6':'#1A1A1A',color:generatingContent?'#9CA3AF':'#fff',border:'none',borderRadius:7,padding:'7px 18px',fontSize:12,fontWeight:700,cursor:generatingContent?'not-allowed':'pointer',fontFamily:'inherit'}}>
+              {generatingContent ? 'Generating pieces...' : 'Generate 5 Content Pieces →'}
+            </button>
+            {contentGenerated && (
+              <span style={{background:'#F0FDF4',border:'1px solid #BBF7D0',color:'#16A34A',fontSize:11,fontWeight:700,padding:'4px 10px',borderRadius:5}}>
+                5 pieces sent to Approval Queue ✓
+              </span>
+            )}
+          </div>
           <DocOutput text={out} title={`${transcriptType} Analysis: ${selectedClient?.name}`}/>
         </div>
       )}
@@ -19861,8 +19968,9 @@ Generate their complete onboarding package. Return as JSON only - no markdown, n
 }
 
 
-const COMPETITOR_KEY = 'encis_competitor_intel';
-const COMPETITOR_HANDLES_KEY = 'encis_competitor_handles';
+const COMPETITOR_KEY = 'encis_competitor_intel'; // base — appended with clientId
+const COMPETITOR_HANDLES_KEY = 'encis_competitor_handles'; // base — appended with clientId
+const COMPETITOR_HISTORY_KEY = 'encis_competitor_history'; // base — appended with clientId
 
 function CompetitorIntelAgent() {
   const [activeClient] = useActiveClient();
@@ -19875,27 +19983,36 @@ function CompetitorIntelAgent() {
   const [gaps, setGaps] = useState('');
   const [buildingGaps, setBuildingGaps] = useState(false);
   const [autoRun, setAutoRun] = useState(false);
+  const [history, setHistory] = useState([]); // last 4 weekly scans
+  const [activeTab, setActiveTab] = useState('scan'); // scan | history | radar
+
+  const clientId = activeClient?.id || 'jason';
+  const compKey = COMPETITOR_KEY + '_' + clientId;
+  const handlesKey = COMPETITOR_HANDLES_KEY + '_' + clientId;
+  const historyKey = COMPETITOR_HISTORY_KEY + '_' + clientId;
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(COMPETITOR_HANDLES_KEY);
+      const saved = localStorage.getItem(handlesKey);
       if (saved) {
         const h = JSON.parse(saved);
         const padded = [...h, ...Array(5).fill('')].slice(0, 5);
         setHandles(padded);
       }
-      const res = localStorage.getItem(COMPETITOR_KEY);
+      const res = localStorage.getItem(compKey);
       if (res) {
         const d = JSON.parse(res);
         setResults(d.results || []);
         setLastRun(d.date || null);
         setGaps(d.gaps || '');
       }
+      const hist = localStorage.getItem(historyKey);
+      if (hist) setHistory(JSON.parse(hist));
       const auto = localStorage.getItem('encis_competitor_auto');
       if (auto) setAutoRun(JSON.parse(auto));
     } catch {}
     checkCronResults();
-  }, []);
+  }, [clientId]); // re-run on client switch
 
   const checkCronResults = async () => {
     try {
@@ -19926,7 +20043,7 @@ function CompetitorIntelAgent() {
   const updateHandle = (i, val) => setHandles(handles.map((h, idx) => idx === i ? val : h));
 
   const saveHandles = () => {
-    try { localStorage.setItem(COMPETITOR_HANDLES_KEY, JSON.stringify(filledHandles)); } catch {}
+    try { localStorage.setItem(handlesKey, JSON.stringify(filledHandles)); } catch {}
   };
 
   const buildGapAnalysis = async (competitorResults) => {
@@ -20029,8 +20146,14 @@ What ${clientName} can say or do that none of these competitors can - based on t
     setLastRun(dateStr);
 
     try {
-      localStorage.setItem(COMPETITOR_KEY, JSON.stringify({ results: newResults, gaps: gapReport, date: dateStr }));
+      localStorage.setItem(compKey, JSON.stringify({ results: newResults, gaps: gapReport, date: dateStr }));
       localStorage.setItem('encis_competitor_ts', Date.now().toString());
+      // Save to history — keep last 4 scans
+      const histEntry = { date: dateStr, ts: Date.now(), gaps: gapReport, handles: filledHandles, resultCount: newResults.length };
+      const prevHist = JSON.parse(localStorage.getItem(historyKey) || '[]');
+      const newHist = [histEntry, ...prevHist].slice(0, 4);
+      localStorage.setItem(historyKey, JSON.stringify(newHist));
+      setHistory(newHist);
     } catch {}
 
     try {
@@ -20051,98 +20174,168 @@ What ${clientName} can say or do that none of these competitors can - based on t
     try { localStorage.setItem('encis_competitor_auto', JSON.stringify(next)); } catch {}
   };
 
+  const daysSinceLastScan = lastRun ? Math.floor((Date.now() - new Date(lastRun).getTime()) / 86400000) : null;
+  const staleScan = daysSinceLastScan !== null && daysSinceLastScan > 6;
+
   return (
     <div>
+      {/* Header */}
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20,flexWrap:'wrap',gap:12}}>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
           <div style={{width:3,height:28,background:'#00C2FF',borderRadius:2,flexShrink:0}}/>
           <div>
-            <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800}}>Competitor Intelligence Agent</h2>
-            <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>Enter up to 5 competitor handles. Agent pulls their content weekly and finds the gaps they're leaving for you to fill.</p>
+            <h2 style={{color:'#111827',margin:0,fontSize:18,fontWeight:800}}>Competitor Gap Radar</h2>
+            <p style={{color:'#6B7280',margin:'4px 0 0',fontSize:13}}>
+              {lastRun ? (staleScan ? `Last scan ${lastRun} — overdue for refresh` : `Last scan: ${lastRun}`) : 'No scans yet — add handles and scan'}
+            </p>
           </div>
         </div>
         <div style={{display:'flex',gap:8,alignItems:'center'}}>
           <button onClick={toggleAutoRun}
-            style={{background:autoRun?'rgba(39,174,96,0.1)':'#F9FAFB',color:autoRun?'#27ae60':'#6B7280',border:'1px solid '+(autoRun?'rgba(39,174,96,0.3)':'#E5E7EB'),borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
-            {autoRun ? '🟢 Auto-scan ON' : 'Auto-scan OFF'}
+            style={{background:autoRun?'rgba(39,174,96,0.1)':'#F9FAFB',color:autoRun?'#27ae60':'#6B7280',border:'1px solid '+(autoRun?'rgba(39,174,96,0.3)':'#E5E7EB'),borderRadius:8,padding:'7px 14px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+            {autoRun ? 'Auto ON' : 'Auto OFF'}
           </button>
           <button onClick={runScan} disabled={loading||filledHandles.length===0}
-            style={{background:loading||filledHandles.length===0?'#F9FAFB':'#2563EB',color:loading||filledHandles.length===0?'#9CA3AF':'#fff',border:'none',borderRadius:8,padding:'7px 18px',fontSize:12,fontWeight:700,cursor:loading||filledHandles.length===0?'not-allowed':'pointer'}}>
-            {loading ? 'Scanning...' : 'Scan Competitors'}
+            style={{background:loading||filledHandles.length===0?'#F9FAFB':'#2563EB',color:loading||filledHandles.length===0?'#9CA3AF':'#fff',border:'none',borderRadius:8,padding:'7px 18px',fontSize:12,fontWeight:700,cursor:loading||filledHandles.length===0?'not-allowed':'pointer',fontFamily:'inherit'}}>
+            {loading ? 'Scanning...' : 'Scan Now'}
           </button>
         </div>
       </div>
 
-      {/* Status bar */}
-      <div style={{background:'#F9FAFB',border:'1px solid #E5E7EB',borderRadius:10,padding:'12px 16px',marginBottom:20,display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
-        <div style={{fontSize:12,color:'#6B7280'}}>{lastRun ? `Last scan: ${lastRun}` : 'No scans yet - add handles and hit Scan'}</div>
-        <div style={{fontSize:11,color:'#6B7280'}}>Auto-scan runs every 48 hours when enabled</div>
+      {/* Tabs */}
+      <div style={{display:'flex',gap:0,marginBottom:20,borderBottom:'1px solid #E5E7EB'}}>
+        {[
+          {id:'scan',    label:'Competitors'},
+          {id:'radar',   label:'Gap Radar' + (gaps ? ' ✓' : '')},
+          {id:'history', label:'History (' + history.length + ')'},
+        ].map(tab => (
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+            style={{background:'none',border:'none',borderBottom:'2px solid '+(activeTab===tab.id?'#2563EB':'transparent'),color:activeTab===tab.id?'#2563EB':'#6B7280',padding:'10px 18px',cursor:'pointer',fontSize:13,fontWeight:activeTab===tab.id?700:500,fontFamily:'inherit',marginBottom:-1,transition:'color 0.12s'}}>
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Handle inputs */}
-      <Card style={{marginBottom:20}}>
-        <SecLabel>Competitor Handles (up to 5)</SecLabel>
-        <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:12}}>
-          {handles.map((h, i) => (
-            <div key={i} style={{display:'flex',gap:8,alignItems:'center'}}>
-              <span style={{color:'#6B7280',fontSize:13,minWidth:20,flexShrink:0}}>{i+1}.</span>
-              <input value={h} onChange={e=>updateHandle(i,e.target.value)}
-                placeholder={i===0?'e.g. @competitorhandle':i===1?'Another competitor handle...':'Another handle...'}
-                style={{flex:1,background:'#F9FAFB',border:'1px solid '+(h.trim()?'#C7D2FE':'#D1D5DB'),borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box'}}/>
+      {/* ── SCAN TAB ── */}
+      {activeTab === 'scan' && (
+        <div>
+          <Card style={{marginBottom:20}}>
+            <SecLabel>Competitor Handles (up to 5)</SecLabel>
+            <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:12}}>
+              {handles.map((h, i) => (
+                <div key={i} style={{display:'flex',gap:8,alignItems:'center'}}>
+                  <span style={{color:'#9CA3AF',fontSize:13,minWidth:20,flexShrink:0}}>{i+1}.</span>
+                  <input value={h} onChange={e=>updateHandle(i,e.target.value)}
+                    placeholder={i===0?'@handle or creator name':i===1?'Another competitor...':'Another handle...'}
+                    style={{flex:1,background:'#FAFAF8',border:'1px solid '+(h.trim()?'#2563EB':'#E8E6E1'),borderRadius:8,padding:'9px 12px',color:'#111827',fontSize:13,boxSizing:'border-box',fontFamily:'inherit'}}/>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <p style={{color:'#6B7280',fontSize:11,margin:'0 0 12px',lineHeight:1.6}}>
-          Add handles of creators in your space - people posting about similar topics to you. The agent will analyze what they're doing and find the gaps they're leaving open.
-        </p>
-        <button onClick={runScan} disabled={loading||filledHandles.length===0}
-          style={{background:loading||filledHandles.length===0?'#F3F4F6':'linear-gradient(135deg,#00C2FF,#0096CC)',color:loading||filledHandles.length===0?'#9CA3AF':'#000D1A',border:'none',borderRadius:8,padding:'11px 24px',fontWeight:800,cursor:loading||filledHandles.length===0?'not-allowed':'pointer',fontSize:14,width:'100%'}}>
-          {loading ? `Scanning ${filledHandles.length} competitor${filledHandles.length!==1?'s':''}...` : `Scan ${filledHandles.length} Competitor${filledHandles.length!==1?'s':''}`}
-        </button>
-      </Card>
+            <button onClick={runScan} disabled={loading||filledHandles.length===0}
+              style={{background:loading||filledHandles.length===0?'#F3F4F6':'#1A1A1A',color:loading||filledHandles.length===0?'#9CA3AF':'#fff',border:'none',borderRadius:8,padding:'11px 24px',fontWeight:800,cursor:loading||filledHandles.length===0?'not-allowed':'pointer',fontSize:14,width:'100%',fontFamily:'inherit'}}>
+              {loading ? 'Scanning...' : 'Scan ' + filledHandles.length + ' Competitor' + (filledHandles.length!==1?'s':'')}
+            </button>
+          </Card>
 
-      {/* Scanning progress */}
-      {loading && (
-        <div style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'20px',marginBottom:16}}>
-          <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
-            <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{buildingGaps ? 'Building gap analysis...' : 'Scanning competitors...'}</div>
-            <div style={{color:'#6B7280',fontSize:12}}>{progress}%</div>
-          </div>
-          <div style={{height:6,background:'#F3F4F6',borderRadius:3,marginBottom:12}}>
-            <div style={{height:'100%',background:'#2563EB',borderRadius:3,width:`${progress}%`,transition:'width 0.3s'}}/>
-          </div>
-          {scanning && <div style={{color:'#6B7280',fontSize:12}}>Currently scanning: <strong style={{color:'#00C2FF'}}>@{scanning}</strong></div>}
-          <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:10}}>
-            {filledHandles.map(h => (
-              <span key={h} style={{background:scanning===h.replace('@','')?'rgba(0,194,255,0.15)':results.find(r=>r.handle===`@${h.replace('@','')}` )?'rgba(39,174,96,0.1)':'#F3F4F6',color:scanning===h.replace('@','')?'#00C2FF':results.find(r=>r.handle===`@${h.replace('@','')}` )?'#27ae60':'#9CA3AF',borderRadius:4,padding:'3px 8px',fontSize:10,fontWeight:700}}>
-                @{h.replace('@','')}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Competitor cards */}
-      {results.length > 0 && (
-        <div style={{marginBottom:20}}>
-          <div style={{fontSize:11,color:'#6B7280',fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',marginBottom:10}}>Competitor Snapshots</div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:10}}>
-            {results.map(r => (
-              <div key={r.id} style={{background:'#FFFFFF',border:'1px solid #E5E7EB',borderRadius:10,padding:'14px'}}>
-                <div style={{color:'#111827',fontWeight:800,fontSize:14,marginBottom:8}}>{r.handle}</div>
-                {r.topContent && (
-                  <div style={{color:'#374151',fontSize:12,lineHeight:1.6,maxHeight:120,overflowY:'auto'}}>
-                    {r.topContent}
-                  </div>
-                )}
+          {loading && (
+            <div style={{background:'#fff',border:'1px solid #E5E7EB',borderRadius:10,padding:'20px',marginBottom:16}}>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+                <div style={{color:'#111827',fontWeight:700,fontSize:13}}>{buildingGaps?'Building gap analysis...':'Scanning competitors...'}</div>
+                <div style={{color:'#6B7280',fontSize:12}}>{progress}%</div>
               </div>
-            ))}
-          </div>
+              <div style={{height:6,background:'#F3F4F6',borderRadius:3,marginBottom:10}}>
+                <div style={{height:'100%',background:'#2563EB',borderRadius:3,width:progress+'%',transition:'width 0.3s'}}/>
+              </div>
+              {scanning && <div style={{color:'#6B7280',fontSize:12}}>Scanning: <strong style={{color:'#2563EB'}}>@{scanning}</strong></div>}
+            </div>
+          )}
+
+          {results.length > 0 && !loading && (
+            <div style={{marginBottom:16}}>
+              <div style={{fontSize:11,color:'#9CA3AF',fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',marginBottom:10}}>Competitor Snapshots</div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:10}}>
+                {results.map(r => (
+                  <div key={r.id} style={{background:'#fff',border:'1px solid #E8E6E1',borderLeft:'3px solid #2563EB',borderRadius:10,padding:'14px'}}>
+                    <div style={{color:'#111827',fontWeight:800,fontSize:14,marginBottom:6}}>{r.handle}</div>
+                    {r.topContent && <div style={{color:'#6B7280',fontSize:12,lineHeight:1.6,maxHeight:100,overflowY:'auto'}}>{r.topContent.slice(0,200)}</div>}
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => setActiveTab('radar')}
+                style={{marginTop:12,background:'#2563EB',color:'#fff',border:'none',borderRadius:8,padding:'9px 20px',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+                View Gap Radar →
+              </button>
+            </div>
+          )}
+
+          {results.length === 0 && !loading && (
+            <div style={{textAlign:'center',padding:'3rem 2rem',background:'#FAFAFA',borderRadius:12,border:'1px solid #E8E6E1'}}>
+              <div style={{color:'#111827',fontWeight:700,fontSize:15,marginBottom:6}}>No scan data yet</div>
+              <div style={{color:'#9CA3AF',fontSize:13}}>Add handles above and hit Scan Now</div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Gap analysis */}
-      {gaps && <DocOutput text={gaps} title="Competitor Intelligence Report"/>}
+      {/* ── GAP RADAR TAB ── */}
+      {activeTab === 'radar' && (
+        <div>
+          {gaps ? (
+            <DocOutput text={gaps} title="Competitor Gap Radar"/>
+          ) : (
+            <div style={{textAlign:'center',padding:'3rem 2rem',background:'#FAFAFA',borderRadius:12,border:'1px solid #E8E6E1'}}>
+              <div style={{color:'#111827',fontWeight:700,fontSize:15,marginBottom:6}}>No gap analysis yet</div>
+              <div style={{color:'#9CA3AF',fontSize:13,marginBottom:16}}>Run a scan first to generate your gap radar</div>
+              <button onClick={() => setActiveTab('scan')}
+                style={{background:'#1A1A1A',color:'#fff',border:'none',borderRadius:8,padding:'9px 20px',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+                Go to Scan →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── HISTORY TAB ── */}
+      {activeTab === 'history' && (
+        <div>
+          {history.length === 0 ? (
+            <div style={{textAlign:'center',padding:'3rem 2rem',background:'#FAFAFA',borderRadius:12,border:'1px solid #E8E6E1'}}>
+              <div style={{color:'#111827',fontWeight:700,fontSize:15,marginBottom:6}}>No scan history yet</div>
+              <div style={{color:'#9CA3AF',fontSize:13}}>History saves automatically after each scan. Run your first scan to start tracking competitor changes over time.</div>
+            </div>
+          ) : (
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              {history.map((entry, i) => (
+                <div key={i} style={{background:'#fff',border:'1px solid #E8E6E1',borderRadius:12,padding:'18px 20px'}}>
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12,flexWrap:'wrap',gap:8}}>
+                    <div>
+                      <div style={{fontSize:14,fontWeight:800,color:'#111827'}}>{entry.date}</div>
+                      <div style={{fontSize:12,color:'#9CA3AF',marginTop:2}}>{entry.handles?.join(', ')} · {entry.resultCount} competitors</div>
+                    </div>
+                    {i === 0 && <span style={{background:'#EFF6FF',color:'#2563EB',fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:4}}>Most Recent</span>}
+                  </div>
+                  <div style={{background:'#FAFAFA',borderRadius:8,padding:'12px 14px',fontSize:13,color:'#374151',lineHeight:1.6,maxHeight:200,overflowY:'auto',whiteSpace:'pre-wrap'}}>
+                    {entry.gaps?.slice(0, 600) || 'No gap report saved'}
+                    {entry.gaps?.length > 600 && '...'}
+                  </div>
+                  <div style={{display:'flex',gap:8,marginTop:10}}>
+                    <button
+                      onClick={() => { setGaps(entry.gaps || ''); setActiveTab('radar'); }}
+                      style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'6px 14px',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+                      View full report
+                    </button>
+                    <button
+                      onClick={() => navigator.clipboard.writeText(entry.gaps || '')}
+                      style={{background:'none',color:'#9CA3AF',border:'1px solid #E5E7EB',borderRadius:7,padding:'6px 12px',fontSize:12,cursor:'pointer',fontFamily:'inherit'}}>
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
