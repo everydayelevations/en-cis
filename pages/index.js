@@ -19340,7 +19340,8 @@ Include: Hook, Body (3 punchy points), CTA, Caption, 10 Hashtags.`;
               <button onClick={()=>setView('generate')} style={{background:'#2563EB',color:'#fff',border:'none',borderRadius:8,padding:'10px 24px',fontSize:13,fontWeight:700,cursor:'pointer'}}>Generate First Piece</button>
             </div>
           ) : (
-            {/* Bulk action bar — shows when pending items exist */}
+            <>
+          {/* Bulk action bar — shows when pending items exist */}
           {pending.length > 0 && (
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12,padding:'10px 14px',background:'#F8F9FF',border:'1px solid #DBEAFE',borderRadius:10,flexWrap:'wrap'}}>
               <button onClick={selectAllPending}
@@ -19418,6 +19419,7 @@ Include: Hook, Body (3 punchy points), CTA, Caption, 10 Hashtags.`;
                 </div>
               ))}
             </div>
+            </>
           )}
         </div>
       )}
