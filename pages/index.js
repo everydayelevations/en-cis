@@ -26369,8 +26369,7 @@ function ContentAuditTool() {
         return;
       }
 
-      const NL = '
-';
+      const NL = '\n';
       const voice = getVoice(selectedClient);
       const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
@@ -26536,8 +26535,7 @@ function BrandKitGenerator() {
   const runGenerate = async () => {
     if (!selectedClient) return;
     setLoading(true); setOut('');
-    const NL = '
-';
+    const NL = '\n';
     const voice = getVoice(selectedClient);
     const today = new Date().toLocaleDateString('en-US', {month:'long', year:'numeric'});
     const stories = (() => { try { const s = JSON.parse(localStorage.getItem(STORY_BANK_KEY)||'{}'); return (s[selectedClient.id||'jason']||[]).slice(0,5); } catch { return []; } })();
@@ -26686,8 +26684,7 @@ function ClientContentBrief() {
   const runGenerate = async () => {
     if (!selectedClient) return;
     setLoading(true); setOut('');
-    const NL = '
-';
+    const NL = '\n';
     const voice = getVoice(selectedClient);
 
     // Pull this month's content from queue
