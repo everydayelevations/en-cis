@@ -18831,22 +18831,20 @@ const TREND_MONITOR_DATE_KEY = 'encis_trend_monitor_date'; // base key — appen
 // ── Stage 1: Perplexity query — find what's trending this week in this niche ──
 // Asks for patterns and themes, not one specific viral post (more reliable)
 const TREND_SEARCH_PROMPT = (niche, today) => {
+  const NL = '\n';
   const base = niche.query
-    ? niche.query + ' — week of ' + today
+    ? niche.query + ' -- week of ' + today
     : 'viral ' + niche.label + ' content creators TikTok Instagram this week ' + today;
-
-  return base + '''
-
-Search for what content creators in this niche are posting this week that is getting strong engagement. Look for:
-- What topics or themes are performing well right now
-- What hook styles or angles are resonating (raw confession, hot take, story-led, data-backed)
-- Any emerging stories, news, or moments in this niche driving content
-
-Return a factual summary in this format:
-TREND: [the dominant theme or topic driving engagement this week — 1-2 sentences]
-HOOK_STYLE: [the hook format winning right now — e.g. "confession-style opening", "contrarian take", "before/after story"]
-EXAMPLE: [one real example post or creator doing this well — handle or description]
-CONTEXT: [why this is resonating with this audience right now — 1 sentence]''';
+  return base + NL + NL +
+    'Search for what content creators in this niche are posting this week that is getting strong engagement. Look for:' + NL +
+    '- What topics or themes are performing well right now' + NL +
+    '- What hook styles or angles are resonating (raw confession, hot take, story-led, data-backed)' + NL +
+    '- Any emerging stories, news, or moments in this niche driving content' + NL + NL +
+    'Return a factual summary in this format:' + NL +
+    'TREND: [the dominant theme or topic driving engagement this week -- 1-2 sentences]' + NL +
+    'HOOK_STYLE: [the hook format winning right now -- e.g. confession-style opening, contrarian take, before/after story]' + NL +
+    'EXAMPLE: [one real example post or creator doing this well -- handle or description]' + NL +
+    'CONTEXT: [why this is resonating with this audience right now -- 1 sentence]';
 };
 
 // ── Stage 2: Claude prompt — write hooks from the trend signal ──────────────
