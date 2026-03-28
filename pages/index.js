@@ -17303,6 +17303,7 @@ For each gap:
     { id:'ab', label:'A/B Tests' },
     { id:'revenue', label:'Revenue Attribution' },
     { id:'gaps', label:'Content Gaps' },
+    { id:'hashtags', label:'Hashtag Performance' },
   ];
   const inStyle = {background:'#F9FAFB',border:'1px solid #D1D5DB',borderRadius:7,padding:'8px 10px',color:'#111827',fontSize:12,boxSizing:'border-box'};
 
@@ -17342,16 +17343,50 @@ For each gap:
           </div>
           {showForm && (
             <Card style={{marginBottom:14}}>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:8}}>
-                {['week','followers','reach','saves','shares','leads'].map(f=>(
+              <div style={{marginBottom:12}}>
+                <SecLabel style={{marginBottom:6}}>Week</SecLabel>
+                <input
+                  type="text"
+                  inputMode="text"
+                  value={form.week}
+                  onChange={e=>setForm(p=>({...p,week:e.target.value}))}
+                  placeholder="e.g. Mar 10-16"
+                  style={{...inStyle,width:'100%',fontSize:16,padding:'12px 14px',boxSizing:'border-box'}}
+                />
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:12}}>
+                {[
+                  ['followers','Followers','👥'],
+                  ['reach','Reach','📡'],
+                  ['saves','Saves','🔖'],
+                  ['shares','Shares','↗️'],
+                  ['leads','Leads','🎯'],
+                ].map(([f, label, icon])=>(
                   <div key={f}>
-                    <SecLabel style={{marginBottom:4}}>{f}</SecLabel>
-                    <input value={form[f]} onChange={e=>setForm(p=>({...p,[f]:e.target.value}))} placeholder={f==='week'?'e.g. Mar 10-16':'number'} style={{...inStyle,width:'100%'}}/>
+                    <SecLabel style={{marginBottom:6}}>{icon} {label}</SecLabel>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={form[f]}
+                      onChange={e=>setForm(p=>({...p,[f]:e.target.value}))}
+                      placeholder="0"
+                      style={{...inStyle,width:'100%',fontSize:20,fontWeight:700,padding:'12px 14px',boxSizing:'border-box',textAlign:'center'}}
+                    />
                   </div>
                 ))}
               </div>
-              <input value={form.notes} onChange={e=>setForm(p=>({...p,notes:e.target.value}))} placeholder="Notes..." style={{...inStyle,width:'100%',marginBottom:8}}/>
-              <button onClick={saveWeek} style={{background:'#00C2FF',color:'#000D1A',border:'none',borderRadius:6,padding:'7px 16px',fontSize:12,fontWeight:700,cursor:'pointer'}}>Save</button>
+              <input value={form.notes} onChange={e=>setForm(p=>({...p,notes:e.target.value}))} placeholder="Notes (optional)..." style={{...inStyle,width:'100%',marginBottom:12,padding:'12px 14px',boxSizing:'border-box'}}/>
+              <div style={{display:'flex',gap:8}}>
+                <button onClick={saveWeek} disabled={!form.week}
+                  style={{flex:1,background:form.week?'#00C2FF':'#F3F4F6',color:form.week?'#000D1A':'#9CA3AF',border:'none',borderRadius:8,padding:'14px',fontSize:15,fontWeight:800,cursor:form.week?'pointer':'not-allowed',fontFamily:'inherit'}}>
+                  Save Week
+                </button>
+                <button onClick={()=>setShowForm(false)}
+                  style={{background:'#F3F4F6',color:'#6B7280',border:'none',borderRadius:8,padding:'14px 18px',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+                  Cancel
+                </button>
+              </div>
             </Card>
           )}
           {weeks.length===0 ? (
@@ -17582,6 +17617,15 @@ function BioSuite() {
   );
 }
 
+
+const HASHTAG_LOG_KEY = 'encis_hashtag_log';
+
+// Extracts hashtags from content text
+function extractHashtags(text) {
+  if (!text) return [];
+  const matches = text.match(/#[A-Za-z][A-Za-z0-9_]{1,49}/g) || [];
+  return [...new Set(matches.map(h => h.toLowerCase()))];
+}
 
 // Highlights search query matches inside text — returns array of plain/marked spans
 function highlightMatch(text, query) {
@@ -18467,6 +18511,35 @@ function ContentLibrary() {
                           style={{ background: '#F9FAFB', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 7, padding: '7px 12px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
                           Export PDF
                         </button>
+
+                        {/* Log Hashtags */}
+                        {(() => {
+                          const tags = extractHashtags(item.full_content || item.content_preview || '');
+                          if (tags.length === 0) return null;
+                          const tier = getItemTier(item);
+                          return (
+                            <button onClick={() => {
+                              try {
+                                const log = JSON.parse(localStorage.getItem(HASHTAG_LOG_KEY) || '[]');
+                                const entry = {
+                                  id: Date.now(),
+                                  tags,
+                                  itemId: item.id,
+                                  title: item.title || '',
+                                  platform: item.platform || '',
+                                  tier,
+                                  clientId: activeClient?.id || 'jason',
+                                  loggedAt: new Date().toISOString(),
+                                };
+                                localStorage.setItem(HASHTAG_LOG_KEY, JSON.stringify([entry, ...log].slice(0, 500)));
+                                showToast(tags.length + ' hashtags logged ✓', '#10B981');
+                              } catch {}
+                            }}
+                              style={{ background: '#F0FDF4', color: '#16A34A', border: '1px solid #BBF7D0', borderRadius: 7, padding: '7px 10px', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>
+                              Log Hashtags ({tags.length})
+                            </button>
+                          );
+                        })()}
                       </div>
 
                       {/* Row 2: Workflow status actions */}
@@ -19439,6 +19512,85 @@ Include: Hook, Body (3 punchy points), CTA, Caption, 10 Hashtags.`;
             </>
           )}
         </div>
+
+      {/* Hashtag Performance */}
+      {mode==='hashtags' && (() => {
+        const clientId = activeClient?.id || 'jason';
+        const log = (() => { try { return JSON.parse(localStorage.getItem(HASHTAG_LOG_KEY) || '[]').filter(e => (e.clientId || 'jason') === clientId); } catch { return []; } })();
+
+        if (log.length === 0) return (
+          <div style={{textAlign:'center',padding:'3rem 2rem',background:'#FAFAFA',borderRadius:12,border:'1px solid #E8E6E1'}}>
+            <div style={{color:'#111827',fontWeight:700,fontSize:15,marginBottom:6}}>No hashtags logged yet</div>
+            <div style={{color:'#9CA3AF',fontSize:13}}>Go to Content Library → expand a post → click "Log Hashtags" after you see how it performed.</div>
+          </div>
+        );
+
+        // Tally each hashtag across winner / solid / weak / unrated
+        const tally = {};
+        log.forEach(entry => {
+          (entry.tags || []).forEach(tag => {
+            if (!tally[tag]) tally[tag] = { tag, winner:0, solid:0, weak:0, unrated:0, total:0 };
+            const t = entry.tier || 'unrated';
+            tally[tag][t] = (tally[tag][t] || 0) + 1;
+            tally[tag].total += 1;
+          });
+        });
+
+        const sorted = Object.values(tally).sort((a, b) => b.winner - a.winner || b.total - a.total);
+        const winners = sorted.filter(t => t.winner > 0);
+        const neutral = sorted.filter(t => t.winner === 0 && t.weak === 0);
+        const weak    = sorted.filter(t => t.weak > 0 && t.winner === 0);
+
+        return (
+          <div>
+            <div style={{fontSize:13,color:'#6B7280',marginBottom:16}}>{log.length} posts logged · {sorted.length} unique hashtags tracked for {activeClient?.name || 'you'}</div>
+
+            {winners.length > 0 && (
+              <div style={{marginBottom:20}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#16A34A',marginBottom:10}}>Winning tags — associated with top-performing posts</div>
+                <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+                  {winners.map(t => (
+                    <div key={t.tag} style={{background:'#F0FDF4',border:'1px solid #BBF7D0',borderRadius:8,padding:'8px 14px',display:'flex',flexDirection:'column',alignItems:'center',minWidth:100}}>
+                      <div style={{fontSize:13,fontWeight:700,color:'#15803D',marginBottom:4}}>{t.tag}</div>
+                      <div style={{display:'flex',gap:6,fontSize:10,color:'#6B7280'}}>
+                        <span style={{color:'#16A34A',fontWeight:700}}>{t.winner}W</span>
+                        {t.solid > 0 && <span>{t.solid}S</span>}
+                        {t.weak > 0 && <span style={{color:'#EF4444'}}>{t.weak}✗</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {weak.length > 0 && (
+              <div style={{marginBottom:20}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#DC2626',marginBottom:10}}>Underperforming tags — avoid or test differently</div>
+                <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+                  {weak.map(t => (
+                    <div key={t.tag} style={{background:'#FFF1F2',border:'1px solid #FECDD3',borderRadius:8,padding:'8px 14px',display:'flex',flexDirection:'column',alignItems:'center',minWidth:100}}>
+                      <div style={{fontSize:13,fontWeight:700,color:'#DC2626',marginBottom:4}}>{t.tag}</div>
+                      <div style={{fontSize:10,color:'#9CA3AF'}}>{t.weak} weak · {t.total} total</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {neutral.length > 0 && (
+              <div>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',color:'#9CA3AF',marginBottom:10}}>Neutral — not enough data yet</div>
+                <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+                  {neutral.slice(0,30).map(t => (
+                    <span key={t.tag} style={{background:'#F3F4F6',color:'#6B7280',borderRadius:6,padding:'5px 10px',fontSize:12}}>{t.tag} ({t.total})</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
       )}
     </div>
   );
