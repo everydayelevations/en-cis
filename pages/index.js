@@ -20125,8 +20125,6 @@ One sentence. One priority.
     setSummaryLoading(false);
   };
 
-  return (;
-
   return (
     <div>
       <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}>
