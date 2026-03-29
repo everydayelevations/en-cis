@@ -15852,25 +15852,15 @@ function ApprovalLinkGenerator({ content: delivContent, title, clientName }) {
 
   const copyLink = () => {
     if (!link) return;
-    safeClipboard(link); setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-      // Save to localStorage so we can track it
-      try {
-        const approvals = JSON.parse(localStorage.getItem("encis_approval_links") || "[]");
-        approvals.unshift({ title, client: clientName, link, created: new Date().toISOString(), status: "pending" });
-        localStorage.setItem("encis_approval_links", JSON.stringify(approvals.slice(0, 50)));
-      } catch {}
-    }).catch(() => {
-      // Fallback for non-HTTPS
-      const ta = document.createElement("textarea");
-      ta.value = link;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    });
+    safeClipboard(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+    // Save to localStorage so we can track it
+    try {
+      const approvals = JSON.parse(localStorage.getItem("encis_approval_links") || "[]");
+      approvals.unshift({ title, client: clientName, link, created: new Date().toISOString(), status: "pending" });
+      localStorage.setItem("encis_approval_links", JSON.stringify(approvals.slice(0, 50)));
+    } catch {}
   };
 
   return (
