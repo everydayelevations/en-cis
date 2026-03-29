@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { supabase } from '../lib/supabase';
 import Head from 'next/head';
 import EighthAscentLogo from '../components/EighthAscentLogo';
@@ -28049,7 +28050,6 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-export default 
 // ════════════════════════════════════════════════════════════════════════════
 // AUTH HOOK
 // Wraps Supabase session state. Handles loading, session, and sign-out.
@@ -28059,30 +28059,40 @@ function useAuth() {
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
+    // SSR guard — supabase.auth only exists in the browser
+    if (typeof window === 'undefined') { setAuthLoading(false); return; }
+
     // Get current session on mount
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session || null);
       setAuthLoading(false);
-    });
+    }).catch(() => setAuthLoading(false));
 
     // Listen for auth state changes (login, logout, token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+    let subscription = null;
+    try {
+      const { data: authData } = supabase.auth.onAuthStateChange((_event, sess) => {
+        setSession(sess);
+        setAuthLoading(false);
+      });
+      subscription = authData.subscription;
+    } catch(e) {
       setAuthLoading(false);
-    });
+    }
 
-    return () => subscription.unsubscribe();
+    return () => { if (subscription) subscription.unsubscribe(); };
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    if (typeof window === 'undefined') return;
+    try { await supabase.auth.signOut(); } catch(e) {}
     setSession(null);
   };
 
   return { session, authLoading, signOut };
 }
 
-function App() {
+function AppInner() {
   const [nav, setNav] = useState('home');
   const [sub, setSub] = useState(null);
   const { save: memorySave } = useContentMemory();
@@ -28477,3 +28487,9 @@ function App() {
     </ErrorBoundary>
   );
 }
+
+// ── Next.js SSR guard ────────────────────────────────────────────────────────
+// All hooks in this app use browser APIs (localStorage, supabase.auth, window).
+// Disabling SSR prevents Next.js from prerendering and avoids hydration errors.
+const App = dynamic(() => Promise.resolve(AppInner), { ssr: false });
+export default App;
