@@ -2000,6 +2000,7 @@ async function saveToSupabase(entry) {
       client_name: entry.client || clientId,
       notes: entry.notes || null,
       client_id: clientId,
+      user_id: _authSession?.user?.id || null,
       workflow_status: entry.workflow_status || 'approved',
       exported_at: entry.exported_at || null,
       scheduled_at: entry.scheduled_at || null,
@@ -14350,6 +14351,7 @@ function OnboardingFlow({ onComplete }) {
         audience: brain.audience_summary || '',
         completion: brain.completion_score || 'moderate',
         updated_at: new Date().toISOString(),
+        user_id: _authSession?.user?.id || null,
       }, { onConflict: 'client_id' });
 
       if (brain.story_bank?.length > 0) {
@@ -14365,6 +14367,7 @@ function OnboardingFlow({ onComplete }) {
           best_formats: ['Reel Script'],
           proof_type: 'personal experience',
           saved_at: new Date().toISOString(),
+          user_id: _authSession?.user?.id || null,
         })));
       }
     } catch(e) { console.error('Supabase sync:', e); }
@@ -14850,6 +14853,7 @@ function PlanWeekWizard({ onClose, setNav, setSub, activeClient }) {
           client_name: entry.client,
           client_id: activeClient?.id || 'jason',
           notes: raw.slice(0, 500),
+          user_id: _authSession?.user?.id || null,
         }]);
       } catch {}
 
@@ -18769,7 +18773,7 @@ function WeeklyBriefAgent() {
     const updated = [entry, ...briefs].slice(0, 12);
     setBriefs(updated);
     try { localStorage.setItem(WEEKLY_BRIEF_KEY, JSON.stringify(updated)); } catch {}
-    try { supabase.from('weekly_plans').insert([{ week_label: entry.week, plan_data: { focus, identity, avoid, platform }, client_name: entry.client, notes: briefText.slice(0, 500) }]); } catch {}
+    try { supabase.from('weekly_plans').insert([{ week_label: entry.week, plan_data: { focus, identity, avoid, platform }, client_name: entry.client, notes: briefText.slice(0, 500), user_id: _authSession?.user?.id || null }]); } catch {}
   };
 
   const run = async () => {
@@ -19148,6 +19152,7 @@ function TrendMonitorAgent() {
         input_data: { niches: niches.map(n => n.label) },
         output_text: JSON.stringify(newAlerts.map(a => ({ angle: a.angle, why: a.why, hooks: a.hooks }))),
         platform: 'multi',
+        user_id: _authSession?.user?.id || null,
       }]);
     } catch {}
     setLoading(false);
@@ -20800,6 +20805,7 @@ What ${clientName} can say or do that none of these competitors can - based on t
         input_data: { handles: filledHandles },
         output_text: gapReport.slice(0, 1000),
         platform: 'multi',
+        user_id: _authSession?.user?.id || null,
       }]);
     } catch {}
 
@@ -22554,7 +22560,7 @@ function SmartBrief() {
       all[clientId] = [{ id: Date.now(), ...story, savedAt: new Date().toISOString(), source: 'create-page' }, ...(all[clientId] || [])].slice(0, 100);
       localStorage.setItem(key, JSON.stringify(all));
       if (typeof supabase !== 'undefined') {
-        supabase.from('story_bank').insert({ client_id: clientId, title: story.title, story_type: 'extracted', summary: story.moment, key_lesson: story.lesson, emotional_theme: story.emotional_tone, saved_at: new Date().toISOString() });
+        supabase.from('story_bank').insert({ client_id: clientId, title: story.title, story_type: 'extracted', summary: story.moment, key_lesson: story.lesson, emotional_theme: story.emotional_tone, saved_at: new Date().toISOString(), user_id: _authSession?.user?.id || null });
       }
     } catch {}
     setShowStoryPanel(false);
@@ -23073,6 +23079,7 @@ function StoryExtractorCard({ content, topic, platform, clientId, onSaved }) {
             best_formats: entry.best_formats,
             proof_type: entry.proof_type,
             saved_at: entry.savedAt,
+            user_id: _authSession?.user?.id || null,
           });
         } catch {}
 
@@ -23128,6 +23135,7 @@ function StoryExtractorCard({ content, topic, platform, clientId, onSaved }) {
         best_formats: entry.best_formats,
         proof_type: entry.proof_type,
         saved_at: entry.savedAt,
+        user_id: _authSession?.user?.id || null,
       });
     } catch {}
 
@@ -23514,6 +23522,7 @@ function BrainBuilder() {
           source_question: story.sourceQuestion || '',
           raw_answer: story.rawAnswer || '',
           saved_at: new Date().toISOString(),
+          user_id: _authSession?.user?.id || null,
         });
       } catch(e) { console.error('Story Supabase sync:', e); }
 
@@ -24148,6 +24157,7 @@ async function passiveLearnOnApprove(activeClient) {
         patterns_json: allPatterns[clientId],
         winner_count: allWinners.length,
         extracted_at: new Date().toISOString(),
+        user_id: _authSession?.user?.id || null,
       }, { onConflict: 'client_id' });
     } catch {}
 
@@ -24324,6 +24334,7 @@ function LearningLoop() {
           patterns_json: allPatterns[clientId],
           winner_count: winners.length,
           extracted_at: new Date().toISOString(),
+          user_id: _authSession?.user?.id || null,
         }, { onConflict: 'client_id' });
       } catch(e) { console.error('Patterns Supabase sync:', e); }
     } catch(e) { console.error('extractPatterns:', e); }
@@ -25251,6 +25262,7 @@ function DualOnboarding() {
         audience: brain.audience_profile || {},
         completion: brain.completion_score || 'weak',
         updated_at: new Date().toISOString(),
+        user_id: _authSession?.user?.id || null,
       }, { onConflict: 'client_id' });
     } catch(e) { console.error('Brain Supabase sync:', e); }
 
@@ -25288,6 +25300,7 @@ function DualOnboarding() {
             best_formats: ['Reel Script'],
             proof_type: 'personal experience',
             saved_at: new Date().toISOString(),
+            user_id: _authSession?.user?.id || null,
           }));
           await supabase.from('story_bank').insert(storyRows);
         } catch(e) { console.error('Story bank Supabase sync:', e); }
