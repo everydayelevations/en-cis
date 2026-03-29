@@ -11633,6 +11633,7 @@ function VisualCalendar() {
         .from('saved_content')
         .select('id, title, type, platform, angle, notes, created_at')
         .eq('client_id', client.id || 'jason')
+        .eq('user_id', _authSession?.user?.id || '')
         .order('created_at', { ascending: false })
         .limit(60);
 
@@ -15325,6 +15326,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
       setPendingQueue(queue.filter(q => q.status === 'pending').length);
       const { data } = await supabase
         .from('saved_content').select('*').eq('client_id', clientId)
+        .eq('user_id', _authSession?.user?.id || '')
         .order('created_at', { ascending: false }).limit(20);
       const recent = data || [];
       // Filter out bad saves where prompt text was stored as title
@@ -15408,6 +15410,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
           .update({ notes: 'brief|winner|outperformed' })
           .or(`title.ilike.%${titlePrefix}%`)
           .eq('client_id', activeClient?.id || 'jason')
+          .eq('user_id', _authSession?.user?.id || '')
           .then(() => {});
 
         // Also add to quality anchors localStorage so Learning Agent picks it up immediately
@@ -17905,6 +17908,7 @@ function ContentLibrary() {
     try {
       const { data } = await supabase
         .from('saved_content').select('*').eq('client_id', clientId)
+        .eq('user_id', _authSession?.user?.id || '')
         .order('created_at', { ascending: false }).limit(200);
       setItems(data || []);
       const stored = JSON.parse(localStorage.getItem('encis_lib_ratings') || '{}');
@@ -19078,6 +19082,7 @@ function TrendMonitorAgent() {
         .from('agent_runs')
         .select('output_text, created_at')
         .eq('tool_name', 'trend_monitor_cron')
+        .eq('user_id', _authSession?.user?.id || '')
         .order('created_at', { ascending: false })
         .limit(1);
       if (!data || data.length === 0) return;
@@ -19587,7 +19592,7 @@ function ContentPerformanceAgent() {
     setFetching(true);
     try {
       const clientId = (() => { try { const c = JSON.parse(localStorage.getItem('encis_active_client') || 'null'); return c?.id || 'jason'; } catch { return 'jason'; } })();
-      const { data } = await supabase.from('saved_content').select('*').eq('client_id', clientId).order('created_at', { ascending: false }).limit(100);
+      const { data } = await supabase.from('saved_content').select('*').eq('client_id', clientId).eq('user_id', _authSession?.user?.id || '').order('created_at', { ascending: false }).limit(100);
       setItems(data || []);
       const r = {};
       (data || []).forEach(i => { if (i.perf_rating) r[i.id] = i.perf_rating; });
@@ -20041,6 +20046,7 @@ function ClientReportingAgent() {
         .from('saved_content')
         .select('*')
         .eq('client_id', client.id)
+        .eq('user_id', _authSession?.user?.id || '')
         .order('created_at', { ascending: false })
         .limit(50);
       setItems(data || []);
@@ -20678,6 +20684,7 @@ function CompetitorIntelAgent() {
         .from('agent_runs')
         .select('output_text, input_data, created_at')
         .eq('tool_name', 'competitor_intel_cron')
+        .eq('user_id', _authSession?.user?.id || '')
         .order('created_at', { ascending: false })
         .limit(1);
       if (!data || data.length === 0) return;
@@ -22396,6 +22403,7 @@ function SmartBrief() {
       if (typeof supabase !== 'undefined') {
         const { data: recent } = await supabase
           .from('saved_content').select('*').eq('client_id', clientId)
+          .eq('user_id', _authSession?.user?.id || '')
           .order('created_at', { ascending: false }).limit(20);
         const recentArr = recent || [];
         setRecentContent(recentArr);
@@ -23294,6 +23302,7 @@ function RealityCheckBanner() {
         supabase.from('saved_content')
           .update({ notes: 'brief|winner|outperformed' })
           .like('title', pending.topic.slice(0, 20) + '%')
+          .eq('user_id', _authSession?.user?.id || '')
           .then(() => {});
       }
     } catch {}
@@ -23472,6 +23481,7 @@ function BrainBuilder() {
           .from('strategy_profiles')
           .select('brain_json, built_at')
           .eq('client_id', clientId)
+          .eq('user_id', _authSession?.user?.id || '')
           .single();
         if (sbBrain?.brain_json) {
           brainData = sbBrain.brain_json;
@@ -23495,6 +23505,7 @@ function BrainBuilder() {
         .from('saved_content')
         .select('*')
         .eq('client_id', clientId)
+        .eq('user_id', _authSession?.user?.id || '')
         .order('created_at', { ascending: false })
         .limit(30);
 
@@ -24135,6 +24146,7 @@ async function passiveLearnOnApprove(activeClient) {
       .from('saved_content')
       .select('title, platform, angle, notes, content_preview')
       .eq('client_id', clientId)
+      .eq('user_id', _authSession?.user?.id || '')
       .or('notes.ilike.%winner%,notes.ilike.%outperformed%,notes.ilike.%risk:1%,notes.ilike.%risk:2%,notes.ilike.%risk:3%')
       .order('created_at', { ascending: false })
       .limit(20);
@@ -24296,6 +24308,7 @@ function LearningLoop() {
         .from('saved_content')
         .select('*')
         .eq('client_id', clientId)
+        .eq('user_id', _authSession?.user?.id || '')
         .or('notes.ilike.%winner%,notes.ilike.%outperformed%,notes.ilike.%risk:1%,notes.ilike.%risk:2%,notes.ilike.%risk:3%')
         .order('created_at', { ascending: false })
         .limit(20);
@@ -24304,6 +24317,7 @@ function LearningLoop() {
         .from('saved_content')
         .select('*')
         .eq('client_id', clientId)
+        .eq('user_id', _authSession?.user?.id || '')
         .order('created_at', { ascending: false })
         .limit(15);
 
@@ -26002,6 +26016,7 @@ function ContentEngine() {
       // Load recent winners
       const { data } = await supabase.from('saved_content').select('*')
         .eq('client_id', clientId)
+        .eq('user_id', _authSession?.user?.id || '')
         .or('notes.ilike.%winner%,notes.ilike.%outperformed%')
         .order('created_at', { ascending: false }).limit(5);
       setWinners(data || []);
@@ -26444,6 +26459,7 @@ function ContentAuditTool() {
         .from('saved_content')
         .select('title, type, platform, angle, notes, content_preview, created_at')
         .eq('client_id', selectedClient.id || 'jason')
+        .eq('user_id', _authSession?.user?.id || '')
         .gte('created_at', cutoff)
         .order('created_at', { ascending: false })
         .limit(150);
@@ -27593,6 +27609,7 @@ function ClientPortalPage({ encodedPayload, onBack }) {
         .from('saved_content')
         .select('id, title, type, platform, angle, content_preview, created_at, notes')
         .eq('client_id', data.clientId)
+        .eq('user_id', _authSession?.user?.id || '')
         .order('created_at', { ascending: false })
         .limit(50);
 
