@@ -27839,6 +27839,188 @@ function ClientPortalGenerator() {
 }
 
 
+// ════════════════════════════════════════════════════════════════════════════
+// LOGIN PAGE
+// Shown when there is no authenticated session.
+// Handles both Sign In and Sign Up with a single toggle.
+// Client-facing #approval, #report, #portal URLs bypass this entirely.
+// ════════════════════════════════════════════════════════════════════════════
+function LoginPage() {
+  const [mode, setMode] = useState('signin');     // 'signin' | 'signup' | 'reset'
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const agencyName = (() => {
+    try {
+      const wl = JSON.parse(localStorage.getItem('encis_whitelabel') || 'null');
+      return (wl && wl.agencyName) ? wl.agencyName : '8th Ascent';
+    } catch { return '8th Ascent'; }
+  })();
+
+  const handleSubmit = async () => {
+    if (!email.trim() || (!password.trim() && mode !== 'reset')) return;
+    setLoading(true); setError(''); setSuccess('');
+
+    try {
+      if (mode === 'signin') {
+        const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+        if (error) setError(error.message);
+
+      } else if (mode === 'signup') {
+        const { error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: { data: { agency_name: agencyName } },
+        });
+        if (error) setError(error.message);
+        else setSuccess('Account created. Check your email to confirm before signing in.');
+
+      } else if (mode === 'reset') {
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: window.location.origin + window.location.pathname,
+        });
+        if (error) setError(error.message);
+        else setSuccess('Password reset link sent. Check your email.');
+      }
+    } catch(e) {
+      setError('Something went wrong. Try again.');
+    }
+    setLoading(false);
+  };
+
+  const handleKey = (e) => { if (e.key === 'Enter') handleSubmit(); };
+
+  const inputStyle = {
+    width: '100%', boxSizing: 'border-box',
+    background: '#F9FAFB', border: '1px solid #E5E7EB',
+    borderRadius: 8, padding: '12px 14px',
+    fontSize: 16, color: '#111827', fontFamily: 'inherit',
+    outline: 'none', marginBottom: 12,
+  };
+
+  const btnStyle = (disabled) => ({
+    width: '100%', border: 'none', borderRadius: 8,
+    padding: '13px', fontWeight: 800, fontSize: 15,
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    fontFamily: 'inherit',
+    background: disabled ? '#F3F4F6' : '#0A1628',
+    color: disabled ? '#9CA3AF' : '#fff',
+    marginTop: 4,
+  });
+
+  const title = mode === 'signin' ? 'Sign in' : mode === 'signup' ? 'Create account' : 'Reset password';
+
+  return (
+    <div style={{
+      minHeight: '100vh', background: '#F8FAFC',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '24px 16px', fontFamily: '"DM Sans",-apple-system,sans-serif',
+    }}>
+      <div style={{ width: '100%', maxWidth: 420 }}>
+
+        {/* Logo / wordmark */}
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div style={{
+            display: 'inline-block', background: '#0A1628',
+            borderRadius: 12, padding: '12px 24px', marginBottom: 16,
+          }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#fff', letterSpacing: '-0.03em' }}>
+              8th Ascent
+            </div>
+          </div>
+          <div style={{ fontSize: 13, color: '#6B7280' }}>
+            {agencyName !== '8th Ascent' ? agencyName + ' — Powered by 8th Ascent' : 'AI Content Operating System'}
+          </div>
+        </div>
+
+        {/* Card */}
+        <div style={{
+          background: '#fff', borderRadius: 14,
+          border: '1px solid #E5E7EB',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+          padding: '32px 28px',
+        }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#111827', marginBottom: 24 }}>
+            {title}
+          </div>
+
+          {/* Email */}
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#6B7280', marginBottom: 6 }}>
+            Email
+          </div>
+          <input
+            type="email" value={email} onChange={e => setEmail(e.target.value)}
+            onKeyDown={handleKey} placeholder="you@example.com"
+            style={inputStyle} autoComplete="email" autoFocus
+          />
+
+          {/* Password (not shown for reset) */}
+          {mode !== 'reset' && (
+            <>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#6B7280', marginBottom: 6 }}>
+                Password
+              </div>
+              <input
+                type="password" value={password} onChange={e => setPassword(e.target.value)}
+                onKeyDown={handleKey} placeholder={mode === 'signup' ? 'Min 8 characters' : 'Your password'}
+                style={inputStyle} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+              />
+            </>
+          )}
+
+          {/* Error / success */}
+          {error && (
+            <div style={{ background: '#FFF5F5', border: '1px solid #FED7D7', borderRadius: 7, padding: '10px 12px', marginBottom: 12, fontSize: 13, color: '#C53030' }}>
+              {error}
+            </div>
+          )}
+          {success && (
+            <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 7, padding: '10px 12px', marginBottom: 12, fontSize: 13, color: '#166534' }}>
+              {success}
+            </div>
+          )}
+
+          {/* Submit */}
+          <button onClick={handleSubmit} disabled={loading || !email.trim() || (!password.trim() && mode !== 'reset')}
+            style={btnStyle(loading || !email.trim() || (!password.trim() && mode !== 'reset'))}>
+            {loading ? 'Please wait...' : title}
+          </button>
+        </div>
+
+        {/* Mode switchers */}
+        <div style={{ textAlign: 'center', marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {mode === 'signin' && (
+            <>
+              <button onClick={() => { setMode('signup'); setError(''); setSuccess(''); }}
+                style={{ background: 'none', border: 'none', color: '#2563EB', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                No account? Create one
+              </button>
+              <button onClick={() => { setMode('reset'); setError(''); setSuccess(''); }}
+                style={{ background: 'none', border: 'none', color: '#9CA3AF', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>
+                Forgot password?
+              </button>
+            </>
+          )}
+          {(mode === 'signup' || mode === 'reset') && (
+            <button onClick={() => { setMode('signin'); setError(''); setSuccess(''); }}
+              style={{ background: 'none', border: 'none', color: '#2563EB', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              Back to sign in
+            </button>
+          )}
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: 24, fontSize: 11, color: '#9CA3AF', lineHeight: 1.6 }}>
+          By signing in you agree to the 8th Ascent Terms of Service.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 // ── Global Error Boundary - prevents white screen crashes ───────────────────
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -27867,7 +28049,40 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-export default function App() {
+export default 
+// ════════════════════════════════════════════════════════════════════════════
+// AUTH HOOK
+// Wraps Supabase session state. Handles loading, session, and sign-out.
+// ════════════════════════════════════════════════════════════════════════════
+function useAuth() {
+  const [session, setSession] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    // Get current session on mount
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setAuthLoading(false);
+    });
+
+    // Listen for auth state changes (login, logout, token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setAuthLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
+  };
+
+  return { session, authLoading, signOut };
+}
+
+function App() {
   const [nav, setNav] = useState('home');
   const [sub, setSub] = useState(null);
   const { save: memorySave } = useContentMemory();
@@ -27876,7 +28091,12 @@ export default function App() {
     try { return !!localStorage.getItem(ONBOARDING_DONE_KEY); } catch { return true; }
   });
 
-  // Check if this is a client approval or report link
+  // ── Auth ────────────────────────────────────────────────────────────────
+  const { session, authLoading, signOut } = useAuth();
+
+  // ── Client-facing URLs bypass auth entirely ─────────────────────────────
+  // These links are shared with clients who have no login.
+  // They must render before any auth check.
   const approvalPayload = (() => {
     try {
       const hash = typeof window !== 'undefined' ? window.location.hash : '';
@@ -27891,14 +28111,6 @@ export default function App() {
     } catch {}
     return null;
   })();
-
-  if (approvalPayload) {
-    return <ApprovalPage encodedPayload={approvalPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
-  }
-  if (reportPayload) {
-    return <ReportPage encodedPayload={reportPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
-  }
-
   const portalPayload = (() => {
     try {
       const hash = typeof window !== 'undefined' ? window.location.hash : '';
@@ -27906,8 +28118,33 @@ export default function App() {
     } catch {}
     return null;
   })();
+
+  if (approvalPayload) {
+    return <ApprovalPage encodedPayload={approvalPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
+  }
+  if (reportPayload) {
+    return <ReportPage encodedPayload={reportPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
+  }
   if (portalPayload) {
     return <ClientPortalPage encodedPayload={portalPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
+  }
+
+  // ── Auth gate ───────────────────────────────────────────────────────────
+  // Show loading spinner while Supabase checks for an existing session
+  if (authLoading) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"DM Sans",-apple-system,sans-serif' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: 36, height: 36, border: '3px solid #E5E7EB', borderTopColor: '#2563EB', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }}/>
+          <div style={{ fontSize: 13, color: '#9CA3AF' }}>Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // No session — show login screen
+  if (!session) {
+    return <LoginPage/>;
   }
 
   // Register memory save function globally so all tools can log to it
@@ -28128,6 +28365,11 @@ export default function App() {
                 {activeClient.name}
               </div>
             )}
+            <button onClick={signOut}
+              title="Sign out"
+              style={{marginLeft:'auto',flexShrink:0,background:'none',border:'1px solid rgba(255,255,255,0.12)',borderRadius:6,padding:'4px 10px',fontSize:11,fontWeight:600,color:'rgba(255,255,255,0.4)',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>
+              Sign out
+            </button>
           </div>
         </nav>
 
