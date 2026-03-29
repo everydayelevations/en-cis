@@ -28064,16 +28064,22 @@ function useAuth() {
 
     // Get current session on mount
     supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session || null);
-      setAuthLoading(false);
-    }).catch(() => setAuthLoading(false));
+      setTimeout(() => {
+        setSession(data.session || null);
+        setAuthLoading(false);
+      }, 0);
+    }).catch(() => { setTimeout(() => setAuthLoading(false), 0); });
 
     // Listen for auth state changes (login, logout, token refresh)
+    // setTimeout(0) pushes state updates out of React's render cycle
+    // preventing #310 "Cannot update while rendering" errors
     let subscription = null;
     try {
       const { data: authData } = supabase.auth.onAuthStateChange((_event, sess) => {
-        setSession(sess);
-        setAuthLoading(false);
+        setTimeout(() => {
+          setSession(sess);
+          setAuthLoading(false);
+        }, 0);
       });
       subscription = authData.subscription;
     } catch(e) {
