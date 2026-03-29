@@ -3542,10 +3542,38 @@ function AITwinVideo() {
   const voiceId = activeClient?.heygenVoiceId || undefined;
   const isConfigured = !!(clientKey && avatarId);
 
+  const [showConfirm, setShowConfirm] = React.useState(false);
+  const [credits, setCredits] = React.useState(null);
+  const [creditsLoading, setCreditsLoading] = React.useState(false);
+
   // Cleanup poll on unmount
   React.useEffect(() => {
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, []);
+
+  const checkCreditsAndConfirm = async () => {
+    if (!script.trim() || !isConfigured) return;
+    setCreditsLoading(true);
+    setCredits(null);
+    try {
+      const res = await fetch('/api/heygen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'credits', clientApiKey: clientKey }),
+      });
+      const data = await res.json();
+      setCredits(data.remaining ?? null);
+    } catch {
+      setCredits(null);
+    }
+    setCreditsLoading(false);
+    setShowConfirm(true);
+  };
+
+  const confirmAndGenerate = () => {
+    setShowConfirm(false);
+    generate();
+  };
 
   const startPolling = (vid) => {
     setPollCount(0);
@@ -3753,14 +3781,49 @@ function AITwinVideo() {
             </div>
           </div>
 
-          <button onClick={generate} disabled={!script.trim() || submitting}
+          <button onClick={checkCreditsAndConfirm} disabled={!script.trim() || submitting || creditsLoading}
             style={{ width: '100%', background: script.trim() ? '#1A1A1A' : '#F3F2EF', color: script.trim() ? '#fff' : '#C5C3BE', border: 'none', borderRadius: 10, padding: '15px', fontSize: 15, fontWeight: 800, cursor: script.trim() ? 'pointer' : 'not-allowed', fontFamily: 'inherit', letterSpacing: '-0.01em', transition: 'all 0.15s' }}>
-            {submitting ? 'Submitting to HeyGen...' : 'Generate Video →'}
+            {creditsLoading ? 'Checking credits...' : submitting ? 'Submitting to HeyGen...' : 'Generate Video →'}
           </button>
 
           <p style={{ textAlign: 'center', fontSize: 11, color: '#C5C3BE', marginTop: 8 }}>
             Credits charged to {activeClient?.name || 'client'}'s HeyGen account · Typically renders in 2–5 minutes
           </p>
+
+          {/* Confirmation Modal */}
+          {showConfirm && (
+            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+              <div style={{ background: '#fff', borderRadius: 16, padding: 32, maxWidth: 400, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+                <div style={{ fontSize: 28, marginBottom: 12, textAlign: 'center' }}>🎬</div>
+                <div style={{ fontWeight: 800, fontSize: 18, color: '#1A1A1A', marginBottom: 8, textAlign: 'center' }}>Confirm Video Render</div>
+                <div style={{ color: '#6B7280', fontSize: 14, marginBottom: 20, textAlign: 'center', lineHeight: 1.5 }}>
+                  This will use HeyGen credits from <strong>{activeClient?.name || 'this client'}'s</strong> account. Renders typically take 2–5 minutes and cannot be cancelled once started.
+                </div>
+                {credits !== null && (
+                  <div style={{ background: credits < 5 ? '#FFF1F2' : '#F0FDF4', border: '1px solid ' + (credits < 5 ? '#FECDD3' : '#BBF7D0'), borderRadius: 8, padding: '10px 14px', marginBottom: 20, textAlign: 'center' }}>
+                    <span style={{ fontWeight: 700, color: credits < 5 ? '#DC2626' : '#16A34A', fontSize: 14 }}>
+                      {credits < 5 ? `Low credits: ${credits} remaining` : `${credits} credits remaining`}
+                    </span>
+                  </div>
+                )}
+                {credits === null && (
+                  <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 8, padding: '10px 14px', marginBottom: 20, textAlign: 'center' }}>
+                    <span style={{ color: '#92400E', fontSize: 13 }}>Could not check credit balance — verify your API key is valid.</span>
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button onClick={() => setShowConfirm(false)}
+                    style={{ flex: 1, background: '#F3F4F6', color: '#374151', border: 'none', borderRadius: 8, padding: '12px', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    Cancel
+                  </button>
+                  <button onClick={confirmAndGenerate}
+                    style={{ flex: 1, background: '#1A1A1A', color: '#fff', border: 'none', borderRadius: 8, padding: '12px', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    Yes, Render Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
 
