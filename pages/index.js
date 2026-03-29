@@ -18944,6 +18944,21 @@ const TREND_HOOKS_PROMPT = (trendSignal, niche, voice, clientName, clientRole) =
     '{"why":"...","hooks":["hook one","hook two","hook three"]}';
 };
 
+function getClientTrendNiches(client) {
+  if (client?.trendNiches && client.trendNiches.length > 0) {
+    return client.trendNiches;
+  }
+  return [
+    { id: 'niche_1', label: 'Veteran/Resilience',         query: 'veteran resilience mindset viral content social media this week' },
+    { id: 'niche_2', label: 'Mindset & Mental Toughness',  query: 'mindset mental toughness discipline viral content social media this week' },
+    { id: 'niche_3', label: 'Everyday Wins',               query: 'everyday wins small habits consistency viral content social media this week' },
+    { id: 'niche_4', label: 'Outdoor Living & Community',  query: 'outdoor living Colorado lifestyle community viral content social media this week' },
+    { id: 'niche_5', label: 'Finance & Real Estate',       query: 'personal finance real estate tips viral content social media this week' },
+    { id: 'niche_6', label: 'Podcast & Personal Growth',   query: 'podcast personal growth self improvement viral content social media this week' },
+    { id: 'niche_7', label: 'Family & Life Lessons',       query: 'family parenting life lessons viral content social media this week' },
+  ];
+}
+
 function TrendNicheEditor({ client }) {
   const [, saveClients] = useClients();
   const [activeClient, setActiveClient] = useActiveClient();
