@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { supabase } from '../lib/supabase';
 import Head from 'next/head';
 import EighthAscentLogo from '../components/EighthAscentLogo';
@@ -315,7 +316,7 @@ const SaveButton = ({entry, style={}}) => {
 const CopyBtn = ({text}) => {
   const [copied,setCopied] = useState(false);
   return (
-    <button onClick={()=>{navigator.clipboard.writeText(text);setCopied(true);setTimeout(()=>setCopied(false),2000);}}
+    <button onClick={()=>{safeClipboard(text);setCopied(true);setTimeout(()=>setCopied(false),2000);}}
       style={{background:copied?'rgba(0,194,255,0.1)':'rgba(255,255,255,0.05)',color:copied?'#00C2FF':'#374151',border:`1px solid ${copied?'rgba(0,194,255,0.3)':'rgba(255,255,255,0.08)'}`,
         borderRadius:6,padding:'6px 14px',cursor:'pointer',fontSize:12,fontWeight:600,transition:'all 0.15s'}}>
       {copied?'Copied':'Copy'}
@@ -1949,6 +1950,42 @@ function useContentMemory() {
 // Global memory instance: shared across all tools
 let _memorySave = null;
 function registerMemorySave(fn) { _memorySave = fn; }
+
+// ── Safari-safe clipboard helper ─────────────────────────────────────────────
+// navigator.clipboard throws NotAllowedError on iOS Safari without user gesture.
+// This helper catches silently and falls back to execCommand.
+function safeClipboard(text) {
+  if (!text) return;
+  if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+    safeClipboard(text).catch(() => {
+      // Fallback for Safari iOS
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      } catch(e2) {}
+    });
+  } else {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    } catch(e) {}
+  }
+}
+
 async function saveToSupabase(entry) {
   try {
     const clientId = (() => { try { const c = JSON.parse(localStorage.getItem('encis_active_client') || 'null'); return c?.id || 'jason'; } catch { return 'jason'; } })();
@@ -3586,7 +3623,7 @@ function AITwinVideo() {
   };
 
   const copyUrl = () => {
-    if (videoUrl) navigator.clipboard.writeText(videoUrl);
+    if (videoUrl) safeClipboard(videoUrl);
   };
 
   const statusConfig = {
@@ -4859,7 +4896,7 @@ function Vault() {
   const [copied,setCopied] = useState(null);
   const current = VAULT_TABS.find(t=>t.id===activeTab);
   const copyPrompt = (p,i) => {
-    navigator.clipboard.writeText(p);
+    safeClipboard(p);
     setCopied(i);
     setTimeout(()=>setCopied(null),2000);
   };
@@ -15169,7 +15206,9 @@ const STUDIO_CSS = `
       width: 100% !important;
       height: auto !important;
       min-height: unset !important;
-      position: static !important;
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 50 !important;
       padding: 0 !important;
       border-right: none !important;
       border-bottom: 1px solid #ECEAE6 !important;
@@ -15180,28 +15219,33 @@ const STUDIO_CSS = `
       scrollbar-width: none !important;
       -webkit-overflow-scrolling: touch !important;
       background: #FFFFFF !important;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
     }
     .studio-nav::-webkit-scrollbar { display: none; }
     .studio-nav-section { display: none !important; }
     .studio-nav-item {
       border-left: none !important;
-      border-bottom: 2px solid transparent !important;
-      padding: 13px 14px !important;
+      border-bottom: 3px solid transparent !important;
+      padding: 14px 16px !important;
       white-space: nowrap !important;
       font-size: 13px !important;
+      font-weight: 600 !important;
       flex-shrink: 0 !important;
       width: auto !important;
+      color: #6B7280 !important;
     }
     .studio-nav-item.active {
       border-left-color: transparent !important;
       border-bottom-color: #2563EB !important;
       background: none !important;
+      color: #111827 !important;
+      font-weight: 700 !important;
     }
     .studio-nav-item .nav-desc { display: none !important; }
-    .studio-main { padding: 20px 16px 80px !important; max-width: 100% !important; }
+    .studio-main { padding: 20px 16px 100px !important; max-width: 100% !important; }
   }
   @media (max-width: 480px) {
-    .studio-nav-item { padding: 12px 10px !important; font-size: 12px !important; }
+    .studio-nav-item { padding: 13px 12px !important; font-size: 12px !important; }
   }
 `;
 
@@ -15738,7 +15782,7 @@ function useMonthlyReportEmail() {
     const body = encodeURIComponent(`Hi ${clientName},\n\nYour monthly performance report is below.\n\n---\n\n${plain.slice(0, 2000)}\n\n[Full report attached as PDF]\n\n---\n\nBest,\n${agencyName || '8th Ascent'}`);
 
     // Copy full report to clipboard
-    try { navigator.clipboard.writeText(reportMarkdown); } catch {}
+    try { safeClipboard(reportMarkdown); } catch {}
 
     // Open mailto
     window.open(`mailto:${clientEmail || ''}?subject=${subject}&body=${body}`);
@@ -15808,13 +15852,12 @@ function ApprovalLinkGenerator({ content: delivContent, title, clientName }) {
 
   const copyLink = () => {
     if (!link) return;
-    navigator.clipboard.writeText(link).then(() => {
-      setCopied(true);
+    safeClipboard(link); setCopied(true);
       setTimeout(() => setCopied(false), 2500);
       // Save to localStorage so we can track it
       try {
         const approvals = JSON.parse(localStorage.getItem("encis_approval_links") || "[]");
-        approvals.unshift({ title, client: clientName, link, created: new Date().toISOString(), status: "pending" });
+        approvals.unshift({ title, client: clientName, link, created: new Date().toISOString(), status: "pending";
         localStorage.setItem("encis_approval_links", JSON.stringify(approvals.slice(0, 50)));
       } catch {}
     }).catch(() => {
@@ -17231,7 +17274,7 @@ function HookWorkshop() {
                         <span style={{background:i===4?'#2563EB':'#F3F4F6',color:i===4?'#fff':'#6B7280',fontSize:9,fontWeight:700,padding:'2px 7px',borderRadius:4,textTransform:'uppercase',letterSpacing:0.5}}>{r.style}</span>
                         <span style={{fontSize:12,color:'#9CA3AF'}}>{r.label}</span>
                       </div>
-                      <button onClick={()=>navigator.clipboard.writeText(r.hook||'')}
+                      <button onClick={()=>safeClipboard(r.hook||'')}
                         style={{background:'#F3F4F6',color:'#374151',border:'none',borderRadius:6,padding:'4px 10px',fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
                         Copy
                       </button>
@@ -17880,7 +17923,7 @@ function ContentLibrary() {
   };
 
   const copyItem = (text, id, label) => {
-    navigator.clipboard.writeText(text || '');
+    safeClipboard(text || '');
     setCopyId(id);
     showToast((label || 'Content') + ' copied');
     setTimeout(() => setCopyId(null), 2000);
@@ -18222,7 +18265,7 @@ function ContentLibrary() {
               <div>
                 {/* Action bar */}
                 <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
-                  <button onClick={() => navigator.clipboard.writeText(JSON.stringify(designPackResult, null, 2)).then(() => showToast('JSON copied'))}
+                  <button onClick={() => safeClipboard(JSON.stringify(designPackResult, null, 2)).then(() => showToast('JSON copied'))}
                     style={{ background: '#EEF2FF', color: '#2563EB', border: '1px solid #C7D2FE', borderRadius: 7, padding: '7px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                     Copy JSON
                   </button>
@@ -19215,7 +19258,7 @@ function TrendMonitorAgent() {
                           {hi===2 && <div style={{fontSize:9,fontWeight:700,color:'#2563EB',letterSpacing:'0.06em',textTransform:'uppercase',marginBottom:3}}>Sharpest version</div>}
                           <div style={{fontSize:13,fontWeight:hi===2?700:500,color:hi===2?'#1D4ED8':'#374151',lineHeight:1.55}}>{hook}</div>
                         </div>
-                        <button onClick={() => navigator.clipboard.writeText(hook)}
+                        <button onClick={() => safeClipboard(hook)}
                           style={{background:'none',border:'1px solid #E5E7EB',borderRadius:5,padding:'3px 8px',fontSize:10,color:'#6B7280',cursor:'pointer',flexShrink:0,fontFamily:'inherit'}}>
                           Copy
                         </button>
@@ -19237,7 +19280,7 @@ function TrendMonitorAgent() {
                   >Create from this →</button>
                 )}
                 <button
-                  onClick={() => { navigator.clipboard.writeText(alert.steal || alert.hook || ''); markSeen(alert.id); }}
+                  onClick={() => { safeClipboard(alert.steal || alert.hook || ''); markSeen(alert.id); }}
                   style={{background:'#F9FAFB',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'7px 12px',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}
                 >Copy hook</button>
                 {!alert.seen && (
@@ -19453,7 +19496,7 @@ Include: Hook, Body (3 punchy points), CTA, Caption, 10 Hashtags.`;
                           <button onClick={()=>reject(item.id)} style={{background:'rgba(239,68,68,0.08)',color:'#EF4444',border:'1px solid rgba(239,68,68,0.2)',borderRadius:6,padding:'6px 12px',fontSize:12,fontWeight:700,cursor:'pointer'}}>✕</button>
                         </>}
                         {item.status === 'approved' && <>
-                          <button onClick={()=>navigator.clipboard.writeText(item.content)} style={{background:'rgba(16,185,129,0.1)',color:'#10B981',border:'1px solid rgba(16,185,129,0.3)',borderRadius:6,padding:'6px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>Copy</button>
+                          <button onClick={()=>safeClipboard(item.content)} style={{background:'rgba(16,185,129,0.1)',color:'#10B981',border:'1px solid rgba(16,185,129,0.3)',borderRadius:6,padding:'6px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>Copy</button>
                           <button onClick={()=>removeItem(item.id)} style={{background:'transparent',color:'#D1D5DB',border:'none',borderRadius:6,padding:'6px 8px',fontSize:14,cursor:'pointer'}}>×</button>
                         </>}
                         {item.status === 'rejected' && <button onClick={()=>removeItem(item.id)} style={{background:'transparent',color:'#D1D5DB',border:'none',borderRadius:6,padding:'6px 8px',fontSize:14,cursor:'pointer'}}>×</button>}
@@ -20158,7 +20201,7 @@ One sentence. One priority.
       const encoded = btoa(unescape(encodeURIComponent(payload)));
       const link = window.location.origin + window.location.pathname + '#report=' + encoded;
       setReportLink(link);
-      navigator.clipboard.writeText(link);
+      safeClipboard(link);
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 3000);
     } catch(e) { console.error('shareReport error:', e); }
@@ -20262,7 +20305,7 @@ One sentence. One priority.
             <div style={{fontSize:13,color:'#374151',lineHeight:1.75,whiteSpace:'pre-wrap'}}>{summaryOut}</div>
           </div>
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-            <button onClick={() => { navigator.clipboard.writeText(summaryOut); setSummaryCopied(true); setTimeout(()=>setSummaryCopied(false),2500); }}
+            <button onClick={() => { safeClipboard(summaryOut); setSummaryCopied(true); setTimeout(()=>setSummaryCopied(false),2500); }}
               style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:8,padding:'9px 18px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
               {summaryCopied ? 'Copied ✓' : 'Copy Summary'}
             </button>
@@ -20273,7 +20316,7 @@ One sentence. One priority.
                 const payload = JSON.stringify({ title: 'This Week — ' + selectedClient.name, client: selectedClient.name, period: 'Weekly Summary', content: summaryOut, agency: agName, created: new Date().toISOString() });
                 const encoded = btoa(unescape(encodeURIComponent(payload)));
                 const link = window.location.origin + window.location.pathname + '#report=' + encoded;
-                navigator.clipboard.writeText(link);
+                safeClipboard(link);
                 setSummaryCopied(true);
                 setTimeout(() => setSummaryCopied(false), 2500);
               } catch {}
@@ -20915,7 +20958,7 @@ What ${clientName} can say or do that none of these competitors can - based on t
                       View full report
                     </button>
                     <button
-                      onClick={() => navigator.clipboard.writeText(entry.gaps || '')}
+                      onClick={() => safeClipboard(entry.gaps || '')}
                       style={{background:'none',color:'#9CA3AF',border:'1px solid #E5E7EB',borderRadius:7,padding:'6px 12px',fontSize:12,cursor:'pointer',fontFamily:'inherit'}}>
                       Copy
                     </button>
@@ -22009,7 +22052,7 @@ function SidePanel({ title, onClose, children, footer }) {
 function DesignPackPanel({ pack, onClose }) {
   const [copiedIdx, setCopiedIdx] = React.useState(null);
   const copy = (text, idx) => {
-    navigator.clipboard.writeText(text);
+    safeClipboard(text);
     setCopiedIdx(idx);
     setTimeout(() => setCopiedIdx(null), 1800);
   };
@@ -22131,7 +22174,7 @@ function RepurposePanel({ content, topic, activeClient, onClose, onSave, ai: aiC
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(result);
+    safeClipboard(result);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -22493,7 +22536,7 @@ function SmartBrief() {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(generatedContent);
+    safeClipboard(generatedContent);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
@@ -26517,7 +26560,7 @@ function ContentAuditTool() {
       {out && !loading && (
         <div>
           <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
-            <button onClick={() => navigator.clipboard.writeText(out)}
+            <button onClick={() => safeClipboard(out)}
               style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
               Copy Report
             </button>
@@ -26663,7 +26706,7 @@ function BrandKitGenerator() {
       {out && !loading && (
         <div>
           <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
-            <button onClick={() => navigator.clipboard.writeText(out)}
+            <button onClick={() => safeClipboard(out)}
               style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
               Copy
             </button>
@@ -26759,7 +26802,7 @@ function ClientContentBrief() {
       const payload = JSON.stringify({ title: month + ' Content Brief', client: selectedClient.name, period: month, content: out, agency: agencyName, created: new Date().toISOString() });
       const encoded = btoa(unescape(encodeURIComponent(payload)));
       const link = window.location.origin + window.location.pathname + '#report=' + encoded;
-      navigator.clipboard.writeText(link);
+      safeClipboard(link);
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2500);
     } catch(e) { console.error('shareLink error:', e); }
@@ -26840,7 +26883,7 @@ function ClientContentBrief() {
       {out && !loading && (
         <div>
           <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
-            <button onClick={() => navigator.clipboard.writeText(out)}
+            <button onClick={() => safeClipboard(out)}
               style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
               Copy
             </button>
@@ -27007,7 +27050,7 @@ function HandleAuditTool() {
       {out && !loading && (
         <div>
           <div style={{display:'flex',gap:8,marginBottom:12}}>
-            <button onClick={() => navigator.clipboard.writeText(out)}
+            <button onClick={() => safeClipboard(out)}
               style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Copy</button>
             <button onClick={exportPDF}
               style={{background:'#7C3AED',color:'#fff',border:'none',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Export PDF</button>
@@ -27086,7 +27129,7 @@ function LanguageAdapter() {
     // Extract just the translated content (before Adaptation Notes)
     const parts = out.split('## Adaptation Notes');
     const translated = parts[0].replace(/## .+ Version/, '').trim();
-    navigator.clipboard.writeText(translated);
+    safeClipboard(translated);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -27123,7 +27166,7 @@ function LanguageAdapter() {
               style={{background:'#F0FDF4',color:'#16A34A',border:'1px solid #BBF7D0',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
               {copied ? 'Copied ✓' : 'Copy Translated Content'}
             </button>
-            <button onClick={() => navigator.clipboard.writeText(out)}
+            <button onClick={() => safeClipboard(out)}
               style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
               Copy Full Report
             </button>
@@ -27277,11 +27320,11 @@ function LinkedInEngine() {
       {out && !loading && (
         <div>
           <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
-            <button onClick={() => navigator.clipboard.writeText(out.split('## 3 Hook')[0].trim())}
+            <button onClick={() => safeClipboard(out.split('## 3 Hook')[0].trim())}
               style={{background:'#EFF6FF',color:'#0A66C2',border:'1px solid #BFDBFE',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit',flex:'1 1 auto'}}>
               Copy Post
             </button>
-            <button onClick={() => navigator.clipboard.writeText(out)}
+            <button onClick={() => safeClipboard(out)}
               style={{background:'#F3F4F6',color:'#374151',border:'1px solid #E5E7EB',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit',flex:'1 1 auto'}}>
               Copy All
             </button>
@@ -27659,7 +27702,7 @@ function ClientPortalPage({ encodedPayload, onBack }) {
                       </div>
                     </div>
                     <button onClick={() => {
-                      navigator.clipboard.writeText(item.content_preview || item.title || '');
+                      safeClipboard(item.content_preview || item.title || '');
                       setCopied(item.id);
                       setTimeout(() => setCopied(null), 2000);
                     }}
@@ -27769,7 +27812,7 @@ function ClientPortalGenerator() {
     if (!selectedClient) return;
     const link = generatePortalLink(selectedClient);
     setPortalLink(link);
-    navigator.clipboard.writeText(link);
+    safeClipboard(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 3000);
   };
@@ -27806,7 +27849,7 @@ function ClientPortalGenerator() {
             {portalLink.slice(0, 100)}...
           </div>
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-            <button onClick={() => { navigator.clipboard.writeText(portalLink); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+            <button onClick={() => { safeClipboard(portalLink); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
               style={{background:'#6366F1',color:'#fff',border:'none',borderRadius:7,padding:'8px 16px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit',flex:'1 1 auto'}}>
               {copied ? 'Copied ✓' : 'Copy Link'}
             </button>
@@ -28089,21 +28132,25 @@ function _notifyAuthListeners() {
 function _initAuth() {
   if (_authInitialized || typeof window === 'undefined') return;
   _authInitialized = true;
-
-  supabase.auth.getSession().then(({ data }) => {
-    _authSession = data.session || null;
+  try {
+    supabase.auth.getSession().then(({ data }) => {
+      _authSession = (data && data.session) ? data.session : null;
+      _authLoading = false;
+      _notifyAuthListeners();
+    }).catch(() => {
+      _authLoading = false;
+      _notifyAuthListeners();
+    });
+    supabase.auth.onAuthStateChange((_event, sess) => {
+      _authSession = sess || null;
+      _authLoading = false;
+      _notifyAuthListeners();
+    });
+  } catch(e) {
+    console.error('Auth init failed:', e);
     _authLoading = false;
     _notifyAuthListeners();
-  }).catch(() => {
-    _authLoading = false;
-    _notifyAuthListeners();
-  });
-
-  supabase.auth.onAuthStateChange((_event, sess) => {
-    _authSession = sess;
-    _authLoading = false;
-    _notifyAuthListeners();
-  });
+  }
 }
 
 function useAuth() {
@@ -28489,16 +28536,25 @@ function AuthGate() {
   const [authLoading, setAuthLoading] = useState(_authLoading);
 
   useEffect(() => {
-    _initAuth();
+    try { _initAuth(); } catch(e) { console.error('_initAuth error:', e); }
     const listener = (sess, loading) => {
       setSession(sess);
       setAuthLoading(loading);
     };
     _authListeners.add(listener);
-    // Sync with current state in case auth resolved before we registered
     setSession(_authSession);
     setAuthLoading(_authLoading);
-    return () => { _authListeners.delete(listener); };
+    // Safety timeout — if auth hangs for 6s, show login page
+    const timeout = setTimeout(() => {
+      if (_authLoading) {
+        _authLoading = false;
+        _notifyAuthListeners();
+      }
+    }, 6000);
+    return () => {
+      _authListeners.delete(listener);
+      clearTimeout(timeout);
+    };
   }, []);
 
   const signOut = async () => {
@@ -28537,4 +28593,22 @@ function AuthGate() {
   return <AppInner signOut={signOut}/>;
 }
 
-export default AuthGate;
+// ── SSR Guard for Pages Router ───────────────────────────────────────────────
+// Next.js Pages Router always attempts server rendering.
+// AuthGate and everything it renders uses browser APIs (localStorage, crypto).
+// dynamic() with ssr:false is the correct Pages Router way to prevent this.
+const AppWithNoSSR = dynamic(
+  () => Promise.resolve({ default: AuthGate }),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{minHeight:'100vh',background:'#0A1628',display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <div style={{textAlign:'center'}}>
+          <div style={{fontSize:20,fontWeight:900,color:'#ffffff',letterSpacing:'-0.03em',fontFamily:'system-ui,sans-serif',marginBottom:20}}>8th Ascent</div>
+          <div style={{width:28,height:28,border:'3px solid rgba(255,255,255,0.2)',borderTopColor:'#00C2FF',borderRadius:'50%',animation:'spin 0.8s linear infinite',margin:'0 auto'}}/>
+        </div>
+      </div>
+    ),
+  }
+);
+export default AppWithNoSSR;
