@@ -15857,7 +15857,7 @@ function ApprovalLinkGenerator({ content: delivContent, title, clientName }) {
       // Save to localStorage so we can track it
       try {
         const approvals = JSON.parse(localStorage.getItem("encis_approval_links") || "[]");
-        approvals.unshift({ title, client: clientName, link, created: new Date().toISOString(), status: "pending";
+        approvals.unshift({ title, client: clientName, link, created: new Date().toISOString(), status: "pending" });
         localStorage.setItem("encis_approval_links", JSON.stringify(approvals.slice(0, 50)));
       } catch {}
     }).catch(() => {
