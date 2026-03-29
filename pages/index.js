@@ -4166,6 +4166,7 @@ function _OldHome({setNav,setSub}) {
 }
 
 function Onboarding() {
+  const [activeClient] = useActiveClient();
   const [mode,        setMode]       = useState('form');
   const [goals,       setGoals]      = useState(
     `${activeClient?.name ? "Grow " + (activeClient.handle || activeClient.name) + " consistently." : ""}${activeClient?.platforms ? " Post across " + activeClient.platforms + "." : ""} Build an engaged audience and a clear content identity.`
@@ -4509,6 +4510,7 @@ function ContentCalendar() {
 }
 
 function ProfileAudit() {
+  const [activeClient] = useActiveClient();
   const [platform, setPlatform] = useState('Instagram');
   const [extraContext, setExtraContext] = useState('');
   const [liveData, setLiveData] = useState('');
@@ -4600,6 +4602,7 @@ function ProfileAudit() {
 }
 
 function LeadMagnet() {
+  const [activeClient] = useActiveClient();
   const [audience, setAudience] = useState('Everyday people who want to build discipline, feel stuck in their career or mindset, working parents grinding toward something better, professionals who want to level up');
   const [problem, setProblem] = useState("They know they need to change but don't know where to start. They feel like everyone else has it figured out. They're showing up but not seeing results.");
   const [offer, setOffer] = useState('Mindset coaching, 8th Ascent podcast, the community community, real estate (Fricka Sells Colorado)');
@@ -4663,6 +4666,7 @@ function LeadMagnet() {
 }
 
 function CommunityBuilder() {
+  const [activeClient] = useActiveClient();
   const [focus, setFocus] = useState("Everyday people who refuse to stay where they are. Mindset, discipline, showing up when it's hard. Working parents, professionals, athletes, people grinding toward something better.");
   const [currentEngagement, setCurrentEngagement] = useState('');
   const [whereTheyAre, setWhereTheyAre] = useState('Instagram comments and DMs primarily. Some Facebook. Podcast listeners.');
@@ -4721,6 +4725,7 @@ function CommunityBuilder() {
 }
 
 function Pipeline() {
+  const [activeClient] = useActiveClient();
   const [query,setQuery] = useState('');
   const [angle,setAngle] = useState('occupational');
   const [platform,setPlatform] = useState('Instagram');
@@ -4934,6 +4939,7 @@ function Vault() {
 }
 
 function CollabFinder() {
+  const [activeClient] = useActiveClient();
   const [niche,setNiche] = useState('');
   const [goal,setGoal] = useState('podcast guest');
   const [out,setOut] = useState('');
@@ -4981,6 +4987,7 @@ function CollabFinder() {
 }
 
 function Extract() {
+  const [activeClient] = useActiveClient();
   const [content,setContent] = useState('');
   const [question,setQuestion] = useState('');
   const [out,setOut] = useState('');
@@ -5020,6 +5027,7 @@ function Extract() {
 }
 
 function ScriptEngine() {
+  const [activeClient] = useActiveClient();
   const [mode,setMode] = useState('write'); // write | stitch
   const [topic,setTopic] = useState('');
   const [angle,setAngle] = useState('emotional');
@@ -5541,6 +5549,7 @@ Format exactly like this:
 }
 
 function WeeklyReview() {
+  const [activeClient] = useActiveClient();
   const [metrics, setMetrics] = useState('');
   const [wins, setWins] = useState('');
   const [struggles, setStruggles] = useState('');
@@ -6095,6 +6104,7 @@ const Sparkline = ({ data, color='#00C2FF', height=40 }) => {
   };
 
 function ROIDashboard() {
+  const [activeClient] = useActiveClient();
   const [weeks,    setWeeks]    = useState([]);
   const [form,     setForm]     = useState({ week:'', followers:'', reach:'', saves:'', shares:'', leads:'', topContent:'', notes:'' });
   const [showForm, setShowForm] = useState(false);
@@ -7065,6 +7075,7 @@ Rules:
 - End with something that invites the next reply where it makes sense`;
 
 function CommentResponder() {
+  const [activeClient] = useActiveClient();
   const [mode, setMode] = useState('single');
   const [input, setInput] = useState('');
   const [out, setOut] = useState('');
@@ -7590,6 +7601,7 @@ Body: Final email in the sequence. Clear, direct, no drama. Either they're in or
 Rules: No corporate speak. No "I hope this email finds you well." No numbered lists in the body: write like a person. Short paragraphs. Real subject lines people actually open.`;
 
 function EmailSequenceBuilder() {
+  const [activeClient] = useActiveClient();
   const [magnet, setMagnet] = useState('');
   const [audience, setAudience] = useState('People working on their emotional and physical health, professionals building better careers, parents trying to show up well, anyone who wants their daily choices to actually mean something');
   const [offer, setOffer] = useState('Mindset coaching, 8th Ascent podcast, the community community, real estate');
@@ -7794,6 +7806,7 @@ For each section: talking points, transitions, stories to pull from Jason's life
 [Specific moments from the outline that will work as Reels/Shorts: with hooks]`;
 
 function PodcastPreProd() {
+  const [activeClient] = useActiveClient();
   const [mode, setMode] = useState('guest');
   const [guestName, setGuestName] = useState('');
   const [guestBio, setGuestBio] = useState('');
@@ -8218,6 +8231,7 @@ Visual direction: [how to point to link in description]
 Make them feel like Jason is talking to a friend, not reading a script.`;
 
 function YouTubeToolkit() {
+  const [activeClient] = useActiveClient();
   const [tool, setTool] = useState('script');
   const [topic, setTopic] = useState('');
   const [angle, setAngle] = useState('emotional');
@@ -8468,6 +8482,7 @@ Write a complete DM conversation flow: not just one message. The full sequence f
 Rules: Sound like Jason texting a real person. No emojis unless they feel natural. No "Hey there!" No corporate words. Move the conversation forward with every message.`;
 
 function DMScriptLibrary() {
+  const [activeClient] = useActiveClient();
   const [saved, setSaved] = useState([]);
   const [showGen, setShowGen] = useState(false);
   const [showSaved, setShowSaved] = useState(true);
@@ -8768,6 +8783,7 @@ Day 1, Day 7, Day 14, Day 21, Day 30: subject line + 2-sentence summary of each
 - The transition message (how you move from challenge to offer without it feeling like a pitch)`;
 
 function ChallengeBuilder() {
+  const [activeClient] = useActiveClient();
   const [name, setName] = useState('');
   const [transformation, setTransformation] = useState('');
   const [audience, setAudience] = useState('Everyday people who want to build a daily discipline practice: veterans, parents, professionals who feel stuck');
@@ -8942,6 +8958,7 @@ This is intelligence work: not copying. Find what they are missing so ${client ?
 [Single highest-use differentiator]`;
 
 function CompetitorSpy() {
+  const [activeClient] = useActiveClient();
   const [handle, setHandle] = useState('');
   const [platform, setPlatform] = useState('Instagram');
   const [angle, setAngle] = useState('');
@@ -12044,6 +12061,7 @@ Any inconsistencies or gaps in the profile that need to be addressed early.
 `;
 
 function OnboardingAutomation() {
+  const [activeClient] = useActiveClient();
   const [clients] = useClients();
   const [selectedClient, setSelectedClient] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -16683,6 +16701,7 @@ Vary territories across the 5 ideas. No more than one real estate idea. Ground e
 }
 
 function TrendIntelPanel() {
+  const [activeClient] = useActiveClient();
   const { alerts, loading, lastRun, checkTrends, markSeen, unseen, apiError } = useTrendAlerts();
   const [expanded, setExpanded] = React.useState(null); // id of expanded card
 
