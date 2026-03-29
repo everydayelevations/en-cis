@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import dynamic from 'next/dynamic';
 import { supabase } from '../lib/supabase';
 import Head from 'next/head';
 import EighthAscentLogo from '../components/EighthAscentLogo';
@@ -28488,8 +28487,13 @@ function AppInner() {
   );
 }
 
-// ── Next.js SSR guard ────────────────────────────────────────────────────────
-// All hooks in this app use browser APIs (localStorage, supabase.auth, window).
-// Disabling SSR prevents Next.js from prerendering and avoids hydration errors.
-const App = dynamic(() => Promise.resolve(AppInner), { ssr: false });
+// ── Next.js SSR / hydration guard ───────────────────────────────────────────
+// All hooks use browser APIs (localStorage, supabase.auth, window).
+// This mount gate ensures nothing renders until we are in the browser.
+function App() {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return null;
+  return <AppInner/>;
+}
 export default App;
