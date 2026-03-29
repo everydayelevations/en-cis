@@ -28074,51 +28074,72 @@ class ErrorBoundary extends React.Component {
 // AUTH HOOK
 // Wraps Supabase session state. Handles loading, session, and sign-out.
 // ════════════════════════════════════════════════════════════════════════════
+// ── Module-level auth singleton ─────────────────────────────────────────────
+// Auth state lives outside React. One subscription, created once, never torn
+// down. This prevents the double-mount / Supabase lock issue that caused #310.
+let _authSession = null;
+let _authLoading = true;
+let _authListeners = new Set();
+let _authInitialized = false;
+
+function _notifyAuthListeners() {
+  _authListeners.forEach(fn => fn(_authSession, _authLoading));
+}
+
+function _initAuth() {
+  if (_authInitialized || typeof window === 'undefined') return;
+  _authInitialized = true;
+
+  supabase.auth.getSession().then(({ data }) => {
+    _authSession = data.session || null;
+    _authLoading = false;
+    _notifyAuthListeners();
+  }).catch(() => {
+    _authLoading = false;
+    _notifyAuthListeners();
+  });
+
+  supabase.auth.onAuthStateChange((_event, sess) => {
+    _authSession = sess;
+    _authLoading = false;
+    _notifyAuthListeners();
+  });
+}
+
 function useAuth() {
-  const [session, setSession] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [session, setSession] = useState(_authSession);
+  const [authLoading, setAuthLoading] = useState(_authLoading);
 
   useEffect(() => {
-    // SSR guard — supabase.auth only exists in the browser
-    if (typeof window === 'undefined') { setAuthLoading(false); return; }
+    // Initialize the singleton on first use (browser only)
+    _initAuth();
 
-    // Get current session on mount
-    supabase.auth.getSession().then(({ data }) => {
-      setTimeout(() => {
-        setSession(data.session || null);
-        setAuthLoading(false);
-      }, 0);
-    }).catch(() => { setTimeout(() => setAuthLoading(false), 0); });
+    // Register this component as a listener
+    const listener = (sess, loading) => {
+      setSession(sess);
+      setAuthLoading(loading);
+    };
+    _authListeners.add(listener);
 
-    // Listen for auth state changes (login, logout, token refresh)
-    // setTimeout(0) pushes state updates out of React's render cycle
-    // preventing #310 "Cannot update while rendering" errors
-    let subscription = null;
-    try {
-      const { data: authData } = supabase.auth.onAuthStateChange((_event, sess) => {
-        setTimeout(() => {
-          setSession(sess);
-          setAuthLoading(false);
-        }, 0);
-      });
-      subscription = authData.subscription;
-    } catch(e) {
-      setAuthLoading(false);
-    }
+    // Sync immediately in case auth resolved before we registered
+    setSession(_authSession);
+    setAuthLoading(_authLoading);
 
-    return () => { if (subscription) subscription.unsubscribe(); };
+    return () => { _authListeners.delete(listener); };
   }, []);
 
   const signOut = async () => {
     if (typeof window === 'undefined') return;
     try { await supabase.auth.signOut(); } catch(e) {}
-    setSession(null);
+    _authSession = null;
+    _authLoading = false;
+    _notifyAuthListeners();
   };
 
   return { session, authLoading, signOut };
 }
 
-function AppInner() {
+function AppInner({ signOut }) {
   const [nav, setNav] = useState('home');
   const [sub, setSub] = useState(null);
   const { save: memorySave } = useContentMemory();
@@ -28127,61 +28148,7 @@ function AppInner() {
     try { return !!localStorage.getItem(ONBOARDING_DONE_KEY); } catch { return true; }
   });
 
-  // ── Auth ────────────────────────────────────────────────────────────────
-  const { session, authLoading, signOut } = useAuth();
 
-  // ── Client-facing URLs bypass auth entirely ─────────────────────────────
-  // These links are shared with clients who have no login.
-  // They must render before any auth check.
-  const approvalPayload = (() => {
-    try {
-      const hash = typeof window !== 'undefined' ? window.location.hash : '';
-      if (hash.startsWith('#approval=')) return hash.slice(10);
-    } catch {}
-    return null;
-  })();
-  const reportPayload = (() => {
-    try {
-      const hash = typeof window !== 'undefined' ? window.location.hash : '';
-      if (hash.startsWith('#report=')) return hash.slice(8);
-    } catch {}
-    return null;
-  })();
-  const portalPayload = (() => {
-    try {
-      const hash = typeof window !== 'undefined' ? window.location.hash : '';
-      if (hash.startsWith('#portal=')) return hash.slice(8);
-    } catch {}
-    return null;
-  })();
-
-  if (approvalPayload) {
-    return <ApprovalPage encodedPayload={approvalPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
-  }
-  if (reportPayload) {
-    return <ReportPage encodedPayload={reportPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
-  }
-  if (portalPayload) {
-    return <ClientPortalPage encodedPayload={portalPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
-  }
-
-  // ── Auth gate ───────────────────────────────────────────────────────────
-  // Show loading spinner while Supabase checks for an existing session
-  if (authLoading) {
-    return (
-      <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"DM Sans",-apple-system,sans-serif' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ width: 36, height: 36, border: '3px solid #E5E7EB', borderTopColor: '#2563EB', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }}/>
-          <div style={{ fontSize: 13, color: '#9CA3AF' }}>Loading...</div>
-        </div>
-      </div>
-    );
-  }
-
-  // No session — show login screen
-  if (!session) {
-    return <LoginPage/>;
-  }
 
   // Register memory save function globally so all tools can log to it
   useEffect(() => { registerMemorySave(memorySave); }, [memorySave]);
@@ -28514,13 +28481,60 @@ function AppInner() {
   );
 }
 
-// ── Next.js SSR / hydration guard ───────────────────────────────────────────
-// All hooks use browser APIs (localStorage, supabase.auth, window).
-// This mount gate ensures nothing renders until we are in the browser.
-function App() {
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => { setMounted(true); }, []);
-  if (!mounted) return null;
-  return <AppInner/>;
+// ── Auth Gate — the only component that knows about auth state ───────────────
+// Keeps auth state completely separate from AppInner.
+// AppInner mounts ONCE after auth resolves and never re-renders due to auth.
+function AuthGate() {
+  const [session, setSession] = useState(_authSession);
+  const [authLoading, setAuthLoading] = useState(_authLoading);
+
+  useEffect(() => {
+    _initAuth();
+    const listener = (sess, loading) => {
+      setSession(sess);
+      setAuthLoading(loading);
+    };
+    _authListeners.add(listener);
+    // Sync with current state in case auth resolved before we registered
+    setSession(_authSession);
+    setAuthLoading(_authLoading);
+    return () => { _authListeners.delete(listener); };
+  }, []);
+
+  const signOut = async () => {
+    try { await supabase.auth.signOut(); } catch(e) {}
+    _authSession = null;
+    _authLoading = false;
+    _notifyAuthListeners();
+  };
+
+  // ── Client-facing URLs bypass auth entirely ─────────────────────────────
+  const hash = typeof window !== 'undefined' ? window.location.hash : '';
+  const approvalPayload = hash.startsWith('#approval=') ? hash.slice(10) : null;
+  const reportPayload   = hash.startsWith('#report=')   ? hash.slice(8)  : null;
+  const portalPayload   = hash.startsWith('#portal=')   ? hash.slice(8)  : null;
+
+  if (approvalPayload) return <ApprovalPage encodedPayload={approvalPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
+  if (reportPayload)   return <ReportPage   encodedPayload={reportPayload}   onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
+  if (portalPayload)   return <ClientPortalPage encodedPayload={portalPayload} onBack={() => { window.location.hash = ''; window.location.reload(); }}/>;
+
+  // Loading — Supabase is checking for a stored session
+  if (authLoading) {
+    return (
+      <div style={{minHeight:'100vh',background:'#0A1628',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'"DM Sans",-apple-system,sans-serif'}}>
+        <div style={{textAlign:'center'}}>
+          <div style={{fontSize:20,fontWeight:900,color:'#fff',letterSpacing:'-0.03em',marginBottom:24}}>8th Ascent</div>
+          <div style={{width:32,height:32,border:'3px solid rgba(255,255,255,0.15)',borderTopColor:'#00C2FF',borderRadius:'50%',animation:'spin 0.8s linear infinite',margin:'0 auto'}}/>
+        </div>
+      </div>
+    );
+  }
+
+  // No session — show login
+  if (!session) return <LoginPage/>;
+
+  // Authenticated — render the app, passing signOut down
+  return <AppInner signOut={signOut}/>;
 }
-export default App;
+
+export default AuthGate;
