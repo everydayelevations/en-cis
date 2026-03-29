@@ -7075,7 +7075,6 @@ Rules:
 - End with something that invites the next reply where it makes sense`;
 
 function CommentResponder() {
-  const [activeClient] = useActiveClient();
   const [mode, setMode] = useState('single');
   const [input, setInput] = useState('');
   const [out, setOut] = useState('');
@@ -7601,7 +7600,6 @@ Body: Final email in the sequence. Clear, direct, no drama. Either they're in or
 Rules: No corporate speak. No "I hope this email finds you well." No numbered lists in the body: write like a person. Short paragraphs. Real subject lines people actually open.`;
 
 function EmailSequenceBuilder() {
-  const [activeClient] = useActiveClient();
   const [magnet, setMagnet] = useState('');
   const [audience, setAudience] = useState('People working on their emotional and physical health, professionals building better careers, parents trying to show up well, anyone who wants their daily choices to actually mean something');
   const [offer, setOffer] = useState('Mindset coaching, 8th Ascent podcast, the community community, real estate');
@@ -8482,7 +8480,6 @@ Write a complete DM conversation flow: not just one message. The full sequence f
 Rules: Sound like Jason texting a real person. No emojis unless they feel natural. No "Hey there!" No corporate words. Move the conversation forward with every message.`;
 
 function DMScriptLibrary() {
-  const [activeClient] = useActiveClient();
   const [saved, setSaved] = useState([]);
   const [showGen, setShowGen] = useState(false);
   const [showSaved, setShowSaved] = useState(true);
@@ -8783,7 +8780,6 @@ Day 1, Day 7, Day 14, Day 21, Day 30: subject line + 2-sentence summary of each
 - The transition message (how you move from challenge to offer without it feeling like a pitch)`;
 
 function ChallengeBuilder() {
-  const [activeClient] = useActiveClient();
   const [name, setName] = useState('');
   const [transformation, setTransformation] = useState('');
   const [audience, setAudience] = useState('Everyday people who want to build a daily discipline practice: veterans, parents, professionals who feel stuck');
