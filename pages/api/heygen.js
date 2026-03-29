@@ -12,6 +12,7 @@
  *   - avatars     : list available avatars for this account
  *   - voices      : list available voices
  *   - verify      : test that an API key + avatar_id are valid
+ *   - credits     : check remaining credit balance
  */
 
 export default async function handler(req, res) {
@@ -34,6 +35,16 @@ export default async function handler(req, res) {
 
   try {
     switch (action) {
+
+      // ── CHECK CREDITS ───────────────────────────────────────────────────────
+      case 'credits': {
+        const r = await fetch('https://api.heygen.com/v1/user/remaining_quota', { headers });
+        const data = await r.json();
+        if (!r.ok) return res.status(200).json({ remaining: null, error: data?.message || 'Could not fetch credits' });
+        return res.status(200).json({
+          remaining: data?.data?.remaining_quota ?? null,
+        });
+      }
 
       // ── LIST AVATARS ────────────────────────────────────────────────────────
       case 'avatars': {
@@ -125,7 +136,7 @@ export default async function handler(req, res) {
           }],
           dimension: dimensions,
           ...(title ? { title } : {}),
-          test: false, // Set true during dev to skip credit deduction
+          test: false,
         };
 
         const r = await fetch('https://api.heygen.com/v2/video/generate', {
