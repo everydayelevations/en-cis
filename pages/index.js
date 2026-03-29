@@ -1897,13 +1897,13 @@ const CUSTOM_ANGLES_KEY = 'encis_custom_angles';
 const ONBOARDING_DONE_KEY = 'encis_onboarding_done';
 
 function useContentMemory() {
-  const [log, setLog] = useState([]);
-  useEffect(() => {
+  const [log, setLog] = useState(() => {
     try {
-      const stored = localStorage.getItem(MEMORY_KEY);
-      if (stored) setLog(JSON.parse(stored));
+      const stored = typeof window !== 'undefined' ? localStorage.getItem(MEMORY_KEY) : null;
+      if (stored) return JSON.parse(stored);
     } catch {}
-  }, []);
+    return [];
+  });
 
   const save = useCallback((entry) => {
     const newEntry = {
@@ -2716,13 +2716,17 @@ function useClientAngles(activeClient) {
 }
 
 function useActiveClient() {
-  const [activeClient, setActiveClientState] = useState(DEFAULT_CLIENT);
-  useEffect(() => {
+  // Read from localStorage synchronously in the initializer.
+  // This prevents the useEffect cascade that causes React #310:
+  // previously all 22 components watching activeClient would fire
+  // useEffect simultaneously on mount, triggering setState during render.
+  const [activeClient, setActiveClientState] = useState(() => {
     try {
-      const stored = localStorage.getItem(ACTIVE_CLIENT_KEY);
-      if (stored) setActiveClientState(JSON.parse(stored));
+      const stored = typeof window !== 'undefined' ? localStorage.getItem(ACTIVE_CLIENT_KEY) : null;
+      if (stored) return JSON.parse(stored);
     } catch {}
-  }, []);
+    return DEFAULT_CLIENT;
+  });
   const setActiveClient = (client) => {
     setActiveClientState(client);
     try { localStorage.setItem(ACTIVE_CLIENT_KEY, JSON.stringify(client)); } catch {}
@@ -2731,16 +2735,16 @@ function useActiveClient() {
 }
 
 function useClients() {
-  const [clients, setClientsState] = useState([DEFAULT_CLIENT]);
-  useEffect(() => {
+  const [clients, setClientsState] = useState(() => {
     try {
-      const stored = localStorage.getItem(CLIENTS_KEY);
+      const stored = typeof window !== 'undefined' ? localStorage.getItem(CLIENTS_KEY) : null;
       if (stored) {
         const parsed = JSON.parse(stored);
-        setClientsState([DEFAULT_CLIENT, ...parsed.filter(c => !c.isDefault)]);
+        return [DEFAULT_CLIENT, ...parsed.filter(c => !c.isDefault)];
       }
     } catch {}
-  }, []);
+    return [DEFAULT_CLIENT];
+  });
   const saveClients = (list) => {
     const nonDefault = list.filter(c => !c.isDefault);
     try { localStorage.setItem(CLIENTS_KEY, JSON.stringify(nonDefault)); } catch {}
@@ -28220,7 +28224,7 @@ function AppInner() {
   const subItems = SUB_NAV[nav];
 
   return (
-    <ErrorBoundary>
+    <>
       {!onboardingDone && <OnboardingFlow onComplete={() => setOnboardingDone(true)}/>}
       <Head>
         <title>8th Ascent</title>
@@ -28506,7 +28510,7 @@ function AppInner() {
           +
         </button>
       </div>
-    </ErrorBoundary>
+    </>
   );
 }
 
