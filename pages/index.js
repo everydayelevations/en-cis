@@ -401,22 +401,22 @@ const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
   let sectionCounter = 0;
   const renderLine = (line, idx) => {
     if (line.startsWith('# ')) return (
-      <div key={idx} style={{fontSize:22,fontWeight:900,color:'#111827',marginBottom:8,marginTop:24,paddingBottom:10,borderBottom:`2px solid ${'#2563EB'}`}}>
+      <div key={idx} style={{fontSize:22,fontWeight:900,color:'#111827',marginBottom:8,marginTop:24,paddingBottom:10,borderBottom:'2px solid #2563EB'}}>
         {line.replace('# ','')}
       </div>
     );
     if (line.startsWith('## ')) return (
-      <div key={idx} style={{fontSize:15,fontWeight:800,color:'#2563EB',letterSpacing:1.5,textTransform:'uppercase',marginTop:28,marginBottom:10}}>
+      <div key={idx} style={{fontSize:15,fontWeight:800,color:'#1D4ED8',letterSpacing:1.5,textTransform:'uppercase',marginTop:28,marginBottom:10}}>
         {line.replace('## ','')}
       </div>
     );
     if (line.startsWith('### ')) return (
-      <div key={idx} style={{fontSize:13,fontWeight:700,color:'#00C2FF',marginTop:18,marginBottom:8,paddingLeft:12,borderLeft:'3px solid #00C2FF'}}>
+      <div key={idx} style={{fontSize:13,fontWeight:700,color:'#2563EB',marginTop:18,marginBottom:8,paddingLeft:12,borderLeft:'3px solid #2563EB'}}>
         {line.replace('### ','')}
       </div>
     );
     if (line.startsWith('#### ')) return (
-      <div key={idx} style={{fontSize:12,fontWeight:700,color:'rgba(255,255,255,0.7)',marginTop:12,marginBottom:6,textTransform:'uppercase',letterSpacing:1}}>
+      <div key={idx} style={{fontSize:12,fontWeight:700,color:'#374151',marginTop:12,marginBottom:6,textTransform:'uppercase',letterSpacing:1}}>
         {line.replace('#### ','')}
       </div>
     );
@@ -424,14 +424,14 @@ const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
     if (/^\d+\.\s/.test(line)) return (
       <div key={idx} style={{display:'flex',gap:10,marginBottom:7,paddingLeft:4}}>
         <span style={{color:'#2563EB',fontWeight:800,fontSize:13,minWidth:20,flexShrink:0}}>{line.match(/^\d+/)[0]}.</span>
-        <span style={{color:'rgba(255,255,255,0.88)',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^\d+\.\s/,''))}</span>
+        <span style={{color:'#111827',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^\d+\.\s/,''))}</span>
       </div>
     );
     
     if (line.startsWith('- ') || line.startsWith('* ')) return (
       <div key={idx} style={{display:'flex',gap:10,marginBottom:6,paddingLeft:4}}>
         <span style={{color:'#2563EB',fontSize:12,marginTop:3,flexShrink:0}}>▸</span>
-        <span style={{color:'#374151',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^[-*]\s/,''))}</span>
+        <span style={{color:'#111827',fontSize:13,lineHeight:1.65}}>{renderInline(line.replace(/^[-*]\s/,''))}</span>
       </div>
     );
     // Bold-only lines (labels)
@@ -442,13 +442,13 @@ const StrategyOutput = ({text, onCopy, onDownload, downloading}) => {
     );
     // Horizontal rule
     if (line === '---' || line === '***') return (
-      <div key={idx} style={{borderTop:'1px solid rgba(255,255,255,0.08)',margin:'16px 0'}}/>
+      <div key={idx} style={{borderTop:'1px solid #E5E7EB',margin:'16px 0'}}/>
     );
     // Empty line -> spacing
     if (!line.trim()) return <div key={idx} style={{height:6}}/>;
     // Regular paragraph
     return (
-      <div key={idx} style={{color:'rgba(255,255,255,0.82)',fontSize:13,lineHeight:1.75,marginBottom:6}}>
+      <div key={idx} style={{color:'#111827',fontSize:13,lineHeight:1.75,marginBottom:6}}>
         {renderInline(line)}
       </div>
     );
@@ -4377,7 +4377,7 @@ function Onboarding() {
       html = html.replace(/\s*color\s*:\s*#ffffff[^;";]*/gi, '');
       html = html.replace(/\s*background(-color)?\s*:\s*#0[a-fA-F0-9]{5}[^;";]*/gi, '');
       html = html.replace(/\s*background(-color)?\s*:\s*(?:black|#000[^;";]*)[^;"]*/gi, '');
-      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>8th Ascent 90-Day Strategy</title><style>*{color:#111827!important;background:transparent!important}body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;background:#ffffff!important;color:#111827!important;line-height:1.7}h1{color:#0A1628!important;border-bottom:3px solid #2563EB;padding-bottom:8px;margin-top:32px;font-size:24px}h2{color:#0A1628!important;margin-top:32px;font-size:18px;border-left:4px solid #2563EB;padding-left:12px}h3{color:#1D4ED8!important;font-size:15px;margin-top:20px}h4{color:#374151!important;font-size:14px;margin-top:16px}p{color:#111827!important;margin-bottom:10px}li{color:#111827!important;margin-bottom:6px}strong{color:#111827!important;font-weight:700}ul,ol{padding-left:24px}table{width:100%;border-collapse:collapse;margin:16px 0}td,th{border:1px solid #D1D5DB;padding:8px 12px;color:#111827!important;text-align:left}th{background:#F3F4F6!important;font-weight:700}@media print{body{margin:24px}}</style></head><body><h1>8th Ascent 90-Day Content Strategy</h1>${html}</body></html>`;
+      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>8th Ascent 90-Day Strategy</title><style>:root{color-scheme:light}html,body{background:#ffffff!important;color:#111827!important}*{color:#111827!important;background-color:transparent!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;line-height:1.7}h1{color:#0A1628!important;border-bottom:3px solid #2563EB;padding-bottom:8px;margin-top:32px;font-size:24px}h2{color:#0A1628!important;margin-top:32px;font-size:18px;border-left:4px solid #2563EB;padding-left:12px}h3{color:#1D4ED8!important;font-size:15px;margin-top:20px}h4{color:#374151!important;font-size:14px;margin-top:16px}p{color:#111827!important;margin-bottom:10px}li{color:#111827!important;margin-bottom:6px}strong{color:#111827!important;font-weight:700}ul,ol{padding-left:24px}table{width:100%;border-collapse:collapse;margin:16px 0}td,th{border:1px solid #D1D5DB;padding:8px 12px;color:#111827!important;text-align:left}th{background:#F3F4F6!important;font-weight:700}@media print{body{margin:24px}}@media(prefers-color-scheme:dark){html,body{background:#ffffff!important;color:#111827!important}*{color:#111827!important}}</style></head><body><h1>8th Ascent 90-Day Content Strategy</h1>${html}</body></html>`;
       const blob = new Blob([fullHtml], {type:'text/html'});
       const url = URL.createObjectURL(blob);
       const printWin = window.open(url, '_blank');
