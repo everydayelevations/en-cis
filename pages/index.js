@@ -219,6 +219,75 @@ const Spin = () => (
   </div>
 );
 
+const DOC_LOADING_MESSAGES = {
+  strategy: [
+    'Analyzing your brand positioning...',
+    'Building your content pillars...',
+    'Mapping your 90-day phases...',
+    'Writing your engagement SOP...',
+    'Crafting your hook library...',
+    'Finalizing success metrics...',
+  ],
+  calendar: [
+    'Mapping your content schedule...',
+    'Assigning platforms and formats...',
+    'Building your posting rhythm...',
+    'Writing weekly themes...',
+    'Finalizing your calendar...',
+  ],
+  email: [
+    'Writing your subject lines...',
+    'Crafting the welcome email...',
+    'Building the nurture sequence...',
+    'Writing your pitch emails...',
+    'Polishing the final email...',
+  ],
+  report: [
+    'Pulling your performance data...',
+    'Analyzing what worked...',
+    'Identifying growth opportunities...',
+    'Writing your strategy recommendations...',
+    'Finalizing your report...',
+  ],
+  script: [
+    'Finding your hook angle...',
+    'Writing your opening...',
+    'Building the body content...',
+    'Crafting your CTA...',
+    'Polishing the script...',
+  ],
+  onboard: [
+    'Analyzing your brand...',
+    'Building your voice profile...',
+    'Mapping your content angles...',
+    'Writing your 30-day plan...',
+    'Finalizing your onboarding package...',
+  ],
+  general: [
+    'Thinking through your content...',
+    'Writing in your voice...',
+    'Refining the output...',
+    'Almost there...',
+  ],
+};
+
+const DocLoadingSpinner = ({ type = 'general' }) => {
+  const messages = DOC_LOADING_MESSAGES[type] || DOC_LOADING_MESSAGES.general;
+  const [idx, setIdx] = React.useState(0);
+  React.useEffect(() => {
+    const t = setInterval(() => setIdx(i => (i + 1) % messages.length), 3000);
+    return () => clearInterval(t);
+  }, [messages.length]);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '2.5rem 1rem', gap: 16 }}>
+      <div style={{ width: 32, height: 32, border: '2px solid rgba(0,194,255,0.15)', borderTopColor: '#00C2FF', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }}/>
+      <div style={{ fontSize: 13, color: '#6B7280', fontWeight: 500, textAlign: 'center', minHeight: 20, transition: 'opacity 0.3s' }}>
+        {messages[idx]}
+      </div>
+    </div>
+  );
+};
+
 const RedBtn = ({onClick,disabled,children,style={}}) => (
   <button onClick={onClick} disabled={disabled} style={{
     background: disabled ? '#9CA3AF' : '#2563EB',
@@ -4302,7 +4371,7 @@ function Onboarding() {
       });
       const d = await res.json();
       const html = d.text || d.result || '';
-      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>8th Ascent 90-Day Strategy</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#111;line-height:1.7}h1{color:#0A1628;border-bottom:3px solid #E94560;padding-bottom:8px}h2{color:#0A1628;margin-top:32px}h3{color:#E94560}strong{color:#0A1628}li{margin-bottom:6px}@media print{body{margin:24px}}</style></head><body><h1>8th Ascent 90-Day Content Strategy</h1>${html}</body></html>`;
+      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>8th Ascent 90-Day Strategy</title><style>*{color:#111827!important;background:transparent!important}body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;background:#ffffff!important;color:#111827!important;line-height:1.7}h1{color:#0A1628!important;border-bottom:3px solid #2563EB;padding-bottom:8px;margin-top:32px;font-size:24px}h2{color:#0A1628!important;margin-top:32px;font-size:18px;border-left:4px solid #2563EB;padding-left:12px}h3{color:#1D4ED8!important;font-size:15px;margin-top:20px}h4{color:#374151!important;font-size:14px;margin-top:16px}p{color:#111827!important;margin-bottom:10px}li{color:#111827!important;margin-bottom:6px}strong{color:#111827!important;font-weight:700}ul,ol{padding-left:24px}table{width:100%;border-collapse:collapse;margin:16px 0}td,th{border:1px solid #D1D5DB;padding:8px 12px;color:#111827!important;text-align:left}th{background:#F3F4F6!important;font-weight:700}@media print{body{margin:24px}}</style></head><body><h1>8th Ascent 90-Day Content Strategy</h1>${html}</body></html>`;
       const blob = new Blob([fullHtml], {type:'text/html'});
       const url = URL.createObjectURL(blob);
       const printWin = window.open(url, '_blank');
@@ -4420,7 +4489,7 @@ function Onboarding() {
           {loading?'Building Strategy...':'Build 90-Day Strategy'}
         </RedBtn></div>
       </Card>
-      {loading && <Spin/>}
+      {loading && <DocLoadingSpinner type='strategy'/>}
       {out && (
         <div>
           <StrategyOutput text={out} onDownload={downloadDoc} downloading={downloading}/>
@@ -4567,7 +4636,7 @@ function ContentCalendar() {
           {loading ? 'Building Calendar...' : 'Build Calendar'}
         </RedBtn></div>
       </Card>
-      {loading && <Spin/>}
+      {loading && <DocLoadingSpinner type='calendar'/>}
       <DocOutput text={out} title="ContentCalendar - 8th Ascent"/>
     </div>
   );
@@ -4723,7 +4792,7 @@ function LeadMagnet() {
           </RedBtn>
         </div>
       </Card>
-      {loading && <Spin/>}
+      {loading && <DocLoadingSpinner type='general'/>}
       <DocOutput text={out} title="LeadMagnet 8th Ascent"/>
     </div>
   );
@@ -4782,7 +4851,7 @@ function CommunityBuilder() {
           </RedBtn>
         </div>
       </Card>
-      {loading && <Spin/>}
+      {loading && <DocLoadingSpinner type='general'/>}
       <DocOutput text={out} title="CommunityBuilder 8th Ascent"/>
     </div>
   );
@@ -7758,7 +7827,7 @@ function EmailSequenceBuilder() {
           {loading ? 'Writing sequence...' : `Write ${length}-Email Sequence`}
         </RedBtn>
       </Card>
-      {loading && <Spin/>}
+      {loading && <DocLoadingSpinner type='email'/>}
       {out && (
         <div style={{marginTop:16}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:10}}>
@@ -8007,7 +8076,7 @@ function PodcastPreProd() {
           )}
         </div>
       </Card>
-      {loading && <Spin/>}
+      {loading && <DocLoadingSpinner type='script'/>}
       {out && <DocOutput text={out} title="8th Ascent Strategy Document"/>}
     </div>
   );
@@ -8677,7 +8746,7 @@ function DMScriptLibrary() {
             {loading ? 'Writing scripts...' : 'Build Full DM Flow'}
           </RedBtn>
 
-          {loading && <Spin/>}
+          {loading && <DocLoadingSpinner type='general'/>}
 
           {out && (
             <div style={{marginTop:16}}>
@@ -8955,7 +9024,7 @@ function ChallengeBuilder() {
           {loading ? 'Building challenge system...' : 'Build Full 30-Day Challenge'}
         </RedBtn>
       </Card>
-      {loading && <Spin/>}
+      {loading && <DocLoadingSpinner type='onboard'/>}
       {out && (
         <div style={{marginTop:16}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:10}}>
@@ -9714,7 +9783,7 @@ function MonthlyReportSuite() {
         </div>
         <RedBtn onClick={run} disabled={loading||!selectedClient}>{loading ? 'Generating report...' : 'Generate Monthly Report'}</RedBtn>
       </Card>
-      {loading && <Spin/>}
+      {loading && <DocLoadingSpinner type='report'/>}
       {out && (
         <div>
           <DocOutput text={out} title={`${selectedClient?.name} - ${month} Report`}/>
@@ -9842,7 +9911,7 @@ function DeliverableBuilder() {
         )}
         <RedBtn onClick={run} disabled={loading||!selectedClient||!brief}>{loading ? 'Building deliverable...' : 'Generate Deliverable'}</RedBtn>
       </Card>
-      {loading && <Spin/>}
+      {loading && <DocLoadingSpinner type='general'/>}
       {out && (
         <div>
           <DocOutput text={out} title={`${selectedClient?.name} - ${delivTypes.find(d=>d.id===delivType)?.label}`}/>
@@ -12052,7 +12121,7 @@ function AIStrategyReview() {
             </div>
           )}
           <RedBtn onClick={generate} disabled={loading||!selectedClient}>{loading?'Generating review...':'Generate Monthly Strategy Review'}</RedBtn>
-          {loading&&<Spin/>}
+          {loading&&<DocLoadingSpinner type='report'/>}
         </Card>
       )}
 
@@ -12181,7 +12250,7 @@ function OnboardingAutomation() {
             {existing && <button onClick={()=>setOut(existing.analysis)} style={{background:'#FFFFFF',color:'#374151',border:'none',borderRadius:8,padding:'10px 18px',fontSize:13,cursor:'pointer'}}>View Existing</button>}
           </div>
         )}
-        {loading && <Spin/>}
+        {loading && <DocLoadingSpinner type='onboard'/>}
       </Card>
       {out && <DocOutput text={out} title={`Onboarding Package: ${selectedClient?.name}`}/>}
     </div>
