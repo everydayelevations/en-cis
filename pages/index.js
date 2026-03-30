@@ -4366,7 +4366,8 @@ function Onboarding() {
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
           message: `Convert this strategy document into clean HTML. Rules: use only h2, h3, p, ul, ol, li, strong, em tags. NO inline styles. NO style attributes. NO color attributes. NO div tags with backgrounds. Plain semantic HTML only. Return ONLY the HTML body content, no html or body tags:\n\n${out}`,
-          system: 'You convert markdown to clean semantic HTML. No inline styles, no style attributes, no color attributes, no background colors, no div wrappers. Only use: h2, h3, p, ul, ol, li, strong, em. Return only inner HTML content.'
+          system: 'You convert markdown to clean semantic HTML. No inline styles, no style attributes, no color attributes, no background colors, no div wrappers. Only use: h2, h3, p, ul, ol, li, strong, em. Return only inner HTML content.',
+          model: 'fast',
         })
       });
       const d = await res.json();
@@ -7772,7 +7773,8 @@ function EmailSequenceBuilder() {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
           message: `Convert this email sequence into clean HTML. Each email should be in its own section with a clear header. Use proper formatting: subject lines bold, body text readable, preview text in italics. Return only the HTML body content:\n\n${out}`,
-          system: 'You convert email sequences into clean HTML. Return only inner HTML content.'
+          system: 'You convert email sequences into clean HTML. Return only inner HTML content.',
+          model: 'fast',
         })
       });
       const d = await res.json();
@@ -8959,7 +8961,8 @@ function ChallengeBuilder() {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
           message: `Convert this 30-day challenge plan into clean, well-formatted HTML. Use proper headings, tables for the daily schedule, and make it easy to read and print. Return only the HTML body content:\n\n${out}`,
-          system: 'Convert challenge plans to clean HTML. Return only inner HTML.'
+          system: 'Convert challenge plans to clean HTML. Return only inner HTML.',
+          model: 'fast',
         })
       });
       const d = await res.json();
