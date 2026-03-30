@@ -4365,12 +4365,18 @@ function Onboarding() {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
-          message: `Convert this strategy document into clean HTML that could be printed or saved as a document. Use proper headings (h1, h2, h3), bullet points, and bold text. Make it professional and readable. Return ONLY the HTML body content, no <html> or <body> tags:\n\n${out}`,
-          system: 'You convert markdown/text strategy documents into clean, well-formatted HTML. Return only the inner HTML content.'
+          message: `Convert this strategy document into clean HTML. Rules: use only h2, h3, p, ul, ol, li, strong, em tags. NO inline styles. NO style attributes. NO color attributes. NO div tags with backgrounds. Plain semantic HTML only. Return ONLY the HTML body content, no html or body tags:\n\n${out}`,
+          system: 'You convert markdown to clean semantic HTML. No inline styles, no style attributes, no color attributes, no background colors, no div wrappers. Only use: h2, h3, p, ul, ol, li, strong, em. Return only inner HTML content.'
         })
       });
       const d = await res.json();
-      const html = d.text || d.result || '';
+      let html = d.text || d.result || '';
+      // Strip any inline color/background styles the AI may have added — they cause white-on-white
+      html = html.replace(/\s*color\s*:\s*white\s*;?/gi, '');
+      html = html.replace(/\s*color\s*:\s*#fff[^;";]*/gi, '');
+      html = html.replace(/\s*color\s*:\s*#ffffff[^;";]*/gi, '');
+      html = html.replace(/\s*background(-color)?\s*:\s*#0[a-fA-F0-9]{5}[^;";]*/gi, '');
+      html = html.replace(/\s*background(-color)?\s*:\s*(?:black|#000[^;";]*)[^;"]*/gi, '');
       const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>8th Ascent 90-Day Strategy</title><style>*{color:#111827!important;background:transparent!important}body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;background:#ffffff!important;color:#111827!important;line-height:1.7}h1{color:#0A1628!important;border-bottom:3px solid #2563EB;padding-bottom:8px;margin-top:32px;font-size:24px}h2{color:#0A1628!important;margin-top:32px;font-size:18px;border-left:4px solid #2563EB;padding-left:12px}h3{color:#1D4ED8!important;font-size:15px;margin-top:20px}h4{color:#374151!important;font-size:14px;margin-top:16px}p{color:#111827!important;margin-bottom:10px}li{color:#111827!important;margin-bottom:6px}strong{color:#111827!important;font-weight:700}ul,ol{padding-left:24px}table{width:100%;border-collapse:collapse;margin:16px 0}td,th{border:1px solid #D1D5DB;padding:8px 12px;color:#111827!important;text-align:left}th{background:#F3F4F6!important;font-weight:700}@media print{body{margin:24px}}</style></head><body><h1>8th Ascent 90-Day Content Strategy</h1>${html}</body></html>`;
       const blob = new Blob([fullHtml], {type:'text/html'});
       const url = URL.createObjectURL(blob);
