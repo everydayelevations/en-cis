@@ -3752,9 +3752,9 @@ function AITwinVideo() {
         </div>
 
         <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 12, padding: '20px 24px' }}>
-          <div style={{ fontWeight: 700, color: '#92400E', marginBottom: 8 }}>HeyGen not connected for {activeClient?.name || 'this client'}</div>
+          <div style={{ fontWeight: 700, color: '#92400E', marginBottom: 8 }}>AI Twin Video not set up for {activeClient?.name || 'this client'}</div>
           <p style={{ color: '#78350F', fontSize: 13, lineHeight: 1.7, margin: '0 0 16px' }}>
-            Each client needs their own HeyGen account and Video Avatar. This keeps their credits separate from yours — you're never billed for their videos.
+            To use AI Twin Video, connect a HeyGen account and Video Avatar to this client profile.
           </p>
           <div style={{ background: '#FEF3C7', borderRadius: 8, padding: '14px 16px', marginBottom: 16 }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#92400E', marginBottom: 8 }}>Setup takes 3 steps:</div>
@@ -5965,6 +5965,12 @@ try {
   }
 } catch {}
 
+const DEFAULT_TREND_ALERTS = [
+  { id: 'default_1', angle: 'Mindset & Mental Toughness', account: 'Trending now', platform: 'Instagram', text: 'Discipline and consistency content is performing across all platforms this week. Run Trend Monitor to get real-time signals for your specific niches.', why: 'Evergreen high-performer — audiences respond to actionable discipline content year-round.', hooks: ['The one habit separating people who succeed from people who quit', 'Nobody talks about what discipline actually feels like on day 47', 'Stop waiting to feel motivated. Do this instead.'], seen: false, isDefault: true },
+  { id: 'default_2', angle: 'Veteran/Resilience', account: 'Trending now', platform: 'TikTok', text: 'Veteran transition and civilian life content is surging. Stories about applying military discipline to everyday goals are getting strong engagement.', why: 'Underserved audience with high loyalty and strong share rates.', hooks: ['What the military taught me that no productivity book ever could', 'Civilian life hit different than I expected. Here is what nobody tells you.', 'The veteran mindset that changes everything about how you handle hard days'], seen: false, isDefault: true },
+  { id: 'default_3', angle: 'Finance & Real Estate', account: 'Trending now', platform: 'YouTube', text: 'First-time homebuyer content and real estate myth-busting is trending. Practical breakdowns of the buying process outperform polished listings.', why: 'High search volume, strong saves, and purchase-intent audience.', hooks: ['Things your real estate agent will not tell you until you ask', 'The real cost of waiting another year to buy a house', 'How I help veterans buy homes with benefits most do not know they have'], seen: false, isDefault: true },
+];
+
 function useTrendAlerts() {
   const [alerts,  setAlerts]  = useState([]);
   const [loading, setLoading] = useState(false);
@@ -5977,6 +5983,7 @@ function useTrendAlerts() {
       const stored = localStorage.getItem(TREND_ALERTS_KEY);
       const date   = localStorage.getItem(TREND_ALERTS_DATE);
       if (stored) setAlerts(JSON.parse(stored));
+      else setAlerts(DEFAULT_TREND_ALERTS);
       if (date) {
         // Format ms timestamp → readable string
         const ts = /^\d+$/.test(date) ? parseInt(date) : null;
@@ -15411,7 +15418,7 @@ function IntelligenceDashboard({ setNav, setSub }) {
   const [clients] = useClients();
 
   // Live data (same as before)
-  const [trendAlerts, setTrendAlerts] = React.useState([]);
+  const [trendAlerts, setTrendAlerts] = React.useState(DEFAULT_TREND_ALERTS);
   const [pendingQueue, setPendingQueue] = React.useState(0);
   const [recentContent, setRecentContent] = React.useState([]);
   const [thisWeekContent, setThisWeekContent] = React.useState([]);
@@ -24871,7 +24878,7 @@ function usePreselectedTopic() {
 
 function DiscoverHub() {
   const [activeClient] = useActiveClient();
-  const [trendAlerts, setTrendAlerts] = React.useState([]);
+  const [trendAlerts, setTrendAlerts] = React.useState(DEFAULT_TREND_ALERTS);
   const [gaps, setGaps] = React.useState([]);
   const [winnerPatterns, setWinnerPatterns] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
@@ -24887,7 +24894,7 @@ function DiscoverHub() {
       const stored = localStorage.getItem('encis_trend_alerts');
       if (stored) {
         const alerts = JSON.parse(stored);
-        setTrendAlerts(Array.isArray(alerts) ? alerts.slice(0, 12) : []);
+        setTrendAlerts(Array.isArray(alerts) && alerts.length > 0 ? alerts.slice(0, 12) : DEFAULT_TREND_ALERTS);
       }
       // Load winner patterns
       const clientId = activeClient?.id || 'jason';
